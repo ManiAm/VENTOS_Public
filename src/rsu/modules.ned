@@ -70,8 +70,7 @@ simple ApplRSUMonitor extends ApplRSUBase
     parameters:
         @class(VENTOS::ApplRSUMonitor);   
         
-        bool activeDetection = default(false);  // if RSU should monitor the intersection activity?
-        bool collectVehApproach = default(false); // only if activeDetection = true
+        bool record_vehApproach_stat = default(false);  // if RSU should monitor the intersection activity?
 }
 
 

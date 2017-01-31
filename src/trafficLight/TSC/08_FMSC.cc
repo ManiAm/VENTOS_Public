@@ -161,7 +161,7 @@ void TrafficLight_FMSC::initialize_withTraCI()
     ASSERT(RSUptr);
 
     // turn on active detection on this RSU
-    RSUptr->par("activeDetection") = true;
+    RSUptr->par("record_vehApproach_stat") = true;
 
     // calculate phases at the beginning of the cycle
     calculatePhases("C");
@@ -327,8 +327,14 @@ void TrafficLight_FMSC::calculatePhases(std::string TLid)
                     // for each vehicle
                     for(auto& entry : vehicles)
                     {
+                        double stoppingDelayThreshold = 0;
+                        if(entry.second.vehType == "bicycle")
+                            stoppingDelayThreshold = par("bikeStoppingDelayThreshold").doubleValue();
+                        else
+                            stoppingDelayThreshold = par("vehStoppingDelayThreshold").doubleValue();
+
                         // we only care about waiting vehicles on this lane
-                        if(entry.second.vehStatus == VEH_STATUS_Waiting)
+                        if(entry.second.currentSpeed <= stoppingDelayThreshold)
                         {
                             vehCount++;
 

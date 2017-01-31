@@ -152,7 +152,7 @@ void TrafficLight_LQF_MWM_Aging::initialize_withTraCI()
     ASSERT(RSUptr);
 
     // turn on active detection on this RSU
-    RSUptr->par("activeDetection") = true;
+    RSUptr->par("record_vehApproach_stat") = true;
 
     // set initial values
     currentInterval = phase1_5;
@@ -291,8 +291,14 @@ void TrafficLight_LQF_MWM_Aging::chooseNextGreenInterval()
                     // for each vehicle
                     for(auto& entry : vehicles)
                     {
+                        double stoppingDelayThreshold = 0;
+                        if(entry.second.vehType == "bicycle")
+                            stoppingDelayThreshold = par("bikeStoppingDelayThreshold").doubleValue();
+                        else
+                            stoppingDelayThreshold = par("vehStoppingDelayThreshold").doubleValue();
+
                         // we only care about waiting vehicles on this lane
-                        if(entry.second.vehStatus == VEH_STATUS_Waiting)
+                        if(entry.second.currentSpeed <= stoppingDelayThreshold)
                         {
                             vehCount++;
 

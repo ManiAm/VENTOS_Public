@@ -71,11 +71,6 @@ enum CFMODES {
     Mode_Stopped
 };
 
-enum VehicleStatus {
-    VEH_STATUS_Driving = 0,
-    VEH_STATUS_Waiting,
-    VEH_STATUS_Parking,
-};
 
 enum CRLdistAlgorithm {
     CRL_RSU_Only,

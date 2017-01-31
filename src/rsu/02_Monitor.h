@@ -37,48 +37,14 @@
 
 namespace VENTOS {
 
-class detectedVehicleEntry
-{
-public:
-    std::string vehicleName;
-    std::string vehicleType;
-    std::string lane;
-    Coord pos;
-    std::string TLid;
-    double entryTime;
-    double leaveTime;
-    double entrySpeed;
-
-    detectedVehicleEntry(std::string str1, std::string str2="", std::string str3="", Coord xy=Coord(), std::string str4="", double entryT=-1, double leaveT=-1, double entryS=-1)
-    {
-        this->vehicleName = str1;
-        this->vehicleType = str2;
-        this->lane = str3;
-        this->pos = xy;
-        this->TLid = str4;
-        this->entryTime = entryT;
-        this->leaveTime = leaveT;
-        this->entrySpeed = entryS;
-    }
-
-    // overload == for search
-    friend bool operator== (const detectedVehicleEntry &v1, const detectedVehicleEntry &v2) {
-        return ( v1.vehicleName == v2.vehicleName );
-    }
-
-    // overload < for sort
-    friend bool operator < (const detectedVehicleEntry &v1, const detectedVehicleEntry &v2) {
-        return (v1.vehicleType < v2.vehicleType);
-    }
-};
-
-typedef struct allVehiclesEntry
+typedef struct vehicleEntry
 {
     std::string vehType;
-    int vehStatus;    // driving, waiting ?
     double entryTime;
     double entrySpeed;
-} allVehiclesEntry_t;
+    double currentSpeed;
+} vehicleEntry_t;
+
 
 typedef struct laneInfoEntry
 {
@@ -87,28 +53,49 @@ typedef struct laneInfoEntry
     double lastDetectedTime;
     double passageTime;
     int totalVehCount;
-    std::map<std::string /*vehicle id*/, allVehiclesEntry> allVehicles;
+    std::map<std::string /*vehicle id*/, vehicleEntry_t> allVehicles;
 } laneInfoEntry_t;
 
 
 class ApplRSUMonitor : public ApplRSUBase
 {
 public:
-    // collected info per lane by this RSU. Note that each RSU has
-    // a local copy of laneInfo that contains the lane info for this specific TL
-    std::map<std::string /*lane*/, laneInfoEntry_t> laneInfo;
+    // collected info per lane by this RSU (only in the current simulation time).
+    // Note that each RSU has a local copy of laneInfo
+    typedef std::map<std::string /*lane*/, laneInfoEntry_t> laneInfo_t;
+    laneInfo_t laneInfo;
 
 private:
     typedef ApplRSUBase super;
 
-    bool activeDetection;
-    bool collectVehApproach;
+    bool record_vehApproach_stat;
 
     // all incoming lanes for the intersection that this RSU belongs to
     std::map<std::string /*lane*/, std::string /*TLid*/> lanesTL;
 
-    // keeping track of detected vehicles --used by all RSUs
-    static std::vector<detectedVehicleEntry> Vec_detectedVehicles;
+    typedef struct vehApproachEntry
+    {
+        std::string TLid;
+        std::string vehicleName;
+        std::string vehicleType;
+        std::string entryLane;
+        Coord entryPos;
+        double entrySpeed;
+        double entryTime;
+        double leaveTime;
+    } vehApproachEntry_t;
+
+    // keeping track of all approaching vehicles
+    std::vector<vehApproachEntry_t> vehApproach;
+
+    typedef struct vehApproachPerLaneEntry
+    {
+        double time;
+        laneInfo_t laneInfo;
+    } vehApproachPerLaneEntry_t;
+
+    // keeping track of all approaching vehicles per lane
+    std::vector<vehApproachPerLaneEntry_t> vehApproachPerLane;
 
 public:
     ~ApplRSUMonitor();
@@ -128,10 +115,11 @@ private:
     template <typename T> void onBeaconAny(T wsm);
 
     void LaneInfoAdd(std::string lane, std::string sender, std::string senderType, double speed);
-    void LaneInfoUpdate(std::string lane, std::string sender, std::string senderType, double speed);
+    void LaneInfoUpdate(std::string lane, std::string sender, double speed);
     void LaneInfoRemove(std::string counter, std::string sender);
 
     void save_VehApproach_toFile();
+    void save_VehApproachPerLane_toFile();
 };
 
 }

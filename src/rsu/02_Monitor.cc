@@ -35,8 +35,6 @@
 
 namespace VENTOS {
 
-std::vector<detectedVehicleEntry> ApplRSUMonitor::Vec_detectedVehicles;
-
 Define_Module(VENTOS::ApplRSUMonitor);
 
 ApplRSUMonitor::~ApplRSUMonitor()
@@ -51,10 +49,11 @@ void ApplRSUMonitor::initialize(int stage)
 
     if (stage == 0)
     {
-        // note that TLs set 'activeDetection' after RSU creation
-        activeDetection = par("activeDetection").boolValue();
-        collectVehApproach = par("collectVehApproach").boolValue();
+        // note that TLs set 'record_vehApproach_stat' after RSU creation
+        // so it might be false at initialize!
+        record_vehApproach_stat = par("record_vehApproach_stat").boolValue();
 
+        // this RSU is associated with a TL
         if(myTLid != "")
         {
             // for each incoming lane in this TL
@@ -91,10 +90,6 @@ void ApplRSUMonitor::initialize(int stage)
                 laneInfo.insert( std::make_pair(lane, entry) );
             }
         }
-
-        // todo
-        // else if(!TLlist.empty())
-        //    LOG_WARNING << boost::format("\n%1%'s name (%2%) does not match with any of %3% TLs \n") % myFullId % SUMOID % TLlist.size() << std::flush;
     }
 }
 
@@ -103,13 +98,9 @@ void ApplRSUMonitor::finish()
 {
     super::finish();
 
-    // only one of the RSUs prints the results
-    static bool wasExecuted = false;
-    if (activeDetection && collectVehApproach && !wasExecuted)
-    {
-        save_VehApproach_toFile();
-        wasExecuted = true;
-    }
+    // each RSU prints its own version
+    save_VehApproach_toFile();
+    save_VehApproachPerLane_toFile();
 }
 
 
@@ -127,25 +118,19 @@ void ApplRSUMonitor::executeEachTimeStep()
 
 void ApplRSUMonitor::onBeaconVehicle(BeaconVehicle* wsm)
 {
-    activeDetection = par("activeDetection").boolValue();
-    if(activeDetection)
-        onBeaconAny(wsm);
+    onBeaconAny(wsm);
 }
 
 
 void ApplRSUMonitor::onBeaconBicycle(BeaconBicycle* wsm)
 {
-    activeDetection = par("activeDetection").boolValue();
-    if(activeDetection)
-        onBeaconAny(wsm);
+    onBeaconAny(wsm);
 }
 
 
 void ApplRSUMonitor::onBeaconPedestrian(BeaconPedestrian* wsm)
 {
-    activeDetection = par("activeDetection").boolValue();
-    if(activeDetection)
-        onBeaconAny(wsm);
+    onBeaconAny(wsm);
 }
 
 
@@ -158,11 +143,16 @@ void ApplRSUMonitor::onBeaconRSU(BeaconRSU* wsm)
 // update variables upon reception of any beacon (vehicle, bike, pedestrian)
 template <typename T> void ApplRSUMonitor::onBeaconAny(T wsm)
 {
+    // TSC sets 'record_vehApproach_stat' parameter after RSU creation
+    // thus we need to check it on every beacon reception
+    if(!par("record_vehApproach_stat").boolValue())
+        return;
+
     Coord pos = wsm->getPos();
 
     // todo: change from fix values
-    // Check if entity is in the detection region:
-    // Coordinates can be locations of the middle of the LD ( 851.1 <= x <= 948.8 and 851.1 <= y <= 948.8)
+    // check if entity is in the detection region:
+    // coordinates can be locations of the middle of the LD ( 851.1 <= x <= 948.8 and 851.1 <= y <= 948.8)
     if ( (pos.x >= 486.21) && (pos.x <= 1313.91) && (pos.y >= 486.21) && (pos.y <= 1313.85) )
     {
         std::string sender = wsm->getSender();
@@ -172,48 +162,60 @@ template <typename T> void ApplRSUMonitor::onBeaconAny(T wsm)
         if(lanesTL.find(lane) != lanesTL.end() && lanesTL[lane] == myTLid)
         {
             // search queue for this vehicle
-            const detectedVehicleEntry *searchFor = new detectedVehicleEntry(sender);
-            std::vector<detectedVehicleEntry>::iterator counter = std::find(Vec_detectedVehicles.begin(), Vec_detectedVehicles.end(), *searchFor);
+            auto counter = std::find_if(vehApproach.begin(), vehApproach.end(), [sender](vehApproachEntry_t const& n)
+                    {return n.vehicleName == sender;});
 
-            if(counter == Vec_detectedVehicles.end())
+            if(counter == vehApproach.end())
             {
                 // Add entry
-                detectedVehicleEntry *tmp = new detectedVehicleEntry(sender, wsm->getSenderType(), lane, wsm->getPos(), myTLid, omnetpp::simTime().dbl(), -1, wsm->getSpeed());
-                Vec_detectedVehicles.push_back(*tmp);
+                vehApproachEntry_t tmp = {};
+
+                tmp.TLid = myTLid;
+                tmp.vehicleName = sender;
+                tmp.vehicleType = wsm->getSenderType();
+                tmp.entryLane = lane;
+                tmp.entryPos = wsm->getPos();
+                tmp.entrySpeed = wsm->getSpeed();
+                tmp.entryTime = omnetpp::simTime().dbl();
+                tmp.leaveTime = -1;
+
+                vehApproach.push_back(tmp);
 
                 LaneInfoAdd(lane, sender, wsm->getSenderType(), wsm->getSpeed());
             }
-            // we have already added this vehicle
-            else if (counter != Vec_detectedVehicles.end() && counter->leaveTime == -1)
+            else
             {
-                LaneInfoUpdate(lane, sender, wsm->getSenderType(), wsm->getSpeed());
-            }
-            // the vehicle is visiting the intersection more than once
-            else if (counter != Vec_detectedVehicles.end() && counter->leaveTime != -1)
-            {
-                counter->entryTime = omnetpp::simTime().dbl();
-                counter->entrySpeed = wsm->getSpeed();
-                counter->pos = wsm->getPos();
-                counter->leaveTime = -1;
+                // the vehicle is still in the intersection
+                if (counter->leaveTime == -1)
+                    LaneInfoUpdate(lane, sender, wsm->getSpeed());
+                // the vehicle is visiting the intersection more than once
+                // discard the old visit and record the current one
+                else if (counter->leaveTime != -1)
+                {
+                    counter->entryLane = lane;
+                    counter->entryPos = wsm->getPos();
+                    counter->entrySpeed = wsm->getSpeed();
+                    counter->entryTime = omnetpp::simTime().dbl();
+                    counter->leaveTime = -1;
 
-                LaneInfoAdd(lane, sender, wsm->getSenderType(), wsm->getSpeed());
+                    LaneInfoAdd(lane, sender, wsm->getSenderType(), wsm->getSpeed());
+                }
             }
         }
         // vehicle is exiting the queue area --log the leave time
         else
         {
             // search queue for this vehicle
-            const detectedVehicleEntry *searchFor = new detectedVehicleEntry(sender);
-            std::vector<detectedVehicleEntry>::iterator counter = std::find(Vec_detectedVehicles.begin(), Vec_detectedVehicles.end(), *searchFor);
+            auto counter = std::find_if(vehApproach.begin(), vehApproach.end(), [sender](vehApproachEntry_t const& n)
+                    {return n.vehicleName == sender;});
 
-            if (counter == Vec_detectedVehicles.end())
+            if (counter == vehApproach.end())
                 throw omnetpp::cRuntimeError("vehicle %s does not exist in the queue!", sender.c_str());
 
             if(counter->leaveTime == -1)
             {
                 counter->leaveTime = omnetpp::simTime().dbl();
-
-                LaneInfoRemove(counter->lane, sender);
+                LaneInfoRemove(counter->entryLane, sender);
             }
         }
     }
@@ -224,7 +226,7 @@ template <typename T> void ApplRSUMonitor::onBeaconAny(T wsm)
 void ApplRSUMonitor::LaneInfoAdd(std::string lane, std::string sender, std::string senderType, double speed)
 {
     // look for this lane in laneInfo map
-    std::map<std::string, laneInfoEntry>::iterator loc = laneInfo.find(lane);
+    auto loc = laneInfo.find(lane);
     if(loc == laneInfo.end())
         throw omnetpp::cRuntimeError("lane %s does not exist in laneInfo map!", lane.c_str());
 
@@ -238,67 +240,53 @@ void ApplRSUMonitor::LaneInfoAdd(std::string lane, std::string sender, std::stri
     // update detectedTime
     loc->second.lastDetectedTime = omnetpp::simTime().dbl();
 
-    // get stopping speed threshold
-    double stoppingDelayThreshold = 0;
-    if(senderType == "bicycle")
-        stoppingDelayThreshold = TLptr->par("bikeStoppingDelayThreshold").doubleValue();
-    else
-        stoppingDelayThreshold = TLptr->par("vehStoppingDelayThreshold").doubleValue();
-
-    // get vehicle status
-    int vehStatus = speed > stoppingDelayThreshold ? VEH_STATUS_Driving : VEH_STATUS_Waiting;
-
     // add it to vehicle list on this lane
-    allVehiclesEntry_t newVeh = {};
-    newVeh.entrySpeed = speed;
-    newVeh.entryTime = omnetpp::simTime().dbl();
-    newVeh.vehStatus = vehStatus;
+    vehicleEntry_t newVeh = {};
+
     newVeh.vehType = senderType;
+    newVeh.entryTime = omnetpp::simTime().dbl();
+    newVeh.entrySpeed = speed;
+    newVeh.currentSpeed = speed;
+
     loc->second.allVehicles.insert( std::make_pair(sender, newVeh) );
 
-    // get the approach speed from the beacon
-    double approachSpeed = speed;
     // update passage time for this lane
-    if(approachSpeed > 0)
+    if(speed > 0)
     {
         // calculate passageTime for this lane
         // todo: change fix value
-        double pass = 35. / approachSpeed;
+        double pass = 35. / speed;
         // check if not greater than Gmin
         if(pass > minGreenTime)
             pass = minGreenTime;
 
         // update passage time
-        std::map<std::string, laneInfoEntry>::iterator location = laneInfo.find(lane);
+        auto location = laneInfo.find(lane);
         location->second.passageTime = pass;
     }
+
+    vehApproachPerLaneEntry_t tmp = {};
+    tmp.time = omnetpp::simTime().dbl();
+    tmp.laneInfo = laneInfo;
+
+    vehApproachPerLane.push_back(tmp);
 }
 
 
-// update vehStatus of vehicles in laneInfo
-void ApplRSUMonitor::LaneInfoUpdate(std::string lane, std::string sender, std::string senderType, double speed)
+// update currentSpeed of vehicles in laneInfo
+void ApplRSUMonitor::LaneInfoUpdate(std::string lane, std::string sender, double speed)
 {
     // look for this lane in laneInfo map
-    std::map<std::string, laneInfoEntry>::iterator loc = laneInfo.find(lane);
+    auto loc = laneInfo.find(lane);
     if(loc == laneInfo.end())
         throw omnetpp::cRuntimeError("lane %s does not exist in laneInfo map!", lane.c_str());
 
     // look for this vehicle in this lane
-    std::map<std::string, allVehiclesEntry>::iterator ref = loc->second.allVehicles.find(sender);
+    auto ref = loc->second.allVehicles.find(sender);
     if(ref == loc->second.allVehicles.end())
         throw omnetpp::cRuntimeError("vehicle %s was not added into lane %s in laneInfo map!", sender.c_str(), lane.c_str());
 
-    // get stopping speed threshold
-    double stoppingDelayThreshold = 0;
-    if(senderType == "bicycle")
-        stoppingDelayThreshold = TLptr->par("bikeStoppingDelayThreshold").doubleValue();
-    else
-        stoppingDelayThreshold = TLptr->par("vehStoppingDelayThreshold").doubleValue();
-
-    // get vehicle status
-    int vehStatus = speed > stoppingDelayThreshold ? VEH_STATUS_Driving : VEH_STATUS_Waiting;
-
-    ref->second.vehStatus = vehStatus;
+    ref->second.currentSpeed = speed;
 }
 
 
@@ -306,26 +294,35 @@ void ApplRSUMonitor::LaneInfoUpdate(std::string lane, std::string sender, std::s
 void ApplRSUMonitor::LaneInfoRemove(std::string lane, std::string sender)
 {
     // look for this lane in laneInfo map
-    std::map<std::string, laneInfoEntry>::iterator loc = laneInfo.find(lane);
+    auto loc = laneInfo.find(lane);
     if(loc == laneInfo.end())
         throw omnetpp::cRuntimeError("lane %s does not exist in laneInfo map!", lane.c_str());
 
     // look for this vehicle in this lane
-    std::map<std::string, allVehiclesEntry>::iterator ref = loc->second.allVehicles.find(sender);
+    auto ref = loc->second.allVehicles.find(sender);
     if(ref == loc->second.allVehicles.end())
         throw omnetpp::cRuntimeError("vehicle %s was not added into lane %s in laneInfo map!", sender.c_str(), lane.c_str());
 
     // remove it from the vehicles list
     loc->second.allVehicles.erase(ref);
+
+    vehApproachPerLaneEntry_t tmp = {};
+    tmp.time = omnetpp::simTime().dbl();
+    tmp.laneInfo = laneInfo;
+
+    vehApproachPerLane.push_back(tmp);
 }
 
 
 void ApplRSUMonitor::save_VehApproach_toFile()
 {
+    if(vehApproach.empty())
+        return;
+
     int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
 
     std::ostringstream fileName;
-    fileName << boost::format("%03d_vehApproach.txt") % currentRun;
+    fileName << boost::format("%03d_vehApproach_%s.txt") % currentRun % myFullId;
 
     boost::filesystem::path filePath ("results");
     filePath /= fileName.str();
@@ -371,28 +368,129 @@ void ApplRSUMonitor::save_VehApproach_toFile()
     }
 
     // write header
-    fprintf (filePtr, "%-20s","vehicleName");
+    fprintf (filePtr, "%-25s","vehicleName");
     fprintf (filePtr, "%-20s","vehicleType");
-    fprintf (filePtr, "%-15s","lane");
-    fprintf (filePtr, "%-15s","posX");
-    fprintf (filePtr, "%-15s","posY");
-    fprintf (filePtr, "%-15s","TLid");
-    fprintf (filePtr, "%-15s","entryTime");
+    fprintf (filePtr, "%-10s","TLid");
+    fprintf (filePtr, "%-15s","entryLane");
+    fprintf (filePtr, "%-15s","entryPosX");
+    fprintf (filePtr, "%-15s","entryPosY");
     fprintf (filePtr, "%-15s","entrySpeed");
+    fprintf (filePtr, "%-15s","entryTime");
     fprintf (filePtr, "%-15s\n\n","leaveTime");
 
     // write body
-    for(auto y : Vec_detectedVehicles)
+    for(auto &y : vehApproach)
     {
-        fprintf (filePtr, "%-20s", y.vehicleName.c_str());
+        fprintf (filePtr, "%-25s", y.vehicleName.c_str());
         fprintf (filePtr, "%-20s", y.vehicleType.c_str());
-        fprintf (filePtr, "%-13s", y.lane.c_str());
-        fprintf (filePtr, "%-15.2f", y.pos.x);
-        fprintf (filePtr, "%-15.2f", y.pos.y);
-        fprintf (filePtr, "%-15s", y.TLid.c_str());
-        fprintf (filePtr, "%-15.2f", y.entryTime);
+        fprintf (filePtr, "%-10s", y.TLid.c_str());
+        fprintf (filePtr, "%-15s", y.entryLane.c_str());
+        fprintf (filePtr, "%-15.2f", y.entryPos.x);
+        fprintf (filePtr, "%-15.2f", y.entryPos.y);
         fprintf (filePtr, "%-15.2f", y.entrySpeed);
+        fprintf (filePtr, "%-15.2f", y.entryTime);
         fprintf (filePtr, "%-15.2f\n", y.leaveTime);
+    }
+
+    fclose(filePtr);
+}
+
+
+void ApplRSUMonitor::save_VehApproachPerLane_toFile()
+{
+    if(vehApproachPerLane.empty())
+        return;
+
+    int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
+
+    std::ostringstream fileName;
+    fileName << boost::format("%03d_vehApproachPerLane_%s.txt") % currentRun % myFullId;
+
+    boost::filesystem::path filePath ("results");
+    filePath /= fileName.str();
+
+    FILE *filePtr = fopen (filePath.c_str(), "w");
+    if (!filePtr)
+        throw omnetpp::cRuntimeError("Cannot create file '%s'", filePath.c_str());
+
+    // write simulation parameters at the beginning of the file
+    {
+        // get the current config name
+        std::string configName = omnetpp::getEnvir()->getConfigEx()->getVariable("configname");
+
+        std::string iniFile = omnetpp::getEnvir()->getConfigEx()->getVariable("inifile");
+
+        // PID of the simulation process
+        std::string processid = omnetpp::getEnvir()->getConfigEx()->getVariable("processid");
+
+        // globally unique identifier for the run, produced by
+        // concatenating the configuration name, run number, date/time, etc.
+        std::string runID = omnetpp::getEnvir()->getConfigEx()->getVariable("runid");
+
+        // get number of total runs in this config
+        int totalRun = omnetpp::getEnvir()->getConfigEx()->getNumRunsInConfig(configName.c_str());
+
+        // get the current run number
+        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
+
+        // get all iteration variables
+        std::vector<std::string> iterVar = omnetpp::getEnvir()->getConfigEx()->unrollConfig(configName.c_str(), false);
+
+        // write to file
+        fprintf (filePtr, "configName      %s\n", configName.c_str());
+        fprintf (filePtr, "iniFile         %s\n", iniFile.c_str());
+        fprintf (filePtr, "processID       %s\n", processid.c_str());
+        fprintf (filePtr, "runID           %s\n", runID.c_str());
+        fprintf (filePtr, "totalRun        %d\n", totalRun);
+        fprintf (filePtr, "currentRun      %d\n", currentRun);
+        fprintf (filePtr, "currentConfig   %s\n", iterVar[currentRun].c_str());
+        fprintf (filePtr, "startDateTime   %s\n", TraCI->simulationGetStartTime().c_str());
+        fprintf (filePtr, "endDateTime     %s\n", TraCI->simulationGetEndTime().c_str());
+        fprintf (filePtr, "duration        %s\n\n\n", TraCI->simulationGetDuration().c_str());
+    }
+
+    // write header
+    fprintf (filePtr, "%-15s","simTime");
+    fprintf (filePtr, "%-12s","entryLane");
+    fprintf (filePtr, "%-10s","TLid");
+    fprintf (filePtr, "%-20s","firstDetectedTime");
+    fprintf (filePtr, "%-20s","lastDetectedTime");
+    fprintf (filePtr, "%-15s","passageTime");
+    fprintf (filePtr, "%-20s","totalVehicleCount");
+    fprintf (filePtr, "%-1s \n\n","vehicles");
+
+    double oldTime = -2;
+
+    // write body
+    for(auto &y : vehApproachPerLane)
+    {
+        // iterate over incoming lanes
+        for(auto &v : y.laneInfo)
+        {
+            auto vehs = v.second.allVehicles;
+
+            if(vehs.empty())
+                continue;
+
+            if(oldTime != y.time)
+            {
+                fprintf(filePtr, "\n");
+                oldTime = y.time;
+            }
+
+            fprintf (filePtr, "%-15.4f", y.time);
+            fprintf (filePtr, "%-12s", v.first.c_str());
+            fprintf (filePtr, "%-10s", v.second.TLid.c_str());
+            fprintf (filePtr, "%-20.4f", v.second.firstDetectedTime);
+            fprintf (filePtr, "%-20.4f", v.second.lastDetectedTime);
+            fprintf (filePtr, "%-15.2f", v.second.passageTime);
+            fprintf (filePtr, "%-20d", v.second.totalVehCount);
+
+            for(auto &entry : vehs)
+                fprintf (filePtr, "%-1s, ", entry.first.c_str());
+
+            fprintf (filePtr, "\n");
+        }
     }
 
     fclose(filePtr);
