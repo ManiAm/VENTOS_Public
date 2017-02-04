@@ -184,10 +184,9 @@ void ApplVBeacon::handlePositionUpdate(cObject* obj)
 
 bool ApplVBeacon::isBeaconFromLeading(BeaconVehicle* wsm)
 {
-    std::vector<std::string> vleaderIDnew = TraCI->vehicleGetLeader(SUMOID, sonarDist);
-    std::string vleaderID = vleaderIDnew[0];
+    auto leader = TraCI->vehicleGetLeader(SUMOID, sonarDist);
 
-    if( vleaderID == std::string(wsm->getSender()) )
+    if( leader.leaderID == std::string(wsm->getSender()) )
         return true;
     else
         return false;

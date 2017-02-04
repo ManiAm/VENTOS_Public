@@ -27,17 +27,16 @@
 #ifndef TRAFFICLIGHTFIXED_H
 #define TRAFFICLIGHTFIXED_H
 
-#include "trafficLight/07_AllowedMoves.h"
+#include "00_TLStateRecord.h"
 
 namespace VENTOS {
 
-class TrafficLightFixed : public TrafficLightAllowedMoves
+class TrafficLightFixed : public TLStateRecord
 {
-protected:
-    std::map<std::string /*TLid*/, std::string /*first green interval*/> firstGreen;
-
 private:
-    typedef TrafficLightAllowedMoves super;
+    typedef TLStateRecord super;
+
+    std::map<std::string /*TLid*/, std::string /*first green interval*/> firstGreen;
 
 public:
     virtual ~TrafficLightFixed();

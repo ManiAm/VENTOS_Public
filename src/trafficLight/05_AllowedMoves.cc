@@ -25,8 +25,7 @@
 //
 
 #include <boost/graph/adjacency_list.hpp>
-
-#include "trafficLight/07_AllowedMoves.h"
+#include "trafficLight/05_AllowedMoves.h"
 
 namespace VENTOS {
 
@@ -77,7 +76,7 @@ void TrafficLightAllowedMoves::executeEachTimeStep()
 void TrafficLightAllowedMoves::getMovements(std::string TLid)
 {
     // Get all links for this TL
-    std::map<int,std::vector<std::string>> allLinks = TraCI->TLGetControlledLinks(TLid);
+    auto allLinks = TraCI->TLGetControlledLinks(TLid);
 
     LINKSIZE = allLinks.size();
 
@@ -349,9 +348,7 @@ void TrafficLightAllowedMoves::generateAllAllowedMovements()
     for(int col = 0; col < LINKSIZE; ++col, num_to_fill >>= 1U)
     {
         for(unsigned row = num_to_fill; row < (1U << LINKSIZE); row += (num_to_fill * 2))
-        {
             std::fill_n(&truthTable[col][row], num_to_fill, 1);
-        }
     }
 
     std::vector<int> temp;
@@ -403,11 +400,9 @@ void TrafficLightAllowedMoves::generateAllAllowedMovements()
                 }
             }
 
+            // store this row as a non-conflicting movement
             if(coversRightTurns)
-            {
-                // store this row as a non-conflicting movement
                 allMovements.push_back(temp);
-            }
         }
     }
 

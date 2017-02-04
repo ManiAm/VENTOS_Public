@@ -36,6 +36,10 @@ class TrafficLightOJF : public TrafficLightLQF_NoStarv
 private:
     typedef TrafficLightLQF_NoStarv super;
 
+    std::map<std::string /*TLid*/, std::string /*first green interval*/> firstGreen;
+
+    std::map<std::pair<std::string /*TLid*/, int /*link*/>, std::string /*lane*/> linkToLane;
+
     std::string phase1_5 = "grgrGgrgrrgrgrGgrgrrrrrr";
     double nextGreenTime;
 

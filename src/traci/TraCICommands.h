@@ -71,7 +71,24 @@ typedef struct TL_info
     uint32_t TLS_link_index;
     double TLS_distance;
     uint8_t linkState;
-}TL_info_t;
+} TL_info_t;
+
+
+typedef struct vehLD
+{
+    std::string vehID;
+    double vehLength;
+    double entryTime;
+    double leaveTime;
+    std::string vehType;
+} vehLD_t;
+
+
+typedef struct leader
+{
+    std::string leaderID;
+    double distance2Leader;
+} leader_t;
 
 
 class TraCI_Commands : public omnetpp::cSimpleModule
@@ -173,7 +190,7 @@ public:
     double vehicleGetMaxDecel(std::string);
     double vehicleGetTimeGap(std::string);
     std::string vehicleGetClass(std::string);
-    std::vector<std::string> vehicleGetLeader(std::string, double);
+    leader_t vehicleGetLeader(std::string, double);
     std::vector<TL_info_t> vehicleGetNextTLS(std::string);
     double vehicleGetCurrentAccel(std::string);     // new command [returns the current acceleration of the vehicle]
     int vehicleGetCarFollowingMode(std::string);    // new command [returns the current ACC/CACC car following mode]
@@ -286,7 +303,7 @@ public:
     std::vector<std::string> LDGetLastStepVehicleIDs(std::string);
     double LDGetLastStepMeanVehicleSpeed(std::string);
     double LDGetElapsedTimeLastDetection(std::string);
-    std::vector<std::string> LDGetLastStepVehicleData(std::string);
+    std::vector<vehLD_t> LDGetLastStepVehicleData(std::string);
     double LDGetLastStepOccupancy(std::string);
 
     // ################################################################

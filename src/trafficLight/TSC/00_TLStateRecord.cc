@@ -27,7 +27,7 @@
 
 #include <iomanip>
 
-#include "trafficLight/05_TLStateRecord.h"
+#include "00_TLStateRecord.h"
 
 namespace VENTOS {
 
@@ -59,13 +59,8 @@ void TLStateRecord::initialize(int stage)
             throw omnetpp::cRuntimeError("yellowTime value is wrong!");
         if(redTime <= 0)
             throw omnetpp::cRuntimeError("redTime value is wrong!");
-        if( maxCycleLength < (minGreenTime + yellowTime + redTime) )
+        if(maxCycleLength < (minGreenTime + yellowTime + redTime))
             throw omnetpp::cRuntimeError("maxCycleLength value is wrong!");
-
-        collectTLPhasingData = par("collectTLPhasingData").boolValue();
-
-        phaseTL.clear();
-        statusTL.clear();
     }
 }
 
@@ -74,8 +69,7 @@ void TLStateRecord::finish()
 {
     super::finish();
 
-    if(collectTLPhasingData)
-        saveTLPhasingData();
+    saveTLPhasingData();
 }
 
 
@@ -88,14 +82,12 @@ void TLStateRecord::handleMessage(omnetpp::cMessage *msg)
 void TLStateRecord::initialize_withTraCI()
 {
     super::initialize_withTraCI();
-
 }
 
 
 void TLStateRecord::executeEachTimeStep()
 {
     super::executeEachTimeStep();
-
 }
 
 
@@ -106,70 +98,75 @@ void TLStateRecord::updateTLstate(std::string TLid, std::string stage, std::stri
         // initialize phase number in this TL
         phaseTL[TLid] = 1;
 
-        // Initialize status in this TL
-        currentStatusTL *entry = new currentStatusTL(1 /*cycle number*/, currentInterval, -1, omnetpp::simTime().dbl(), -1, -1, -1, laneListTL[TLid].first, -1);
-        statusTL.insert( std::make_pair(std::make_pair(TLid,1), *entry) );
+        // initialize status in this TL
+        currentStatusTL_t entry = {};
+
+        entry.cycle = 1;
+        entry.allowedMovements = currentInterval;
+        entry.greenLength = -1;
+        entry.greenStart = omnetpp::simTime().dbl();
+        entry.yellowStart = -1;
+        entry.redStart = -1;
+        entry.phaseEnd = -1;
+
+        statusTL.insert( std::make_pair(std::make_pair(TLid,1), entry) );
     }
     else
     {
-        // get a reference to this TL
-        auto location = statusTL.find( std::make_pair(TLid,phaseTL[TLid]) );
-        if(location == statusTL.end())
-            throw omnetpp::cRuntimeError("This TLid is not found!");
+        auto it = phaseTL.find(TLid);
+        if(it == phaseTL.end())
+            throw omnetpp::cRuntimeError("Cannot find the current phase in TL '%s'", TLid.c_str());
+
+        // get the current phase
+        int currentPhase = it->second;
+
+        auto it2 = statusTL.find(std::make_pair(TLid,currentPhase));
+        if(it2 == statusTL.end())
+            throw omnetpp::cRuntimeError("Cannot find status for TL '%s' at phase '%d'", TLid.c_str(), currentPhase);
+
+        currentStatusTL_t &status = it2->second;
 
         if(stage == "yellow")
         {
-            (location->second).yellowStart = omnetpp::simTime().dbl();
-            (location->second).greenLength = (location->second).yellowStart - (location->second).greenStart;
+            status.yellowStart = omnetpp::simTime().dbl();
+            status.greenLength = status.yellowStart - status.greenStart;
 
             // get green duration
-            double green_duration = (location->second).yellowStart - (location->second).greenStart;
+            double green_duration = status.yellowStart - status.greenStart;
 
-            //            // todo: make sure green interval is above G_min
-            //            if(green_duration - minGreenTime < 0)
-            //                throw omnetpp::cRuntimeError("green interval is less than minGreenTime = %0.3f", minGreenTime);
+            // todo: make sure green interval is above G_min
+            // if(green_duration - minGreenTime < 0)
+            //     throw omnetpp::cRuntimeError("green interval is less than minGreenTime = %0.3f", minGreenTime);
             //
-            //            // make sure green interval is below G_max
-            //            if(green_duration - maxGreenTime > 0)
-            //                throw omnetpp::cRuntimeError("green interval is greater than maxGreenTime = %0.3f", maxGreenTime);
+            // make sure green interval is below G_max
+            // if(green_duration - maxGreenTime > 0)
+            //     throw omnetpp::cRuntimeError("green interval is greater than maxGreenTime = %0.3f", maxGreenTime);
         }
         else if(stage == "red")
         {
-            (location->second).redStart = omnetpp::simTime().dbl();
+            status.redStart = omnetpp::simTime().dbl();
 
             // get yellow duration
-            double yellow_duration = (location->second).redStart - (location->second).yellowStart;
+            double yellow_duration = status.redStart - status.yellowStart;
 
             // todo:
-            //            if( fabs(yellow_duration - yellowTime) < 0.0001 )
-            //                throw omnetpp::cRuntimeError("yellow interval is not %0.3f", yellowTime);
+            // if( fabs(yellow_duration - yellowTime) < 0.0001 )
+            //     throw omnetpp::cRuntimeError("yellow interval is not %0.3f", yellowTime);
         }
         else if(stage == "phaseEnd")
         {
             // update TL status for this phase
-            (location->second).phaseEnd = omnetpp::simTime().dbl();
+            status.phaseEnd = omnetpp::simTime().dbl();
 
             // get red duration
-            double red_duration = (location->second).phaseEnd - (location->second).redStart;
+            double red_duration = status.phaseEnd - status.redStart;
 
             // todo:
-            //            if(red_duration - redTime != 0)
-            //                throw omnetpp::cRuntimeError("red interval is not %0.3f", redTime);
-
-            // get all incoming lanes for this TLid
-            auto lan = laneListTL[TLid].second;
-
-            // for each incoming lane
-            int totalQueueSize = 0;
-            for(auto &it2 : lan)
-            {
-                totalQueueSize = totalQueueSize + laneQueueSize[it2].second;
-            }
-
-            (location->second).totalQueueSize = totalQueueSize;
+            // if(red_duration - redTime != 0)
+            //     throw omnetpp::cRuntimeError("red interval is not %0.3f", redTime);
 
             // get the current cycle number
-            int cycleNumber = (location->second).cycle;
+            int cycleNumber = status.cycle;
 
             // on a new cycle
             if(cycleStart)
@@ -188,11 +185,37 @@ void TLStateRecord::updateTLstate(std::string TLid, std::string stage, std::stri
             location2->second = location2->second + 1;
 
             // update status for the new phase
-            currentStatusTL *entry = new currentStatusTL(cycleNumber, currentInterval, -1, omnetpp::simTime().dbl(), -1, -1, -1, lan.size(), -1);
-            statusTL.insert( std::make_pair(std::make_pair(TLid,location2->second), *entry) );
+            currentStatusTL_t entry = {};
+
+            entry.cycle = cycleNumber;
+            entry.allowedMovements = currentInterval;
+            entry.greenLength = -1;
+            entry.greenStart = omnetpp::simTime().dbl();
+            entry.yellowStart = -1;
+            entry.redStart = -1;
+            entry.phaseEnd = -1;
+
+            statusTL.insert( std::make_pair(std::make_pair(TLid,location2->second), entry) );
         }
         else throw omnetpp::cRuntimeError("stage is not recognized!");
     }
+}
+
+
+const TLStateRecord::currentStatusTL_t TLStateRecord::TLGetStatus(std::string TLid)
+{
+    auto it = phaseTL.find(TLid);
+    if(it == phaseTL.end())
+        throw omnetpp::cRuntimeError("Cannot find the current phase in TL '%s'", TLid.c_str());
+
+    // get the current phase
+    int currentPhase = it->second;
+
+    auto it2 = statusTL.find(std::make_pair(TLid,currentPhase));
+    if(it2 == statusTL.end())
+        throw omnetpp::cRuntimeError("Cannot find status for TL '%s' at phase '%d'", TLid.c_str(), currentPhase);
+
+    return it2->second;
 }
 
 
@@ -258,12 +281,10 @@ void TLStateRecord::saveTLPhasingData()
     fprintf (filePtr, "%-15s", "greenStart");
     fprintf (filePtr, "%-15s", "yellowStart");
     fprintf (filePtr, "%-15s", "redStart");
-    fprintf (filePtr, "%-15s", "phaseEnd");
-    fprintf (filePtr, "%-15s", "#lanes");
-    fprintf (filePtr, "%-15s\n\n", "totalqueueSize");
+    fprintf (filePtr, "%-15s \n\n", "phaseEnd");
 
     // write body
-    for(auto & y : statusTL)
+    for(auto &y : statusTL)
     {
         currentStatusTL status = y.second;
 
@@ -275,9 +296,7 @@ void TLStateRecord::saveTLPhasingData()
         fprintf (filePtr, "%-15.2f", status.greenStart);
         fprintf (filePtr, "%-15.2f", status.yellowStart);
         fprintf (filePtr, "%-15.2f", status.redStart);
-        fprintf (filePtr, "%-15.2f", status.phaseEnd);
-        fprintf (filePtr, "%-15d", status.incommingLanes);
-        fprintf (filePtr, "%-15d\n", status.totalQueueSize);
+        fprintf (filePtr, "%-15.2f \n", status.phaseEnd);
     }
 
     fclose(filePtr);

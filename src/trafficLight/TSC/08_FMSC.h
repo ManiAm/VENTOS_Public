@@ -55,9 +55,14 @@ class TrafficLight_FMSC : public TrafficLight_LQF_MWM_Aging
 {
 private:
     typedef TrafficLight_LQF_MWM_Aging super;
+
     ApplRSUMonitor *RSUptr;
     std::vector<greenInterval_FMSC> greenInterval;
     bool nextGreenIsNewCycle;
+
+    std::map<std::string /*TLid*/, std::string /*first green interval*/> firstGreen;
+
+    std::map<std::pair<std::string /*TLid*/, int /*link*/>, std::string /*lane*/> linkToLane;
 
 public:
     virtual ~TrafficLight_FMSC();

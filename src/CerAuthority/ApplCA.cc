@@ -113,11 +113,6 @@ void ApplCA::finish()
     // unsubscribe from Magic_Req
     omnetpp::getSimulation()->getSystemModule()->unsubscribe("Magic_Req", this);
 
-    if(Timer1->isScheduled())
-        cancelAndDelete(Timer1);
-    else
-        delete(Timer1);
-
     for(unsigned int i = 0; i < PiecesCRL.size(); i++)
         delete PiecesCRL[i];
 }

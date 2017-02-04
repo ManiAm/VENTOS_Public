@@ -28,58 +28,51 @@
 #ifndef LOOPDETECTORS_H
 #define LOOPDETECTORS_H
 
-#include "trafficLight/01_Base.h"
+#include <unordered_map>
+
+#include "MIXIM/modules/BaseApplLayer.h"
+#include "traci/TraCICommands.h"
 
 namespace VENTOS {
 
-class LoopDetectorData
-{
-public:
-    std::string detectorName;
-    std::string lane;
-    std::string vehicleName;
-    double entryTime;
-    double leaveTime;
-    double entrySpeed;
-    double leaveSpeed;
-
-    LoopDetectorData( std::string str1, std::string str2, std::string str3, double entryT=-1, double leaveT=-1, double entryS=-1, double leaveS=-1 )
-    {
-        this->detectorName = str1;
-        this->lane = str2;
-        this->vehicleName = str3;
-        this->entryTime = entryT;
-        this->leaveTime = leaveT;
-        this->entrySpeed = entryS;
-        this->leaveSpeed = leaveS;
-    }
-
-    friend bool operator== (const LoopDetectorData &v1, const LoopDetectorData &v2) {
-        return ( v1.detectorName == v2.detectorName && v1.vehicleName == v2.vehicleName );
-    }
-};
-
-
-class LoopDetectors : public TrafficLightBase
+class LoopDetectors : public BaseApplLayer
 {
 private:
-    typedef TrafficLightBase super;
+    TraCI_Commands *TraCI;
+    bool record_stat;
 
-    bool collectInductionLoopData;
-    std::vector<std::string> AllLDs;
-    std::vector<LoopDetectorData> Vec_loopDetectors;
+    omnetpp::simsignal_t Signal_initialize_withTraCI;
+    omnetpp::simsignal_t Signal_executeEachTS;
+
+    // loop detector ids with their lanes
+    std::unordered_map<std::string /*id*/, std::string /*lane*/> LDs;
+
+    typedef struct LoopDetectorData
+    {
+        std::string detectorName;
+        std::string lane;
+        std::string vehicleName;
+        double entryTime;
+        double leaveTime;
+        double entrySpeed;
+        double leaveSpeed;
+    } LoopDetectorData_t;
+
+    std::vector<LoopDetectorData_t> Vec_loopDetectors;
 
 public:
     virtual ~LoopDetectors();
     virtual void initialize(int);
     virtual void finish();
     virtual void handleMessage(omnetpp::cMessage *);
+    virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, long, cObject* details);
 
 protected:
     void virtual initialize_withTraCI();
     void virtual executeEachTimeStep();
 
 private:
+    void checkLoopDetectors();
     void collectLDsData();
     void saveLDsData();
 };

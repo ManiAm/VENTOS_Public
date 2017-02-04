@@ -73,6 +73,7 @@ void TrafficLightFixed::initialize_withTraCI()
 
     LOG_INFO << "\nFixed-time traffic signal control ... \n" << std::flush;
 
+    auto TLList = TraCI->TLGetIDList();
     for (auto &TL : TLList)
     {
         TraCI->TLSetProgram(TL, "fix-time1");
@@ -95,14 +96,12 @@ void TrafficLightFixed::executeEachTimeStep()
     if (TLControlMode != TL_Fix_Time)
         return;
 
-    // updating TL status
+    // get current interval (SUMO calls it phase!) -- interval starts at index 0
     int intervalNumber = TraCI->TLGetPhase("C");
-
-    auto location = statusTL.find( std::make_pair("C",phaseTL["C"]) );
-    currentStatusTL stat = location->second;
+    currentStatusTL_t status = TLGetStatus("C");
 
     // current phase is ended. Green interval starts
-    if(intervalNumber % 3 == 0 && stat.redStart != -1)
+    if(intervalNumber % 3 == 0 && status.redStart != -1)
     {
         std::string currentInterval = TraCI->TLGetState("C"); // get the new green interval
 
@@ -112,12 +111,12 @@ void TrafficLightFixed::executeEachTimeStep()
             updateTLstate("C", "phaseEnd", currentInterval);
     }
     // yellow interval starts
-    else if(intervalNumber % 3 == 1 && stat.yellowStart == -1)
+    else if(intervalNumber % 3 == 1 && status.yellowStart == -1)
     {
         updateTLstate("C", "yellow");
     }
     // red interval starts
-    else if(intervalNumber % 3 == 2 && stat.redStart == -1)
+    else if(intervalNumber % 3 == 2 && status.redStart == -1)
     {
         updateTLstate("C", "red");
     }

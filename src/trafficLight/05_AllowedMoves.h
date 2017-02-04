@@ -30,7 +30,7 @@
 #undef ev
 #include "boost/filesystem.hpp"
 
-#include "trafficLight/06_IntersectionDelay.h"
+#include "trafficLight/04_IntersectionDelay.h"
 
 namespace VENTOS {
 

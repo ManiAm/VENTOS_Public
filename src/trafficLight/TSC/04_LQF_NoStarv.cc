@@ -104,6 +104,9 @@ TrafficLightLQF_NoStarv::~TrafficLightLQF_NoStarv()
 
 void TrafficLightLQF_NoStarv::initialize(int stage)
 {
+    if(TLControlMode == TL_LQF)
+        par("record_intersectionQueue_stat") = true;
+
     super::initialize(stage);
 
     if(TLControlMode != TL_LQF)
@@ -118,9 +121,6 @@ void TrafficLightLQF_NoStarv::initialize(int stage)
 
         nextGreenIsNewCycle = false;
         intervalChangeEVT = new omnetpp::cMessage("intervalChangeEVT", 1);
-
-        // collect queue information
-        measureIntersectionQueue = true;
     }
 }
 
@@ -175,13 +175,27 @@ void TrafficLightLQF_NoStarv::initialize_withTraCI()
 
     scheduleAt(omnetpp::simTime().dbl() + intervalDuration, intervalChangeEVT);
 
-    for (auto &TL :TLList)
+    auto TLList = TraCI->TLGetIDList();
+    for (auto &TL : TLList)
     {
         TraCI->TLSetProgram(TL, "adaptive-time");
         TraCI->TLSetState(TL, currentInterval);
 
         // initialize TL status
         updateTLstate(TL, "init", currentInterval);
+
+        // get all links controlled by this TL
+        auto result = TraCI->TLGetControlledLinks(TL);
+
+        // for each link in this TLid
+        for(auto &it : result)
+        {
+            int linkNumber = it.first;
+            std::vector<std::string> link = it.second;
+            std::string incommingLane = link[0];
+
+            link2Lane.insert( std::make_pair(std::make_pair(TL,linkNumber), incommingLane) );
+        }
     }
 
     LOG_DEBUG << boost::format("\n    SimTime: %1% | Planned interval: %2% | Start time: %1% | End time: %3% \n")
@@ -297,18 +311,19 @@ void TrafficLightLQF_NoStarv::calculatePhases(std::string TLid)
 {
     LOG_DEBUG << "\n>>> New cycle calculation ... \n" << std::flush;
 
-    if(LOG_ACTIVE(DEBUG_LOG_VAL))
-    {
-        LOG_DEBUG << "\n    Queue size per lane: ";
-        for(auto& entry : laneQueueSize)
-        {
-            std::string lane = entry.first;
-            int qSize = entry.second.second;
-            if(qSize != 0)
-                LOG_DEBUG << lane << " (" << qSize << ") | ";
-        }
-        LOG_DEBUG << "\n";
-    }
+    // todo: fix this
+//    if(LOG_ACTIVE(DEBUG_LOG_VAL))
+//    {
+//        LOG_DEBUG << "\n    Queue size per lane: ";
+//        for(auto& entry : queueSize_perLane)
+//        {
+//            std::string lane = entry.first;
+//            int qSize = entry.second.queueSize;
+//            if(qSize != 0)
+//                LOG_DEBUG << lane << " (" << qSize << ") | ";
+//        }
+//        LOG_DEBUG << "\n";
+//    }
 
     // batch of all non-conflicting movements, sorted by total queue size per batch
     std::priority_queue< sortedEntry_LQF /*type of each element*/, std::vector<sortedEntry_LQF> /*container*/, sortCompare_LQF > sortedMovements;
@@ -332,10 +347,11 @@ void TrafficLightLQF_NoStarv::calculatePhases(std::string TLid)
 
             if(allMovements[i][j] == 1 && !rightTurn)
             {
-                int queueSize = linkQueueSize[std::make_pair(TLid,j)];
+                std::string lane = link2Lane[std::make_pair(TLid,j)];
+                auto queueSize = laneGetQueueSize(lane).queueSize;
                 int queueSizeBounded = (maxQueueSize == -1) ? queueSize : std::min(maxQueueSize,queueSize);
 
-                totalQueueRow = totalQueueRow + queueSizeBounded;
+                totalQueueRow += queueSizeBounded;
                 oneCount++;
                 maxVehCount = std::max(maxVehCount, queueSizeBounded);
             }

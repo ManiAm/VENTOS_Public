@@ -23,33 +23,52 @@ simple TL_Base
 }
 
 
-simple TL_LoopDetectors extends TL_Base
+simple TL_IntersectionQueue extends TL_Base
 {
     parameters:
-        @class(VENTOS::LoopDetectors);
-        @display("i=block/network2");
-        
-        bool collectInductionLoopData = default(false); 
-}
-
-
-simple TL_MeasureTrafficParams extends TL_LoopDetectors
-{
-    parameters:
-        @class(VENTOS::MeasureTrafficParams);
+        @class(VENTOS::IntersectionQueue);
         @display("i=block/network2"); 
         
-        bool measureIntersectionQueue = default(false);
-        bool measureTrafficDemand = default(false);  
-        int measureTrafficDemandMode = default(2); // =1: measure headway time  =2: measure total # of vehicles in a period (more accurate)
-        int trafficDemandBuffSize = default(10);  // buffer size for storing traffic demands
+        bool record_intersectionQueue_stat = default(false);
         
-        bool collectTLQueuingData = default(false);
-        bool collectTLPhasingData = default(false); 
+        double speedThreshold_veh  = default(5.0);  // m/s: vehicle with speed less than this value is considered stopped
+        double speedThreshold_bike = default(0.4);  // m/s: bike with speed less than this value is considered stopped
 }
 
 
-simple TL_TLStateRecord extends TL_MeasureTrafficParams
+simple TL_IntersectionDemand extends TL_IntersectionQueue
+{
+    parameters:
+        @class(VENTOS::IntersectionDemand);
+        @display("i=block/network2"); 
+        
+        bool record_trafficDemand_stat = default(false);  
+        int trafficDemandMode = default(2);        // =1: measure headway time  =2: measure total # of vehicles in a period (more accurate)
+        int trafficDemandBuffSize = default(10);   // buffer size for storing traffic demands 
+}
+
+
+simple IntersectionDelay extends TL_IntersectionDemand
+{
+    parameters:
+        @class(VENTOS::IntersectionDelay);
+        @display("i=block/network2");  
+        
+        bool record_intersectionDelay_stat = default(false);    
+        
+        double deccelDelayThreshold = default(-1);  // m/s^2: vehicle/bike with decel less than this value is considered delayed 
+}
+
+
+simple TL_AllowedMoves extends IntersectionDelay
+{
+    parameters:
+        @class(VENTOS::TrafficLightAllowedMoves);
+        @display("i=block/network2");        
+}
+
+
+simple TL_TLStateRecord extends TL_AllowedMoves
 {
     parameters:
         @class(VENTOS::TLStateRecord);
@@ -63,30 +82,7 @@ simple TL_TLStateRecord extends TL_MeasureTrafficParams
 }
 
 
-simple IntersectionDelay extends TL_TLStateRecord
-{
-    parameters:
-        @class(VENTOS::IntersectionDelay);
-        @display("i=block/network2");  
-        
-        bool collectVehDelay = default(false);    
-        
-        double deccelDelayThreshold = default(-1);  // m/s^2: vehicle/bike with decel less than this value is considered delayed
-        double vehStoppingDelayThreshold = default(5.0);  // m/s: vehicle with speed less than this value is considered stopped
-        double bikeStoppingDelayThreshold = default(0.4); // m/s: bike with speed less than this value is considered stopped 
-        int lastValueBuffSize = default(10); // how much further we need to look at speed/accel data to mark the delay start
-}
-
-
-simple TL_AllowedMoves extends IntersectionDelay
-{
-    parameters:
-        @class(VENTOS::TrafficLightAllowedMoves);
-        @display("i=block/network2");        
-}
-
-
-simple TL_Fixed extends TL_AllowedMoves
+simple TL_Fixed extends TL_TLStateRecord
 {
     parameters:
         @class(VENTOS::TrafficLightFixed);
@@ -124,7 +120,7 @@ simple TL_LQF extends TL_Actuated
         @class(VENTOS::TrafficLightLQF_NoStarv);
         @display("i=block/network2");  
         
-        int maxQueueSize = default(-1);  // max queue has the accurate queue size information            
+        int maxQueueSize = default(-1); // max queue has the accurate queue size information            
 }
 
 

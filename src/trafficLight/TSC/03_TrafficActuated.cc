@@ -98,6 +98,7 @@ void TrafficLightActuated::initialize_withTraCI()
 
     scheduleAt(omnetpp::simTime().dbl() + intervalDuration, intervalChangeEVT);
 
+    auto TLList = TraCI->TLGetIDList();
     for (auto &TL : TLList)
     {
         TraCI->TLSetProgram(TL, "adaptive-time");

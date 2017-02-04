@@ -46,10 +46,10 @@ namespace VENTOS {
 
 Define_Module(VENTOS::TraCI_Start);
 
-TraCI_Start::TraCI_Start() : world(0),
-        cc(0),
-        connectAndStartTrigger(0),
-        executeOneTimestepTrigger(0) { }
+TraCI_Start::TraCI_Start()
+{
+
+}
 
 
 void TraCI_Start::initialize(int stage)
@@ -61,43 +61,16 @@ void TraCI_Start::initialize(int stage)
         active = par("active").boolValue();
         debug = par("debug");
         terminate = par("terminate").doubleValue();
-        updateInterval = par("updateInterval");
 
         // no need to bring up SUMO
         if(!active)
         {
+            updateInterval = 1;
             executeOneTimestepTrigger = new omnetpp::cMessage("step");
             scheduleAt(updateInterval, executeOneTimestepTrigger);
         }
         else
         {
-            connectAt = par("connectAt");
-            ASSERT(connectAt.dbl() >= 0);
-
-            connectAndStartTrigger = new omnetpp::cMessage("connect");
-            scheduleAt(connectAt, connectAndStartTrigger);
-
-            firstStepAt = par("firstStepAt");
-            if (firstStepAt == -1)
-                firstStepAt = connectAt + updateInterval;
-            ASSERT(firstStepAt > connectAt);
-
-            executeOneTimestepTrigger = new omnetpp::cMessage("step");
-            scheduleAt(firstStepAt, executeOneTimestepTrigger);
-
-            autoShutdown = par("autoShutdown");
-
-            penetrationRate = par("penetrationRate").doubleValue();
-
-            activeVehicleCount = 0;
-            parkingVehicleCount = 0;
-            drivingVehicleCount = 0;
-
-            nextNodeVectorIndex = 0;
-            hosts.clear();
-            subscribedVehicles.clear();
-            subscribedPedestrians.clear();
-
             cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("world");
             world = static_cast<BaseWorldUtility*>(module);
             ASSERT(world);
@@ -110,8 +83,40 @@ void TraCI_Start::initialize(int stage)
             addNode_module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("addNode");
             ASSERT(addNode_module);
 
+            autoShutdown = par("autoShutdown");
+            penetrationRate = par("penetrationRate").doubleValue();
             equilibrium_vehicle = par("equilibrium_vehicle").boolValue();
-            departedVehicles.clear();
+
+            if(simStartDateTime == "")
+            {
+                // current date/time based on current system
+                // is show the number of sec since January 1,1970
+                time_t now = time(0);
+
+                tm *ltm = localtime(&now);
+
+                std::ostringstream dateTime;
+                dateTime << boost::format("%4d%02d%02d-%02d:%02d:%02d") %
+                        (1900 + ltm->tm_year) %
+                        (1 + ltm->tm_mon) %
+                        (ltm->tm_mday) %
+                        (ltm->tm_hour) %
+                        (ltm->tm_min) %
+                        (ltm->tm_sec);
+
+                simStartDateTime = dateTime.str();
+                simStartTime = std::chrono::high_resolution_clock::now();
+            }
+
+            init_traci();
+
+            updateInterval = (double)simulationGetTimeStep() / 1000.;
+
+            if(updateInterval <= 0)
+                throw omnetpp::cRuntimeError("step-length value should be >0");
+
+            executeOneTimestepTrigger = new omnetpp::cMessage("step");
+            scheduleAt(updateInterval, executeOneTimestepTrigger);
         }
     }
 }
@@ -134,7 +139,6 @@ void TraCI_Start::finish()
     while (hosts.begin() != hosts.end())
         deleteManagedModule(hosts.begin()->first);
 
-    cancelAndDelete(connectAndStartTrigger);
     cancelAndDelete(executeOneTimestepTrigger);
 
     delete connection;
@@ -143,35 +147,26 @@ void TraCI_Start::finish()
 
 void TraCI_Start::handleMessage(omnetpp::cMessage *msg)
 {
-    if (msg == connectAndStartTrigger)
-    {
-        if(simStartDateTime == "")
-        {
-            // current date/time based on current system
-            // is show the number of sec since January 1,1970
-            time_t now = time(0);
-
-            tm *ltm = localtime(&now);
-
-            std::ostringstream dateTime;
-            dateTime << boost::format("%4d%02d%02d-%02d:%02d:%02d") %
-                    (1900 + ltm->tm_year) %
-                    (1 + ltm->tm_mon) %
-                    (ltm->tm_mday) %
-                    (ltm->tm_hour) %
-                    (ltm->tm_min) %
-                    (ltm->tm_sec);
-
-            simStartDateTime = dateTime.str();
-            simStartTime = std::chrono::high_resolution_clock::now();
-        }
-
-        init_traci();
-    }
-    else if (msg == executeOneTimestepTrigger)
+    if (msg == executeOneTimestepTrigger)
     {
         if (active)
-            executeOneTimestep();
+        {
+            // get current simulation time (in ms)
+            uint32_t targetTime = static_cast<uint32_t>(round(omnetpp::simTime().dbl() * 1000));
+            ASSERT(targetTime > 0);
+
+            // proceed SUMO simulation to advance to targetTime
+            auto output = simulationTimeStep(targetTime);
+
+            for (uint32_t i = 0; i < output.second /*# of subscription results*/; ++i)
+                processSubcriptionResult(output.first);
+
+            // todo: should get pedestrians using subscription
+            allPedestrians.clear();
+            allPedestrians = personGetIDList();
+            if(!allPedestrians.empty())
+                addPedestrian();
+        }
 
         // notify other modules to run one simulation TS
         omnetpp::simsignal_t Signal_executeEachTS = registerSignal("executeEachTS");
@@ -401,33 +396,6 @@ void TraCI_Start::drawRoi()
 }
 
 
-uint32_t TraCI_Start::getCurrentTimeMs()
-{
-    return static_cast<uint32_t>(round(omnetpp::simTime().dbl() * 1000));
-}
-
-
-void TraCI_Start::executeOneTimestep()
-{
-    uint32_t targetTime = getCurrentTimeMs();
-
-    if (targetTime > round(connectAt.dbl() * 1000))
-    {
-        // proceed SUMO simulation to advance to targetTime
-        std::pair<TraCIBuffer, uint32_t> output = simulationTimeStep(targetTime);
-
-        for (uint32_t i = 0; i < output.second /*# of subscription results*/; ++i)
-            processSubcriptionResult(output.first);
-
-        // todo: should get pedestrians using subscription
-        allPedestrians.clear();
-        allPedestrians = personGetIDList();
-        if(!allPedestrians.empty())
-            addPedestrian();
-    }
-}
-
-
 void TraCI_Start::processSubcriptionResult(TraCIBuffer& buf)
 {
     uint8_t cmdLength_resp; buf >> cmdLength_resp;
@@ -467,7 +435,7 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
             uint8_t varType; buf >> varType;
             ASSERT(varType == TYPE_INTEGER);
             uint32_t serverTimestep; buf >> serverTimestep; // serverTimestep: current timestep reported by server in ms
-            uint32_t omnetTimestep = getCurrentTimeMs();
+            uint32_t omnetTimestep = static_cast<uint32_t>(round(omnetpp::simTime().dbl() * 1000));
             ASSERT(omnetTimestep == serverTimestep);
         }
         else if (variable1_resp == VAR_DEPARTED_VEHICLES_IDS)
@@ -1334,20 +1302,18 @@ void TraCI_Start::record_Veh_data(std::string vID)
             entry.timeGapSetting = vehicleGetTimeGap(vID);
         else if(record == "spacegap")
         {
-            std::vector<std::string> vleaderIDnew = vehicleGetLeader(vID, 900);
-            std::string vleaderID = vleaderIDnew[0];
-            entry.spaceGap = (vleaderID != "") ? atof(vleaderIDnew[1].c_str()) : -1;
+            auto leader = vehicleGetLeader(vID, 900);
+            entry.spaceGap = (leader.leaderID != "") ? leader.distance2Leader : -1;
         }
         else if(record == "timegap")
         {
             double speed = (entry.speed != -1) ? entry.speed : vehicleGetSpeed(vID);
 
-            std::vector<std::string> vleaderIDnew = vehicleGetLeader(vID, 900);
-            std::string vleaderID = vleaderIDnew[0];
-            double spaceGap = (vleaderID != "") ? atof(vleaderIDnew[1].c_str()) : -1;
+            auto leader = vehicleGetLeader(vID, 900);
+            double spaceGap = (leader.leaderID != "") ? leader.distance2Leader : -1;
 
             // calculate timeGap (if leading is present)
-            if(vleaderID != "" && speed != 0)
+            if(leader.leaderID != "" && speed != 0)
                 entry.timeGap = spaceGap / speed;
             else
                 entry.timeGap = -1;

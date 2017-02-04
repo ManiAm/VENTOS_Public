@@ -28,39 +28,11 @@
 #ifndef TLSTATERECORD_H
 #define TLSTATERECORD_H
 
-#include "trafficLight/04_MeasureTrafficParams.h"
+#include "trafficLight/05_AllowedMoves.h"
 
 namespace VENTOS {
 
-class currentStatusTL
-{
-public:
-    int cycle;
-    std::string allowedMovements;
-    double greenLength;
-    double greenStart;
-    double yellowStart;
-    double redStart;
-    double phaseEnd;
-    int incommingLanes;
-    int totalQueueSize;
-
-    currentStatusTL(int i0, std::string str1, double d0, double d1, double d2, double d3, double d4, int i1, int i2)
-    {
-        this->cycle = i0;
-        this->allowedMovements = str1;
-        this->greenLength = d0;
-        this->greenStart = d1;
-        this->yellowStart = d2;
-        this->redStart = d3;
-        this->phaseEnd = d4;
-        this->incommingLanes = i1;
-        this->totalQueueSize = i2;
-    }
-};
-
-
-class TLStateRecord : public MeasureTrafficParams
+class TLStateRecord : public TrafficLightAllowedMoves
 {
 protected:
     // NED variables
@@ -70,14 +42,25 @@ protected:
     double redTime;
     double maxCycleLength;
 
-    // current phase in each TL
-    std::unordered_map<std::string /*TLid*/, int /*phase number*/> phaseTL;
-    // current status of each TL in each phase
-    std::map<std::pair<std::string /*TLid*/, int /*phase number*/>, currentStatusTL> statusTL;
+    typedef struct currentStatusTL
+    {
+        int cycle;
+        std::string allowedMovements;
+        double greenLength;
+        double greenStart;
+        double yellowStart;
+        double redStart;
+        double phaseEnd;
+    } currentStatusTL_t;
 
 private:
-    typedef MeasureTrafficParams super;
-    bool collectTLPhasingData;
+    typedef TrafficLightAllowedMoves super;
+
+    // current phase in each TL
+    std::unordered_map<std::string /*TLid*/, int /*phase number*/> phaseTL;
+
+    // current status of each TL in each phase
+    std::map<std::pair<std::string /*TLid*/, int /*phase number*/>, currentStatusTL_t> statusTL;
 
 public:
     virtual ~TLStateRecord();
@@ -90,6 +73,7 @@ protected:
     void virtual executeEachTimeStep();
 
     void updateTLstate(std::string, std::string, std::string = "", bool = false);
+    const currentStatusTL_t TLGetStatus(std::string TLid);
 
 private:
     void saveTLPhasingData();

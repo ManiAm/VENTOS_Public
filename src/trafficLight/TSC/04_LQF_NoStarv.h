@@ -51,9 +51,12 @@ class TrafficLightLQF_NoStarv : public TrafficLightActuated
 {
 private:
     typedef TrafficLightActuated super;
+
     int maxQueueSize;
     bool nextGreenIsNewCycle;
     std::vector<greenInterval_LQF> greenInterval;
+
+    std::map<std::pair<std::string /*TLid*/, int /*link number*/>, std::string /*lane*/> link2Lane;
 
 public:
     virtual ~TrafficLightLQF_NoStarv();

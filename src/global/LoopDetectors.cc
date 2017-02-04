@@ -26,8 +26,11 @@
 //
 
 #include <iomanip>
+#undef ev
+#include "boost/filesystem.hpp"
 
-#include "trafficLight/02_LoopDetectors.h"
+#include "global/LoopDetectors.h"
+#include "logging/vlog.h"
 
 namespace VENTOS {
 
@@ -42,84 +45,132 @@ LoopDetectors::~LoopDetectors()
 
 void LoopDetectors::initialize(int stage)
 {
-    super::initialize(stage);
-
     if(stage == 0)
     {
-        collectInductionLoopData = par("collectInductionLoopData").boolValue();
+        record_stat = par("record_stat").boolValue();
 
-        Vec_loopDetectors.clear();
+        // get a pointer to the TraCI module
+        cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
+        TraCI = static_cast<TraCI_Commands *>(module);
+        ASSERT(TraCI);
+
+        Signal_initialize_withTraCI = registerSignal("initialize_withTraCI");
+        omnetpp::getSimulation()->getSystemModule()->subscribe("initialize_withTraCI", this);
+
+        Signal_executeEachTS = registerSignal("executeEachTS");
+        omnetpp::getSimulation()->getSystemModule()->subscribe("executeEachTS", this);
     }
 }
 
 
 void LoopDetectors::finish()
 {
-    super::finish();
+    saveLDsData();
 
-    if(collectInductionLoopData)
-        saveLDsData();
+    // unsubscribe
+    omnetpp::getSimulation()->getSystemModule()->unsubscribe("initialize_withTraCI", this);
+    omnetpp::getSimulation()->getSystemModule()->unsubscribe("executeEachTS", this);
 }
 
 
 void LoopDetectors::handleMessage(omnetpp::cMessage *msg)
 {
-    super::handleMessage(msg);
+
+}
+
+
+void LoopDetectors::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t signalID, long i, cObject* details)
+{
+    Enter_Method_Silent();
+
+    if(signalID == Signal_initialize_withTraCI)
+    {
+        initialize_withTraCI();
+    }
+    else if(signalID == Signal_executeEachTS)
+    {
+        executeEachTimeStep();
+    }
 }
 
 
 void LoopDetectors::initialize_withTraCI()
 {
-    super::initialize_withTraCI();
-
-    if(collectInductionLoopData)
-        AllLDs = TraCI->LDGetIDList();   // get all loop detectors
+    if(record_stat)
+        checkLoopDetectors();
 }
 
 
 void LoopDetectors::executeEachTimeStep()
 {
-    super::executeEachTimeStep();
+    if(record_stat)
+        collectLDsData();
+}
 
-    if(collectInductionLoopData)
-        collectLDsData();    // collecting induction loop data in each timeStep
+
+void LoopDetectors::checkLoopDetectors()
+{
+    // get all loop detectors
+    auto str = TraCI->LDGetIDList();
+
+    if(str.empty())
+        LOG_INFO << ">>> WARNING: no loop detectors found in the network. \n" << std::flush;
+
+    // for each loop detector
+    for (auto &it : str)
+    {
+        std::string lane = TraCI->LDGetLaneID(it);
+        LDs[it] = lane;
+    }
+
+    if(str.size() > 0)
+        LOG_INFO << boost::format(">>> %1% loop detectors are present in the network. \n") % str.size() << std::flush;
 }
 
 
 void LoopDetectors::collectLDsData()
 {
     // for each loop detector
-    for (auto &it : AllLDs)
+    for (auto &entry : LDs)
     {
-        std::vector<std::string>  st = TraCI->LDGetLastStepVehicleData(it);
+        std::string detectorName = entry.first;
+        std::string detectorLane = entry.second;
 
-        // only if this loop detector detected a vehicle
-        if( st.size() > 0 )
+        auto st = TraCI->LDGetLastStepVehicleData(detectorName);
+
+        // proceed only if this loop detector detected a vehicle
+        if(st.size() == 0)
+            continue;
+
+        // get vehicle information
+        std::string vehicleName = st[0].vehID;
+        double entryT = st[0].entryTime;
+        double leaveT = st[0].leaveTime;
+        double speed = TraCI->LDGetLastStepMeanVehicleSpeed(detectorName);  // vehicle speed at current moment
+
+        auto counter = std::find_if(Vec_loopDetectors.begin(), Vec_loopDetectors.end(), [detectorName, vehicleName](LoopDetectorData_t const& n)
+                {return (n.detectorName == detectorName && n.vehicleName == vehicleName);});
+
+        // its a new entry, so we add detectorName
+        if(counter == Vec_loopDetectors.end())
         {
-            // laneID of loop detector
-            std::string lane = TraCI->LDGetLaneID(it);
+            LoopDetectorData_t tmp = {};
 
-            // get vehicle information
-            std::string vehicleName = st.at(0);
-            double entryT = atof( st.at(2).c_str() );
-            double leaveT = atof( st.at(3).c_str() );
-            double speed = TraCI->LDGetLastStepMeanVehicleSpeed(it);  // vehicle speed at current moment
+            tmp.detectorName = detectorName;
+            tmp.lane = detectorLane;
+            tmp.vehicleName = vehicleName;
+            tmp.entryTime = entryT;
+            tmp.entrySpeed = speed;
+            tmp.leaveTime = leaveT;
+            tmp.leaveSpeed = speed;
 
-            const LoopDetectorData *searchFor = new LoopDetectorData( it.c_str(), "", vehicleName.c_str() );
-            auto counter = std::find(Vec_loopDetectors.begin(), Vec_loopDetectors.end(), *searchFor);
-
-            // its a new entry, so we add it
-            if(counter == Vec_loopDetectors.end())
-            {
-                LoopDetectorData *tmp = new LoopDetectorData( it.c_str(), lane.c_str(), vehicleName.c_str(), entryT, leaveT, speed, speed );
-                Vec_loopDetectors.push_back(*tmp);
-            }
-            // if found, just update leaveTime and leaveSpeed
-            else
-            {
-                counter->leaveTime = leaveT;
-                counter->leaveSpeed = speed;
-            }
+            Vec_loopDetectors.push_back(tmp);
+        }
+        // if found, just update leaveTime and leaveSpeed
+        else
+        {
+            counter->leaveTime = leaveT;
+            counter->leaveSpeed = speed;
         }
     }
 }
@@ -179,24 +230,24 @@ void LoopDetectors::saveLDsData()
     }
 
     // write header
-    fprintf (filePtr, "%-30s","loopDetector");
-    fprintf (filePtr, "%-20s","lane");
-    fprintf (filePtr, "%-20s","vehicleName");
-    fprintf (filePtr, "%-20s","vehicleEntryTime");
-    fprintf (filePtr, "%-20s","vehicleLeaveTime");
-    fprintf (filePtr, "%-22s","vehicleEntrySpeed");
-    fprintf (filePtr, "%-22s\n\n","vehicleLeaveSpeed");
+    fprintf (filePtr, "%-20s","loopDetector");
+    fprintf (filePtr, "%-15s","lane");
+    fprintf (filePtr, "%-22s","vehicleName");
+    fprintf (filePtr, "%-20s","entryTime");
+    fprintf (filePtr, "%-22s","entrySpeed");
+    fprintf (filePtr, "%-20s","leaveTime");
+    fprintf (filePtr, "%-22s\n\n","leaveSpeed");
 
     // write body
-    for(auto& y : Vec_loopDetectors)
+    for(auto &y : Vec_loopDetectors)
     {
-        fprintf (filePtr, "%-30s", y.detectorName.c_str());
-        fprintf (filePtr, "%-20s", y.lane.c_str());
-        fprintf (filePtr, "%-20s", y.vehicleName.c_str());
+        fprintf (filePtr, "%-20s", y.detectorName.c_str());
+        fprintf (filePtr, "%-15s", y.lane.c_str());
+        fprintf (filePtr, "%-22s", y.vehicleName.c_str());
         fprintf (filePtr, "%-20.2f", y.entryTime);
+        fprintf (filePtr, "%-22.2f", y.entrySpeed);
         fprintf (filePtr, "%-20.2f", y.leaveTime);
-        fprintf (filePtr, "%-20.2f", y.entrySpeed);
-        fprintf (filePtr, "%-20.2f\n", y.leaveSpeed);
+        fprintf (filePtr, "%-22.2f\n", y.leaveSpeed);
     }
 
     fclose(filePtr);

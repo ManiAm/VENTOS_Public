@@ -18,3 +18,12 @@ simple Statistics
     parameters:
         @class(VENTOS::Statistics);
 }
+
+
+simple InductionLoop
+{
+    parameters:
+        @class(VENTOS::LoopDetectors);
+        
+        bool record_stat = default(false); 
+}

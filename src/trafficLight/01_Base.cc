@@ -49,8 +49,12 @@ void TrafficLightBase::initialize(int stage)
         TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
 
-        updateInterval = TraCI->par("updateInterval").doubleValue();
         TLControlMode = par("TLControlMode").longValue();
+
+        // check if the TLControlMode number is valid?
+        if(TLControlMode < 0 || TLControlMode > 9)
+            throw omnetpp::cRuntimeError("Invalid TLControlMode!");
+
         debugLevel = omnetpp::getSimulation()->getSystemModule()->par("debugLevel").longValue();
     }
 }
@@ -70,8 +74,7 @@ void TrafficLightBase::handleMessage(omnetpp::cMessage *msg)
 
 void TrafficLightBase::initialize_withTraCI()
 {
-
-
+    updateInterval = (double)TraCI->simulationGetTimeStep() / 1000.;
 }
 
 

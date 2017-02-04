@@ -509,19 +509,14 @@ void ApplVPlatoonMg::entry_handleSelfMsg(omnetpp::cMessage* msg)
             busy = false;
 
             // get my leading vehicle
-            std::vector<std::string> vleaderIDnew = TraCI->vehicleGetLeader(SUMOID, sonarDist);
-            std::string vleaderID = vleaderIDnew[0];
+            auto leader = TraCI->vehicleGetLeader(SUMOID, sonarDist);
 
             // if no leading, set speed to 5 m/s
-            if(vleaderID == "")
-            {
+            if(leader.leaderID == "")
                 TraCI->vehicleSetSpeed(SUMOID, 5.);
-            }
             // if I have leading, set speed to max
             else
-            {
                 TraCI->vehicleSetSpeed(SUMOID, 30.);
-            }
 
             // change color to red!
             RGB newColor = Color::colorNameToRGB("red");
@@ -904,11 +899,9 @@ void ApplVPlatoonMg::RemoveFollowerFromList_Merge(std::string followerID)
 bool ApplVPlatoonMg::CatchUpDone()
 {
     // we use our sonar to check the gap
-    std::vector<std::string> vleaderIDnew = TraCI->vehicleGetLeader(SUMOID, sonarDist);
-    std::string vleaderID = vleaderIDnew[0];
-    double gap = atof( vleaderIDnew[1].c_str() );
+    auto leader = TraCI->vehicleGetLeader(SUMOID, sonarDist);
 
-    if(vleaderID == "")
+    if(leader.leaderID == "")
         return true;
 
     // get the timeGap setting
@@ -922,7 +915,7 @@ bool ApplVPlatoonMg::CatchUpDone()
 
     double targetGap = (speed * timeGapSetting) + minGap;
 
-    if( (0.95 * gap) <= targetGap )
+    if( (0.95 * leader.distance2Leader) <= targetGap )
         return true;
     else
         return false;
@@ -1290,23 +1283,15 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
             if(wsm->getDblValue() == 0)
             {
                 // then check if there is any leading vehicle after my leader
-                std::vector<std::string> vleaderIDnew = TraCI->vehicleGetLeader(oldPlnID, sonarDist);
-                std::string vleaderID = vleaderIDnew[0];
+                auto leader = TraCI->vehicleGetLeader(oldPlnID, sonarDist);
 
-                if(vleaderID == "")
-                {
+                if(leader.leaderID == "")
                     TraCI->vehicleSetSpeed(SUMOID, 20.);
-                }
-                // if yes
                 else
-                {
                     TraCI->vehicleSetSpeed(SUMOID, 30.); // set max speed
-                }
             }
             else
-            {
                 TraCI->vehicleSetSpeed(SUMOID, 30.); // set max speed
-            }
 
             vehicleState = state_waitForGap;
             reportStateToStat();
@@ -1345,11 +1330,9 @@ void ApplVPlatoonMg::RemoveFollowerFromList_Split(std::string followerID)
 bool ApplVPlatoonMg::GapCreated()
 {
     // we use our sonar to check the gap
-    std::vector<std::string> vleaderIDnew = TraCI->vehicleGetLeader(SUMOID, sonarDist);
-    std::string vleaderID = vleaderIDnew[0];
-    double gap = atof( vleaderIDnew[1].c_str() );
+    auto leader = TraCI->vehicleGetLeader(SUMOID, sonarDist);
 
-    if(vleaderID == "")
+    if(leader.leaderID == "")
         return true;
 
     // get the timeGap setting
@@ -1366,7 +1349,7 @@ bool ApplVPlatoonMg::GapCreated()
     //cout << simTime().dbl() << ": " << SUMOID << ", speed = " << speed << ", targetGap = " << targetGap << ", gap = " << gap << endl;
     //if( gap >= targetGap ) cout << " BOOOM! " << endl;
 
-    if( gap >= targetGap )
+    if( leader.distance2Leader >= targetGap )
         return true;
     else
         return false;

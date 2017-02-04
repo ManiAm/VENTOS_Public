@@ -118,6 +118,25 @@ void TrafficLight_LQF_MWM::initialize_withTraCI()
 
     LOG_INFO << "\nMulti-class LQF-MWM traffic signal control ... \n" << std::flush;
 
+    auto TLList = TraCI->TLGetIDList();
+
+    // for each traffic light
+    for (auto &TLid : TLList)
+    {
+        // get all links controlled by this TL
+        auto result = TraCI->TLGetControlledLinks(TLid);
+
+        // for each link in this TLid
+        for(auto &it2 : result)
+        {
+            int linkNumber = it2.first;
+            std::vector<std::string> link = it2.second;
+            std::string incommingLane = link[0];
+
+            linkToLane.insert( std::make_pair(std::make_pair(TLid,linkNumber), incommingLane) );
+        }
+    }
+
     // find the RSU module that controls this TL
     RSUptr = findRSU("C");
 

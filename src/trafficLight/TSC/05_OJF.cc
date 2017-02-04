@@ -131,6 +131,7 @@ void TrafficLightOJF::initialize_withTraCI()
     // make sure allMovements vector is not empty
     ASSERT(!allMovements.empty());
 
+    auto TLList = TraCI->TLGetIDList();
     for (auto &TL : TLList)
     {
         TraCI->TLSetProgram(TL, "adaptive-time");
@@ -140,6 +141,19 @@ void TrafficLightOJF::initialize_withTraCI()
 
         // initialize TL status
         updateTLstate(TL, "init", currentInterval);
+
+        // get all links controlled by this TL
+        auto result = TraCI->TLGetControlledLinks(TL);
+
+        // for each link in this TLid
+        for(auto &it2 : result)
+        {
+            int linkNumber = it2.first;
+            std::vector<std::string> link = it2.second;
+            std::string incommingLane = link[0];
+
+            linkToLane.insert( std::make_pair(std::make_pair(TL,linkNumber), incommingLane) );
+        }
     }
 
     LOG_DEBUG << boost::format("\nSimTime: %1% | Planned interval: %2% | Start time: %1% | End time: %3% \n")
@@ -205,30 +219,31 @@ void TrafficLightOJF::chooseNextGreenInterval()
 {
     LOG_DEBUG << "\n>>> New phase calculation ... \n" << std::flush;
 
-    // for debugging
-    if(LOG_ACTIVE(DEBUG_LOG_VAL))
-    {
-        LOG_DEBUG << "\n    Accumulated delay of vehicles on each lane: \n";
-        for(auto &y : laneDelay)
-        {
-            std::map<std::string,double> vehs = y.second;
-
-            if(vehs.empty())
-                continue;
-
-            LOG_DEBUG << "        " << y.first << ": ";
-
-            double totalDelay = 0;
-            for(auto &z : vehs)
-            {
-                LOG_DEBUG << boost::format("%1% (%2%), ") % z.first % z.second;
-                totalDelay = totalDelay + z.second;
-            }
-
-            LOG_DEBUG << " --> total delay = " << totalDelay << "\n";
-        }
-        LOG_FLUSH;
-    }
+    // todo: fix this
+//    // for debugging
+//    if(LOG_ACTIVE(DEBUG_LOG_VAL))
+//    {
+//        LOG_DEBUG << "\n    Accumulated delay of vehicles on each lane: \n";
+//        for(auto &y : delay_perLane)
+//        {
+//            std::map<std::string,double> vehs = y.second;
+//
+//            if(vehs.empty())
+//                continue;
+//
+//            LOG_DEBUG << "        " << y.first << ": ";
+//
+//            double totalDelay = 0;
+//            for(auto &z : vehs)
+//            {
+//                LOG_DEBUG << boost::format("%1% (%2%), ") % z.first % z.second;
+//                totalDelay = totalDelay + z.second;
+//            }
+//
+//            LOG_DEBUG << " --> total delay = " << totalDelay << "\n";
+//        }
+//        LOG_FLUSH;
+//    }
 
     // batch of all non-conflicting movements, sorted by total vehicle delay per batch
     std::priority_queue< sortedEntryD /*type of each element*/, std::vector<sortedEntryD> /*container*/, sortCompareD > sortedMovements;
@@ -251,11 +266,20 @@ void TrafficLightOJF::chooseNextGreenInterval()
                 // ignore this link if right turn
                 if(notRightTurn)
                 {
-                    std::map<std::string /*vehID*/, double /*accum delay of vehID*/> vehs = linkDelay[std::make_pair("C",linkNumber)];
+                    // get the corresponding lane for this link
+                    auto itt = linkToLane.find(std::make_pair("C",linkNumber));
+                    if(itt == linkToLane.end())
+                        throw omnetpp::cRuntimeError("linkNumber %s is not found in TL %s", linkNumber, "C");
+                    std::string lane = itt->second;
 
-                    for(auto &it :vehs)
+                    // get all vehicles on this lane
+                    auto vehs = TraCI->laneGetLastStepVehicleIDs(lane);
+
+                    for(auto &veh :vehs)
                     {
-                        totalDelayRow = totalDelayRow + it.second;
+                        // total delay in this lane
+                        delayEntry_t *vehDelay = vehicleGetDelay(veh,"C");
+                        totalDelayRow += vehDelay->totalDelay;
                         vehCount++;
                     }
                 }

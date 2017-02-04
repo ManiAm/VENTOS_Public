@@ -27,10 +27,6 @@ network Network
 
         @display("bgb=529,367");
     submodules:
-        vLogging: vlog {
-            parameters:
-                @display("p=48,48;i=old/floppy2");
-        }
         world: BaseWorldUtility {
             parameters:
                 playgroundSizeX = playgroundSizeX;
@@ -45,6 +41,10 @@ network Network
         TraCI: TraCIStart {
             parameters:
                 @display("p=48,135");
+        }
+        vLogging: vlog {
+            parameters:
+                @display("p=48,48;i=old/floppy2");
         }
         Tracking: Tracking {
             parameters:
@@ -65,6 +65,10 @@ network Network
         statistics: Statistics {
             parameters:
                 @display("p=337,47;i=block/timer");
+        }
+        inductionLoop: InductionLoop {
+            parameters:
+                @display("p=436,47;i=block/timer");
         }
         router: Router {
             parameters:

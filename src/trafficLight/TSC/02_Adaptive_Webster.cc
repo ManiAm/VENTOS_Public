@@ -41,6 +41,9 @@ TrafficLightWebster::~TrafficLightWebster()
 
 void TrafficLightWebster::initialize(int stage)
 {
+    if(TLControlMode == TL_Adaptive_Webster)
+        par("record_trafficDemand_stat") = true;
+
     super::initialize(stage);
 
     if(TLControlMode != TL_Adaptive_Webster)
@@ -53,11 +56,6 @@ void TrafficLightWebster::initialize(int stage)
             throw omnetpp::cRuntimeError("alpha value should be [0,1]");
 
         intervalChangeEVT = new omnetpp::cMessage("intervalChangeEVT", 1);
-
-        greenSplit.clear();
-
-        // measure traffic demand
-        measureTrafficDemand = true;
     }
 }
 
@@ -103,6 +101,7 @@ void TrafficLightWebster::initialize_withTraCI()
 
     scheduleAt(omnetpp::simTime().dbl() + intervalDuration, intervalChangeEVT);
 
+    auto TLList = TraCI->TLGetIDList();
     for (auto &TL : TLList)
     {
         TraCI->TLSetProgram(TL, "adaptive-time");
@@ -219,7 +218,7 @@ void TrafficLightWebster::calculateGreenSplits()
     {
         LOG_DEBUG << "\n    Measured traffic demands at the beginning of this cycle: ";
 
-        for(auto &y : laneTD)
+        for(auto &y : TD_perLane)
         {
             std::string lane = y.first;
             std::string TLid = y.second.first;
@@ -264,7 +263,7 @@ void TrafficLightWebster::calculateGreenSplits()
                 if(!rightTurn)
                 {
                     // get all TD measurements so far for link i
-                    boost::circular_buffer<std::vector<double>> buffer = linkTD[std::make_pair("C",i)];
+                    auto buffer = TD_perLink[std::make_pair("C",i)];
 
                     double aveTD = 0;
 

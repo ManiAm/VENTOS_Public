@@ -43,10 +43,6 @@ simple TraCIStart
         bool CMDstepLog = default(true);         // simulation log is printed at the end of each step
         int seed = default(0);  // seed for random generation (-1: current run number)
         
-        double connectAt @unit("s") = default(0s);        // when to connect to TraCI server (must be the initial timestep of the server).
-        double firstStepAt @unit("s") = default(-1s);     // when to start synchronizing with the TraCI server (-1: immediately after connecting)
-        double updateInterval @unit("s") = default(0.1s); // time interval of hosts' position updates
-        
         double terminate = default(-1s) @unit(s);   // maximum simulation time. -1 means simulate forever!
         bool autoShutdown = default(true);          // Shutdown module as soon as no more vehicles are in the simulation        
         bool equilibrium_vehicle = default(false);  // arrived vehicles are re-inserted again

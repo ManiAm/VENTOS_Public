@@ -55,6 +55,11 @@ private:
     // class variables
     std::map<std::string,double> passageTimePerLane;
 
+    std::map<std::string /*TLid*/, std::string /*first green interval*/> firstGreen;
+
+    // loop detector ids used for actuated-time signal control
+    std::unordered_map<std::string /*lane*/, std::string /*LD id*/> LD_actuated;
+
 public:
     virtual ~TrafficLightActuated();
     virtual void initialize(int);

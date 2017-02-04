@@ -154,6 +154,25 @@ void TrafficLight_FMSC::initialize_withTraCI()
 
     LOG_INFO << "\nMulti-class LQF-MWM-Cycle traffic signal control ... \n" << std::flush;
 
+    auto TLList = TraCI->TLGetIDList();
+
+    // for each traffic light
+    for (auto &TLid : TLList)
+    {
+        // get all links controlled by this TL
+        auto result = TraCI->TLGetControlledLinks(TLid);
+
+        // for each link in this TLid
+        for(auto &it2 : result)
+        {
+            int linkNumber = it2.first;
+            std::vector<std::string> link = it2.second;
+            std::string incommingLane = link[0];
+
+            linkToLane.insert( std::make_pair(std::make_pair(TLid,linkNumber), incommingLane) );
+        }
+    }
+
     // find the RSU module that controls this TL
     RSUptr = findRSU("C");
 
@@ -348,9 +367,8 @@ void TrafficLight_FMSC::calculatePhases(std::string TLid)
                             totalWeight += loc->second;
 
                             // total delay in this lane
-                            auto locc = laneDelay[lane].find(vID);
-                            if(locc != laneDelay[lane].end())
-                                totalDelay += locc->second;
+                            delayEntry_t *vehDelay = vehicleGetDelay(vID,TLid);
+                            totalDelay += vehDelay->totalDelay;
                         }
                     }
                 }

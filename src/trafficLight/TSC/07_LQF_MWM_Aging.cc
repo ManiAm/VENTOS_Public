@@ -145,6 +145,25 @@ void TrafficLight_LQF_MWM_Aging::initialize_withTraCI()
 
     LOG_INFO << "\nMulti-class LQF-MWM-Aging traffic signal control ... \n" << std::flush;
 
+    auto TLList = TraCI->TLGetIDList();
+
+    // for each traffic light
+    for (auto &TLid : TLList)
+    {
+        // get all links controlled by this TL
+        auto result = TraCI->TLGetControlledLinks(TLid);
+
+        // for each link in this TLid
+        for(auto &it2 : result)
+        {
+            int linkNumber = it2.first;
+            std::vector<std::string> link = it2.second;
+            std::string incommingLane = link[0];
+
+            linkToLane.insert( std::make_pair(std::make_pair(TLid,linkNumber), incommingLane) );
+        }
+    }
+
     // find the RSU module that controls this TL
     RSUptr = findRSU("C");
 
@@ -183,14 +202,6 @@ void TrafficLight_LQF_MWM_Aging::executeEachTimeStep()
 
     if(TLControlMode != TL_LQF_MWM_Aging)
         return;
-
-    // todo: delate later
-    for(auto &p : vehDelay)
-    {
-        if(p.second.vehType == "bicycle")
-            std::cout << boost::format("%1% (%2%) \n") % p.first % p.second.waitingDelay;
-    }
-    std::cout.flush();
 }
 
 
@@ -312,9 +323,8 @@ void TrafficLight_LQF_MWM_Aging::chooseNextGreenInterval()
                             totalWeight += loc->second;
 
                             // max delay in this movement
-                            auto ii = vehDelay.find(vID);
-                            if(ii != vehDelay.end())
-                                maxDelay = std::max(maxDelay, ii->second.waitingDelay);  // todo: should we consider waiting time only?
+                            delayEntry_t *vehDelay = vehicleGetDelay(vID,"C");
+                            maxDelay = std::max(maxDelay, vehDelay->waitingDelay);  // todo: should we consider waiting time only?
                         }
                     }
                 }
@@ -364,27 +374,28 @@ void TrafficLight_LQF_MWM_Aging::chooseNextGreenInterval()
     double greenTime = (double)maxVehCount * (minGreenTime / 5.);
     nextGreenTime = std::min(std::max(greenTime, minGreenTime), maxGreenTime);  // bound green time
 
-    if(LOG_ACTIVE(DEBUG_LOG_VAL))
-    {
-        if(bestChoice.phase == finalChoice.phase)
-            LOG_DEBUG << boost::format("\n    The following phase has the highest totalWeight out of %1% phases: \n") % phases.size();
-        else
-        {
-            LOG_DEBUG << boost::format("\n    Phase %1% will not be scheduled!") % bestChoice.phase;
-            LOG_DEBUG << boost::format("\n    Max delay= %1% in phase %2% exceeds %3%s \n") % maxDelay % finalChoice.phase % 20;
-
-            LOG_DEBUG << "Bikes delay are: ";
-            for(auto &p : vehDelay)
-            {
-                if(p.second.vehType == "bicycle")
-                    LOG_DEBUG << boost::format("%1% (%2%), ") % p.first % p.second.accumDelay;
-            }
-            LOG_DEBUG << "\n";
-        }
-
-        LOG_DEBUG << boost::format("        phase= %1%, maxVehCount= %2%, totalWeight= %3%, oneCount= %4%, green= %5% \n")
-        % finalChoice.phase % finalChoice.maxVehCount % finalChoice.totalWeight % finalChoice.oneCount % nextGreenTime << std::flush;
-    }
+    // todo: fix this
+//    if(LOG_ACTIVE(DEBUG_LOG_VAL))
+//    {
+//        if(bestChoice.phase == finalChoice.phase)
+//            LOG_DEBUG << boost::format("\n    The following phase has the highest totalWeight out of %1% phases: \n") % phases.size();
+//        else
+//        {
+//            LOG_DEBUG << boost::format("\n    Phase %1% will not be scheduled!") % bestChoice.phase;
+//            LOG_DEBUG << boost::format("\n    Max delay= %1% in phase %2% exceeds %3%s \n") % maxDelay % finalChoice.phase % 20;
+//
+//            LOG_DEBUG << "Bikes delay are: ";
+//            for(auto &p : vehDelay_perTL)
+//            {
+//                if(p.second.vehType == "bicycle")
+//                    LOG_DEBUG << boost::format("%1% (%2%), ") % p.first.first % p.second.accumDelay;
+//            }
+//            LOG_DEBUG << "\n";
+//        }
+//
+//        LOG_DEBUG << boost::format("        phase= %1%, maxVehCount= %2%, totalWeight= %3%, oneCount= %4%, green= %5% \n")
+//        % finalChoice.phase % finalChoice.maxVehCount % finalChoice.totalWeight % finalChoice.oneCount % nextGreenTime << std::flush;
+//    }
 
     // this will be the next green interval
     nextGreenInterval = finalChoice.phase;

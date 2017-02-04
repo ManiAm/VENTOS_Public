@@ -62,8 +62,13 @@ protected:
 
 private:
     typedef TrafficLightOJF super;
+
     ApplRSUMonitor *RSUptr = NULL;
     double nextGreenTime;
+
+    std::map<std::string /*TLid*/, std::string /*first green interval*/> firstGreen;
+
+    std::map<std::pair<std::string /*TLid*/, int /*link*/>, std::string /*lane*/> linkToLane;
 
 public:
     virtual ~TrafficLight_LQF_MWM();

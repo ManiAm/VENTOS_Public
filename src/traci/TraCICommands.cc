@@ -730,7 +730,7 @@ std::string TraCI_Commands::vehicleGetClass(std::string nodeId)
 }
 
 
-std::vector<std::string> TraCI_Commands::vehicleGetLeader(std::string nodeId, double look_ahead_distance)
+leader_t TraCI_Commands::vehicleGetLeader(std::string nodeId, double look_ahead_distance)
 {
     record_TraCI_activity_func("commandStart", CMD_GET_VEHICLE_VARIABLE, VAR_LEADER, "vehicleGetLeader");
 
@@ -758,29 +758,23 @@ std::vector<std::string> TraCI_Commands::vehicleGetLeader(std::string nodeId, do
     uint32_t count; buf >> count;
 
     // now we start getting real data that we are looking for
-    std::vector<std::string> res;
+    leader_t entry = {};
 
     uint8_t dType; buf >> dType;
     std::string id; buf >> id;
-    res.push_back(id);
+    entry.leaderID = id;
 
     uint8_t dType2; buf >> dType2;
     double len; buf >> len;
-
-    // the distance does not include minGap
-    // we will add minGap to the len
-    len = len + vehicleGetMinGap(nodeId);
-
-    // now convert len to std::string
-    std::ostringstream s;
-    s << len;
-    res.push_back(s.str());
+    // the distance does not include minGap. we will add minGap to the len
+    len += vehicleGetMinGap(nodeId);
+    entry.distance2Leader = len;
 
     ASSERT(buf.eof());
 
     record_TraCI_activity_func("commandComplete", CMD_GET_VEHICLE_VARIABLE, VAR_LEADER, "vehicleGetLeader");
 
-    return res;
+    return entry;
 }
 
 
@@ -1987,7 +1981,7 @@ double TraCI_Commands::LDGetElapsedTimeLastDetection(std::string loopId)
 }
 
 
-std::vector<std::string> TraCI_Commands::LDGetLastStepVehicleData(std::string loopId)
+std::vector<vehLD_t> TraCI_Commands::LDGetLastStepVehicleData(std::string loopId)
 {
     record_TraCI_activity_func("commandStart", CMD_GET_INDUCTIONLOOP_VARIABLE, LAST_STEP_VEHICLE_DATA, "LDGetLastStepVehicleData");
 
@@ -2014,8 +2008,7 @@ std::vector<std::string> TraCI_Commands::LDGetLastStepVehicleData(std::string lo
     uint32_t count; buf >> count;
 
     // now we start getting real data that we are looking for
-    std::vector<std::string> res;
-    std::ostringstream strs;
+    std::vector<vehLD_t> res;
 
     // number of information packets (in 'No' variable)
     uint8_t typeI; buf >> typeI;
@@ -2023,38 +2016,34 @@ std::vector<std::string> TraCI_Commands::LDGetLastStepVehicleData(std::string lo
 
     for (uint32_t i = 1; i <= No; ++i)
     {
+        vehLD_t entry = {};
+
         // get vehicle id
         uint8_t typeS1; buf >> typeS1;
         std::string vId; buf >> vId;
-        res.push_back(vId);
+        entry.vehID = vId;
 
         // get vehicle length
         uint8_t dType2; buf >> dType2;
         double len; buf >> len;
-        strs.str("");
-        strs << len;
-        res.push_back( strs.str() );
+        entry.vehLength = len;
 
         // entryTime
         uint8_t dType3; buf >> dType3;
         double entryTime; buf >> entryTime;
-        strs.str("");
-        strs << entryTime;
-        res.push_back( strs.str() );
+        entry.entryTime = entryTime;
 
         // leaveTime
         uint8_t dType4; buf >> dType4;
         double leaveTime; buf >> leaveTime;
-        strs.str("");
-        strs << leaveTime;
-        res.push_back( strs.str() );
+        entry.leaveTime = leaveTime;
 
         // vehicle type
         uint8_t dType5; buf >> dType5;
         std::string vehicleTypeID; buf >> vehicleTypeID;
-        strs.str("");
-        strs << vehicleTypeID;
-        res.push_back( strs.str() );
+        entry.vehType = vehicleTypeID;
+
+        res.push_back(entry);
     }
 
     ASSERT(buf.eof());

@@ -44,6 +44,8 @@ protected:
 private:
     typedef TrafficLightFixed super;
 
+    std::map<std::string /*TLid*/, std::string /*first green interval*/> firstGreen;
+
     std::string phase1_5 = "grgrGgrgrrgrgrGgrgrrrrrr";
     std::string phase2_6 = "gGgGrgrgrrgGgGrgrgrrrGrG";
     std::string phase3_7 = "grgrrgrgrGgrgrrgrgrGrrrr";

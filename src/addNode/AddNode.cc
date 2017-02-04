@@ -65,7 +65,6 @@ void AddNode::initialize(int stage)
         ASSERT(TraCI);
 
         terminate = module->par("terminate").doubleValue();
-        updateInterval = module->par("updateInterval").doubleValue();
 
         Signal_initialize_withTraCI = registerSignal("initialize_withTraCI");
         omnetpp::getSimulation()->getSystemModule()->subscribe("initialize_withTraCI", this);
@@ -153,6 +152,8 @@ void AddNode::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t si
 
     if(signalID == Signal_initialize_withTraCI)
     {
+        updateInterval = (double)TraCI->simulationGetTimeStep() / 1000.;
+
         boost::filesystem::path sumoFull = TraCI->getFullPath_SUMOConfig();
         boost::filesystem::path sumoDir = sumoFull.parent_path();
         boost::filesystem::path addNodePath = sumoDir / "traci_addNode.xml";

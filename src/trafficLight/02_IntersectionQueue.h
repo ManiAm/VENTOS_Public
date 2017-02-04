@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    TrafficLights.h
+/// @file    IntersectionQueue.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author
 /// @date    April 2015
@@ -25,40 +25,61 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef TRAFFICLIGHTS_H
-#define TRAFFICLIGHTS_H
+#ifndef INTERSECTIONQUEUE_H
+#define INTERSECTIONQUEUE_H
 
+#include <boost/circular_buffer.hpp>
 #include <unordered_map>
 
-#include "trafficLight/02_LoopDetectors.h"
+#include "trafficLight/01_Base.h"
 
 namespace VENTOS {
 
-class TrafficLights : public LoopDetectors
+class IntersectionQueue : public TrafficLightBase
 {
 protected:
+    typedef struct queueInfoRealTime
+    {
+        std::string TLid;
+        int queueSize;
+        std::vector<std::string> vehs;
+    } queueInfoRealTime_t;
+
+private:
+    typedef TrafficLightBase super;
+
+    // NED variables
+    bool record_intersectionQueue_stat;
+    double speedThreshold_veh;
+    double speedThreshold_bike;
+
     // list of all traffic lights in the network
     std::vector<std::string> TLList;
 
     // list of all 'incoming lanes' in each TL
-    std::unordered_map< std::string /*TLid*/, std::pair<int /*lane count*/, std::vector<std::string>> > laneListTL;
-    // list of all 'bike lanes' in each TL
-    std::unordered_map< std::string /*TLid*/, std::vector<std::string> > bikeLaneListTL;
+    std::unordered_map< std::string /*TLid*/, std::vector<std::string> > incomingLanes_perTL;
+
     // list of all 'side walks' in each TL
-    std::unordered_map< std::string /*TLid*/, std::vector<std::string> > sideWalkListTL;
+    std::unordered_map< std::string /*TLid*/, std::vector<std::string> > sideWalks_perTL;
 
     // all incoming lanes in all traffic lights
-    std::unordered_map<std::string /*lane*/, std::string /*TLid*/> allIncomingLanes;
-    // all outgoing link # for each incoming lane
-    std::multimap<std::string /*lane*/, std::pair<std::string /*TLid*/, int /*link number*/>> outgoingLinks;
-    // the corresponding lane for each outgoing link #
-    std::map<std::pair<std::string /*TLid*/, int /*link*/>, std::string /*lane*/> linkToLane;
+    std::unordered_map<std::string /*lane*/, std::string /*TLid*/> incomingLanes;
 
-private:
-    typedef LoopDetectors super;
+    // real-time queue size for each incoming lane in each intersection
+    std::unordered_map<std::string /*lane*/, queueInfoRealTime_t> queueSize_perLane;
+
+    typedef struct queueInfo
+    {
+        double time;
+        int totalQueueSize;
+        int maxQueueSize;
+        int totalLanes;
+    } queueInfo_t;
+
+    std::map<std::string /*TLid*/, std::vector<queueInfo_t>> queueInfo_perTL;
 
 public:
-    virtual ~TrafficLights();
+    virtual ~IntersectionQueue();
     virtual void initialize(int);
     virtual void finish();
     virtual void handleMessage(omnetpp::cMessage *);
@@ -66,6 +87,12 @@ public:
 protected:
     void virtual initialize_withTraCI();
     void virtual executeEachTimeStep();
+    queueInfoRealTime_t laneGetQueueSize(std::string);
+
+private:
+    void initVariables();
+    void measureQueue();
+    void saveTLQueueingData();
 };
 
 }
