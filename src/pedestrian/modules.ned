@@ -48,7 +48,7 @@ module pedestrian
 }
 
 
-import VENTOS.src.MIXIM.modules.IBaseApplLayer;
+import VENTOS.src.veins.modules.IBaseApplLayer;
 
 simple ApplPedBase like IBaseApplLayer
 {

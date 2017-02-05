@@ -20,7 +20,7 @@
 
 package VENTOS.src.veins;
 
-import VENTOS.src.MIXIM.phy.BasePhyLayer;
+import VENTOS.src.veins.phy.BasePhyLayer;
 
 //
 // Adaptation of the PhyLayer class for 802.11p.

@@ -26,8 +26,8 @@
 //
 
 #include "08_MsgControl.h"
-#include "MIXIM/phy/PhyToMacControlInfo.h"
-#include "MIXIM/phy/DeciderResult80211.h"
+#include "veins/phy/PhyToMacControlInfo.h"
+#include "veins/phy/DeciderResult80211.h"
 
 namespace VENTOS {
 

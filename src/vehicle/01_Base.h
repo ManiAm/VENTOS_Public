@@ -28,8 +28,8 @@
 #ifndef APPLVBASE_H_
 #define APPLVBASE_H_
 
-#include "MIXIM/modules/BaseApplLayer.h"
-#include "MIXIM/modules/ChannelAccess.h"
+#include "veins/modules/BaseApplLayer.h"
+#include "veins/modules/ChannelAccess.h"
 #include "veins/WaveAppToMac1609_4Interface.h"
 #include "traci/TraCICommands.h"
 #include "global/Statistics.h"

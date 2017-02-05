@@ -36,7 +36,7 @@
 #include "traci/TraCIBuffer.h"
 #include "traci/TraCICoord.h"
 
-#include "MIXIM/utils/Coord.h"
+#include "veins/utils/Coord.h"
 #include "global/Color.h"
 #include "global/GlobalConsts.h"
 

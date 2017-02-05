@@ -1,5 +1,5 @@
 
-package VENTOS.src.MIXIM.phy;
+package VENTOS.src.veins.phy;
  
 // Wireless physical layer module interface.
 moduleinterface IWirelessPhy
@@ -44,4 +44,3 @@ moduleinterface IWirelessPhy
 
         input radioIn; // for sendDirect from other physical layers
 }
-

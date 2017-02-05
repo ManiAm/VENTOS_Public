@@ -1,5 +1,5 @@
 
-package VENTOS.src.MIXIM.modules;
+package VENTOS.src.veins.modules;
 
 // Basic utility module for the whole network.
 // Provides utility methods and information used by

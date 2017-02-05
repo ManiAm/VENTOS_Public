@@ -22,10 +22,10 @@
 #ifndef ANALOGUEMODEL_NAKAGAMIFADING_H
 #define ANALOGUEMODEL_NAKAGAMIFADING_H
 
+#include <messages_11p/AirFrame_m.h>
 #include "AnalogueModel.h"
 #include "BaseWorldUtility.h"
 #include "MappingBase.h"
-#include "AirFrame_m.h"
 
 /**
  * @brief

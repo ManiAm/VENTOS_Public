@@ -1,6 +1,6 @@
 package VENTOS.src.global;
 
-import VENTOS.src.MIXIM.modules.BaseMobility;
+import VENTOS.src.veins.modules.BaseMobility;
 
 simple ConstSpeedMobility extends BaseMobility
 {

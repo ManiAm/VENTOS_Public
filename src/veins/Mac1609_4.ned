@@ -20,7 +20,7 @@
 
 package VENTOS.src.veins;
 
-import VENTOS.src.MIXIM.modules.BaseMacLayer;
+import VENTOS.src.veins.modules.BaseMacLayer;
 
 //
 // Manages timeslots for CCH and SCH listening and sending.

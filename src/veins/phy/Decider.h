@@ -7,10 +7,10 @@
 #ifndef DECIDER_H_
 #define DECIDER_H_
 
+#include <messages_11p/ChannelSenseRequest_m.h>
 #include <omnetpp.h>
 #include "MiXiMDefs.h"
 #include "DeciderToPhyInterface.h"
-#include "ChannelSenseRequest_m.h"
 #include "ChannelState.h"
 
 /**

@@ -48,7 +48,7 @@ module obstacle
 }
 
 
-import VENTOS.src.MIXIM.modules.IBaseApplLayer;
+import VENTOS.src.veins.modules.IBaseApplLayer;
 
 simple ApplObstacleBase like IBaseApplLayer
 {

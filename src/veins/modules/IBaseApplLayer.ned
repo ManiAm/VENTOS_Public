@@ -1,5 +1,5 @@
 
-package VENTOS.src.MIXIM.modules;
+package VENTOS.src.veins.modules;
 
 // Interface for application layer modules
 moduleinterface IBaseApplLayer
@@ -8,9 +8,9 @@ moduleinterface IBaseApplLayer
         int headerLength @unit("bit"); // length of the application message header (in bits)
         
     gates:
-        input lowerLayerIn; // from network layer
-        output lowerLayerOut; // to network layer
-        input lowerControlIn; // control from network layer
+        input lowerLayerIn;     // from network layer
+        output lowerLayerOut;   // to network layer
+        input lowerControlIn;   // control from network layer
         output lowerControlOut; // control to network layer
 }
 

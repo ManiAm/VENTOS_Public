@@ -36,7 +36,7 @@
 #include <rapidxml_print.hpp>
 
 #include "addNode/AddNode.h"
-#include "MIXIM/connectionManager/ConnectionManager.h"
+#include "veins/connectionManager/ConnectionManager.h"
 #include "logging/vlog.h"
 
 namespace VENTOS {

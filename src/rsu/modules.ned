@@ -41,7 +41,7 @@ module RSU
 }
 
 
-import VENTOS.src.MIXIM.modules.IBaseApplLayer;
+import VENTOS.src.veins.modules.IBaseApplLayer;
 
 simple ApplRSUBase like IBaseApplLayer
 {

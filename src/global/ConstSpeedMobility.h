@@ -20,8 +20,8 @@
 #ifndef CONST_SPEED_MOBILITY_H
 #define CONST_SPEED_MOBILITY_H
 
-#include "MIXIM/utils/MiXiMDefs.h"
-#include "MIXIM/modules/BaseMobility.h"
+#include "veins/utils/MiXiMDefs.h"
+#include "veins/modules/BaseMobility.h"
 
 namespace VENTOS {
 

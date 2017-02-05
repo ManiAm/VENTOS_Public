@@ -1,8 +1,7 @@
 
-package VENTOS.src.MIXIM.phy;
+package VENTOS.src.veins.phy;
 
-// Basic physical layer module.
-// See the class "BasePhyLayer" documentation.
+// Basic physical layer module (See the class "BasePhyLayer" documentation)
 simple BasePhyLayer like IWirelessPhy
 {
     parameters:
@@ -46,6 +45,4 @@ simple BasePhyLayer like IWirelessPhy
         output upperControlOut; 	// control to the MAC layer
 
         input radioIn; // for sendDirect from other physical layers
-
 }
-

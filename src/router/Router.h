@@ -36,7 +36,7 @@
 #include <set>
 #include <map>
 
-#include "MIXIM/modules/BaseApplLayer.h"
+#include "veins/modules/BaseApplLayer.h"
 #include "router/Node.h"
 #include "router/Edge.h"
 #include "router/Net.h"

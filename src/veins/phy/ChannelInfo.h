@@ -1,10 +1,10 @@
 #ifndef CHANNELINFO_H_
 #define CHANNELINFO_H_
 
+#include <messages_11p/AirFrame_m.h>
 #include <list>
 #include <omnetpp.h>
 #include "MiXiMDefs.h"
-#include "AirFrame_m.h"
 
 /**
  * @brief This class is used by the BasePhyLayer to keep track of the AirFrames

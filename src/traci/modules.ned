@@ -4,7 +4,7 @@
 
 package VENTOS.src.traci;
 
-import VENTOS.src.MIXIM.modules.BaseMobility;
+import VENTOS.src.veins.modules.BaseMobility;
 
 simple TraCIMobilityMod extends BaseMobility
 {

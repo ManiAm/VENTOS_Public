@@ -17,7 +17,7 @@
 // * part of:     framework implementation developed by tkn
 // **************************************************************************/
 
-package VENTOS.src.MIXIM.connectionManager;
+package VENTOS.src.veins.connectionManager;
 
 // Module to control all connection related stuff
 //

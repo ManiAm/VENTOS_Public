@@ -28,7 +28,7 @@
 #ifndef APPLRSU_H_
 #define APPLRSU_H_
 
-#include "MIXIM/modules/BaseApplLayer.h"
+#include "veins/modules/BaseApplLayer.h"
 #include "veins/WaveAppToMac1609_4Interface.h"
 #include "traci/TraCICommands.h"
 #include "msg/BeaconRSU_m.h"

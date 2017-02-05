@@ -18,7 +18,7 @@
  **************************************************************************/
 
 #include "global/ConstSpeedMobility.h"
-#include "MIXIM/utils/FWMath.h"
+#include "veins/utils/FWMath.h"
 
 namespace VENTOS {
 

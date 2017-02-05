@@ -18,8 +18,8 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
+#include <messages_11p/AirFrame_m.h>
 #include "TwoRayInterferenceModel.h"
-#include "AirFrame_m.h"
 
 #define debugEV EV << "PhyLayer(TwoRayInterferenceModel): "
 

@@ -28,7 +28,7 @@
 #ifndef SPEEDPROFILE_H
 #define SPEEDPROFILE_H
 
-#include "MIXIM/modules/BaseApplLayer.h"
+#include "veins/modules/BaseApplLayer.h"
 #include "traci/TraCICommands.h"
 
 namespace VENTOS {

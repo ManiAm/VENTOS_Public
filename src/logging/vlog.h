@@ -31,7 +31,7 @@
 #include "boost/format.hpp"
 #include <mutex>
 
-#include "MIXIM/modules/BaseApplLayer.h"
+#include "veins/modules/BaseApplLayer.h"
 #include "logging/vlogConst.h"
 #include "omnetpp.h"
 

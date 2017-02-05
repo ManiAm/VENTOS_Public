@@ -1,5 +1,5 @@
 
-package VENTOS.src.MIXIM.modules;
+package VENTOS.src.veins.modules;
 
 // Module which is responsible for mobility
 // related information like position and movement

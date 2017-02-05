@@ -28,7 +28,7 @@
 #include <list>
 #include <stdexcept>
 
-#include "MIXIM/modules/BaseMobility.h"
+#include "veins/modules/BaseMobility.h"
 #include "traci/TraCICommands.h"
 
 /**

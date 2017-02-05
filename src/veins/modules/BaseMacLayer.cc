@@ -19,6 +19,7 @@
  *              subclass to create your own MAC layer
  **************************************************************************/
 
+#include <messages_11p/MacPkt_m.h>
 #include <cassert>
 #include <sstream>
 
@@ -32,7 +33,6 @@
 #include "AddressingInterface.h"
 #include "ChannelAccess.h"
 #include "FindModule.h"
-#include "MacPkt_m.h"
 
 Define_Module(BaseMacLayer);
 

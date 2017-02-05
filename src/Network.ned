@@ -1,7 +1,7 @@
 package VENTOS.src;
 
-import VENTOS.src.MIXIM.modules.*;
-import VENTOS.src.MIXIM.connectionManager.*;
+import VENTOS.src.veins.modules.*;
+import VENTOS.src.veins.connectionManager.*;
 import VENTOS.src.traci.*;
 import VENTOS.src.global.*;
 import VENTOS.src.gettingStarted.*;

@@ -30,7 +30,7 @@
 
 #include <stdint.h>
 
-#include "MIXIM/utils/Coord.h"
+#include "veins/utils/Coord.h"
 #include "traci/TraCIBuffer.h"
 #include "traci/TraCICoord.h"
 
