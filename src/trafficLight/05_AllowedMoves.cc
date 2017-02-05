@@ -73,7 +73,7 @@ void TrafficLightAllowedMoves::executeEachTimeStep()
 }
 
 
-void TrafficLightAllowedMoves::getMovements(std::string TLid)
+std::vector<std::vector<int>>& TrafficLightAllowedMoves::getMovements(std::string TLid)
 {
     // Get all links for this TL
     auto allLinks = TraCI->TLGetControlledLinks(TLid);
@@ -121,6 +121,8 @@ void TrafficLightAllowedMoves::getMovements(std::string TLid)
 
     if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 2)
         allMovementBatch(14);
+
+    return allMovements;
 }
 
 

@@ -32,69 +32,6 @@ namespace VENTOS {
 
 Define_Module(VENTOS::TrafficLightLQF_NoStarv);
 
-class sortedEntry_LQF
-{
-public:
-    int oneCount;
-    int totalQueue;
-    int maxVehCount;
-    std::vector<int> batchMovements;
-
-    sortedEntry_LQF(int i1, int i2, int i3, std::vector<int> bm)
-    {
-        this->oneCount = i1;
-        this->totalQueue = i2;
-        this->maxVehCount = i3;
-        batchMovements.swap(bm);
-    }
-};
-
-
-class sortCompare_LQF
-{
-public:
-    bool operator()(sortedEntry_LQF p1, sortedEntry_LQF p2)
-    {
-        if(p1.totalQueue < p2.totalQueue)
-            return true;
-        else if(p1.totalQueue == p2.totalQueue && p1.oneCount < p2.oneCount)
-            return true;
-        else
-            return false;
-    }
-};
-
-
-// using a 'functor' rather than a 'function'
-// Reason: to be able to pass an additional argument (bestMovement) to predicate
-struct served_LQF
-{
-public:
-    served_LQF(std::vector<int> best)
-{
-        bestMovement.swap(best);
-}
-
-    bool operator () (const sortedEntry_LQF v)
-    {
-        for (unsigned int linkNumber = 0; linkNumber < v.batchMovements.size(); linkNumber++)
-        {
-            // Ignore all permissive right turns since these are always green:
-            int rightTurns[8] = {0, 2, 5, 7, 10, 12, 15, 17};
-            bool rightTurn = std::find(std::begin(rightTurns), std::end(rightTurns), linkNumber) != std::end(rightTurns);
-
-            // Want to remove movements that have already been done:
-            if (!rightTurn && v.batchMovements[linkNumber] == 1 && bestMovement[linkNumber] == 1)
-                return true;
-        }
-
-        return false;
-    }
-
-private:
-    std::vector<int> bestMovement;
-};
-
 
 TrafficLightLQF_NoStarv::~TrafficLightLQF_NoStarv()
 {
@@ -104,7 +41,7 @@ TrafficLightLQF_NoStarv::~TrafficLightLQF_NoStarv()
 
 void TrafficLightLQF_NoStarv::initialize(int stage)
 {
-    if(TLControlMode == TL_LQF)
+    if(par("TLControlMode").longValue() == TL_LQF)
         par("record_intersectionQueue_stat") = true;
 
     super::initialize(stage);
@@ -138,7 +75,7 @@ void TrafficLightLQF_NoStarv::handleMessage(omnetpp::cMessage *msg)
         if(greenInterval.empty())
             calculatePhases("C");
 
-        chooseNextInterval();
+        chooseNextInterval("C");
 
         if(intervalDuration <= 0)
             throw omnetpp::cRuntimeError("intervalDuration is <= 0");
@@ -160,29 +97,17 @@ void TrafficLightLQF_NoStarv::initialize_withTraCI()
 
     LOG_INFO << "\nLongest Queue traffic signal control ... \n" << std::flush;
 
-    // get all non-conflicting movements in allMovements vector
-    TrafficLightAllowedMoves::getMovements("C");
-
-    // make sure allMovements vector is not empty
-    ASSERT(!allMovements.empty());
-
-    // calculate phases at the beginning of the cycle
-    calculatePhases("C");
-
-    // set initial settings:
-    currentInterval = greenInterval.front().greenString;
-    intervalDuration = greenInterval.front().greenTime;
-
-    scheduleAt(omnetpp::simTime().dbl() + intervalDuration, intervalChangeEVT);
-
     auto TLList = TraCI->TLGetIDList();
     for (auto &TL : TLList)
     {
-        TraCI->TLSetProgram(TL, "adaptive-time");
-        TraCI->TLSetState(TL, currentInterval);
+        // get all incoming lanes
+        auto lan = TraCI->TLGetControlledLanes(TL);
 
-        // initialize TL status
-        updateTLstate(TL, "init", currentInterval);
+        // remove duplicate entries
+        sort( lan.begin(), lan.end() );
+        lan.erase( unique( lan.begin(), lan.end() ), lan.end() );
+
+        incomingLanes_perTL[TL] = lan;
 
         // get all links controlled by this TL
         auto result = TraCI->TLGetControlledLinks(TL);
@@ -198,7 +123,28 @@ void TrafficLightLQF_NoStarv::initialize_withTraCI()
         }
     }
 
-    LOG_DEBUG << boost::format("\n    SimTime: %1% | Planned interval: %2% | Start time: %1% | End time: %3% \n")
+    // get all non-conflicting movements in allMovements vector
+    allMovements = TrafficLightAllowedMoves::getMovements("C");
+
+    // calculate phases at the beginning of the cycle
+    calculatePhases("C");
+
+    // set initial settings:
+    currentInterval = greenInterval.front().greenString;
+    intervalDuration = greenInterval.front().greenTime;
+
+    scheduleAt(omnetpp::simTime().dbl() + intervalDuration, intervalChangeEVT);
+
+    for (auto &TL : TLList)
+    {
+        TraCI->TLSetProgram(TL, "adaptive-time");
+        TraCI->TLSetState(TL, currentInterval);
+
+        // initialize TL status
+        updateTLstate(TL, "init", currentInterval);
+    }
+
+    LOG_DEBUG << boost::format("\nSimTime: %1% | Planned interval: %2% | Start time: %1% | End time: %3% \n")
     % omnetpp::simTime().dbl() % currentInterval % (omnetpp::simTime().dbl() + intervalDuration) << std::flush;
 }
 
@@ -212,14 +158,14 @@ void TrafficLightLQF_NoStarv::executeEachTimeStep()
 }
 
 
-void TrafficLightLQF_NoStarv::chooseNextInterval()
+void TrafficLightLQF_NoStarv::chooseNextInterval(std::string TLid)
 {
     if (currentInterval == "yellow")
     {
         currentInterval = "red";
 
         // change all 'y' to 'r'
-        std::string str = TraCI->TLGetState("C");
+        std::string str = TraCI->TLGetState(TLid);
         std::string nextInterval = "";
         for(char& c : str) {
             if (c == 'y')
@@ -229,37 +175,37 @@ void TrafficLightLQF_NoStarv::chooseNextInterval()
         }
 
         // set the new state
-        TraCI->TLSetState("C", nextInterval);
+        TraCI->TLSetState(TLid, nextInterval);
         intervalDuration = redTime;
 
         // update TL status for this phase
-        updateTLstate("C", "red");
+        updateTLstate(TLid, "red");
     }
     else if (currentInterval == "red")
     {
         if(nextGreenIsNewCycle)
         {
-            updateTLstate("C", "phaseEnd", nextGreenInterval, true);  // a new cycle
+            updateTLstate(TLid, "phaseEnd", nextGreenInterval, true);  // a new cycle
             nextGreenIsNewCycle = false;
         }
         else
-            updateTLstate("C", "phaseEnd", nextGreenInterval);
+            updateTLstate(TLid, "phaseEnd", nextGreenInterval);
 
         currentInterval = nextGreenInterval;
 
         // set the new state
-        TraCI->TLSetState("C", nextGreenInterval);
+        TraCI->TLSetState(TLid, nextGreenInterval);
         intervalDuration = greenInterval.front().greenTime;
     }
     else
-        chooseNextGreenInterval();
+        chooseNextGreenInterval(TLid);
 
-    LOG_DEBUG << boost::format("\n    SimTime: %1% | Planned interval: %2% | Start time: %1% | End time: %3% \n")
+    LOG_DEBUG << boost::format("\nSimTime: %1% | Planned interval: %2% | Start time: %1% | End time: %3% \n")
     % omnetpp::simTime().dbl() % currentInterval % (omnetpp::simTime().dbl() + intervalDuration) << std::flush;
 }
 
 
-void TrafficLightLQF_NoStarv::chooseNextGreenInterval()
+void TrafficLightLQF_NoStarv::chooseNextGreenInterval(std::string TLid)
 {
     // Remove current old phase:
     greenInterval.erase(greenInterval.begin());
@@ -267,7 +213,7 @@ void TrafficLightLQF_NoStarv::chooseNextGreenInterval()
     // Assign new green:
     if (greenInterval.empty())
     {
-        calculatePhases("C");
+        calculatePhases(TLid);
         nextGreenIsNewCycle = true;
     }
 
@@ -290,12 +236,12 @@ void TrafficLightLQF_NoStarv::chooseNextGreenInterval()
     if(needYellowInterval)
     {
         currentInterval = "yellow";
-        TraCI->TLSetState("C", nextInterval);
+        TraCI->TLSetState(TLid, nextInterval);
 
         intervalDuration =  yellowTime;
 
         // update TL status for this phase
-        updateTLstate("C", "yellow");
+        updateTLstate(TLid, "yellow");
     }
     // extend the current green interval
     else
@@ -309,26 +255,26 @@ void TrafficLightLQF_NoStarv::chooseNextGreenInterval()
 // calculate all phases (up to 4)
 void TrafficLightLQF_NoStarv::calculatePhases(std::string TLid)
 {
-    LOG_DEBUG << "\n>>> New cycle calculation ... \n" << std::flush;
+    LOG_DEBUG << "\n------------------------------------------------------------------------------- \n";
+    LOG_DEBUG << ">>> New cycle calculation \n" << std::flush;
 
-    // todo: fix this
-//    if(LOG_ACTIVE(DEBUG_LOG_VAL))
-//    {
-//        LOG_DEBUG << "\n    Queue size per lane: ";
-//        for(auto& entry : queueSize_perLane)
-//        {
-//            std::string lane = entry.first;
-//            int qSize = entry.second.queueSize;
-//            if(qSize != 0)
-//                LOG_DEBUG << lane << " (" << qSize << ") | ";
-//        }
-//        LOG_DEBUG << "\n";
-//    }
+    if(LOG_ACTIVE(DEBUG_LOG_VAL))
+    {
+        auto it = incomingLanes_perTL.find(TLid);
+        if(it == incomingLanes_perTL.end())
+            throw omnetpp::cRuntimeError("cannot find TLid '%s' in incomingLanes_perTL", TLid.c_str());
 
-    // batch of all non-conflicting movements, sorted by total queue size per batch
-    std::priority_queue< sortedEntry_LQF /*type of each element*/, std::vector<sortedEntry_LQF> /*container*/, sortCompare_LQF > sortedMovements;
-    // clear the priority queue
-    sortedMovements = std::priority_queue < sortedEntry_LQF, std::vector<sortedEntry_LQF>, sortCompare_LQF >();
+        LOG_DEBUG << "\n    Queue size per lane: ";
+        for(auto &lane : it->second)
+        {
+            int qSize = laneGetQueueSize(lane).queueSize;
+            if(qSize != 0)
+                LOG_DEBUG << lane << " (" << qSize << ") | ";
+        }
+        LOG_DEBUG << "\n";
+    }
+
+    priorityQ sortedMovements;
 
     for(unsigned int i = 0; i < allMovements.size(); ++i)  // row
     {
@@ -358,12 +304,12 @@ void TrafficLightLQF_NoStarv::calculatePhases(std::string TLid)
         }
 
         // add this batch of movements to priority_queue
-        sortedEntry_LQF *entry = new sortedEntry_LQF(oneCount, totalQueueRow, maxVehCount, allMovements[i]);
-        sortedMovements.push(*entry);
+        sortedEntry_t entry = {oneCount, totalQueueRow, maxVehCount, allMovements[i]};
+        sortedMovements.push(entry);
     }
 
     // copy sortedMovements to a vector for iteration:
-    std::vector<sortedEntry_LQF> batchMovementVector;
+    std::vector<sortedEntry_t> batchMovementVector;
     while(!sortedMovements.empty())
     {
         batchMovementVector.push_back(sortedMovements.top());
@@ -400,11 +346,26 @@ void TrafficLightLQF_NoStarv::calculatePhases(std::string TLid)
             continue;
         }
 
-        greenInterval_LQF *entry = new greenInterval_LQF(batchMovementVector.front().maxVehCount, 0.0, nextInterval);
-        greenInterval.push_back(*entry);
+        greenIntervalEntry_t entry = {batchMovementVector.front().maxVehCount, 0.0, nextInterval};
+        greenInterval.push_back(entry);
 
         // Now delete these movements because they should never occur again:
-        batchMovementVector.erase( std::remove_if(batchMovementVector.begin(), batchMovementVector.end(), served_LQF(bestMovement)), batchMovementVector.end() );
+        auto new_end = std::remove_if(batchMovementVector.begin(), batchMovementVector.end(), [bestMovement](const sortedEntry_t v) {
+            for (unsigned int linkNumber = 0; linkNumber < v.batchMovements.size(); linkNumber++)
+            {
+                // Ignore all permissive right turns since these are always green:
+                int rightTurns[8] = {0, 2, 5, 7, 10, 12, 15, 17};
+                bool rightTurn = std::find(std::begin(rightTurns), std::end(rightTurns), linkNumber) != std::end(rightTurns);
+
+                // Want to remove movements that have already been done:
+                if (!rightTurn && v.batchMovements[linkNumber] == 1 && bestMovement[linkNumber] == 1)
+                    return true;
+            }
+
+            return false;
+        });
+
+        batchMovementVector.erase(new_end, batchMovementVector.end());
     }
 
     // calculate number of vehicles in the intersection
@@ -426,15 +387,11 @@ void TrafficLightLQF_NoStarv::calculatePhases(std::string TLid)
 
     // If no green time (0s) is given to a phase, then this queue is empty and useless:
     int oldSize = greenInterval.size();
-    auto rme = std::remove_if(greenInterval.begin(), greenInterval.end(),
-            [](const greenInterval_LQF v)
-            {
+    auto rme = std::remove_if(greenInterval.begin(), greenInterval.end(), [](const greenIntervalEntry_t v) {
         if (v.greenTime == 0.0)
             return true;
         else
-            return false;
-            }
-    );
+            return false; });
     greenInterval.erase( rme, greenInterval.end() );
 
     // throw error if cycle contains more than 4 phases:
@@ -457,6 +414,8 @@ void TrafficLightLQF_NoStarv::calculatePhases(std::string TLid)
 
         LOG_FLUSH;
     }
+
+    LOG_DEBUG << "------------------------------------------------------------------------------- \n" << std::flush;
 }
 
 }

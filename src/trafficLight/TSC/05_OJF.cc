@@ -34,38 +34,6 @@ namespace VENTOS {
 
 Define_Module(VENTOS::TrafficLightOJF);
 
-class sortedEntryD
-{
-public:
-    int oneCount;
-    int maxVehCount;
-    double totalDelay;
-    std::vector<int> batchMovements;
-
-    sortedEntryD(int i1, int i2, double d1, std::vector<int> bm)
-    {
-        this->oneCount = i1;
-        this->maxVehCount = i2;
-        this->totalDelay = d1;
-        batchMovements.swap(bm);
-    }
-};
-
-
-class sortCompareD
-{
-public:
-    bool operator()(sortedEntryD p1, sortedEntryD p2)
-    {
-        if( p1.totalDelay < p2.totalDelay )
-            return true;
-        else if( p1.totalDelay == p2.totalDelay && p1.oneCount < p2.oneCount)
-            return true;
-        else
-            return false;
-    }
-};
-
 
 TrafficLightOJF::~TrafficLightOJF()
 {
@@ -75,6 +43,9 @@ TrafficLightOJF::~TrafficLightOJF()
 
 void TrafficLightOJF::initialize(int stage)
 {
+    if(par("TLControlMode").longValue() == TL_OJF)
+        par("record_intersectionDelay_stat") = true;
+
     super::initialize(stage);
 
     if(TLControlMode != TL_OJF)
@@ -97,7 +68,7 @@ void TrafficLightOJF::handleMessage(omnetpp::cMessage *msg)
 {
     if (TLControlMode == TL_OJF && msg == intervalChangeEVT)
     {
-        chooseNextInterval();
+        chooseNextInterval("C");
 
         if(intervalDuration <= 0)
             throw omnetpp::cRuntimeError("intervalDuration is <= 0");
@@ -119,6 +90,32 @@ void TrafficLightOJF::initialize_withTraCI()
 
     LOG_INFO << "\nLow delay traffic signal control ...  \n" << std::flush;
 
+    auto TLList = TraCI->TLGetIDList();
+    for (auto &TL : TLList)
+    {
+        // get all incoming lanes
+        auto lan = TraCI->TLGetControlledLanes(TL);
+
+        // remove duplicate entries
+        sort( lan.begin(), lan.end() );
+        lan.erase( unique( lan.begin(), lan.end() ), lan.end() );
+
+        incomingLanes_perTL[TL] = lan;
+
+        // get all links controlled by this TL
+        auto result = TraCI->TLGetControlledLinks(TL);
+
+        // for each link in this TLid
+        for(auto &it : result)
+        {
+            int linkNumber = it.first;
+            std::vector<std::string> link = it.second;
+            std::string incommingLane = link[0];
+
+            link2Lane.insert( std::make_pair(std::make_pair(TL,linkNumber), incommingLane) );
+        }
+    }
+
     // set initial values
     currentInterval = phase1_5;
     intervalDuration = minGreenTime;
@@ -126,12 +123,8 @@ void TrafficLightOJF::initialize_withTraCI()
     scheduleAt(omnetpp::simTime().dbl() + intervalDuration, intervalChangeEVT);
 
     // get all non-conflicting movements in allMovements vector
-    TrafficLightAllowedMoves::getMovements("C");
+    allMovements = TrafficLightAllowedMoves::getMovements("C");
 
-    // make sure allMovements vector is not empty
-    ASSERT(!allMovements.empty());
-
-    auto TLList = TraCI->TLGetIDList();
     for (auto &TL : TLList)
     {
         TraCI->TLSetProgram(TL, "adaptive-time");
@@ -141,19 +134,6 @@ void TrafficLightOJF::initialize_withTraCI()
 
         // initialize TL status
         updateTLstate(TL, "init", currentInterval);
-
-        // get all links controlled by this TL
-        auto result = TraCI->TLGetControlledLinks(TL);
-
-        // for each link in this TLid
-        for(auto &it2 : result)
-        {
-            int linkNumber = it2.first;
-            std::vector<std::string> link = it2.second;
-            std::string incommingLane = link[0];
-
-            linkToLane.insert( std::make_pair(std::make_pair(TL,linkNumber), incommingLane) );
-        }
     }
 
     LOG_DEBUG << boost::format("\nSimTime: %1% | Planned interval: %2% | Start time: %1% | End time: %3% \n")
@@ -170,14 +150,14 @@ void TrafficLightOJF::executeEachTimeStep()
 }
 
 
-void TrafficLightOJF::chooseNextInterval()
+void TrafficLightOJF::chooseNextInterval(std::string TLid)
 {
     if (currentInterval == "yellow")
     {
         currentInterval = "red";
 
         // change all 'y' to 'r'
-        std::string str = TraCI->TLGetState("C");
+        std::string str = TraCI->TLGetState(TLid);
         std::string nextInterval = "";
         for(char& c : str) {
             if (c == 'y')
@@ -187,68 +167,68 @@ void TrafficLightOJF::chooseNextInterval()
         }
 
         // set the new state
-        TraCI->TLSetState("C", nextInterval);
+        TraCI->TLSetState(TLid, nextInterval);
         intervalDuration = redTime;
 
         // update TL status for this phase
-        updateTLstate("C", "red");
+        updateTLstate(TLid, "red");
     }
     else if (currentInterval == "red")
     {
         // update TL status for this phase
-        if(nextGreenInterval == firstGreen["C"])
-            updateTLstate("C", "phaseEnd", nextGreenInterval, true);  // todo: notion of cycle?
+        if(nextGreenInterval == firstGreen[TLid])
+            updateTLstate(TLid, "phaseEnd", nextGreenInterval, true);  // todo: notion of cycle?
         else
-            updateTLstate("C", "phaseEnd", nextGreenInterval);
+            updateTLstate(TLid, "phaseEnd", nextGreenInterval);
 
         currentInterval = nextGreenInterval;
 
         // set the new state
-        TraCI->TLSetState("C", nextGreenInterval);
+        TraCI->TLSetState(TLid, nextGreenInterval);
         intervalDuration = nextGreenTime;
     }
     else
-        chooseNextGreenInterval();
+        chooseNextGreenInterval(TLid);
 
-    LOG_DEBUG << boost::format("\n    SimTime: %1% | Planned interval: %2% | Start time: %1% | End time: %3% \n")
+    LOG_DEBUG << boost::format("\nSimTime: %1% | Planned interval: %2% | Start time: %1% | End time: %3% \n")
     % omnetpp::simTime().dbl() % currentInterval % (omnetpp::simTime().dbl() + intervalDuration) << std::flush;
 }
 
 
-void TrafficLightOJF::chooseNextGreenInterval()
+void TrafficLightOJF::chooseNextGreenInterval(std::string TLid)
 {
-    LOG_DEBUG << "\n>>> New phase calculation ... \n" << std::flush;
+    LOG_DEBUG << "\n------------------------------------------------------------------------------- \n";
+    LOG_DEBUG << ">>> New phase calculation \n" << std::flush;
 
-    // todo: fix this
-//    // for debugging
-//    if(LOG_ACTIVE(DEBUG_LOG_VAL))
-//    {
-//        LOG_DEBUG << "\n    Accumulated delay of vehicles on each lane: \n";
-//        for(auto &y : delay_perLane)
-//        {
-//            std::map<std::string,double> vehs = y.second;
-//
-//            if(vehs.empty())
-//                continue;
-//
-//            LOG_DEBUG << "        " << y.first << ": ";
-//
-//            double totalDelay = 0;
-//            for(auto &z : vehs)
-//            {
-//                LOG_DEBUG << boost::format("%1% (%2%), ") % z.first % z.second;
-//                totalDelay = totalDelay + z.second;
-//            }
-//
-//            LOG_DEBUG << " --> total delay = " << totalDelay << "\n";
-//        }
-//        LOG_FLUSH;
-//    }
+    // for debugging
+    if(LOG_ACTIVE(DEBUG_LOG_VAL))
+    {
+        LOG_DEBUG << "\n    Total delay of vehicles on each lane: \n";
 
-    // batch of all non-conflicting movements, sorted by total vehicle delay per batch
-    std::priority_queue< sortedEntryD /*type of each element*/, std::vector<sortedEntryD> /*container*/, sortCompareD > sortedMovements;
-    // clear the priority queue
-    sortedMovements = std::priority_queue < sortedEntryD, std::vector<sortedEntryD>, sortCompareD >();
+        auto it = incomingLanes_perTL.find(TLid);
+        if(it == incomingLanes_perTL.end())
+            throw omnetpp::cRuntimeError("cannot find TL '%s'", TLid.c_str());
+
+        // iterate over incoming lanes
+        for(auto &lane : it->second)
+        {
+            auto vehs = TraCI->laneGetLastStepVehicleIDs(lane);
+
+            double totalDelay = 0;
+            for(auto &veh : vehs)
+            {
+                delayEntry_t *vehDelay = vehicleGetDelay(veh,TLid);
+                if(vehDelay)
+                    totalDelay += vehDelay->totalDelay;
+            }
+
+            if(totalDelay != 0)
+                LOG_DEBUG << boost::format("        lane %1%: %2% \n") % lane % totalDelay;
+        }
+        LOG_FLUSH;
+    }
+
+    priorityQ sortedMovements;
 
     // Calculate totalDelay and vehCount for each movement batch
     for(unsigned int i = 0; i < allMovements.size(); ++i)  // row
@@ -267,9 +247,9 @@ void TrafficLightOJF::chooseNextGreenInterval()
                 if(notRightTurn)
                 {
                     // get the corresponding lane for this link
-                    auto itt = linkToLane.find(std::make_pair("C",linkNumber));
-                    if(itt == linkToLane.end())
-                        throw omnetpp::cRuntimeError("linkNumber %s is not found in TL %s", linkNumber, "C");
+                    auto itt = link2Lane.find(std::make_pair(TLid,linkNumber));
+                    if(itt == link2Lane.end())
+                        throw omnetpp::cRuntimeError("linkNumber %s is not found in TL %s", linkNumber, TLid.c_str());
                     std::string lane = itt->second;
 
                     // get all vehicles on this lane
@@ -278,9 +258,14 @@ void TrafficLightOJF::chooseNextGreenInterval()
                     for(auto &veh :vehs)
                     {
                         // total delay in this lane
-                        delayEntry_t *vehDelay = vehicleGetDelay(veh,"C");
-                        totalDelayRow += vehDelay->totalDelay;
-                        vehCount++;
+                        delayEntry_t *vehDelay = vehicleGetDelay(veh,TLid);
+                        if(vehDelay)
+                        {
+                            totalDelayRow += vehDelay->totalDelay;
+
+                            if(vehDelay->totalDelay > 0)
+                                vehCount++;
+                        }
                     }
                 }
 
@@ -291,12 +276,12 @@ void TrafficLightOJF::chooseNextGreenInterval()
         }
 
         // add this movement batch to priority_queue
-        sortedEntryD *entry = new sortedEntryD(oneCount, maxVehCount, totalDelayRow, allMovements[i]);
-        sortedMovements.push(*entry);
+        sortedEntry_t entry = {oneCount, maxVehCount, totalDelayRow, allMovements[i]};
+        sortedMovements.push(entry);
     }
 
     // get the movement batch with the highest delay
-    sortedEntryD entry = sortedMovements.top();
+    sortedEntry_t entry = sortedMovements.top();
 
     // allocate enough green time to move all delayed vehicle
     int maxVehCount = entry.maxVehCount;
@@ -304,7 +289,6 @@ void TrafficLightOJF::chooseNextGreenInterval()
 
     double greenTime = (double)maxVehCount * (minGreenTime / 5.);
     nextGreenTime = std::min(std::max(greenTime, minGreenTime), maxGreenTime);  // bound green time
-    LOG_DEBUG << "\n    Next green time is " << nextGreenTime << "\n" << std::flush;
 
     std::vector<int> batchMovements = entry.batchMovements;
 
@@ -341,18 +325,22 @@ void TrafficLightOJF::chooseNextGreenInterval()
     if(needYellowInterval)
     {
         currentInterval = "yellow";
-        TraCI->TLSetState("C", nextInterval);
+        TraCI->TLSetState(TLid, nextInterval);
 
         intervalDuration =  yellowTime;
 
+        LOG_DEBUG << boost::format("\n    The next green interval is %s \n") % nextGreenInterval;
+
         // update TL status for this phase
-        updateTLstate("C", "yellow");
+        updateTLstate(TLid, "yellow");
     }
     else
     {
         intervalDuration = nextGreenTime;
         LOG_DEBUG << "\n    Continue the last green interval. \n" << std::flush;
     }
+
+    LOG_DEBUG << "------------------------------------------------------------------------------- \n" << std::flush;
 }
 
 }

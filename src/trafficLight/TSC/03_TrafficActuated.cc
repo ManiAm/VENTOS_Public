@@ -68,7 +68,7 @@ void TrafficLightActuated::handleMessage(omnetpp::cMessage *msg)
 {
     if (TLControlMode == TL_TrafficActuated && msg == intervalChangeEVT)
     {
-        chooseNextInterval();
+        chooseNextInterval("C");
 
         if(intervalDuration <= 0)
             throw omnetpp::cRuntimeError("intervalDuration is <= 0");
@@ -89,7 +89,7 @@ void TrafficLightActuated::initialize_withTraCI()
     if(TLControlMode != TL_TrafficActuated)
         return;
 
-    LOG_INFO << "\nTraffic-actuated traffic signal control ... \n" << std::flush;
+    LOG_INFO << "\nTraffic-actuated traffic signal control ... \n\n" << std::flush;
 
     // set initial values
     currentInterval = phase1_5;
@@ -98,7 +98,8 @@ void TrafficLightActuated::initialize_withTraCI()
 
     scheduleAt(omnetpp::simTime().dbl() + intervalDuration, intervalChangeEVT);
 
-    auto TLList = TraCI->TLGetIDList();
+    TLList = TraCI->TLGetIDList();
+
     for (auto &TL : TLList)
     {
         TraCI->TLSetProgram(TL, "adaptive-time");
@@ -109,6 +110,8 @@ void TrafficLightActuated::initialize_withTraCI()
         // initialize TL status
         updateTLstate(TL, "init", currentInterval);
     }
+
+    checkLoopDetectors();
 
     // passageTime calculation per incoming lane
     if(passageTime == -1)
@@ -132,7 +135,7 @@ void TrafficLightActuated::initialize_withTraCI()
             passageTimePerLane[LD.first] = pass;
         }
     }
-    // passage time is set manually be the user
+    // user set the passage time
     else if(passageTime >=0 && passageTime <= minGreenTime)
     {
         // (*LD).first is 'lane id' and (*LD).second is detector id
@@ -189,14 +192,53 @@ void TrafficLightActuated::executeEachTimeStep()
 }
 
 
-void TrafficLightActuated::chooseNextInterval()
+void TrafficLightActuated::checkLoopDetectors()
+{
+    // get all loop detectors
+    auto str = TraCI->LDGetIDList();
+
+    // for each loop detector
+    for (auto &loopId : str)
+    {
+        std::string lane = TraCI->LDGetLaneID(loopId);
+
+        if( std::string(loopId).find("actuated_") != std::string::npos )
+            LD_actuated[lane] = loopId;
+    }
+
+    if(str.empty())
+    {
+        LOG_WARNING << "WARNING: traffic-actuated TSC needs loop detectors on incoming lanes. \n";
+        return;
+    }
+
+    for (auto &TL : TLList)
+    {
+        // get all incoming lanes
+        auto lan = TraCI->TLGetControlledLanes(TL);
+
+        // remove duplicate entries
+        sort( lan.begin(), lan.end() );
+        lan.erase( unique( lan.begin(), lan.end() ), lan.end() );
+
+        for(auto &lane : lan)
+        {
+            // traffic-actuated TSC needs one actuated LD on each incoming lane
+            if(LD_actuated.find(lane) == LD_actuated.end())
+                LOG_WARNING << boost::format("WARNING: no loop detector found on lane (%1%). No actuation is available for this lane. \n") % lane;
+        }
+    }
+}
+
+
+void TrafficLightActuated::chooseNextInterval(std::string TLid)
 {
     if (currentInterval == "yellow")
     {
         currentInterval = "red";
 
         // change all 'y' to 'r'
-        std::string str = TraCI->TLGetState("C");
+        std::string str = TraCI->TLGetState(TLid);
         std::string nextInterval = "";
         for(char& c : str) {
             if (c == 'y')
@@ -206,42 +248,43 @@ void TrafficLightActuated::chooseNextInterval()
         }
 
         // set the new state
-        TraCI->TLSetState("C", nextInterval);
+        TraCI->TLSetState(TLid, nextInterval);
         intervalElapseTime = 0.0;
         intervalDuration = redTime;
 
         // update TL status for this phase
-        updateTLstate("C", "red");
+        updateTLstate(TLid, "red");
 
-        LOG_DEBUG << boost::format("\n    SimTime: %1% | Planned interval: %2% | Start time: %1% | End time: %3% \n")
+        LOG_DEBUG << boost::format("\nSimTime: %1% | Planned interval: %2% | Start time: %1% | End time: %3% \n")
         % omnetpp::simTime().dbl() % currentInterval % (omnetpp::simTime().dbl() + intervalDuration) << std::flush;
     }
     else if (currentInterval == "red")
     {
         // update TL status for this phase
-        if(nextGreenInterval == firstGreen["C"])
-            updateTLstate("C", "phaseEnd", nextGreenInterval, true);
+        if(nextGreenInterval == firstGreen[TLid])
+            updateTLstate(TLid, "phaseEnd", nextGreenInterval, true);
         else
-            updateTLstate("C", "phaseEnd", nextGreenInterval);
+            updateTLstate(TLid, "phaseEnd", nextGreenInterval);
 
         currentInterval = nextGreenInterval;
 
         // set the new state
-        TraCI->TLSetState("C", nextGreenInterval);
+        TraCI->TLSetState(TLid, nextGreenInterval);
         intervalElapseTime = 0.0;
         intervalDuration = minGreenTime;
 
-        LOG_DEBUG << boost::format("\n    SimTime: %1% | Planned interval: %2% | Start time: %1% | End time: %3% \n")
+        LOG_DEBUG << boost::format("\nSimTime: %1% | Planned interval: %2% | Start time: %1% | End time: %3% \n")
         % omnetpp::simTime().dbl() % currentInterval % (omnetpp::simTime().dbl() + intervalDuration) << std::flush;
     }
     else
-        chooseNextGreenInterval();
+        chooseNextGreenInterval(TLid);
 }
 
 
-void TrafficLightActuated::chooseNextGreenInterval()
+void TrafficLightActuated::chooseNextGreenInterval(std::string TLid)
 {
-    LOG_DEBUG << "\n>>> New phase calculation ... \n" << std::flush;
+    LOG_DEBUG << "\n------------------------------------------------------------------------------- \n";
+    LOG_DEBUG << ">>> Check for actuation in the last green interval ... \n" << std::flush;
 
     // get loop detector information
     std::map<std::string,double> LastActuatedTime;
@@ -255,13 +298,13 @@ void TrafficLightActuated::chooseNextGreenInterval()
 
     if(LOG_ACTIVE(DEBUG_LOG_VAL))
     {
-        LOG_DEBUG << boost::format("\n    SimTime: %1% | Passage time value per lane: ") % omnetpp::simTime().dbl();
+        LOG_DEBUG << "\n    Passage time value per lane: ";
         for (auto &LD : passageTimePerLane)
             LOG_DEBUG << LD.first << " (" << LD.second << ") | ";
 
         LOG_DEBUG << "\n";
 
-        LOG_DEBUG << boost::format("    SimTime: %1% | Actuated LDs (lane, elapsed time): ") % omnetpp::simTime().dbl();
+        LOG_DEBUG << "    Actuated LDs (lane, elapsed time): ";
         for (auto &LD : LD_actuated)
         {
             double elapsedT = TraCI->LDGetElapsedTimeLastDetection(LD.second);
@@ -453,24 +496,27 @@ void TrafficLightActuated::chooseNextGreenInterval()
             intervalDuration = 0.0001;
             intervalElapseTime = maxGreenTime;
 
-            LOG_DEBUG << "\n    Green extension offset is too small. Terminating the current phase ... \n" << std::flush;
+            LOG_DEBUG << "\n    Green extension offset is too small. Terminating the current phase ..." << std::flush;
         }
         else
-            LOG_DEBUG << "\n    Extending green for both movements by " << intervalDuration << "s \n" << std::flush;
+            LOG_DEBUG << "\n    Extending green by " << intervalDuration << "s" << std::flush;
     }
     // we should terminate the current green interval
     else
     {
         currentInterval = "yellow";
-        TraCI->TLSetState("C", nextInterval);
+        TraCI->TLSetState(TLid, nextInterval);
 
         intervalElapseTime = 0.0;
         intervalDuration =  yellowTime;
 
         // update TL status for this phase
-        updateTLstate("C", "yellow");
+        updateTLstate(TLid, "yellow");
 
-        LOG_DEBUG << boost::format("\n    SimTime: %1% | Planned interval: %2% | Start time: %1% | End time: %3% \n")
+        LOG_DEBUG << boost::format("\n    The next green interval is %s \n") % nextGreenInterval;
+        LOG_DEBUG << "------------------------------------------------------------------------------- \n" << std::flush;
+
+        LOG_DEBUG << boost::format("\nSimTime: %1% | Planned interval: %2% | Start time: %1% | End time: %3% \n")
         % omnetpp::simTime().dbl() % currentInterval % (omnetpp::simTime().dbl() + intervalDuration) << std::flush;
     }
 }

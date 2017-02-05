@@ -38,13 +38,14 @@ class TrafficLightAllowedMoves : public IntersectionDelay
 {
 protected:
     int rightTurns[8] = {0, 2, 5, 7, 10, 12, 15, 17};
-    std::vector< std::vector<int> > allMovements;
 
 private:
     typedef IntersectionDelay super;
 
     int LINKSIZE;
     boost::filesystem::path movementsFilePath;
+
+    std::vector< std::vector<int> > allMovements;
 
 public:
     virtual ~TrafficLightAllowedMoves();
@@ -55,7 +56,7 @@ public:
 protected:
     void virtual initialize_withTraCI();
     void virtual executeEachTimeStep();
-    void getMovements(std::string);
+    std::vector<std::vector<int>>& getMovements(std::string);
 
 private:
     void generateAllAllowedMovements();

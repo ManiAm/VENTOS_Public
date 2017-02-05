@@ -38,12 +38,20 @@ class TrafficLight_LQF_MWM_Aging : public TrafficLight_LQF_MWM
 private:
     typedef TrafficLight_LQF_MWM super;
 
+    std::string currentInterval;
+    double intervalDuration;
+    std::string nextGreenInterval;
+
+    omnetpp::cMessage* intervalChangeEVT = NULL;
+
     ApplRSUMonitor *RSUptr = NULL;
     double nextGreenTime;
 
+    std::vector<std::string> phases = {phase1_5, phase2_6, phase3_7, phase4_8};
+
     std::map<std::string /*TLid*/, std::string /*first green interval*/> firstGreen;
 
-    std::map<std::pair<std::string /*TLid*/, int /*link*/>, std::string /*lane*/> linkToLane;
+    std::map<std::pair<std::string /*TLid*/, int /*link*/>, std::string /*lane*/> link2Lane;
 
 public:
     virtual ~TrafficLight_LQF_MWM_Aging();

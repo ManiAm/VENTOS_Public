@@ -112,8 +112,30 @@ void IntersectionDelay::vehiclesDelay()
     if(TLList.empty())
         return;
 
-    // get all vehicles
+    // get all vehicles in the network
     auto allVeh = TraCI->vehicleGetIDList();
+
+    // remove the vehicles in vehDelay_perTL that are not in allVeh anymore
+    for (auto it = vehDelay_perTL.cbegin(); it != vehDelay_perTL.cend() /* not hoisted */; /* no increment */)
+    {
+        auto search = std::find(allVeh.begin(), allVeh.end(), it->first);
+        if (search == allVeh.end())
+        {
+            for(auto &e : it->second)
+            {
+                e->lastSpeeds.clear();
+                e->lastSpeeds2.clear();
+                e->lastAccels.clear();
+                e->lastSignals.clear();
+
+                delete e;
+            }
+
+            it = vehDelay_perTL.erase(it);
+        }
+        else
+            ++it;
+    }
 
     // iterate over vehicles
     for(auto vID : allVeh)
@@ -481,7 +503,7 @@ IntersectionDelay::delayEntry_t* IntersectionDelay::vehicleGetDelay(std::string 
 {
     auto it = vehDelay_perTL.find(vID);
     if(it == vehDelay_perTL.end())
-        throw omnetpp::cRuntimeError("Cannot find vehicle '%s'", vID.c_str());
+        return NULL;
 
     // delay in each intersection that this vehicle has encountered so far
     auto allDelays = it->second;
@@ -493,7 +515,7 @@ IntersectionDelay::delayEntry_t* IntersectionDelay::vehicleGetDelay(std::string 
             return *itt;
     }
 
-    throw omnetpp::cRuntimeError("Cannot find vehicle delay for TL '%s'", TLid.c_str());
+    return NULL;
 }
 
 

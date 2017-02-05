@@ -31,7 +31,7 @@
 #undef ev
 #include "boost/filesystem.hpp"
 
-#include "MIXIM/modules/BaseApplLayer.h"
+#include "veins/modules/BaseApplLayer.h"
 #include "traci/TraCICommands.h"
 #include "rsu/02_Monitor.h"
 #include "logging/vlog.h"

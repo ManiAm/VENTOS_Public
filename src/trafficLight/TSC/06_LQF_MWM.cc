@@ -133,7 +133,7 @@ void TrafficLight_LQF_MWM::initialize_withTraCI()
             std::vector<std::string> link = it2.second;
             std::string incommingLane = link[0];
 
-            linkToLane.insert( std::make_pair(std::make_pair(TLid,linkNumber), incommingLane) );
+            link2Lane.insert( std::make_pair(std::make_pair(TLid,linkNumber), incommingLane) );
         }
     }
 
@@ -254,8 +254,8 @@ void TrafficLight_LQF_MWM::chooseNextGreenInterval()
                 if(!rightTurn)
                 {
                     // get the corresponding lane for this link
-                    auto itt = linkToLane.find(std::make_pair("C",linkNumber));
-                    if(itt == linkToLane.end())
+                    auto itt = link2Lane.find(std::make_pair("C",linkNumber));
+                    if(itt == link2Lane.end())
                         throw omnetpp::cRuntimeError("linkNumber %s is not found in TL %s", linkNumber, "C");
                     std::string lane = itt->second;
 

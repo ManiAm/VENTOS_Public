@@ -169,7 +169,7 @@ void TrafficLight_FMSC::initialize_withTraCI()
             std::vector<std::string> link = it2.second;
             std::string incommingLane = link[0];
 
-            linkToLane.insert( std::make_pair(std::make_pair(TLid,linkNumber), incommingLane) );
+            link2Lane.insert( std::make_pair(std::make_pair(TLid,linkNumber), incommingLane) );
         }
     }
 
@@ -330,8 +330,8 @@ void TrafficLight_FMSC::calculatePhases(std::string TLid)
                 if(!rightTurn)
                 {
                     // get the corresponding lane for this link
-                    auto itt = linkToLane.find(std::make_pair(TLid,linkNumber));
-                    if(itt == linkToLane.end())
+                    auto itt = link2Lane.find(std::make_pair(TLid,linkNumber));
+                    if(itt == link2Lane.end())
                         throw omnetpp::cRuntimeError("linkNumber %s is not found in TL %s", linkNumber, TLid.c_str());
                     std::string lane = itt->second;
 
@@ -368,7 +368,8 @@ void TrafficLight_FMSC::calculatePhases(std::string TLid)
 
                             // total delay in this lane
                             delayEntry_t *vehDelay = vehicleGetDelay(vID,TLid);
-                            totalDelay += vehDelay->totalDelay;
+                            if(vehDelay)
+                                totalDelay += vehDelay->totalDelay;
                         }
                     }
                 }

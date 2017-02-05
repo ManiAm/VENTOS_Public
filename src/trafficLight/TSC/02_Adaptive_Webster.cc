@@ -28,6 +28,7 @@
 
 #include "trafficLight/TSC/02_Adaptive_Webster.h"
 
+
 namespace VENTOS {
 
 Define_Module(VENTOS::TrafficLightWebster);
@@ -41,7 +42,7 @@ TrafficLightWebster::~TrafficLightWebster()
 
 void TrafficLightWebster::initialize(int stage)
 {
-    if(TLControlMode == TL_Adaptive_Webster)
+    if(par("TLControlMode").longValue() == TL_Adaptive_Webster)
         par("record_trafficDemand_stat") = true;
 
     super::initialize(stage);
@@ -70,7 +71,7 @@ void TrafficLightWebster::handleMessage(omnetpp::cMessage *msg)
 {
     if (TLControlMode == TL_Adaptive_Webster && msg == intervalChangeEVT)
     {
-        chooseNextInterval();
+        chooseNextInterval("C");
 
         if(intervalDuration <= 0)
             throw omnetpp::cRuntimeError("intervalDuration is <= 0");
@@ -93,7 +94,7 @@ void TrafficLightWebster::initialize_withTraCI()
     LOG_INFO << "\nAdaptive Webster traffic signal control ...  \n" << std::flush;
 
     // run Webster at the beginning of the cycle
-    calculateGreenSplits();
+    calculateGreenSplits("C");
 
     // set initial values
     currentInterval = phase1_5;
@@ -127,14 +128,14 @@ void TrafficLightWebster::executeEachTimeStep()
 }
 
 
-void TrafficLightWebster::chooseNextInterval()
+void TrafficLightWebster::chooseNextInterval(std::string TLid)
 {
     if (currentInterval == "yellow")
     {
         currentInterval = "red";
 
         // change all 'y' to 'r'
-        std::string str = TraCI->TLGetState("C");
+        std::string str = TraCI->TLGetState(TLid);
         std::string nextInterval = "";
         for(char& c : str) {
             if (c == 'y')
@@ -144,38 +145,38 @@ void TrafficLightWebster::chooseNextInterval()
         }
 
         // set the new state
-        TraCI->TLSetState("C", nextInterval);
+        TraCI->TLSetState(TLid, nextInterval);
         intervalDuration = redTime;
 
         // update TL status for this phase
-        updateTLstate("C", "red");
+        updateTLstate(TLid, "red");
     }
     else if (currentInterval == "red")
     {
         // update TL status for this phase
-        if(nextGreenInterval == firstGreen["C"])
+        if(nextGreenInterval == firstGreen[TLid])
         {
-            updateTLstate("C", "phaseEnd", nextGreenInterval, true);  // new cycle
-            calculateGreenSplits();  // run Webster at the beginning of the cycle
+            updateTLstate(TLid, "phaseEnd", nextGreenInterval, true);  // new cycle
+            calculateGreenSplits(TLid);  // run Webster at the beginning of the cycle
         }
         else
-            updateTLstate("C", "phaseEnd", nextGreenInterval);
+            updateTLstate(TLid, "phaseEnd", nextGreenInterval);
 
         currentInterval = nextGreenInterval;
 
         // set the new state
-        TraCI->TLSetState("C", nextGreenInterval);
+        TraCI->TLSetState(TLid, nextGreenInterval);
         intervalDuration = greenSplit[nextGreenInterval];
     }
     else
-        chooseNextGreenInterval();
+        chooseNextGreenInterval(TLid);
 
     LOG_DEBUG << boost::format("\n    SimTime: %1% | Planned interval: %2% | Start time: %1% | End time: %3% \n")
     % omnetpp::simTime().dbl() % currentInterval % (omnetpp::simTime().dbl() + intervalDuration) << std::flush;
 }
 
 
-void TrafficLightWebster::chooseNextGreenInterval()
+void TrafficLightWebster::chooseNextGreenInterval(std::string TLid)
 {
     std::string nextInterval;
 
@@ -201,16 +202,16 @@ void TrafficLightWebster::chooseNextGreenInterval()
     }
 
     currentInterval = "yellow";
-    TraCI->TLSetState("C", nextInterval);
+    TraCI->TLSetState(TLid, nextInterval);
 
     intervalDuration =  yellowTime;
 
     // update TL status for this phase
-    updateTLstate("C", "yellow");
+    updateTLstate(TLid, "yellow");
 }
 
 
-void TrafficLightWebster::calculateGreenSplits()
+void TrafficLightWebster::calculateGreenSplits(std::string TLid)
 {
     LOG_DEBUG << "\n>>> New cycle calculation ... \n" << std::flush;
 
@@ -263,7 +264,7 @@ void TrafficLightWebster::calculateGreenSplits()
                 if(!rightTurn)
                 {
                     // get all TD measurements so far for link i
-                    auto buffer = TD_perLink[std::make_pair("C",i)];
+                    auto buffer = TD_perLink[std::make_pair(TLid,i)];
 
                     double aveTD = 0;
 

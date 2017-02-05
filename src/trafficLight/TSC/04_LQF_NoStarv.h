@@ -31,32 +31,60 @@
 
 namespace VENTOS {
 
-class greenInterval_LQF
-{
-public:
-    int maxVehCount;
-    double greenTime;
-    std::string greenString;
-
-    greenInterval_LQF(int i1, double d1, std::string str)
-    {
-        this->maxVehCount = i1;
-        this->greenTime = d1;
-        this->greenString = str;
-    }
-};
-
-
 class TrafficLightLQF_NoStarv : public TrafficLightActuated
 {
 private:
     typedef TrafficLightActuated super;
 
     int maxQueueSize;
+
+    std::string currentInterval;
+    double intervalDuration;
+    std::string nextGreenInterval;
+
+    omnetpp::cMessage* intervalChangeEVT = NULL;
+
     bool nextGreenIsNewCycle;
-    std::vector<greenInterval_LQF> greenInterval;
+
+    typedef struct greenIntervalEntry
+    {
+        int maxVehCount;
+        double greenTime;
+        std::string greenString;
+    } greenIntervalEntry_t;
+
+    std::vector<greenIntervalEntry_t> greenInterval;
+
+    // list of all 'incoming lanes' in each TL
+    std::unordered_map< std::string /*TLid*/, std::vector<std::string> > incomingLanes_perTL;
 
     std::map<std::pair<std::string /*TLid*/, int /*link number*/>, std::string /*lane*/> link2Lane;
+
+    std::vector< std::vector<int> > allMovements;
+
+    typedef struct sortedEntry
+    {
+        int oneCount;
+        int totalQueue;
+        int maxVehCount;
+        std::vector<int> batchMovements;
+    } sortedEntry_t;
+
+    typedef struct sortFunc
+    {
+        bool operator()(sortedEntry_t p1, sortedEntry_t p2)
+        {
+            if(p1.totalQueue < p2.totalQueue)
+                return true;
+            else if(p1.totalQueue == p2.totalQueue && p1.oneCount < p2.oneCount)
+                return true;
+            else
+                return false;
+        }
+    } sortFunc_t;
+
+    // batch of all non-conflicting movements, sorted by total queue size per batch
+    typedef std::priority_queue< sortedEntry_t /*type of each element*/, std::vector<sortedEntry_t> /*container*/, sortFunc > priorityQ;
 
 public:
     virtual ~TrafficLightLQF_NoStarv();
@@ -69,8 +97,8 @@ protected:
     void virtual executeEachTimeStep();
 
 private:
-    void chooseNextInterval();
-    void chooseNextGreenInterval();
+    void chooseNextInterval(std::string);
+    void chooseNextGreenInterval(std::string);
     void calculatePhases(std::string);
 };
 

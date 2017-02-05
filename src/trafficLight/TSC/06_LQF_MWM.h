@@ -36,39 +36,23 @@ namespace VENTOS {
 
 class TrafficLight_LQF_MWM : public TrafficLightOJF
 {
-protected:
-    // vehicle type should be identical to vehicle type in beacon field
-    std::map<std::string /*vehicleType*/, double /*weight*/> classWeight =
-    {
-            {"emergency", 50},
-            {"bicycle", 40},
-            {"pedestrian", 30},
-            {"passenger", 20},
-            {"bus", 10},
-            {"truck", 1}
-    };
-
-    std::string phase1_5 = "grgrGgrgrrgrgrGgrgrrrrrr";
-    std::string phase2_5 = "gGgGGgrgrrgrgrrgrgrrrrrG";
-    std::string phase1_6 = "grgrrgrgrrgGgGGgrgrrrGrr";
-    std::string phase2_6 = "gGgGrgrgrrgGgGrgrgrrrGrG";
-
-    std::string phase3_7 = "grgrrgrgrGgrgrrgrgrGrrrr";
-    std::string phase3_8 = "grgrrgrgrrgrgrrgGgGGrrGr";
-    std::string phase4_7 = "grgrrgGgGGgrgrrgrgrrGrrr";
-    std::string phase4_8 = "grgrrgGgGrgrgrrgGgGrGrGr";
-
-    std::vector<std::string> phases = {phase1_5, phase2_5, phase1_6, phase2_6, phase3_7, phase3_8, phase4_7, phase4_8};
-
 private:
     typedef TrafficLightOJF super;
+
+    std::string currentInterval;
+    double intervalDuration;
+    std::string nextGreenInterval;
+
+    omnetpp::cMessage* intervalChangeEVT = NULL;
 
     ApplRSUMonitor *RSUptr = NULL;
     double nextGreenTime;
 
+    std::vector<std::string> phases = {phase1_5, phase2_6, phase3_7, phase4_8};
+
     std::map<std::string /*TLid*/, std::string /*first green interval*/> firstGreen;
 
-    std::map<std::pair<std::string /*TLid*/, int /*link*/>, std::string /*lane*/> linkToLane;
+    std::map<std::pair<std::string /*TLid*/, int /*link*/>, std::string /*lane*/> link2Lane;
 
 public:
     virtual ~TrafficLight_LQF_MWM();

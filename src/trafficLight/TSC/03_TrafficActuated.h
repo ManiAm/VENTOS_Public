@@ -37,23 +37,22 @@ class TrafficLightActuated : public TrafficLightWebster
 private:
     typedef TrafficLightWebster super;
 
-    std::string phase1_5 = "grgrGgrgrrgrgrGgrgrrrrrr";
-    std::string phase2_5 = "gGgGGgrgrrgrgrrgrgrrrrrG";
-    std::string phase1_6 = "grgrrgrgrrgGgGGgrgrrrGrr";
-    std::string phase2_6 = "gGgGrgrgrrgGgGrgrgrrrGrG";
-
-    std::string phase3_7 = "grgrrgrgrGgrgrrgrgrGrrrr";
-    std::string phase3_8 = "grgrrgrgrrgrgrrgGgGGrrGr";
-    std::string phase4_7 = "grgrrgGgGGgrgrrgrgrrGrrr";
-    std::string phase4_8 = "grgrrgGgGrgrgrrgGgGrGrGr";
-
     // NED variables
     double passageTime;
     bool greenExtension;
     double intervalElapseTime;
 
+    std::string currentInterval;
+    double intervalDuration;
+    std::string nextGreenInterval;
+
+    omnetpp::cMessage* intervalChangeEVT = NULL;
+
     // class variables
     std::map<std::string,double> passageTimePerLane;
+
+    // list of all traffic lights in the network
+    std::vector<std::string> TLList;
 
     std::map<std::string /*TLid*/, std::string /*first green interval*/> firstGreen;
 
@@ -71,8 +70,9 @@ protected:
     void virtual executeEachTimeStep();
 
 private:
-    void chooseNextInterval();
-    void chooseNextGreenInterval();
+    void chooseNextInterval(std::string TLid);
+    void chooseNextGreenInterval(std::string TLid);
+    void checkLoopDetectors();
 };
 
 }

@@ -33,28 +33,22 @@ namespace VENTOS {
 
 class TrafficLightWebster : public TrafficLightFixed
 {
-protected:
-    // class variables
-    double intervalDuration;
-    std::string nextGreenInterval;
-    std::string currentInterval;
-
-    omnetpp::cMessage* intervalChangeEVT = NULL;
-
 private:
     typedef TrafficLightFixed super;
 
-    std::map<std::string /*TLid*/, std::string /*first green interval*/> firstGreen;
+    double alpha;
 
-    std::string phase1_5 = "grgrGgrgrrgrgrGgrgrrrrrr";
-    std::string phase2_6 = "gGgGrgrgrrgGgGrgrgrrrGrG";
-    std::string phase3_7 = "grgrrgrgrGgrgrrgrgrGrrrr";
-    std::string phase4_8 = "grgrrgGgGrgrgrrgGgGrGrGr";
+    std::string currentInterval;
+    double intervalDuration;
+    std::string nextGreenInterval;
+
+    omnetpp::cMessage* intervalChangeEVT = NULL;
+
+    std::map<std::string /*TLid*/, std::string /*first green interval*/> firstGreen;
 
     std::vector<std::string> phases = {phase1_5, phase2_6, phase3_7, phase4_8};
 
     std::map<std::string /*phase*/, double /*green split*/> greenSplit;
-    double alpha;
 
 public:
     virtual ~TrafficLightWebster();
@@ -67,9 +61,9 @@ protected:
     void virtual executeEachTimeStep();
 
 private:
-    void chooseNextInterval();
-    void chooseNextGreenInterval();
-    void calculateGreenSplits();
+    void chooseNextInterval(std::string);
+    void chooseNextGreenInterval(std::string);
+    void calculateGreenSplits(std::string);
 };
 
 }

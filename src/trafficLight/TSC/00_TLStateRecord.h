@@ -53,6 +53,27 @@ protected:
         double phaseEnd;
     } currentStatusTL_t;
 
+    std::string phase1_5 = "grgrGgrgrrgrgrGgrgrrrrrr";
+    std::string phase2_5 = "gGgGGgrgrrgrgrrgrgrrrrrG";
+    std::string phase1_6 = "grgrrgrgrrgGgGGgrgrrrGrr";
+    std::string phase2_6 = "gGgGrgrgrrgGgGrgrgrrrGrG";
+
+    std::string phase3_7 = "grgrrgrgrGgrgrrgrgrGrrrr";
+    std::string phase3_8 = "grgrrgrgrrgrgrrgGgGGrrGr";
+    std::string phase4_7 = "grgrrgGgGGgrgrrgrgrrGrrr";
+    std::string phase4_8 = "grgrrgGgGrgrgrrgGgGrGrGr";
+
+    // vehicle type should be identical to vehicle type in beacon field
+    std::map<std::string /*vehicleType*/, double /*weight*/> classWeight =
+    {
+            {"emergency", 50},
+            {"bicycle", 40},
+            {"pedestrian", 30},
+            {"passenger", 20},
+            {"bus", 10},
+            {"truck", 1}
+    };
+
 private:
     typedef TrafficLightAllowedMoves super;
 

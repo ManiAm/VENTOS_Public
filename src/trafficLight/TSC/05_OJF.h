@@ -36,12 +36,45 @@ class TrafficLightOJF : public TrafficLightLQF_NoStarv
 private:
     typedef TrafficLightLQF_NoStarv super;
 
+    std::string currentInterval;
+    double intervalDuration;
+    std::string nextGreenInterval;
+
+    double nextGreenTime;
+    omnetpp::cMessage* intervalChangeEVT = NULL;
+
     std::map<std::string /*TLid*/, std::string /*first green interval*/> firstGreen;
 
-    std::map<std::pair<std::string /*TLid*/, int /*link*/>, std::string /*lane*/> linkToLane;
+    std::map<std::pair<std::string /*TLid*/, int /*link*/>, std::string /*lane*/> link2Lane;
 
-    std::string phase1_5 = "grgrGgrgrrgrgrGgrgrrrrrr";
-    double nextGreenTime;
+    // list of all 'incoming lanes' in each TL
+    std::unordered_map< std::string /*TLid*/, std::vector<std::string> > incomingLanes_perTL;
+
+    std::vector< std::vector<int> > allMovements;
+
+    typedef struct sortedEntry
+    {
+        int oneCount;
+        int maxVehCount;
+        double totalDelay;
+        std::vector<int> batchMovements;
+    } sortedEntry_t;
+
+    typedef struct sortFunc
+    {
+        bool operator()(sortedEntry_t p1, sortedEntry_t p2)
+        {
+            if( p1.totalDelay < p2.totalDelay )
+                return true;
+            else if( p1.totalDelay == p2.totalDelay && p1.oneCount < p2.oneCount)
+                return true;
+            else
+                return false;
+        }
+    } sortFunc_t;
+
+    // batch of all non-conflicting movements, sorted by total vehicle delay per batch
+    typedef std::priority_queue< sortedEntry_t /*type of each element*/, std::vector<sortedEntry_t> /*container*/, sortFunc > priorityQ;
 
 public:
     virtual ~TrafficLightOJF();
@@ -54,8 +87,8 @@ protected:
     void virtual executeEachTimeStep();
 
 private:
-    void chooseNextInterval();
-    void chooseNextGreenInterval();
+    void chooseNextInterval(std::string);
+    void chooseNextGreenInterval(std::string);
 };
 
 }
