@@ -540,13 +540,16 @@ void AddNode::parseObstacle(rapidxml::xml_node<> *pNode)
         std::string id_str = getAttrValue_string(cNode, "id");
         int length = getAttrValue_int(cNode, "length", false, 5);
         std::string edge_str = getAttrValue_string(cNode, "edge");
-        int lane = getAttrValue_int(cNode, "lane");
+        int lane = getAttrValue_int(cNode, "lane", false, -5 /*DEPART_LANE_BEST_FREE*/);
         double lanePos = getAttrValue_double(cNode, "lanePos");
         bool onRoad = getAttrValue_bool(cNode, "onRoad", false, true);
         std::string color_str = getAttrValue_string(cNode, "color", false, "red");
         double begin = getAttrValue_double(cNode, "begin", false, 0);
         double end = getAttrValue_double(cNode, "end", false, -1);
         double duration = getAttrValue_double(cNode, "duration", false, -1);
+
+        if(!onRoad && cNode->first_attribute("lane"))
+            throw omnetpp::cRuntimeError("attribute 'lane' is redundant when 'onRoad' is false in element '%s'", obstacle_tag.c_str());
 
         if(cNode->first_attribute("end") && cNode->first_attribute("duration"))
             throw omnetpp::cRuntimeError("attribute 'duration' and 'end' cannot be present together in element '%s'", obstacle_tag.c_str());
@@ -608,16 +611,35 @@ void AddNode::addObstacle()
             allRouteIDs.push_back(route_name);
         }
 
-        // now we add a vehicle as obstacle
-        TraCI->vehicleAdd(vehID, "DEFAULT_VEHTYPE", route_name, (int32_t)(entry.second.begin * 1000), entry.second.lanePos, 0, entry.second.lane);
+        if(entry.second.onRoad)
+        {
+            // now we add a vehicle as obstacle
+            TraCI->vehicleAdd(vehID, "DEFAULT_VEHTYPE", route_name, (int32_t)(entry.second.begin * 1000), entry.second.lanePos, 0, entry.second.lane);
 
-        // and make it stop on the lane!
-        TraCI->vehicleSetSpeed(vehID, 0.);
+            // and make it stop on the lane!
+            TraCI->vehicleSetSpeed(vehID, 0.);
 
-        if(!entry.second.onRoad)
-            TraCI->vehicleSetStop(vehID, entry.second.edge_str, entry.second.lanePos, entry.second.lane, std::numeric_limits<int32_t>::max() /*duration*/, 1 /*parking*/);
-        else
             TraCI->vehicleSetLaneChangeMode(vehID, LANECHANGEMODE_OBSTACLE);
+        }
+        else
+        {
+            // get the lanes that allows vehicles class 'custome1'
+            auto allowedLanes = TraCI->edgeGetAllowedLanes(entry.second.edge_str, "custom1");
+
+            // choose either of the allowed lanes and split the laneId
+            std::vector<std::string> tok;
+            boost::split(tok, allowedLanes[0], boost::is_any_of("_"));
+
+            int laneIndex = std::atoi(tok.back().c_str());
+
+            // now we add a vehicle as obstacle
+            TraCI->vehicleAdd(vehID, "DEFAULT_VEHTYPE", route_name, (int32_t)(entry.second.begin * 1000), entry.second.lanePos, 0, laneIndex);
+
+            // and make it stop on the lane!
+            TraCI->vehicleSetSpeed(vehID, 0.);
+
+            TraCI->vehicleSetStop(vehID, entry.second.edge_str, entry.second.lanePos, laneIndex, std::numeric_limits<int32_t>::max() /*duration*/, 1 /*parking*/);
+        }
 
         // and change its color
         RGB newColor = Color::colorNameToRGB(entry.second.color_str);
