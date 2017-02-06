@@ -258,10 +258,8 @@ void TrafficLightWebster::calculateGreenSplits(std::string TLid)
             // if link i is active
             if(prog[i] == 'g' || prog[i] == 'G')
             {
-                bool rightTurn = std::find(std::begin(rightTurns), std::end(rightTurns), i) != std::end(rightTurns);
-
                 // if link i is not a right-turn (right turns are all permissive)
-                if(!rightTurn)
+                if(!isRightTurn(i))
                 {
                     // get all TD measurements so far for link i
                     auto buffer = TD_perLink[std::make_pair(TLid,i)];

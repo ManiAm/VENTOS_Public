@@ -38,11 +38,17 @@ namespace VENTOS {
 class IntersectionQueue : public TrafficLightBase
 {
 protected:
+    typedef struct vehInfo
+    {
+        std::string id;
+        std::string type;
+    } vehInfo_t;
+
     typedef struct queueInfoRealTime
     {
         std::string TLid;
         int queueSize;
-        std::vector<std::string> vehs;
+        std::vector<vehInfo_t> vehs;
     } queueInfoRealTime_t;
 
 private:
@@ -52,6 +58,7 @@ private:
     bool record_intersectionQueue_stat;
     double speedThreshold_veh;
     double speedThreshold_bike;
+    int queueSizeLimit;
 
     // list of all traffic lights in the network
     std::vector<std::string> TLList;

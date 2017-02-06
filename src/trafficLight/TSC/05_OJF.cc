@@ -242,9 +242,8 @@ void TrafficLightOJF::chooseNextGreenInterval(std::string TLid)
             int vehCount = 0;
             if(allMovements[i][linkNumber] == 1)
             {
-                bool notRightTurn = std::find(std::begin(rightTurns), std::end(rightTurns), linkNumber) == std::end(rightTurns);
                 // ignore this link if right turn
-                if(notRightTurn)
+                if(!isRightTurn(linkNumber))
                 {
                     // get the corresponding lane for this link
                     auto itt = link2Lane.find(std::make_pair(TLid,linkNumber));
@@ -297,15 +296,15 @@ void TrafficLightOJF::chooseNextGreenInterval(std::string TLid)
     nextGreenInterval = "";
     for(unsigned int linkNumber = 0; linkNumber < batchMovements.size(); ++linkNumber)
     {
-        // if a right turn
-        bool rightTurn = std::find(std::begin(rightTurns), std::end(rightTurns), linkNumber) != std::end(rightTurns);
-
         if(batchMovements[linkNumber] == 0)
             nextGreenInterval += 'r';
-        else if(batchMovements[linkNumber] == 1 && rightTurn)
-            nextGreenInterval += 'g';
-        else if(batchMovements[linkNumber] == 1 && !rightTurn)
-            nextGreenInterval += 'G';
+        else if(batchMovements[linkNumber] == 1)
+        {
+            if(isRightTurn(linkNumber))
+                nextGreenInterval += 'g';
+            else
+                nextGreenInterval += 'G';
+        }
     }
 
     // calculate 'next interval'

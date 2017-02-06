@@ -32,70 +32,6 @@ namespace VENTOS {
 
 Define_Module(VENTOS::TrafficLight_FMSC);
 
-class sortedEntry_FMSC
-{
-public:
-    int oneCount;
-    int maxVehCount;
-    double totalDelay;
-    double totalWeight;
-    std::string phase;
-
-    sortedEntry_FMSC(double d1, double d2, int i1, int i2, std::string p)
-    {
-        this->totalWeight = d1;
-        this->totalDelay = d2;
-        this->oneCount = i1;
-        this->maxVehCount = i2;
-        this->phase = p;
-    }
-};
-
-
-class sortCompare_FMSC
-{
-public:
-    bool operator()(sortedEntry_FMSC p1, sortedEntry_FMSC p2)
-    {
-        if( p1.totalWeight < p2.totalWeight )
-            return true;
-        else if( p1.totalWeight == p2.totalWeight && p1.totalDelay < p2.totalDelay)
-            return true;
-        else if( p1.totalWeight == p2.totalWeight && p1.totalDelay == p2.totalDelay && p1.oneCount < p2.oneCount)
-            return true;
-        else
-            return false;
-    }
-};
-
-
-// using a 'functor' rather than a 'function'
-// Reason: to be able to pass an additional argument (bestMovement) to predicate
-struct served_FMSC
-{
-public:
-    served_FMSC(std::string str)
-{
-        this->thisPhase = str;
-}
-
-    bool operator () (const sortedEntry_FMSC v)
-    {
-        std::string phase = v.phase;
-
-        for(unsigned int i = 0; i < phase.size(); i++)
-        {
-            if (phase[i] == 'G' && thisPhase[i] == 'G')
-                return true;
-        }
-
-        return false;
-    }
-
-private:
-    std::string thisPhase;
-};
-
 
 TrafficLight_FMSC::~TrafficLight_FMSC()
 {
@@ -105,6 +41,12 @@ TrafficLight_FMSC::~TrafficLight_FMSC()
 
 void TrafficLight_FMSC::initialize(int stage)
 {
+    if(par("TLControlMode").longValue() == TL_FMSC)
+    {
+        par("record_intersectionQueue_stat") = true;
+        par("record_intersectionDelay_stat") = true;
+    }
+
     super::initialize(stage);
 
     if(TLControlMode != TL_FMSC)
@@ -131,7 +73,7 @@ void TrafficLight_FMSC::handleMessage(omnetpp::cMessage *msg)
         if(greenInterval.empty())
             calculatePhases("C");
 
-        chooseNextInterval();
+        chooseNextInterval("C");
 
         if(intervalDuration <= 0)
             throw omnetpp::cRuntimeError("intervalDuration is <= 0");
@@ -159,6 +101,15 @@ void TrafficLight_FMSC::initialize_withTraCI()
     // for each traffic light
     for (auto &TLid : TLList)
     {
+        // get all incoming lanes
+        auto lan = TraCI->TLGetControlledLanes(TLid);
+
+        // remove duplicate entries
+        sort( lan.begin(), lan.end() );
+        lan.erase( unique( lan.begin(), lan.end() ), lan.end() );
+
+        incomingLanes_perTL[TLid] = lan;
+
         // get all links controlled by this TL
         auto result = TraCI->TLGetControlledLinks(TLid);
 
@@ -172,15 +123,6 @@ void TrafficLight_FMSC::initialize_withTraCI()
             link2Lane.insert( std::make_pair(std::make_pair(TLid,linkNumber), incommingLane) );
         }
     }
-
-    // find the RSU module that controls this TL
-    RSUptr = findRSU("C");
-
-    // make sure RSUptr is pointing to our corresponding RSU
-    ASSERT(RSUptr);
-
-    // turn on active detection on this RSU
-    RSUptr->par("record_vehApproach_stat") = true;
 
     // calculate phases at the beginning of the cycle
     calculatePhases("C");
@@ -217,14 +159,14 @@ void TrafficLight_FMSC::executeEachTimeStep()
 }
 
 
-void TrafficLight_FMSC::chooseNextInterval()
+void TrafficLight_FMSC::chooseNextInterval(std::string TLid)
 {
     if (currentInterval == "yellow")
     {
         currentInterval = "red";
 
         // change all 'y' to 'r'
-        std::string str = TraCI->TLGetState("C");
+        std::string str = TraCI->TLGetState(TLid);
         std::string nextInterval = "";
         for(char& c : str) {
             if (c == 'y')
@@ -234,37 +176,37 @@ void TrafficLight_FMSC::chooseNextInterval()
         }
 
         // set the new state
-        TraCI->TLSetState("C", nextInterval);
+        TraCI->TLSetState(TLid, nextInterval);
         intervalDuration = redTime;
 
         // update TL status for this phase
-        updateTLstate("C", "red");
+        updateTLstate(TLid, "red");
     }
     else if (currentInterval == "red")
     {
         if(nextGreenIsNewCycle)
         {
-            updateTLstate("C", "phaseEnd", nextGreenInterval, true);  // a new cycle
+            updateTLstate(TLid, "phaseEnd", nextGreenInterval, true);  // a new cycle
             nextGreenIsNewCycle = false;
         }
         else
-            updateTLstate("C", "phaseEnd", nextGreenInterval);
+            updateTLstate(TLid, "phaseEnd", nextGreenInterval);
 
         currentInterval = nextGreenInterval;
 
         // set the new state
-        TraCI->TLSetState("C", nextGreenInterval);
+        TraCI->TLSetState(TLid, nextGreenInterval);
         intervalDuration = greenInterval.front().greenTime;
     }
     else
-        chooseNextGreenInterval();
+        chooseNextGreenInterval(TLid);
 
     LOG_DEBUG << boost::format("\n    SimTime: %1% | Planned interval: %2% | Start time: %1% | End time: %3% \n")
     % omnetpp::simTime().dbl() % currentInterval % (omnetpp::simTime().dbl() + intervalDuration) << std::flush;
 }
 
 
-void TrafficLight_FMSC::chooseNextGreenInterval()
+void TrafficLight_FMSC::chooseNextGreenInterval(std::string TLid)
 {
     // Remove current old phase:
     greenInterval.erase(greenInterval.begin());
@@ -272,7 +214,7 @@ void TrafficLight_FMSC::chooseNextGreenInterval()
     // Assign new green:
     if (greenInterval.empty())
     {
-        calculatePhases("C");
+        calculatePhases(TLid);
         nextGreenIsNewCycle = true;
     }
 
@@ -289,29 +231,55 @@ void TrafficLight_FMSC::chooseNextGreenInterval()
     }
 
     currentInterval = "yellow";
-    TraCI->TLSetState("C", nextInterval);
+    TraCI->TLSetState(TLid, nextInterval);
 
     intervalDuration =  yellowTime;
 
     // update TL status for this phase
-    updateTLstate("C", "yellow");
+    updateTLstate(TLid, "yellow");
 }
 
 
 void TrafficLight_FMSC::calculatePhases(std::string TLid)
 {
-    LOG_DEBUG << "\n>>> New cycle calculation ... \n" << std::flush;
+    LOG_DEBUG << "\n------------------------------------------------------------------------------- \n";
+    LOG_DEBUG << ">>> New cycle calculation \n" << std::flush;
 
-    // get all incoming lanes for this TL only
-    std::map<std::string /*lane*/, laneInfoEntry> laneInfo = RSUptr->laneInfo;
+    if(LOG_ACTIVE(DEBUG_LOG_VAL))
+    {
+        auto it = incomingLanes_perTL.find(TLid);
+        if(it == incomingLanes_perTL.end())
+            throw omnetpp::cRuntimeError("cannot find TLid '%s' in incomingLanes_perTL", TLid.c_str());
 
-    if(laneInfo.empty())
-        throw omnetpp::cRuntimeError("LaneInfo is empty! Is active detection on in %s ?", RSUptr->getFullName());
+        LOG_DEBUG << "\n    Queue size per lane: ";
+        for(auto &lane : it->second)
+        {
+            int qSize = laneGetQueueSize(lane).queueSize;
+            if(qSize != 0)
+                LOG_DEBUG << lane << " (" << qSize << ") | ";
+        }
 
-    // batch of all non-conflicting movements, sorted by total weight + oneCount per batch
-    std::priority_queue< sortedEntry_FMSC /*type of each element*/, std::vector<sortedEntry_FMSC> /*container*/, sortCompare_FMSC > sortedMovements;
-    // clear the priority queue
-    sortedMovements = std::priority_queue < sortedEntry_FMSC, std::vector<sortedEntry_FMSC>, sortCompare_FMSC >();
+        LOG_DEBUG << "\n\n    Total delay of vehicles on each lane: \n";
+        for(auto &lane : it->second)
+        {
+            auto vehs = laneGetQueueSize(lane).vehs;
+
+            double totalDelay = 0;
+            for(auto &veh : vehs)
+            {
+                delayEntry_t *vehDelay = vehicleGetDelay(veh.id,TLid);
+                if(vehDelay)
+                    totalDelay += vehDelay->totalDelay;
+            }
+
+            if(totalDelay != 0)
+                LOG_DEBUG << boost::format("        lane %1%: %2% \n") % lane % totalDelay;
+        }
+
+        LOG_FLUSH;
+    }
+
+    priorityQ sortedMovements;
 
     for(std::string phase : phases)
     {
@@ -325,9 +293,8 @@ void TrafficLight_FMSC::calculatePhases(std::string TLid)
             int vehCount = 0;
             if(phase[linkNumber] == 'G')
             {
-                bool rightTurn = std::find(std::begin(rightTurns), std::end(rightTurns), linkNumber) != std::end(rightTurns);
                 // ignore this link if right turn
-                if(!rightTurn)
+                if(!isRightTurn(linkNumber))
                 {
                     // get the corresponding lane for this link
                     auto itt = link2Lane.find(std::make_pair(TLid,linkNumber));
@@ -335,42 +302,23 @@ void TrafficLight_FMSC::calculatePhases(std::string TLid)
                         throw omnetpp::cRuntimeError("linkNumber %s is not found in TL %s", linkNumber, TLid.c_str());
                     std::string lane = itt->second;
 
-                    // find this lane in laneInfo
-                    auto res = laneInfo.find(lane);
-                    if(res == laneInfo.end())
-                        throw omnetpp::cRuntimeError("Can not find lane %s in laneInfo!", lane.c_str());
+                    auto queuedVehs = laneGetQueueSize(lane).vehs;
 
-                    // get all queued vehicles on this lane
-                    auto vehicles = (*res).second.allVehicles;
-
-                    // for each vehicle
-                    for(auto& entry : vehicles)
+                    for(auto &veh : queuedVehs)
                     {
-                        double stoppingDelayThreshold = 0;
-                        if(entry.second.vehType == "bicycle")
-                            stoppingDelayThreshold = par("bikeStoppingDelayThreshold").doubleValue();
-                        else
-                            stoppingDelayThreshold = par("vehStoppingDelayThreshold").doubleValue();
+                        // total weight of entities on this lane
+                        auto loc = classWeight.find(veh.type);
+                        if(loc == classWeight.end())
+                            throw omnetpp::cRuntimeError("entity %s with type %s does not have a weight in classWeight map!", veh.id.c_str(), veh.type.c_str());
 
-                        // we only care about waiting vehicles on this lane
-                        if(entry.second.currentSpeed <= stoppingDelayThreshold)
-                        {
-                            vehCount++;
+                        totalWeight += loc->second;
 
-                            std::string vID = entry.first;
-                            std::string vType = entry.second.vehType;
+                        // total delay in this lane
+                        delayEntry_t *vehDelay = vehicleGetDelay(veh.id,TLid);
+                        if(vehDelay)
+                            totalDelay += vehDelay->totalDelay;
 
-                            // total weight of entities on this lane
-                            auto loc = classWeight.find(vType);
-                            if(loc == classWeight.end())
-                                throw omnetpp::cRuntimeError("entity %s with type %s does not have a weight in classWeight map!", vID.c_str(), vType.c_str());
-                            totalWeight += loc->second;
-
-                            // total delay in this lane
-                            delayEntry_t *vehDelay = vehicleGetDelay(vID,TLid);
-                            if(vehDelay)
-                                totalDelay += vehDelay->totalDelay;
-                        }
+                        vehCount++;
                     }
                 }
 
@@ -382,12 +330,12 @@ void TrafficLight_FMSC::calculatePhases(std::string TLid)
         }
 
         // add this batch of movements to priority_queue
-        sortedEntry_FMSC *entry = new sortedEntry_FMSC(totalWeight, totalDelay, oneCount, maxVehCount, phase);
-        sortedMovements.push(*entry);
+        sortedEntry_t entry = {totalWeight, totalDelay, oneCount, maxVehCount, phase};
+        sortedMovements.push(entry);
     }
 
     // copy sortedMovements to a vector for iteration:
-    std::vector<sortedEntry_FMSC> batchMovementVector;
+    std::vector<sortedEntry_t> batchMovementVector;
     while(!sortedMovements.empty())
     {
         batchMovementVector.push_back(sortedMovements.top());
@@ -398,14 +346,27 @@ void TrafficLight_FMSC::calculatePhases(std::string TLid)
     while(!batchMovementVector.empty())
     {
         // Always select the first movement because it will be the best(?):
-        sortedEntry_FMSC entry = batchMovementVector.front();
+        sortedEntry_t entry = batchMovementVector.front();
         std::string nextInterval = entry.phase;
 
-        greenInterval_FMSC *entry2 = new greenInterval_FMSC(entry.maxVehCount, entry.totalWeight, entry.oneCount, 0.0, entry.phase);
-        greenInterval.push_back(*entry2);
+        greenIntervalEntry_t entry2 = {entry.maxVehCount, entry.totalWeight, entry.oneCount, 0.0, entry.phase};
+        greenInterval.push_back(entry2);
 
         // Now delete these movements because they should never occur again:
-        batchMovementVector.erase( std::remove_if(batchMovementVector.begin(), batchMovementVector.end(), served_FMSC(nextInterval)), batchMovementVector.end() );
+        auto new_end = std::remove_if(batchMovementVector.begin(), batchMovementVector.end(), [nextInterval](const sortedEntry_t v) {
+
+            std::string phase = v.phase;
+
+            for(unsigned int i = 0; i < phase.size(); i++)
+            {
+                if (phase[i] == 'G' && nextInterval[i] == 'G')
+                    return true;
+            }
+
+            return false;
+        });
+
+        batchMovementVector.erase(new_end, batchMovementVector.end());
     }
 
     // calculate number of vehicles in the intersection
@@ -428,15 +389,15 @@ void TrafficLight_FMSC::calculatePhases(std::string TLid)
     // If no green time (0s) is given to a phase, then this queue is empty and useless:
     int oldSize = greenInterval.size();
     auto rme = std::remove_if(greenInterval.begin(), greenInterval.end(),
-            [](const greenInterval_FMSC v)
-            {
+            [](const greenIntervalEntry_t v) {
         if (v.greenTime == 0.0)
             return true;
         else
             return false;
-            }
-    );
-    greenInterval.erase( rme, greenInterval.end() );
+    });
+
+    greenInterval.erase(rme, greenInterval.end());
+
     int newSize = greenInterval.size();
     if(oldSize != newSize)
         LOG_DEBUG << "\n    " << oldSize - newSize << " phase(s) removed due to zero queue size! \n" << std::flush;
@@ -457,6 +418,8 @@ void TrafficLight_FMSC::calculatePhases(std::string TLid)
 
         LOG_FLUSH;
     }
+
+    LOG_DEBUG << "------------------------------------------------------------------------------- \n" << std::flush;
 }
 
 }

@@ -54,6 +54,11 @@ void IntersectionQueue::initialize(int stage)
 
         if(speedThreshold_bike < 0)
             throw omnetpp::cRuntimeError("speedThreshold_bike is not set correctly!");
+
+        queueSizeLimit = par("queueSizeLimit").longValue();
+
+        if(queueSizeLimit <= 0 && queueSizeLimit != -1)
+            throw omnetpp::cRuntimeError("queueSizeLimit value is set incorrectly!");
     }
 }
 
@@ -120,10 +125,9 @@ void IntersectionQueue::initVariables()
 
             // initialize queue value in laneQueueSize to zero
             queueInfoRealTime_t entry;
-
             entry.TLid = TLid;
             entry.queueSize = 0;
-            entry.vehs = std::vector<std::string> ();
+            entry.vehs = std::vector<vehInfo_t> ();
 
             queueSize_perLane[lane] = entry;
 
@@ -164,7 +168,7 @@ void IntersectionQueue::measureQueue()
         // remove the vehicles in queuedVehs that are not in vehsOnLane anymore
         for (auto it = queuedVehs.cbegin(); it != queuedVehs.cend() /* not hoisted */; /* no increment */)
         {
-            auto search = std::find(vehsOnLane.begin(), vehsOnLane.end(), *it);
+            auto search = std::find(vehsOnLane.begin(), vehsOnLane.end(), (*it).id);
             if (search == vehsOnLane.end())
                 it = queuedVehs.erase(it);
             else
@@ -176,7 +180,7 @@ void IntersectionQueue::measureQueue()
         for(auto rit = vehsOnLane.rbegin(); rit != vehsOnLane.rend(); rit++)
         {
             // if the vehicle is waiting
-            auto search = std::find(queuedVehs.begin(), queuedVehs.end(), *rit);
+            auto search = std::find_if(queuedVehs.begin(), queuedVehs.end(), [&](const vehInfo_t &a){return a.id == *rit;});
             if(search != queuedVehs.end())
             {
                 vehCount++;
@@ -200,11 +204,16 @@ void IntersectionQueue::measureQueue()
                 else
                     stoppingDelayThreshold = speedThreshold_veh;
 
-                // current speed
                 double speed = TraCI->vehicleGetSpeed(*rit);
 
                 if(speed <= stoppingDelayThreshold)
-                    queuedVehs.push_back(*rit);
+                {
+                    if(queueSizeLimit == -1 || (queueSizeLimit != -1 && queuedVehs.size() < (unsigned int)queueSizeLimit))
+                    {
+                        vehInfo_t entry = {*rit, vehType};
+                        queuedVehs.push_back(entry);
+                    }
+                }
 
                 vehCount++;
                 continue;
@@ -224,11 +233,16 @@ void IntersectionQueue::measureQueue()
             else
                 stoppingDelayThreshold = speedThreshold_veh;
 
-            // current speed
             double speed = TraCI->vehicleGetSpeed(*rit);
 
             if(speed <= stoppingDelayThreshold)
-                queuedVehs.push_back(*rit);
+            {
+                if(queueSizeLimit == -1 || (queueSizeLimit != -1 && queuedVehs.size() < (unsigned int)queueSizeLimit))
+                {
+                    vehInfo_t entry = {*rit, vehType};
+                    queuedVehs.push_back(entry);
+                }
+            }
 
             vehCount++;
         }

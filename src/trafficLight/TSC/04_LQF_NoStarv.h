@@ -36,8 +36,6 @@ class TrafficLightLQF_NoStarv : public TrafficLightActuated
 private:
     typedef TrafficLightActuated super;
 
-    int maxQueueSize;
-
     std::string currentInterval;
     double intervalDuration;
     std::string nextGreenInterval;
@@ -84,7 +82,7 @@ private:
     } sortFunc_t;
 
     // batch of all non-conflicting movements, sorted by total queue size per batch
-    typedef std::priority_queue< sortedEntry_t /*type of each element*/, std::vector<sortedEntry_t> /*container*/, sortFunc > priorityQ;
+    typedef std::priority_queue< sortedEntry_t /*type of each element*/, std::vector<sortedEntry_t> /*container*/, sortFunc_t > priorityQ;
 
 public:
     virtual ~TrafficLightLQF_NoStarv();

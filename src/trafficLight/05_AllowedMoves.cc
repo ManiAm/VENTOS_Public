@@ -500,4 +500,15 @@ void TrafficLightAllowedMoves::allMovementBatch(unsigned int linkNumber)
     std::cout.flush();
 }
 
+
+bool TrafficLightAllowedMoves::isRightTurn(unsigned int linkNumber)
+{
+    auto it = std::find(std::begin(rightTurns), std::end(rightTurns), linkNumber);
+
+    if(it != std::end(rightTurns))
+        return true;
+
+    return false;
+}
+
 }

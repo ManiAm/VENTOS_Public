@@ -45,7 +45,6 @@ private:
 
     omnetpp::cMessage* intervalChangeEVT = NULL;
 
-    ApplRSUMonitor *RSUptr = NULL;
     double nextGreenTime;
 
     std::vector<std::string> phases = {phase1_5, phase2_6, phase3_7, phase4_8};
@@ -53,6 +52,33 @@ private:
     std::map<std::string /*TLid*/, std::string /*first green interval*/> firstGreen;
 
     std::map<std::pair<std::string /*TLid*/, int /*link*/>, std::string /*lane*/> link2Lane;
+
+    // list of all 'incoming lanes' in each TL
+    std::unordered_map< std::string /*TLid*/, std::vector<std::string> > incomingLanes_perTL;
+
+    typedef struct sortedEntry
+    {
+        double totalWeight;
+        int oneCount;
+        int maxVehCount;
+        std::string phase;
+    } sortedEntry_t;
+
+    typedef struct sortFunc
+    {
+        bool operator()(sortedEntry_t p1, sortedEntry_t p2)
+        {
+            if( p1.totalWeight < p2.totalWeight )
+                return true;
+            else if( p1.totalWeight == p2.totalWeight && p1.oneCount < p2.oneCount)
+                return true;
+            else
+                return false;
+        }
+    } sortFunc_t;
+
+    // batch of all non-conflicting movements, sorted by total weight + oneCount per batch
+    typedef std::priority_queue< sortedEntry_t /*type of each element*/, std::vector<sortedEntry_t> /*container*/, sortFunc_t > priorityQ;
 
 public:
     virtual ~TrafficLight_LQF_MWM();
@@ -65,8 +91,8 @@ protected:
     void virtual executeEachTimeStep();
 
 private:
-    void chooseNextInterval();
-    void chooseNextGreenInterval();
+    void chooseNextInterval(std::string);
+    void chooseNextGreenInterval(std::string);
 };
 
 }

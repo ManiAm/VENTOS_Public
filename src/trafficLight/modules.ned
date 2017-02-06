@@ -17,7 +17,7 @@ simple TL_Base
         // TLControlMode = 5: OJF (lowest delay)
         // TLControlMode = 6: LQF_MWM (has starvation)
         // TLControlMode = 7: LQF_MWM_Aging
-        // TLControlMode = 8: LQF_FMSC
+        // TLControlMode = 8: FMSC
         // TLControlMode = 9: router
         int TLControlMode = default(0);
 }
@@ -33,6 +33,8 @@ simple TL_IntersectionQueue extends TL_Base
         
         double speedThreshold_veh  = default(5.0);  // m/s: vehicle with speed less than this value is considered stopped
         double speedThreshold_bike = default(0.4);  // m/s: bike with speed less than this value is considered stopped
+        
+        int queueSizeLimit = default(-1); // max queue has the accurate queue size information 
 }
 
 
@@ -118,9 +120,7 @@ simple TL_LQF extends TL_Actuated
 {
     parameters:
         @class(VENTOS::TrafficLightLQF_NoStarv);
-        @display("i=block/network2");  
-        
-        int maxQueueSize = default(-1); // max queue has the accurate queue size information            
+        @display("i=block/network2");             
 }
 
 
@@ -168,6 +168,5 @@ simple TL_Manager extends TL_Router
 {
     parameters:
         @class(VENTOS::TrafficLightManager);
-        @display("i=block/network2");  
-    
+        @display("i=block/network2");    
 }

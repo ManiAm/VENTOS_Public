@@ -31,26 +31,6 @@
 
 namespace VENTOS {
 
-class greenInterval_FMSC
-{
-public:
-    int maxVehCount;
-    double totalWeight;
-    int oneCount;
-    double greenTime;
-    std::string greenString;
-
-    greenInterval_FMSC(int i1, double d0, int i2, double d1, std::string str)
-    {
-        this->maxVehCount = i1;
-        this->totalWeight = d0;
-        this->oneCount = i2;
-        this->greenTime = d1;
-        this->greenString = str;
-    }
-};
-
-
 class TrafficLight_FMSC : public TrafficLight_LQF_MWM_Aging
 {
 private:
@@ -62,15 +42,54 @@ private:
 
     omnetpp::cMessage* intervalChangeEVT = NULL;
 
-    ApplRSUMonitor *RSUptr;
-    std::vector<greenInterval_FMSC> greenInterval;
     bool nextGreenIsNewCycle;
+
+    typedef struct greenIntervalEntry
+    {
+        int maxVehCount;
+        double totalWeight;
+        int oneCount;
+        double greenTime;
+        std::string greenString;
+    } greenIntervalEntry_t;
+
+    std::vector<greenIntervalEntry_t> greenInterval;
 
     std::vector<std::string> phases = {phase1_5, phase2_6, phase3_7, phase4_8};
 
     std::map<std::string /*TLid*/, std::string /*first green interval*/> firstGreen;
 
     std::map<std::pair<std::string /*TLid*/, int /*link*/>, std::string /*lane*/> link2Lane;
+
+    // list of all 'incoming lanes' in each TL
+    std::unordered_map< std::string /*TLid*/, std::vector<std::string> > incomingLanes_perTL;
+
+    typedef struct sortedEntry
+    {
+        double totalWeight;
+        double totalDelay;
+        int oneCount;
+        int maxVehCount;
+        std::string phase;
+    } sortedEntry_t;
+
+    typedef struct sortFunc
+    {
+        bool operator()(sortedEntry_t p1, sortedEntry_t p2)
+        {
+            if( p1.totalWeight < p2.totalWeight )
+                return true;
+            else if( p1.totalWeight == p2.totalWeight && p1.totalDelay < p2.totalDelay)
+                return true;
+            else if( p1.totalWeight == p2.totalWeight && p1.totalDelay == p2.totalDelay && p1.oneCount < p2.oneCount)
+                return true;
+            else
+                return false;
+        }
+    } sortFunc_t;
+
+    // batch of all non-conflicting movements, sorted by total weight + oneCount per batch
+    typedef std::priority_queue< sortedEntry_t /*type of each element*/, std::vector<sortedEntry_t> /*container*/, sortFunc_t > priorityQ;
 
 public:
     virtual ~TrafficLight_FMSC();
@@ -83,8 +102,8 @@ protected:
     void virtual executeEachTimeStep();
 
 private:
-    void chooseNextInterval();
-    void chooseNextGreenInterval();
+    void chooseNextInterval(std::string);
+    void chooseNextGreenInterval(std::string);
     void calculatePhases(std::string);
 };
 

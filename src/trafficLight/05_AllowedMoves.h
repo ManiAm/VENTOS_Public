@@ -36,14 +36,13 @@ namespace VENTOS {
 
 class TrafficLightAllowedMoves : public IntersectionDelay
 {
-protected:
-    int rightTurns[8] = {0, 2, 5, 7, 10, 12, 15, 17};
-
 private:
     typedef IntersectionDelay super;
 
     int LINKSIZE;
     boost::filesystem::path movementsFilePath;
+
+    int rightTurns[8] = {0, 2, 5, 7, 10, 12, 15, 17};
 
     std::vector< std::vector<int> > allMovements;
 
@@ -57,6 +56,7 @@ protected:
     void virtual initialize_withTraCI();
     void virtual executeEachTimeStep();
     std::vector<std::vector<int>>& getMovements(std::string);
+    bool isRightTurn(unsigned int);
 
 private:
     void generateAllAllowedMovements();

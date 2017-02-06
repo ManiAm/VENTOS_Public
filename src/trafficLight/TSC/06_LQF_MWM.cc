@@ -32,38 +32,6 @@ namespace VENTOS {
 
 Define_Module(VENTOS::TrafficLight_LQF_MWM);
 
-class sortedEntryLQF_MWM
-{
-public:
-    int oneCount;
-    int maxVehCount;
-    double totalWeight;
-    std::string phase;
-
-    sortedEntryLQF_MWM(double d1, int i1, int i2, std::string p)
-    {
-        this->totalWeight = d1;
-        this->oneCount = i1;
-        this->maxVehCount = i2;
-        this->phase = p;
-    }
-};
-
-
-class sortCompareLQF_MWM
-{
-public:
-    bool operator()(sortedEntryLQF_MWM p1, sortedEntryLQF_MWM p2)
-    {
-        if( p1.totalWeight < p2.totalWeight )
-            return true;
-        else if( p1.totalWeight == p2.totalWeight && p1.oneCount < p2.oneCount)
-            return true;
-        else
-            return false;
-    }
-};
-
 
 TrafficLight_LQF_MWM::~TrafficLight_LQF_MWM()
 {
@@ -73,6 +41,9 @@ TrafficLight_LQF_MWM::~TrafficLight_LQF_MWM()
 
 void TrafficLight_LQF_MWM::initialize(int stage)
 {
+    if(par("TLControlMode").longValue() == TL_LQF_MWM)
+        par("record_intersectionQueue_stat") = true;
+
     super::initialize(stage);
 
     if(TLControlMode != TL_LQF_MWM)
@@ -95,7 +66,7 @@ void TrafficLight_LQF_MWM::handleMessage(omnetpp::cMessage *msg)
 {
     if (TLControlMode == TL_LQF_MWM && msg == intervalChangeEVT)
     {
-        chooseNextInterval();
+        chooseNextInterval("C");
 
         if(intervalDuration <= 0)
             throw omnetpp::cRuntimeError("intervalDuration is <= 0");
@@ -123,6 +94,15 @@ void TrafficLight_LQF_MWM::initialize_withTraCI()
     // for each traffic light
     for (auto &TLid : TLList)
     {
+        // get all incoming lanes
+        auto lan = TraCI->TLGetControlledLanes(TLid);
+
+        // remove duplicate entries
+        sort( lan.begin(), lan.end() );
+        lan.erase( unique( lan.begin(), lan.end() ), lan.end() );
+
+        incomingLanes_perTL[TLid] = lan;
+
         // get all links controlled by this TL
         auto result = TraCI->TLGetControlledLinks(TLid);
 
@@ -136,15 +116,6 @@ void TrafficLight_LQF_MWM::initialize_withTraCI()
             link2Lane.insert( std::make_pair(std::make_pair(TLid,linkNumber), incommingLane) );
         }
     }
-
-    // find the RSU module that controls this TL
-    RSUptr = findRSU("C");
-
-    // make sure RSUptr is pointing to our corresponding RSU
-    ASSERT(RSUptr);
-
-    // turn on active detection on this RSU
-    RSUptr->par("record_vehApproach_stat") = true;
 
     // set initial values
     currentInterval = phase1_5;
@@ -178,14 +149,14 @@ void TrafficLight_LQF_MWM::executeEachTimeStep()
 }
 
 
-void TrafficLight_LQF_MWM::chooseNextInterval()
+void TrafficLight_LQF_MWM::chooseNextInterval(std::string TLid)
 {
     if (currentInterval == "yellow")
     {
         currentInterval = "red";
 
         // change all 'y' to 'r'
-        std::string str = TraCI->TLGetState("C");
+        std::string str = TraCI->TLGetState(TLid);
         std::string nextInterval = "";
         for(char& c : str) {
             if (c == 'y')
@@ -195,48 +166,56 @@ void TrafficLight_LQF_MWM::chooseNextInterval()
         }
 
         // set the new state
-        TraCI->TLSetState("C", nextInterval);
+        TraCI->TLSetState(TLid, nextInterval);
         intervalDuration = redTime;
 
         // update TL status for this phase
-        updateTLstate("C", "red");
+        updateTLstate(TLid, "red");
     }
     else if (currentInterval == "red")
     {
         // update TL status for this phase
-        if(nextGreenInterval == firstGreen["C"])
-            updateTLstate("C", "phaseEnd", nextGreenInterval, true);  //todo: notion of cycle?
+        if(nextGreenInterval == firstGreen[TLid])
+            updateTLstate(TLid, "phaseEnd", nextGreenInterval, true);  //todo: notion of cycle?
         else
-            updateTLstate("C", "phaseEnd", nextGreenInterval);
+            updateTLstate(TLid, "phaseEnd", nextGreenInterval);
 
         currentInterval = nextGreenInterval;
 
         // set the new state
-        TraCI->TLSetState("C", nextGreenInterval);
+        TraCI->TLSetState(TLid, nextGreenInterval);
         intervalDuration = minGreenTime;
     }
     else
-        chooseNextGreenInterval();
+        chooseNextGreenInterval(TLid);
 
-    LOG_DEBUG << boost::format("\n    SimTime: %1% | Planned interval: %2% | Start time: %1% | End time: %3% \n")
+    LOG_DEBUG << boost::format("\nSimTime: %1% | Planned interval: %2% | Start time: %1% | End time: %3% \n")
     % omnetpp::simTime().dbl() % currentInterval % (omnetpp::simTime().dbl() + intervalDuration) << std::flush;
 }
 
 
-void TrafficLight_LQF_MWM::chooseNextGreenInterval()
+void TrafficLight_LQF_MWM::chooseNextGreenInterval(std::string TLid)
 {
-    LOG_DEBUG << "\n>>> New phase calculation ... \n" << std::flush;
+    LOG_DEBUG << "\n------------------------------------------------------------------------------- \n";
+    LOG_DEBUG << ">>> New phase calculation \n" << std::flush;
 
-    // get all incoming lanes for this TL only
-    std::map<std::string /*lane*/, laneInfoEntry> laneInfo = RSUptr->laneInfo;
+    if(LOG_ACTIVE(DEBUG_LOG_VAL))
+    {
+        auto it = incomingLanes_perTL.find(TLid);
+        if(it == incomingLanes_perTL.end())
+            throw omnetpp::cRuntimeError("cannot find TLid '%s' in incomingLanes_perTL", TLid.c_str());
 
-    if(laneInfo.empty())
-        throw omnetpp::cRuntimeError("LaneInfo is empty! Is active detection on in %s ?", RSUptr->getFullName());
+        LOG_DEBUG << "\n    Queue size per lane: ";
+        for(auto &lane : it->second)
+        {
+            int qSize = laneGetQueueSize(lane).queueSize;
+            if(qSize != 0)
+                LOG_DEBUG << lane << " (" << qSize << ") | ";
+        }
+        LOG_DEBUG << "\n";
+    }
 
-    // batch of all non-conflicting movements, sorted by total weight + oneCount per batch
-    std::priority_queue< sortedEntryLQF_MWM /*type of each element*/, std::vector<sortedEntryLQF_MWM> /*container*/, sortCompareLQF_MWM > sortedMovements;
-    // clear the priority queue
-    sortedMovements = std::priority_queue < sortedEntryLQF_MWM, std::vector<sortedEntryLQF_MWM>, sortCompareLQF_MWM >();
+    priorityQ sortedMovements;
 
     for(std::string phase : phases)
     {
@@ -249,47 +228,27 @@ void TrafficLight_LQF_MWM::chooseNextGreenInterval()
             int vehCount = 0;
             if(phase[linkNumber] == 'G')
             {
-                bool rightTurn = std::find(std::begin(rightTurns), std::end(rightTurns), linkNumber) != std::end(rightTurns);
                 // ignore this link if right turn
-                if(!rightTurn)
+                if(!isRightTurn(linkNumber))
                 {
                     // get the corresponding lane for this link
-                    auto itt = link2Lane.find(std::make_pair("C",linkNumber));
+                    auto itt = link2Lane.find(std::make_pair(TLid,linkNumber));
                     if(itt == link2Lane.end())
-                        throw omnetpp::cRuntimeError("linkNumber %s is not found in TL %s", linkNumber, "C");
+                        throw omnetpp::cRuntimeError("linkNumber %s is not found in TL %s", linkNumber, TLid);
                     std::string lane = itt->second;
 
-                    // find this lane in laneInfo
-                    auto res = laneInfo.find(lane);
-                    if(res == laneInfo.end())
-                        throw omnetpp::cRuntimeError("Can not find lane %s in laneInfo!", lane.c_str());
-
-                    // get all queued vehicles on this lane
-                    auto vehicles = (*res).second.allVehicles;
+                    auto queuedVehs = laneGetQueueSize(lane).vehs;
 
                     // for each vehicle
-                    for(auto& entry : vehicles)
+                    for(auto &veh : queuedVehs)
                     {
-                        double stoppingDelayThreshold = 0;
-                        if(entry.second.vehType == "bicycle")
-                            stoppingDelayThreshold = par("bikeStoppingDelayThreshold").doubleValue();
-                        else
-                            stoppingDelayThreshold = par("vehStoppingDelayThreshold").doubleValue();
+                        // total weight of entities on this lane
+                        auto loc = classWeight.find(veh.type);
+                        if(loc == classWeight.end())
+                            throw omnetpp::cRuntimeError("entity %s with type %s does not have a weight in classWeight map!", veh.id.c_str(), veh.type.c_str());
 
-                        // we only care about waiting vehicles on this lane
-                        if(entry.second.currentSpeed <= stoppingDelayThreshold)
-                        {
-                            vehCount++;
-
-                            std::string vID = entry.first;
-                            std::string vType = entry.second.vehType;
-
-                            // total weight of entities on this lane
-                            auto loc = classWeight.find(vType);
-                            if(loc == classWeight.end())
-                                throw omnetpp::cRuntimeError("entity %s with type %s does not have a weight in classWeight map!", vID.c_str(), vType.c_str());
-                            totalWeight += loc->second;
-                        }
+                        totalWeight += loc->second;
+                        vehCount++;
                     }
                 }
 
@@ -301,25 +260,17 @@ void TrafficLight_LQF_MWM::chooseNextGreenInterval()
         }
 
         // add this batch of movements to priority_queue
-        sortedEntryLQF_MWM *entry = new sortedEntryLQF_MWM(totalWeight, oneCount, maxVehCount, phase);
-        sortedMovements.push(*entry);
+        sortedEntry_t entry = {totalWeight, oneCount, maxVehCount, phase};
+        sortedMovements.push(entry);
     }
 
     // get the movement batch with the highest weight + delay + oneCount
-    sortedEntryLQF_MWM entry = sortedMovements.top();
+    sortedEntry_t entry = sortedMovements.top();
 
     // allocate enough green time to move all vehicles
     int maxVehCount = entry.maxVehCount;
     double greenTime = (double)maxVehCount * (minGreenTime / 5.);
     nextGreenTime = std::min(std::max(greenTime, minGreenTime), maxGreenTime);  // bound green time
-
-    LOG_DEBUG << boost::format("\n    The following phase has the highest totalWeight out of %1% phases: \n") % phases.size();
-    LOG_DEBUG << "        phase= " << entry.phase.c_str();
-    LOG_DEBUG << ", maxVehCount= " << entry.maxVehCount;
-    LOG_DEBUG << ", totalWeight= " << entry.totalWeight;
-    LOG_DEBUG << ", oneCount= " << entry.oneCount;
-    LOG_DEBUG << ", green= " << nextGreenTime;
-    LOG_DEBUG << "\n" << std::flush;
 
     // this will be the next green interval
     nextGreenInterval = entry.phase;
@@ -341,18 +292,28 @@ void TrafficLight_LQF_MWM::chooseNextGreenInterval()
     if(needYellowInterval)
     {
         currentInterval = "yellow";
-        TraCI->TLSetState("C", nextInterval);
+        TraCI->TLSetState(TLid, nextInterval);
 
         intervalDuration =  yellowTime;
 
         // update TL status for this phase
-        updateTLstate("C", "yellow");
+        updateTLstate(TLid, "yellow");
+
+        LOG_DEBUG << boost::format("\n    The following phase has the highest totalWeight out of %1% phases: \n") % phases.size();
+        LOG_DEBUG << "        phase= " << entry.phase.c_str();
+        LOG_DEBUG << ", maxVehCount= " << entry.maxVehCount;
+        LOG_DEBUG << ", totalWeight= " << entry.totalWeight;
+        LOG_DEBUG << ", oneCount= " << entry.oneCount;
+        LOG_DEBUG << ", green= " << nextGreenTime;
+        LOG_DEBUG << "\n" << std::flush;
     }
     else
     {
         intervalDuration = nextGreenTime;
         LOG_DEBUG << "\n    Continue the last green interval. \n" << std::flush;
     }
+
+    LOG_DEBUG << "------------------------------------------------------------------------------- \n" << std::flush;
 }
 
 }

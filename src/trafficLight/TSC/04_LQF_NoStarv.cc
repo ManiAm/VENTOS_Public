@@ -51,11 +51,6 @@ void TrafficLightLQF_NoStarv::initialize(int stage)
 
     if(stage == 0)
     {
-        maxQueueSize = par("maxQueueSize").longValue();
-
-        if(maxQueueSize <= 0 && maxQueueSize != -1)
-            throw omnetpp::cRuntimeError("maxQueueSize value is set incorrectly!");
-
         nextGreenIsNewCycle = false;
         intervalChangeEVT = new omnetpp::cMessage("intervalChangeEVT", 1);
     }
@@ -288,18 +283,14 @@ void TrafficLightLQF_NoStarv::calculatePhases(std::string TLid)
         int maxVehCount = 0;
         for(unsigned int j = 0; j < allMovements[i].size(); ++j)  // column (link number)
         {
-            // if a right turn
-            bool rightTurn = std::find(std::begin(rightTurns), std::end(rightTurns), j) != std::end(rightTurns);
-
-            if(allMovements[i][j] == 1 && !rightTurn)
+            if(allMovements[i][j] == 1 && !isRightTurn(j))
             {
                 std::string lane = link2Lane[std::make_pair(TLid,j)];
                 auto queueSize = laneGetQueueSize(lane).queueSize;
-                int queueSizeBounded = (maxQueueSize == -1) ? queueSize : std::min(maxQueueSize,queueSize);
 
-                totalQueueRow += queueSizeBounded;
+                totalQueueRow += queueSize;
                 oneCount++;
-                maxVehCount = std::max(maxVehCount, queueSizeBounded);
+                maxVehCount = std::max(maxVehCount, queueSize);
             }
         }
 
@@ -327,15 +318,15 @@ void TrafficLightLQF_NoStarv::calculatePhases(std::string TLid)
         std::string nextInterval = "";
         for(unsigned linkNumber = 0; linkNumber < bestMovement.size(); ++linkNumber)
         {
-            // if a right turn
-            bool rightTurn = std::find(std::begin(rightTurns), std::end(rightTurns), linkNumber) != std::end(rightTurns);
-
             if(bestMovement[linkNumber] == 0)
                 nextInterval += 'r';
-            else if(bestMovement[linkNumber] == 1 && rightTurn)
-                nextInterval += 'g';
-            else if(bestMovement[linkNumber] == 1 && !rightTurn)
-                nextInterval += 'G';
+            else if(bestMovement[linkNumber] == 1)
+            {
+                if(isRightTurn(linkNumber))
+                    nextInterval += 'g';
+                else
+                    nextInterval += 'G';
+            }
         }
 
         // todo: is this necessary?

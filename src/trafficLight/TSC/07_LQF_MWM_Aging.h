@@ -44,7 +44,6 @@ private:
 
     omnetpp::cMessage* intervalChangeEVT = NULL;
 
-    ApplRSUMonitor *RSUptr = NULL;
     double nextGreenTime;
 
     std::vector<std::string> phases = {phase1_5, phase2_6, phase3_7, phase4_8};
@@ -52,6 +51,60 @@ private:
     std::map<std::string /*TLid*/, std::string /*first green interval*/> firstGreen;
 
     std::map<std::pair<std::string /*TLid*/, int /*link*/>, std::string /*lane*/> link2Lane;
+
+    // list of all 'incoming lanes' in each TL
+    std::unordered_map< std::string /*TLid*/, std::vector<std::string> > incomingLanes_perTL;
+
+    typedef struct sortedEntry_weight
+    {
+        double totalWeight;
+        int oneCount;
+        int maxVehCount;
+        std::string phase;
+    } sortedEntry_weight_t;
+
+    typedef struct sortFunc_weight
+    {
+        bool operator()(sortedEntry_weight_t p1, sortedEntry_weight_t p2)
+        {
+            if( p1.totalWeight < p2.totalWeight )
+                return true;
+            else if( p1.totalWeight == p2.totalWeight && p1.oneCount < p2.oneCount)
+                return true;
+            else
+                return false;
+        }
+    } sortFunc_weight_t;
+
+    // batch of all non-conflicting movements, sorted by total weight + oneCount per batch
+    typedef std::priority_queue< sortedEntry_weight_t /*type of each element*/, std::vector<sortedEntry_weight_t> /*container*/, sortFunc_weight_t > priorityQ_weight;
+
+    typedef struct sortedEntry_delay
+    {
+        double totalWeight;
+        int oneCount;
+        int maxVehCount;
+        double maxDelay;
+        std::string phase;
+    } sortedEntry_delay_t;
+
+    typedef struct sortFunc_delay
+    {
+        bool operator()(sortedEntry_delay_t n1, sortedEntry_delay_t n2)
+        {
+            if (n1.maxDelay < n2.maxDelay)
+                return true;
+            else if (n1.maxDelay == n2.maxDelay && n1.totalWeight < n2.totalWeight)
+                return true;
+            else if (n1.maxDelay == n2.maxDelay && n1.totalWeight == n2.totalWeight && n1.oneCount < n2.oneCount)
+                return true;
+            else
+                return false;
+        }
+    } sortFunc_delay_t;
+
+    // second priority queue to sort the maximum delay in each phase
+    typedef std::priority_queue< sortedEntry_delay_t, std::vector<sortedEntry_delay_t>, sortFunc_delay_t > priorityQ_delay;
 
 public:
     virtual ~TrafficLight_LQF_MWM_Aging();
@@ -64,8 +117,8 @@ protected:
     void virtual executeEachTimeStep();
 
 private:
-    void chooseNextInterval();
-    void chooseNextGreenInterval();
+    void chooseNextInterval(std::string);
+    void chooseNextGreenInterval(std::string);
 };
 
 }
