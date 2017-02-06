@@ -1611,10 +1611,63 @@ std::vector<std::string> TraCI_Commands::edgeGetLastStepPersonIDs(std::string Id
 {
     record_TraCI_activity_func("commandStart", CMD_GET_EDGE_VARIABLE, LAST_STEP_PERSON_ID_LIST, "edgeGetLastStepPersonIDs");
 
-    auto result = genericGetStringVector(CMD_GET_EDGE_VARIABLE, Id, 0x1a, RESPONSE_GET_EDGE_VARIABLE);
+    auto result = genericGetStringVector(CMD_GET_EDGE_VARIABLE, Id, LAST_STEP_PERSON_ID_LIST, RESPONSE_GET_EDGE_VARIABLE);
 
     record_TraCI_activity_func("commandComplete", CMD_GET_EDGE_VARIABLE, LAST_STEP_PERSON_ID_LIST, "edgeGetLastStepPersonIDs");
     return result;
+}
+
+
+uint32_t TraCI_Commands::edgeGetLaneCount(std::string Id)
+{
+    record_TraCI_activity_func("commandStart", CMD_GET_EDGE_VARIABLE, 0x03, "edgeGetLaneCount");
+
+    uint32_t result = genericGetInt(CMD_GET_EDGE_VARIABLE, Id, 0x03, RESPONSE_GET_EDGE_VARIABLE);
+
+    record_TraCI_activity_func("commandComplete", CMD_GET_EDGE_VARIABLE, 0x03, "edgeGetLaneCount");
+    return result;
+}
+
+
+std::vector<std::string> TraCI_Commands::edgeGetAllowedLanes(std::string Id, std::string vClass)
+{
+    record_TraCI_activity_func("commandStart", CMD_GET_EDGE_VARIABLE, 0x04, "edgeGetAllowedLanes");
+
+    uint8_t requestTypeId = TYPE_STRING;
+    uint8_t resultTypeId = TYPE_STRINGLIST;
+    uint8_t variableId = 0x04;
+    uint8_t responseId = RESPONSE_GET_EDGE_VARIABLE;
+
+    TraCIBuffer buf = connection->query(CMD_GET_EDGE_VARIABLE, TraCIBuffer() << variableId << Id << requestTypeId << vClass);
+
+    uint8_t cmdLength; buf >> cmdLength;
+    if (cmdLength == 0) {
+        uint32_t cmdLengthX;
+        buf >> cmdLengthX;
+    }
+    uint8_t commandId_r; buf >> commandId_r;
+    ASSERT(commandId_r == responseId);
+    uint8_t varId; buf >> varId;
+    ASSERT(varId == variableId);
+    std::string objectId_r; buf >> objectId_r;
+    ASSERT(objectId_r == Id);
+
+    uint8_t resType_r; buf >> resType_r;
+    ASSERT(resType_r == resultTypeId);
+    uint32_t count; buf >> count;
+
+    std::vector<std::string> res;
+
+    for (uint32_t i = 0; i < count; i++) {
+        std::string id; buf >> id;
+        res.push_back(id);
+    }
+
+    ASSERT(buf.eof());
+
+    record_TraCI_activity_func("commandComplete", CMD_GET_EDGE_VARIABLE, 0x04, "edgeGetAllowedLanes");
+
+    return res;
 }
 
 
@@ -2927,11 +2980,11 @@ void TraCI_Commands::terminate_simulation(bool TraCIclosed)
 
     std::ostringstream dateTime;
     dateTime << boost::format("%4d%02d%02d-%02d:%02d:%02d") % (1900 + ltm->tm_year)
-                                    % (1 + ltm->tm_mon)
-                                    % (ltm->tm_mday)
-                                    % (ltm->tm_hour)
-                                    % (ltm->tm_min)
-                                    % (ltm->tm_sec);
+                                            % (1 + ltm->tm_mon)
+                                            % (ltm->tm_mday)
+                                            % (ltm->tm_hour)
+                                            % (ltm->tm_min)
+                                            % (ltm->tm_sec);
 
     simEndDateTime = dateTime.str();
 

@@ -266,6 +266,9 @@ public:
     double edgeGetLastStepMeanVehicleLength(std::string);
     std::vector<std::string> edgeGetLastStepPersonIDs(std::string);
 
+    uint32_t edgeGetLaneCount(std::string);                                   // new command
+    std::vector<std::string> edgeGetAllowedLanes(std::string, std::string);   // new command
+
     // CMD_SET_EDGE_VARIABLE
     void edgeSetGlobalTravelTime(std::string, int32_t, int32_t, double);
 
