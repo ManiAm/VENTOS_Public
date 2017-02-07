@@ -36,11 +36,12 @@ namespace Veins {
  */
 class WaveAppToMac1609_4Interface
 {
-	public:
-
-		virtual void changeServiceChannel(int channelNumber) = 0;
-
-		virtual ~WaveAppToMac1609_4Interface() {} ;
+public:
+    virtual bool isChannelSwitchingActive() = 0;
+    virtual omnetpp::simtime_t getSwitchingInterval() =  0;
+    virtual bool isCurrentChannelCCH() = 0;
+    virtual void changeServiceChannel(int channelNumber) = 0;
+    virtual ~WaveAppToMac1609_4Interface() {} ;
 };
 
 }

@@ -59,6 +59,7 @@ namespace Veins {
  * @see PhyLayer80211p
  * @see Decider80211p
  */
+
 class Mac1609_4 : public BaseMacLayer, public WaveAppToMac1609_4Interface
 {
 public:
@@ -97,6 +98,7 @@ public:
             statsNumBackoff = 0;
             statsSlotsBackoff = 0;
         };
+
         /*
          * Currently you have to call createQueue in the right order. First Call is priority 0, second 1 and so on...
          */
@@ -132,6 +134,13 @@ public:
 
 public:
     ~Mac1609_4() { };
+
+    // return true if alternate access is enabled
+    bool isChannelSwitchingActive();
+
+    omnetpp::simtime_t getSwitchingInterval();
+
+    bool isCurrentChannelCCH();
 
     void changeServiceChannel(int channelNumber);
 

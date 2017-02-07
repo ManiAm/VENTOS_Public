@@ -44,7 +44,7 @@ simple Mac1609_4 extends BaseMacLayer
         // cycle between an SCH and the CCH (or stay on CCH all the time)
         bool useServiceChannel = default(false);
         
-        // the service channel this maclayer listens on
+        // the service channel this maclayer listens on when started
         int serviceChannel = default(1);
         
         // debug switch
@@ -56,12 +56,14 @@ simple Mac1609_4 extends BaseMacLayer
         // bit rate 
         double bitrate @unit(bps) = default(18 Mbps);
         
-        // little asynchronization between cars
+        // maximum artificial asynchronization between cars to avoid synchronization effects
         double syncOffset @unit(s) = default(0.0003s);
         
-        //tx power [mW]
+        // tx power [mW]
         double txPower = default(20mW) @unit(mW);
         
+        // the maximum queue size of an EDCA queue in the MAC. 0 for unlimited. Queue strategy is "drop if full"
         int queueSize = default(0);
+        
         bool record_stat = default(false);
 }
