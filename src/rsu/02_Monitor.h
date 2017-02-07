@@ -73,6 +73,8 @@ private:
     // all incoming lanes for the intersection that this RSU belongs to
     std::map<std::string /*lane*/, std::string /*TLid*/> lanesTL;
 
+    static std::vector<std::string> junctionList;
+
     typedef struct vehApproachEntry
     {
         std::string TLid;
@@ -112,6 +114,9 @@ protected:
     virtual void onBeaconRSU(BeaconRSU*);
 
 private:
+    void initVariables();
+    void check_RSU_pos();
+
     template <typename T> void onBeaconAny(T wsm);
 
     void LaneInfoAdd(std::string lane, std::string sender, std::string senderType, double speed);

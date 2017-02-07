@@ -417,9 +417,6 @@ void AddNode::addRSU()
     // get all traffic lights in the network
     auto TLList = TraCI->TLGetIDList();
 
-    // get all junctions in the network
-    auto junctionList = TraCI->junctionGetIDList();
-
     int i = 0;
     for(auto &entry : allRSU)
     {
@@ -432,52 +429,6 @@ void AddNode::addRSU()
                 myTLid = TLid;
                 break;
             }
-        }
-
-        double rsu_x = entry.second.pos_x;
-        double rsu_y = entry.second.pos_y;
-
-        // the RSU is associated with a TL
-        if(myTLid != "")
-        {
-            // look for the junction with the same name
-            auto junc = std::find(junctionList.begin(), junctionList.end(), myTLid);
-
-            if(junc != junctionList.end())
-            {
-                // calculate the distance from this RSU to the center of the junction
-                auto coord = TraCI->junctionGetPosition(myTLid);
-                double dist = sqrt(pow(rsu_x - coord.x, 2.) + pow(rsu_y - coord.y, 2.));
-
-                if(dist > 100)
-                    LOG_WARNING << boost::format("\nWARNING: RSU '%s' is not aligned with the intersection. \n") % entry.second.id_str;
-            }
-        }
-        else
-        {
-            double shortest_dist = std::numeric_limits<int>::max();
-            std::string nearest_jun = "";
-
-            // iterate over junctions
-            for(auto &junc : junctionList)
-            {
-                // skip the internal junctions
-                if(junc[0] == ':')
-                    continue;
-
-                // calculate the distance from this RSU to the center of the junction
-                auto coord = TraCI->junctionGetPosition(junc);
-                double dist = sqrt(pow(rsu_x - coord.x, 2.) + pow(rsu_y - coord.y, 2.));
-
-                if(dist < shortest_dist)
-                {
-                    shortest_dist = dist;
-                    nearest_jun = junc;
-                }
-            }
-
-            if(shortest_dist < 100)
-                LOG_WARNING << boost::format("\nWARNING: RSU '%s' is in the vicinity of intersection '%s'. Did you forget to associate? \n") % entry.second.id_str % nearest_jun;
         }
 
         // create an array of RSUs

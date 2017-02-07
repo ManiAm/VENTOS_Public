@@ -35,6 +35,8 @@
 
 namespace VENTOS {
 
+std::vector<std::string> ApplRSUMonitor::junctionList;
+
 Define_Module(VENTOS::ApplRSUMonitor);
 
 ApplRSUMonitor::~ApplRSUMonitor()
@@ -49,47 +51,13 @@ void ApplRSUMonitor::initialize(int stage)
 
     if (stage == 0)
     {
-        // note that TLs set 'record_vehApproach_stat' after RSU creation
-        // so it might be false at initialize!
         record_vehApproach_stat = par("record_vehApproach_stat").boolValue();
 
-        // this RSU is associated with a TL
-        if(myTLid != "")
-        {
-            // for each incoming lane in this TL
-            auto lanes = TraCI->TLGetControlledLanes(myTLid);
+        if(!record_vehApproach_stat)
+            return;
 
-            // remove duplicate entries
-            sort( lanes.begin(), lanes.end() );
-            lanes.erase( unique( lanes.begin(), lanes.end() ), lanes.end() );
-
-            // for each incoming lane
-            for(auto &lane :lanes)
-            {
-                lanesTL[lane] = myTLid;
-
-                // get the max speed on this lane
-                double maxV = TraCI->laneGetMaxSpeed(lane);
-
-                // calculate initial passageTime for this lane -- passage time is used in actuated TSC
-                // todo: change fix value
-                double pass = 35. / maxV;
-
-                // check if not greater than Gmin
-                if(pass > minGreenTime)
-                {
-                    LOG_WARNING << boost::format("\nWARNING: Passage time in lane %1% which is controlled by %2% is greater than Gmin \n") % lane % myFullId << std::flush;
-
-                    pass = minGreenTime;
-                }
-
-                // add this lane to the laneInfo map
-                laneInfoEntry_t entry = {};
-                entry.TLid = myTLid;
-                entry.passageTime = pass;
-                laneInfo.insert( std::make_pair(lane, entry) );
-            }
-        }
+        check_RSU_pos();
+        initVariables();
     }
 }
 
@@ -98,7 +66,7 @@ void ApplRSUMonitor::finish()
 {
     super::finish();
 
-    // each RSU prints its own version
+    // each RSU prints its own version of vehApproach
     save_VehApproach_toFile();
     save_VehApproachPerLane_toFile();
 }
@@ -140,12 +108,106 @@ void ApplRSUMonitor::onBeaconRSU(BeaconRSU* wsm)
 }
 
 
+void ApplRSUMonitor::check_RSU_pos()
+{
+    if(junctionList.empty())
+        junctionList = TraCI->junctionGetIDList();
+
+    if(junctionList.empty())
+        throw omnetpp::cRuntimeError("there is no junctions in this network!");
+
+    double rsu_x = this->getParentModule()->getSubmodule("mobility")->par("x");
+    double rsu_y = this->getParentModule()->getSubmodule("mobility")->par("y");
+
+    // the RSU is associated with a TL
+    if(myTLid != "")
+    {
+        // look for the junction with the same name
+        auto junc = std::find(junctionList.begin(), junctionList.end(), myTLid);
+
+        if(junc != junctionList.end())
+        {
+            // calculate the distance from this RSU to the center of the junction
+            auto coord = TraCI->junctionGetPosition(myTLid);
+            double dist = sqrt(pow(rsu_x - coord.x, 2.) + pow(rsu_y - coord.y, 2.));
+
+            if(dist > 0)
+                LOG_WARNING << boost::format("\nWARNING: RSU '%s' is not aligned with the center of intersection. \n") % SUMOID;
+        }
+    }
+    else
+    {
+        double shortest_dist = std::numeric_limits<int>::max();
+        std::string nearest_jun = "";
+
+        // iterate over junctions
+        for(auto &junc : junctionList)
+        {
+            // skip the internal junctions
+            if(junc[0] == ':')
+                continue;
+
+            // calculate the distance from this RSU to the center of the junction
+            auto coord = TraCI->junctionGetPosition(junc);
+            double dist = sqrt(pow(rsu_x - coord.x, 2.) + pow(rsu_y - coord.y, 2.));
+
+            if(dist < shortest_dist)
+            {
+                shortest_dist = dist;
+                nearest_jun = junc;
+            }
+        }
+
+        throw omnetpp::cRuntimeError("RSU '%s' is in the vicinity of intersection '%s'. Did you forget to associate?", SUMOID.c_str(), nearest_jun.c_str());
+    }
+}
+
+
+void ApplRSUMonitor::initVariables()
+{
+    // make sure that this RSU is associated with a TL
+    ASSERT(myTLid != "");
+
+    // for each incoming lane in this TL
+    auto lanes = TraCI->TLGetControlledLanes(myTLid);
+
+    // remove duplicate entries
+    sort( lanes.begin(), lanes.end() );
+    lanes.erase( unique( lanes.begin(), lanes.end() ), lanes.end() );
+
+    // for each incoming lane
+    for(auto &lane :lanes)
+    {
+        lanesTL[lane] = myTLid;
+
+        // get the max speed on this lane
+        double maxV = TraCI->laneGetMaxSpeed(lane);
+
+        // calculate initial passageTime for this lane -- passage time is used in actuated TSC
+        // todo: change fix value
+        double pass = 35. / maxV;
+
+        // check if not greater than Gmin
+        if(pass > minGreenTime)
+        {
+            LOG_WARNING << boost::format("\nWARNING: Passage time in lane %1% which is controlled by %2% is greater than Gmin \n") % lane % myFullId << std::flush;
+
+            pass = minGreenTime;
+        }
+
+        // add this lane to the laneInfo map
+        laneInfoEntry_t entry = {};
+        entry.TLid = myTLid;
+        entry.passageTime = pass;
+        laneInfo.insert( std::make_pair(lane, entry) );
+    }
+}
+
+
 // update variables upon reception of any beacon (vehicle, bike, pedestrian)
 template <typename T> void ApplRSUMonitor::onBeaconAny(T wsm)
 {
-    // TSC sets 'record_vehApproach_stat' parameter after RSU creation
-    // thus we need to check it on every beacon reception
-    if(!par("record_vehApproach_stat").boolValue())
+    if(!record_vehApproach_stat)
         return;
 
     Coord pos = wsm->getPos();
