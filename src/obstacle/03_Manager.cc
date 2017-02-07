@@ -29,8 +29,6 @@
 
 namespace VENTOS {
 
-const simsignalwrap_t ApplObstacleManager::mobilityStateChangedSignal = simsignalwrap_t(MIXIM_SIGNAL_MOBILITY_CHANGE_NAME);
-
 Define_Module(VENTOS::ApplObstacleManager);
 
 ApplObstacleManager::~ApplObstacleManager()
@@ -59,17 +57,6 @@ void ApplObstacleManager::finish()
 }
 
 
-void ApplObstacleManager::receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, cObject* obj, cObject* details)
-{
-    Enter_Method_Silent();
-
-    if (signalID == mobilityStateChangedSignal)
-    {
-        handlePositionUpdate(obj);
-    }
-}
-
-
 void ApplObstacleManager::handleSelfMsg(omnetpp::cMessage* msg)
 {
     super::handleSelfMsg(msg);
@@ -90,16 +77,6 @@ void ApplObstacleManager::handleLowerMsg(omnetpp::cMessage* msg)
     }
 
     delete msg;
-}
-
-
-// is called, every time the position of vehicle changes
-void ApplObstacleManager::handlePositionUpdate(cObject* obj)
-{
-    super::handlePositionUpdate(obj);
-
-    ChannelMobilityPtrType const mobility = omnetpp::check_and_cast<ChannelMobilityPtrType>(obj);
-    curPosition = mobility->getCurrentPosition();
 }
 
 

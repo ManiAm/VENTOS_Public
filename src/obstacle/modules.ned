@@ -2,7 +2,7 @@
 package VENTOS.src.obstacle;
 
 import VENTOS.src.veins.Nic80211p;
-import VENTOS.src.traci.TraCIMobilityMod;
+import VENTOS.src.global.ConstSpeedMobility;
 
 module obstacle
 {
@@ -34,7 +34,7 @@ module obstacle
                 @display("p=60,166");
         }
 
-        mobility: TraCIMobilityMod {
+        mobility: ConstSpeedMobility {
             parameters:
                 @display("p=130,172;i=block/cogwheel");
         }

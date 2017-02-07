@@ -81,11 +81,5 @@ void ApplObstacleBase::handleSelfMsg(omnetpp::cMessage* msg)
 }
 
 
-// is called, every time the position of vehicle changes
-void ApplObstacleBase::handlePositionUpdate(cObject* obj)
-{
-
-}
-
 }
 

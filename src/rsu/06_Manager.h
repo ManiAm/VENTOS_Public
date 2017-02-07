@@ -39,7 +39,6 @@ private:
 
     omnetpp::simsignal_t Signal_executeEachTS;
     omnetpp::simsignal_t Signal_beaconSignaling;
-    static const simsignalwrap_t mobilityStateChangedSignal;
 
 public:
     ~ApplRSUManager();

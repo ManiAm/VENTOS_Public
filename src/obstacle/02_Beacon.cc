@@ -135,12 +135,5 @@ BeaconObstacle*  ApplObstacleBeacon::generateBeacon()
     return wsm;
 }
 
-
-// is called, every time the position of bicycle changes
-void ApplObstacleBeacon::handlePositionUpdate(cObject* obj)
-{
-    super::handlePositionUpdate(obj);
-}
-
 }
 

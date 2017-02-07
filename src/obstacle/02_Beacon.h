@@ -65,7 +65,6 @@ public:
 
 protected:
     virtual void handleSelfMsg(omnetpp::cMessage*);
-    virtual void handlePositionUpdate(cObject*);
 
 private:
     BeaconObstacle* generateBeacon();

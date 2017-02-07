@@ -61,7 +61,6 @@ public:
 
 protected:
     virtual void handleSelfMsg(omnetpp::cMessage* msg);
-    virtual void handlePositionUpdate(cObject* obj);
 
 private:
     typedef BaseApplLayer super;

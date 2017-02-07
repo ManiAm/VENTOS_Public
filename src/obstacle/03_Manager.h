@@ -39,19 +39,16 @@ class ApplObstacleManager : public ApplObstacleBeacon
 {
 private:
     typedef ApplObstacleBeacon super;
-    static const simsignalwrap_t mobilityStateChangedSignal;
 
 public:
     ~ApplObstacleManager();
     virtual void initialize(int stage);
     virtual void finish();
-    virtual void receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, cObject* obj, cObject* details);
 
 protected:
     // Methods
     virtual void handleLowerMsg(omnetpp::cMessage*);
     virtual void handleSelfMsg(omnetpp::cMessage*);
-    virtual void handlePositionUpdate(cObject*);
 
     virtual void onBeaconVehicle(BeaconVehicle*);
     virtual void onBeaconRSU(BeaconRSU*);
