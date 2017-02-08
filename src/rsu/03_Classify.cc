@@ -508,7 +508,7 @@ void ApplRSUCLASSIFY::addError(beaconGeneral &wsm, double maxError)
     speed = speed + speed * (r * maxError);  // todo: how to set error for speed?
 
     // set the changes
-    wsm->setPos( Coord(posX, posY) );
+    wsm->setPos( TraCICoord(posX, posY) );
 }
 
 

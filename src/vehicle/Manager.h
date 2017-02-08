@@ -28,7 +28,7 @@
 #ifndef ApplVMANAGER_H
 #define ApplVMANAGER_H
 
-#include "vehicle/08_MsgControl.h"
+#include <07_MsgControl.h>
 
 namespace VENTOS {
 
@@ -37,7 +37,6 @@ class ApplVManager : public ApplVMsgControl
 private:
     typedef ApplVMsgControl super;
 
-protected:
     // NED variables (packet loss ratio)
     double droppT;
     std::string droppV;
@@ -48,6 +47,9 @@ protected:
     double errorGap;
     double errorRelSpeed;
 
+    int SUMOControllerType;
+    int SUMOControllerNumber;
+
     bool record_beacon_stat;
 
     long BeaconVehCount;
@@ -56,6 +58,24 @@ protected:
     long BeaconPedCount;
     long BeaconRSUCount;
     long PlatoonCount;
+
+    enum ControllerTypes {
+        SUMO_TAG_CF_KRAUSS = 107,
+        SUMO_TAG_CF_KRAUSS_PLUS_SLOPE,
+        SUMO_TAG_CF_KRAUSS_ORIG1,
+        SUMO_TAG_CF_SMART_SK,
+        SUMO_TAG_CF_DANIEL1,
+        SUMO_TAG_CF_IDM,
+        SUMO_TAG_CF_IDMM,
+        SUMO_TAG_CF_PWAGNER2009,
+        SUMO_TAG_CF_BKERNER,
+        SUMO_TAG_CF_WIEDEMANN,
+
+        SUMO_TAG_CF_OPTIMALSPEED,
+        SUMO_TAG_CF_KRAUSSFIXED,
+        SUMO_TAG_CF_ACC,
+        SUMO_TAG_CF_CACC
+    };
 
 public:
     ~ApplVManager();

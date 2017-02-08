@@ -30,6 +30,7 @@
 #ifndef ROUTER_H
 #define ROUTER_H
 
+#include <01_Beacon.h>
 #include <vector>
 #include <list>
 #include <fstream>
@@ -42,7 +43,6 @@
 #include "router/Net.h"
 #include "router/Hypertree.h"
 #include "trafficLight/TSC/09_Router.h"
-#include "vehicle/02_Beacon.h"
 
 namespace VENTOS {
 

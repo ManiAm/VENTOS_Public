@@ -59,26 +59,22 @@ void ApplRSUCRL::initialize(int stage)
         if(I2V_tho < 0)
             throw omnetpp::cRuntimeError("value for I2V_tho is incorrect !!");
 
-        // get a pointer to the MAC submodule
-        cModule *nicPtr = this->getParentModule()->getSubmodule("nic");
-        ASSERT(nicPtr);
-        cModule *macPtr = nicPtr->getSubmodule("mac1609_4");
-        ASSERT(macPtr);
-        bitrate = macPtr->par("bitrate");  // get bitrate from the MAC layer
+        // get bitrate from the MAC layer
+        bitrate = mac->par("bitrate");
 
         // RSUs broadcast CRL pieces periodically
         if(CRLdistAlg == CRL_RSU_Only || CRLdistAlg == CRL_C2C_Epidemic)
         {
-            Timer2 = new omnetpp::cMessage("Timer_CRL_Interval_RSU", TYPE_TIMER);
+            Timer2 = new omnetpp::cMessage("Timer_CRL_Interval_RSU");
             scheduleAt(omnetpp::simTime() + dblrand() * 10, Timer2);  // CRL broadcast start is random in each RSU
         }
         // otherwise RSUs send beacon
         else
         {
-            Timer1 = new omnetpp::cMessage("Timer_Beacon_RSU", TYPE_TIMER);
+            Timer1 = new omnetpp::cMessage("Timer_Beacon_RSU");
             scheduleAt(omnetpp::simTime() + dblrand() * beacon_Interval, Timer1);
 
-            Timer3 = new omnetpp::cMessage("Timer_Wait_Beacon_V", TYPE_TIMER);
+            Timer3 = new omnetpp::cMessage("Timer_Wait_Beacon_V");
         }
 
         Signal_CRL_pieces = registerSignal("CRL_pieces");

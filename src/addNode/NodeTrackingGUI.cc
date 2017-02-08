@@ -171,7 +171,7 @@ void Tracking::TrackingGUI()
         }
 
         // get vehicle position in SUMO coordinates
-        Coord co = TraCI->vehicleGetPosition(trackingV);
+        TraCICoord co = TraCI->vehicleGetPosition(trackingV);
 
         if(co.x > 0)
             TraCI->GUISetOffset("View #0", co.x, co.y);
@@ -202,7 +202,7 @@ void Tracking::TrackingGUI()
             // get the first inserted vehicle on this lane
             std::string lastVehicleId = *it;
 
-            Coord lastVehiclePos = TraCI->vehicleGetPosition(lastVehicleId);
+            TraCICoord lastVehiclePos = TraCI->vehicleGetPosition(lastVehicleId);
 
             // get GUI windows boundary
             std::vector<double> windowsFrame = TraCI->GUIGetBoundry("View #0");

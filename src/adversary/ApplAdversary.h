@@ -28,44 +28,31 @@
 #ifndef APPLADVERSARY_H_
 #define APPLADVERSARY_H_
 
-#include "veins/modules/BaseApplLayer.h"
-#include "veins/modules/ChannelAccess.h"
-#include "veins/WaveAppToMac1609_4Interface.h"
-#include "traci/TraCICommands.h"
+#include "global/BaseWaveApplLayer.h"
 #include "msg/BeaconVehicle_m.h"
 #include "msg/DummyMsg_m.h"
 
 namespace VENTOS {
 
-class ApplAdversary : public BaseApplLayer
+class ApplAdversary : public BaseWaveApplLayer
 {
 protected:
-    // NED variables
-    TraCI_Commands* TraCI;
-
     // NED variables
     double AttackT;
     bool falsificationAttack;
     bool replayAttack;
     bool jammingAttack;
 
-    // Class variables
-    int myId;
-    const char *myFullId;
-    Coord curPosition;  // current position from mobility module (not from sumo)
     omnetpp::cMessage* JammingEvt = NULL;
-    static const simsignalwrap_t mobilityStateChangedSignal;
 
 public:
     ~ApplAdversary();
     virtual void initialize(int stage);
     virtual void finish();
-    virtual void receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, cObject* obj, cObject* details);
 
 protected:
     virtual void handleLowerMsg(omnetpp::cMessage* msg);
     virtual void handleSelfMsg(omnetpp::cMessage* msg);
-    virtual void handlePositionUpdate(cObject* obj);
 
 private:
     void DoFalsificationAttack(BeaconVehicle * wsm);

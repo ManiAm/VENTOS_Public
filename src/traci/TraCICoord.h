@@ -29,14 +29,21 @@
 
 namespace VENTOS {
 
-/**
- * Coord equivalent for storing TraCI coordinates
- */
-struct TraCICoord {
-	TraCICoord() : x(0.0), y(0.0) {}
-	TraCICoord(double x, double y) : x(x), y(y) {}
-	double x;
-	double y;
+// Coord equivalent for storing TraCI coordinates
+struct TraCICoord
+{
+    double x;
+    double y;
+    double z;
+
+	TraCICoord() : x(0.0), y(0.0), z(0.0) {}
+    TraCICoord(double x, double y) : x(x), y(y), z(0.0) {}
+	TraCICoord(double x, double y, double z) : x(x), y(y), z(z) {}
+
+	bool operator == (const TraCICoord &rhs)
+	{
+	    return ((x == rhs.x) && (y == rhs.y) && (z == rhs.z));
+	}
 };
 
 }

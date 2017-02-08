@@ -414,8 +414,12 @@ bool Decider80211p::cca(omnetpp::simtime_t_cref time, AirFrame* exclude) {
     min.setTime(time);
     min.setArgValue(Dimension::frequency(), centerFrequency - 5e6);
 
-    EV << MappingUtils::findMin(*resultMap, min, min) << " > " << ccaThreshold << " = " << (bool)(MappingUtils::findMin(*resultMap, min, min) > ccaThreshold) << std::endl;
-    bool isChannelIdle = MappingUtils::findMin(*resultMap, min, min) < ccaThreshold;
+    double minPower = MappingUtils::findMin(*resultMap, min, min, MappingUtils::cMaxNotFound());
+
+    EV << minPower << " > " << ccaThreshold << " = " << (bool)(minPower > ccaThreshold) << std::endl;
+
+    bool isChannelIdle = minPower < ccaThreshold;
+
     delete resultMap;
     return isChannelIdle;
 }

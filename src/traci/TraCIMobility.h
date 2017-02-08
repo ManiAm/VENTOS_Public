@@ -21,8 +21,6 @@
 #ifndef VEINS_MOBILITY_TRACI_TRACIMOBILITY_H
 #define VEINS_MOBILITY_TRACI_TRACIMOBILITY_H
 
-#define TRACI_SIGNAL_PARKING_CHANGE_NAME "parkingStateChanged"
-
 #include <string>
 #include <fstream>
 #include <list>
@@ -48,6 +46,8 @@
  * @ingroup mobility
  */
 namespace VENTOS {
+
+#define TRACI_SIGNAL_PARKING_CHANGE_NAME "parkingStateChanged"
 
 class TraCIMobilityMod : public BaseMobility
 {

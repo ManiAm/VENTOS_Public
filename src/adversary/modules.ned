@@ -38,24 +38,17 @@ module Adversary
 }
 
 
-import VENTOS.src.veins.modules.IBaseApplLayer;
+import VENTOS.src.global.BaseWaveApplLayer;
 
-simple ApplAdversary like IBaseApplLayer
+simple ApplAdversary extends BaseWaveApplLayer
 {
     parameters:
         @class(VENTOS::ApplAdversary);
         
-        bool active = default(false); 
-        int headerLength = default(256bit) @unit(bit); // header length of the application 
+        bool active = default(false);
           
         double AttackT = default(100);
         bool falsificationAttack = default(false);  
         bool replayAttack = default(false); 
-        bool jammingAttack = default(false);  
-
-    gates:
-        input lowerLayerIn;    // from mac layer
-        output lowerLayerOut;  // to mac layer
-        input lowerControlIn;
-        output lowerControlOut;
+        bool jammingAttack = default(false);
 }

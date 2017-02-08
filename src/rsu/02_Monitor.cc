@@ -116,8 +116,8 @@ void ApplRSUMonitor::check_RSU_pos()
     if(junctionList.empty())
         throw omnetpp::cRuntimeError("there is no junctions in this network!");
 
-    double rsu_x = this->getParentModule()->getSubmodule("mobility")->par("x");
-    double rsu_y = this->getParentModule()->getSubmodule("mobility")->par("y");
+    Coord rsu_pos = Coord(this->getParentModule()->getSubmodule("mobility")->par("x"), this->getParentModule()->getSubmodule("mobility")->par("y"));
+    TraCICoord rsu_pos_sumo = TraCI->omnet2traciCoord(rsu_pos);
 
     // the RSU is associated with a TL
     if(myTLid != "")
@@ -129,7 +129,7 @@ void ApplRSUMonitor::check_RSU_pos()
         {
             // calculate the distance from this RSU to the center of the junction
             auto coord = TraCI->junctionGetPosition(myTLid);
-            double dist = sqrt(pow(rsu_x - coord.x, 2.) + pow(rsu_y - coord.y, 2.));
+            double dist = sqrt(pow(rsu_pos_sumo.x - coord.x, 2.) + pow(rsu_pos_sumo.y - coord.y, 2.));
 
             if(dist > 0)
                 LOG_WARNING << boost::format("\nWARNING: RSU '%s' is not aligned with the center of intersection. \n") % SUMOID;
@@ -149,7 +149,7 @@ void ApplRSUMonitor::check_RSU_pos()
 
             // calculate the distance from this RSU to the center of the junction
             auto coord = TraCI->junctionGetPosition(junc);
-            double dist = sqrt(pow(rsu_x - coord.x, 2.) + pow(rsu_y - coord.y, 2.));
+            double dist = sqrt(pow(rsu_pos_sumo.x - coord.x, 2.) + pow(rsu_pos_sumo.y - coord.y, 2.));
 
             if(dist < shortest_dist)
             {
@@ -210,7 +210,7 @@ template <typename T> void ApplRSUMonitor::onBeaconAny(T wsm)
     if(!record_vehApproach_stat)
         return;
 
-    Coord pos = wsm->getPos();
+    TraCICoord pos = wsm->getPos();
 
     // todo: change from fix values
     // check if entity is in the detection region:

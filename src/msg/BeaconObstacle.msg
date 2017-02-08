@@ -26,20 +26,20 @@
 //
 
 cplusplus {{
-#include "WaveShortMessage_m.h"
-#include <Coord.h>
+        #include "WaveShortMessage_m.h"
+        #include <TraCICoord.h>
 }}
 
 class Veins::WaveShortMessage;
-class noncobject Coord;
+class noncobject TraCICoord;
 
 namespace VENTOS;
 
 packet BeaconObstacle extends WaveShortMessage 
 {
-	string sender;
-    string senderType;
-	Coord pos;
-	string lane;
+        string sender;
+        string senderType;
+        TraCICoord pos;
+        string lane;
 };
 

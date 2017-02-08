@@ -71,9 +71,7 @@ private:
     typedef struct adversaryEntry
     {
         std::string id_str;
-        double pos_x;
-        double pos_y;
-        double pos_z;
+        TraCICoord pos;
         bool drawMaxIntfDist;
         std::string color_str;
         bool filled;
@@ -85,9 +83,7 @@ private:
     typedef struct RSUEntry
     {
         std::string id_str;
-        double pos_x;
-        double pos_y;
-        double pos_z;
+        TraCICoord pos;
         bool drawMaxIntfDist;
         std::string color_str;
         bool filled;
@@ -179,9 +175,7 @@ private:
     typedef struct CAEntry
     {
         std::string id_str;
-        double pos_x;
-        double pos_y;
-        double pos_z;
+        TraCICoord pos;
         cModule* module;
     } CAEntry_t;
 
@@ -225,11 +219,11 @@ private:
     void parseEmulated(rapidxml::xml_node<> *);
     void addEmulated();
 
-    void addCircle(std::string, std::string, const RGB, bool, Coord*, double);
+    void addCircle(std::string, std::string, const RGB, bool, TraCICoord, double);
 
     void validityCheck(rapidxml::xml_node<> *, std::vector<std::string>);
     std::string getAttrValue_string(rapidxml::xml_node<> *, std::string, bool = true, std::string = "");
-    Coord getAttrValue_coord(rapidxml::xml_node<> *, std::string, bool = true, Coord = Coord(0,0,0));
+    TraCICoord getAttrValue_coord(rapidxml::xml_node<> *, std::string, bool = true, TraCICoord = TraCICoord(0,0,0));
     bool getAttrValue_bool(rapidxml::xml_node<> *, std::string, bool = true, bool = false);
     int getAttrValue_int(rapidxml::xml_node<> *, std::string, bool = true, int = 0);
     double getAttrValue_double(rapidxml::xml_node<> *, std::string, bool = true, double = 0);

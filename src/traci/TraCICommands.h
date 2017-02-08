@@ -91,6 +91,52 @@ typedef struct leader
 } leader_t;
 
 
+typedef enum CFMODES {
+    Mode_Undefined,
+    Mode_NoData,
+    Mode_DataLoss,
+    Mode_SpeedControl,
+    Mode_GapControl,
+    Mode_EmergencyBrake,
+    Mode_Stopped
+} CFMODES_t;
+
+
+typedef enum VehicleSignal {
+    VEH_SIGNAL_UNDEF = -1,
+    /// @brief Everything is switched off
+    VEH_SIGNAL_NONE = 0,
+    /// @brief Right blinker lights are switched on
+    VEH_SIGNAL_BLINKER_RIGHT = 1,
+    /// @brief Left blinker lights are switched on
+    VEH_SIGNAL_BLINKER_LEFT = 2,
+    /// @brief Blinker lights on both sides are switched on
+    VEH_SIGNAL_BLINKER_EMERGENCY = 4,
+    /// @brief The brake lights are on
+    VEH_SIGNAL_BRAKELIGHT = 8,
+    /// @brief The front lights are on (no visualisation)
+    VEH_SIGNAL_FRONTLIGHT = 16,
+    /// @brief The fog lights are on (no visualisation)
+    VEH_SIGNAL_FOGLIGHT = 32,
+    /// @brief The high beam lights are on (no visualisation)
+    VEH_SIGNAL_HIGHBEAM = 64,
+    /// @brief The backwards driving lights are on (no visualisation)
+    VEH_SIGNAL_BACKDRIVE = 128,
+    /// @brief The wipers are on
+    VEH_SIGNAL_WIPER = 256,
+    /// @brief One of the left doors is opened
+    VEH_SIGNAL_DOOR_OPEN_LEFT = 512,
+    /// @brief One of the right doors is opened
+    VEH_SIGNAL_DOOR_OPEN_RIGHT = 1024,
+    /// @brief A blue emergency light is on
+    VEH_SIGNAL_EMERGENCY_BLUE = 2048,
+    /// @brief A red emergency light is on
+    VEH_SIGNAL_EMERGENCY_RED = 4096,
+    /// @brief A yellow emergency light is on
+    VEH_SIGNAL_EMERGENCY_YELLOW = 8192
+} VehicleSignal_t;
+
+
 class TraCI_Commands : public omnetpp::cSimpleModule
 {
 protected:
@@ -171,7 +217,7 @@ public:
     double vehicleGetSpeed(std::string);
     double vehicleGetAngle(std::string);
     uint8_t vehicleGetStopState(std::string);
-    Coord vehicleGetPosition(std::string);
+    TraCICoord vehicleGetPosition(std::string);
     std::string vehicleGetEdgeID(std::string);
     std::string vehicleGetLaneID(std::string);
     uint32_t vehicleGetLaneIndex(std::string);
@@ -182,7 +228,7 @@ public:
     uint32_t vehicleGetRouteIndex(std::string);
     std::map<int,bestLanesEntry_t> vehicleGetBestLanes(std::string);
     uint8_t* vehicleGetColor(std::string);
-    uint32_t vehicleGetSignalStatus(std::string);
+    VehicleSignal_t vehicleGetSignalStatus(std::string);
     double vehicleGetLength(std::string);
     double vehicleGetMinGap(std::string);
     double vehicleGetMaxSpeed(std::string);
@@ -192,10 +238,10 @@ public:
     std::string vehicleGetClass(std::string);
     leader_t vehicleGetLeader(std::string, double);
     std::vector<TL_info_t> vehicleGetNextTLS(std::string);
-    double vehicleGetCurrentAccel(std::string);     // new command [returns the current acceleration of the vehicle]
-    int vehicleGetCarFollowingMode(std::string);    // new command [returns the current ACC/CACC car following mode]
-    int vehicleGetControllerType(std::string);      // new command [returns the car-following model type -- ACC/CACC]
-    int vehicleGetControllerNumber(std::string);    // new command [returns the car-following model sub-type -- CACC 1, CACC 2]
+    double vehicleGetCurrentAccel(std::string);          // new command [returns the current acceleration of the vehicle]
+    CFMODES_t vehicleGetCarFollowingMode(std::string);   // new command [returns the current ACC/CACC car following mode]
+    int vehicleGetControllerType(std::string);           // new command [returns the car-following model type -- ACC/CACC]
+    int vehicleGetControllerNumber(std::string);         // new command [returns the car-following model sub-type -- CACC 1, CACC 2]
 
     // CMD_SET_VEHICLE_VARIABLE
     void vehicleSetStop(std::string, std::string, double, uint8_t, int32_t, uint8_t);  // adds or modifies a stop with the given parameters
@@ -351,14 +397,14 @@ public:
     // CMD_GET_JUNCTION_VARIABLE
     std::vector<std::string> junctionGetIDList();
     uint32_t junctionGetIDCount();
-    Coord junctionGetPosition(std::string);
+    TraCICoord junctionGetPosition(std::string);
 
     // ################################################################
     //                               GUI
     // ################################################################
 
     // CMD_GET_GUI_VARIABLE
-    Coord GUIGetOffset(std::string);
+    TraCICoord GUIGetOffset(std::string);
     std::vector<double> GUIGetBoundry(std::string);
 
     // CMD_SET_GUI_VARIABLE
@@ -373,18 +419,19 @@ public:
     // CMD_GET_POLYGON_VARIABLE
     std::vector<std::string> polygonGetIDList();
     uint32_t polygonGetIDCount();
-    std::vector<Coord> polygonGetShape(std::string);
+    std::vector<TraCICoord> polygonGetShape(std::string);
     std::string polygonGetTypeID(std::string);
 
     // CMD_SET_POLYGON_VARIABLE
-    void polygonAddTraCI(std::string, std::string, const RGB, bool, int32_t, const std::list<TraCICoord>&);
     void polygonAdd(std::string, std::string, const RGB, bool, int32_t, const std::list<Coord>&);
+    void polygonAdd(std::string, std::string, const RGB, bool, int32_t, const std::list<TraCICoord>&);
     void polygonSetFilled(std::string, uint8_t);
 
     // ################################################################
     //                               POI
     // ################################################################
 
+    void poiAdd(std::string, std::string, const RGB, int32_t, const TraCICoord&);
     void poiAdd(std::string, std::string, const RGB, int32_t, const Coord&);
 
 
@@ -396,7 +443,7 @@ public:
     std::vector<std::string> personGetIDList();
     uint32_t personGetIDCount();
     std::string personGetTypeID(std::string);
-    Coord personGetPosition(std::string);
+    TraCICoord personGetPosition(std::string);
     double personGetAngle(std::string);
     std::string personGetEdgeID(std::string);
     double personGetEdgePosition(std::string);
@@ -459,11 +506,10 @@ private:
     int32_t genericGetInt(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
     std::string genericGetString(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
     std::vector<std::string> genericGetStringVector(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
-    Coord genericGetCoord(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
-    std::vector<Coord> genericGetCoordVector(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
+    TraCICoord genericGetCoord(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
+    std::vector<TraCICoord> genericGetCoordVector(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
 
     uint8_t genericGetUnsignedByte(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
-    Coord genericGetCoordv2(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
     std::vector<double> genericGetBoundingBox(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
     uint8_t* genericGetArrayUnsignedInt(uint8_t, std::string, uint8_t, uint8_t);
 

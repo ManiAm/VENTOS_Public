@@ -276,8 +276,12 @@ void TraCI_Start::init_traci()
                 continue;
 
             auto coords = polygonGetShape(id);
+
+            // convert to OMNET++ coordinates
             std::vector<Coord> shape;
-            std::copy(coords.begin(), coords.end(), std::back_inserter(shape));
+            for(auto &point : coords)
+                shape.push_back(traci2omnetCoord(point));
+
             obstacles->addFromTypeAndShape(id, typeId, shape);
         }
     }
@@ -348,16 +352,16 @@ void TraCI_Start::roiRSUs()
     // iterate over RSUs
     for(int i = 0; i < RSUcount; ++i)
     {
-        module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("RSU", i);
-        cModule *mob =  module->getSubmodule("mobility");
-        double centerX = mob->par("x").doubleValue();
-        double centerY = mob->par("y").doubleValue();
+        module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("RSU", i)->getSubmodule("mobility");
+
+        Coord center (module->par("x").doubleValue(), module->par("y").doubleValue());
+        TraCICoord center_SUMO = omnet2traciCoord(center);
 
         double squSize = par("roiSquareSizeRSU").doubleValue();
 
         // calculate corners of the roi square
-        TraCICoord bottomLeft = TraCICoord(centerX - squSize, centerY - squSize);
-        TraCICoord topRight = TraCICoord(centerX + squSize, centerY + squSize);
+        TraCICoord bottomLeft = TraCICoord(center_SUMO.x - squSize, center_SUMO.y - squSize);
+        TraCICoord topRight = TraCICoord(center_SUMO.x + squSize, center_SUMO.y + squSize);
 
         // add them into roiRects
         roiRects.push_back(std::pair<TraCICoord, TraCICoord>(bottomLeft, topRight));
@@ -391,7 +395,7 @@ void TraCI_Start::drawRoi()
         roiCount++;
         std::string polID = "roi_" + std::to_string(roiCount);
 
-        polygonAddTraCI(polID, "region", Color::colorNameToRGB("green"), 0, 1, detectionRegion);
+        polygonAdd(polID, "region", Color::colorNameToRGB("green"), 0, 1, detectionRegion);
     }
 }
 
@@ -965,7 +969,7 @@ void TraCI_Start::addModule(std::string nodeId /*sumo id*/, const Coord& positio
 }
 
 
-void TraCI_Start::addVehicle(std::string nodeId /*sumo id*/, std::string type, std::string name, std::string displayString, std::string vClass, const Coord& position, std::string road_id, double speed, double angle)
+void TraCI_Start::addVehicle(std::string SUMOID, std::string type, std::string name, std::string displayString, std::string vClass, const Coord& position, std::string road_id, double speed, double angle)
 {
     cModule* parentmod = getParentModule();
     if (!parentmod)
@@ -984,7 +988,7 @@ void TraCI_Start::addVehicle(std::string nodeId /*sumo id*/, std::string type, s
 
     bool hasOBU_val = false;
     std::string IPaddress_val = "";
-    auto ii = SUMOid_ipv4_mapping.find(nodeId);
+    auto ii = SUMOid_ipv4_mapping.find(SUMOID);
     if(ii != SUMOid_ipv4_mapping.end())
     {
         hasOBU_val = true;
@@ -997,38 +1001,12 @@ void TraCI_Start::addVehicle(std::string nodeId /*sumo id*/, std::string type, s
         ipv4_OMNETid_mapping[ii->second] = mod->getFullName();
     }
 
-    if(vClass == "bicycle")
-    {
-        mod->par("SUMOID") = nodeId;
-        mod->par("SUMOType") = vehicleGetTypeID(nodeId);
-        mod->par("vehicleClass") = vClass;
+    mod->par("SUMOID") = SUMOID;
+    mod->par("SUMOType") = vehicleGetTypeID(SUMOID);
+    mod->par("vehicleClass") = vClass;
 
-        mod->par("hasOBU") = hasOBU_val;
-        mod->par("IPaddress") = IPaddress_val;
-    }
-    // obstacle
-    else if(vClass == "custom1")
-    {
-        mod->par("SUMOID") = nodeId;
-        mod->par("SUMOType") = vehicleGetTypeID(nodeId);
-        mod->par("vehicleClass") = vClass;
-
-        mod->par("hasOBU") = hasOBU_val;
-        mod->par("IPaddress") = IPaddress_val;
-    }
-    // any other motor vehicle
-    else
-    {
-        mod->par("SUMOID") = nodeId;
-        mod->par("SUMOType") = vehicleGetTypeID(nodeId);
-        mod->par("vehicleClass") = vClass;
-
-        mod->par("hasOBU") = hasOBU_val;
-        mod->par("IPaddress") = IPaddress_val;
-
-        mod->par("SUMOControllerType") = vehicleGetControllerType(nodeId);
-        mod->par("SUMOControllerNumber") = vehicleGetControllerNumber(nodeId);
-    }
+    mod->par("hasOBU") = hasOBU_val;
+    mod->par("IPaddress") = IPaddress_val;
 
     mod->scheduleStart(omnetpp::simTime() + updateInterval);
 
@@ -1036,14 +1014,14 @@ void TraCI_Start::addVehicle(std::string nodeId /*sumo id*/, std::string type, s
     for (cModule::SubmoduleIterator iter(mod); !iter.end(); iter++)
     {
         cModule* submod = *iter;
-        ifInetTraCIMobilityCallPreInitialize(submod, nodeId, position, road_id, speed, angle);
+        ifInetTraCIMobilityCallPreInitialize(submod, SUMOID, position, road_id, speed, angle);
         TraCIMobilityMod* mm = dynamic_cast<TraCIMobilityMod*>(submod);
         if (!mm) continue;
-        mm->preInitialize(nodeId, position, road_id, speed, angle);
+        mm->preInitialize(SUMOID, position, road_id, speed, angle);
     }
 
     mod->callInitialize();
-    hosts[nodeId] = mod;
+    hosts[SUMOID] = mod;
 
     // post-initialize TraCIMobilityMod
     for (cModule::SubmoduleIterator iter(mod); !iter.end(); iter++)
@@ -1055,20 +1033,20 @@ void TraCI_Start::addVehicle(std::string nodeId /*sumo id*/, std::string type, s
     }
 
     // save mapping of SUMO id and OMNET++ id
-    auto i1 = SUMOid_OMNETid_mapping.find(nodeId);
+    auto i1 = SUMOid_OMNETid_mapping.find(SUMOID);
     if(i1 != SUMOid_OMNETid_mapping.end())
-        throw omnetpp::cRuntimeError("SUMO id %s already exists in the network!", nodeId.c_str());
-    SUMOid_OMNETid_mapping[nodeId] = mod->getFullName();
+        throw omnetpp::cRuntimeError("SUMO id %s already exists in the network!", SUMOID.c_str());
+    SUMOid_OMNETid_mapping[SUMOID] = mod->getFullName();
 
     // save mapping of OMNET++ id and SUMO id
     auto i2 = OMNETid_SUMOid_mapping.find(mod->getFullName());
     if(i2 != OMNETid_SUMOid_mapping.end())
         throw omnetpp::cRuntimeError("OMNET++ id %s already exists in the network!", mod->getFullName());
-    OMNETid_SUMOid_mapping[mod->getFullName()] = nodeId;
+    OMNETid_SUMOid_mapping[mod->getFullName()] = SUMOID;
 
-    auto it = record_status.find(nodeId);
+    auto it = record_status.find(SUMOID);
     if(it != record_status.end())
-        throw omnetpp::cRuntimeError("'%s' already exist in record_status", nodeId.c_str());
+        throw omnetpp::cRuntimeError("'%s' already exist in record_status", SUMOID.c_str());
     else
     {
         bool active = mod->par("record_stat").boolValue();
@@ -1076,7 +1054,7 @@ void TraCI_Start::addVehicle(std::string nodeId /*sumo id*/, std::string type, s
 
         // make sure record_list is not empty
         if(record_list == "")
-            throw omnetpp::cRuntimeError("record_list is empty in vehicle '%s'", nodeId.c_str());
+            throw omnetpp::cRuntimeError("record_list is empty in vehicle '%s'", SUMOID.c_str());
 
         // applications are separated by |
         std::vector<std::string> records;
@@ -1087,7 +1065,7 @@ void TraCI_Start::addVehicle(std::string nodeId /*sumo id*/, std::string type, s
         for(std::string appl : records)
         {
             if(appl == "")
-                throw omnetpp::cRuntimeError("Invalid record_list format in vehicle '%s'", nodeId.c_str());
+                throw omnetpp::cRuntimeError("Invalid record_list format in vehicle '%s'", SUMOID.c_str());
 
             // remove leading and trailing spaces from the string
             boost::trim(appl);
@@ -1099,7 +1077,7 @@ void TraCI_Start::addVehicle(std::string nodeId /*sumo id*/, std::string type, s
         }
 
         veh_status_entry_t entry = {active, record_tokenize};
-        record_status[nodeId] = entry;
+        record_status[SUMOID] = entry;
     }
 }
 
@@ -1120,103 +1098,6 @@ void TraCI_Start::addPedestrian()
     std::set_difference(subscribedPedestrians.begin(), subscribedPedestrians.end(), allPedestrians.begin(), allPedestrians.end(), std::inserter(needUnsubscribe, needUnsubscribe.begin()));
     for (std::set<std::string>::const_iterator i = needUnsubscribe.begin(); i != needUnsubscribe.end(); ++i)
         subscribedPedestrians.erase(*i);
-
-
-    //    bool isSubscribed = (subscribedPedestrians.find(objectId) != subscribedPedestrians.end());
-    //    double px;
-    //    double py;
-    //    std::string edge;
-    //    double speed;
-    //    double angle_traci;
-    //    // int signals;
-    //        int numRead = 0;
-
-    //        if (variable1_resp == VAR_POSITION) {
-    //            uint8_t varType; buf >> varType;
-    //            ASSERT(varType == POSITION_2D);
-    //            buf >> px;
-    //            buf >> py;
-    //            numRead++;
-    //        } else if (variable1_resp == VAR_ROAD_ID) {
-    //            uint8_t varType; buf >> varType;
-    //            ASSERT(varType == TYPE_STRING);
-    //            buf >> edge;
-    //            numRead++;
-    //        } else if (variable1_resp == VAR_SPEED) {
-    //            uint8_t varType; buf >> varType;
-    //            ASSERT(varType == TYPE_DOUBLE);
-    //            buf >> speed;
-    //            numRead++;
-    //        } else if (variable1_resp == VAR_ANGLE) {
-    //            uint8_t varType; buf >> varType;
-    //            ASSERT(varType == TYPE_DOUBLE);
-    //            buf >> angle_traci;
-    //            numRead++;
-    ////        }   else if (variable1_resp == VAR_SIGNALS) {
-    ////            uint8_t varType; buf >> varType;
-    ////            ASSERT(varType == TYPE_INTEGER);
-    ////            buf >> signals;
-    ////            numRead++;
-    //        } else {
-    //            throw omnetpp::cRuntimeError("Received unhandled pedestrian subscription result");
-    //        }
-    //    }
-    //
-    //    // bail out if we didn't want to receive these subscription results
-    //    if (!isSubscribed) return;
-    //
-    //    // make sure we got updates for all attributes
-    //    if (numRead != 4) return;
-    //
-    //    Coord p = connection->traci2omnet(TraCICoord(px, py));
-    //    if ((p.x < 0) || (p.y < 0)) throw omnetpp::cRuntimeError("received bad node position (%.2f, %.2f), translated to (%.2f, %.2f)", px, py, p.x, p.y);
-    //
-    //    double angle = connection->traci2omnetAngle(angle_traci);
-    //
-    //    cModule* mod = getManagedModule(objectId);
-    //
-    //    // is it in the ROI?
-    //    bool inRoi = isInRegionOfInterest(TraCICoord(px, py), edge, speed, angle);
-    //    if (!inRoi)
-    //    {
-    //        if (mod)
-    //        {
-    //            deleteManagedModule(objectId);
-    //            cout << "Pedestrian #" << objectId << " left region of interest" << endl;
-    //        }
-    //        else if(unEquippedHosts.find(objectId) != unEquippedHosts.end())
-    //        {
-    //            unEquippedHosts.erase(objectId);
-    //            cout << "Pedestrian (unequipped) # " << objectId<< " left region of interest" << endl;
-    //        }
-    //        return;
-    //    }
-    //
-    //    if (isModuleUnequipped(objectId))
-    //    {
-    //        return;
-    //    }
-    //
-    //    if (!mod)
-    //    {
-    //        // no such module - need to create
-    //        TraCIScenarioManager::addModule(objectId, pedModuleType, pedModuleName, pedModuleDisplayString, p, edge, speed, angle);
-    //        cout << "Added pedestrian #" << objectId << endl;
-    //    }
-    //    else
-    //    {
-    //        // module existed - update position
-    //        for (cModule::SubmoduleIterator iter(mod); !iter.end(); iter++)
-    //        {
-    //            cModule* submod = iter();
-    //            ifInetTraCIMobilityCallNextPosition(submod, p, edge, speed, angle);
-    //            TraCIMobilityMod* mm = dynamic_cast<TraCIMobilityMod*>(submod);
-    //            if (!mm) continue;
-    //            cout << "module " << objectId << " moving to " << p.x << "," << p.y << endl;
-    //            mm->nextPosition(p, edge, speed, angle);
-    //        }
-    //    }
-    //
 }
 
 
@@ -1269,7 +1150,7 @@ void TraCI_Start::record_Veh_data(std::string vID)
             entry.accel = vehicleGetCurrentAccel(vID);
         else if(record == "cfmode")
         {
-            int CFMode_Enum = vehicleGetCarFollowingMode(vID);
+            CFMODES_t CFMode_Enum = vehicleGetCarFollowingMode(vID);
             switch(CFMode_Enum)
             {
             case Mode_Undefined:

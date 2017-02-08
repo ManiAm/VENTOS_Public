@@ -262,7 +262,7 @@ void AddNode::parseAdversary(rapidxml::xml_node<> *pNode)
         validityCheck(cNode, validAttr);
 
         std::string id_str = getAttrValue_string(cNode, "id");
-        Coord pos = getAttrValue_coord(cNode, "pos");
+        TraCICoord pos = getAttrValue_coord(cNode, "pos");
         bool drawMaxIntfDist = getAttrValue_bool(cNode, "drawMaxIntfDist", false, true);
         std::string color_str = getAttrValue_string(cNode, "color", false, "green");
         bool filled = getAttrValue_bool(cNode, "filled", false, false);
@@ -273,15 +273,14 @@ void AddNode::parseAdversary(rapidxml::xml_node<> *pNode)
             // check if the new node has overlap with any of the existing nodes
             for(auto &entry : allAdversary)
             {
-                if(entry.second.pos_x == pos.x && entry.second.pos_y == pos.y && entry.second.pos_z == pos.z)
+                if(entry.second.pos == pos)
                     LOG_WARNING << boost::format("WARNING: Adversary '%s' is placed on top of '%s'. \n") % id_str % entry.second.id_str;
             }
 
             adversaryEntry_t entry = {};
+
             entry.id_str = id_str;
-            entry.pos_x = pos.x;
-            entry.pos_y = pos.y;
-            entry.pos_z = pos.z;
+            entry.pos = pos;
             entry.drawMaxIntfDist = drawMaxIntfDist;
             entry.color_str = color_str;
             entry.filled = filled;
@@ -318,9 +317,11 @@ void AddNode::addAdversary()
         mod->getDisplayString().parse(par("adversary_ModuleDisplayString"));
         mod->buildInside();
 
-        mod->getSubmodule("mobility")->par("x") = entry.second.pos_x;
-        mod->getSubmodule("mobility")->par("y") = entry.second.pos_y;
-        mod->getSubmodule("mobility")->par("z") = entry.second.pos_z;
+        Coord co = TraCI->traci2omnetCoord(entry.second.pos);
+
+        mod->getSubmodule("mobility")->par("x") = co.x;
+        mod->getSubmodule("mobility")->par("y") = co.y;
+        mod->getSubmodule("mobility")->par("z") = co.z;
 
         mod->getSubmodule("nic")->par("drawMaxIntfDist") = entry.second.drawMaxIntfDist;
 
@@ -345,10 +346,7 @@ void AddNode::addAdversary()
         double radius = atof( module->getDisplayString().getTagArg("r",0) );
 
         if(entry.second.drawMaxIntfDist && radius > 0)
-        {
-            Coord *center = new Coord(entry.second.pos_x, entry.second.pos_y);
-            addCircle(entry.second.id_str, par("adversary_ModuleName"), Color::colorNameToRGB(entry.second.color_str), entry.second.filled, center, radius);
-        }
+            addCircle(entry.second.id_str, par("adversary_ModuleName"), Color::colorNameToRGB(entry.second.color_str), entry.second.filled, entry.second.pos, radius);
 
         i++;
     }
@@ -367,7 +365,7 @@ void AddNode::parseRSU(rapidxml::xml_node<> *pNode)
         validityCheck(cNode, validAttr);
 
         std::string id_str = getAttrValue_string(cNode, "id");
-        Coord pos = getAttrValue_coord(cNode, "pos");
+        TraCICoord pos = getAttrValue_coord(cNode, "pos");
         bool drawMaxIntfDist = getAttrValue_bool(cNode, "drawMaxIntfDist", false, true);
         std::string color_str = getAttrValue_string(cNode, "color", false, "green");
         bool filled = getAttrValue_bool(cNode, "filled", false, false);
@@ -378,15 +376,14 @@ void AddNode::parseRSU(rapidxml::xml_node<> *pNode)
             // check if the new node has overlap with any of the existing nodes
             for(auto &entry : allRSU)
             {
-                if(entry.second.pos_x == pos.x && entry.second.pos_y == pos.y && entry.second.pos_z == pos.z)
+                if(entry.second.pos == pos)
                     LOG_WARNING << boost::format("WARNING: RSU '%s' is placed on top of '%s'. \n") % id_str % entry.second.id_str;
             }
 
             RSUEntry_t entry = {};
+
             entry.id_str = id_str;
-            entry.pos_x = pos.x;
-            entry.pos_y = pos.y;
-            entry.pos_z = pos.z;
+            entry.pos = pos;
             entry.drawMaxIntfDist = drawMaxIntfDist;
             entry.color_str = color_str;
             entry.filled = filled;
@@ -437,9 +434,11 @@ void AddNode::addRSU()
         mod->getDisplayString().parse(par("RSU_ModuleDisplayString"));
         mod->buildInside();
 
-        mod->getSubmodule("mobility")->par("x") = entry.second.pos_x;
-        mod->getSubmodule("mobility")->par("y") = entry.second.pos_y;
-        mod->getSubmodule("mobility")->par("z") = entry.second.pos_z;
+        Coord co = TraCI->traci2omnetCoord(entry.second.pos);
+
+        mod->getSubmodule("mobility")->par("x") = co.x;
+        mod->getSubmodule("mobility")->par("y") = co.y;
+        mod->getSubmodule("mobility")->par("z") = co.z;
 
         mod->par("myTLid") = myTLid;
         mod->par("SUMOID") = entry.second.id_str;
@@ -467,10 +466,7 @@ void AddNode::addRSU()
         double radius = atof( module->getDisplayString().getTagArg("r",0) );
 
         if(entry.second.drawMaxIntfDist && radius > 0)
-        {
-            Coord *center = new Coord(entry.second.pos_x, entry.second.pos_y);
-            addCircle(entry.second.id_str, par("RSU_ModuleName"), Color::colorNameToRGB(entry.second.color_str), entry.second.filled, center, radius);
-        }
+            addCircle(entry.second.id_str, par("RSU_ModuleName"), Color::colorNameToRGB(entry.second.color_str), entry.second.filled, entry.second.pos, radius);
 
         i++;
     }
@@ -1548,7 +1544,7 @@ void AddNode::parseCA(rapidxml::xml_node<> *pNode)
         validityCheck(cNode, validAttr);
 
         std::string id_str = getAttrValue_string(cNode, "id");
-        Coord pos = getAttrValue_coord(cNode, "pos");
+        TraCICoord pos = getAttrValue_coord(cNode, "pos");
 
         auto it = allCA.find(id_str);
         if(it == allCA.end())
@@ -1556,15 +1552,14 @@ void AddNode::parseCA(rapidxml::xml_node<> *pNode)
             // check if the new node has overlap with any of the existing nodes
             for(auto &entry : allCA)
             {
-                if(entry.second.pos_x == pos.x && entry.second.pos_y == pos.y && entry.second.pos_z == pos.z)
+                if(entry.second.pos == pos)
                     LOG_WARNING << boost::format("WARNING: CA '%s' is placed on top of '%s'. \n") % id_str % entry.second.id_str;
             }
 
             CAEntry_t entry = {};
+
             entry.id_str = id_str;
-            entry.pos_x = pos.x;
-            entry.pos_y = pos.y;
-            entry.pos_z = pos.z;
+            entry.pos = pos;
 
             allCA.insert(std::make_pair(id_str, entry));
         }
@@ -1598,9 +1593,11 @@ void AddNode::addCA()
         mod->getDisplayString().parse(par("adversary_ModuleDisplayString"));
         mod->buildInside();
 
-        mod->getSubmodule("mobility")->par("x") = entry.second.pos_x;
-        mod->getSubmodule("mobility")->par("y") = entry.second.pos_y;
-        mod->getSubmodule("mobility")->par("z") = entry.second.pos_z;
+        Coord co = TraCI->traci2omnetCoord(entry.second.pos);
+
+        mod->getSubmodule("mobility")->par("x") = co.x;
+        mod->getSubmodule("mobility")->par("y") = co.y;
+        mod->getSubmodule("mobility")->par("z") = co.z;
 
         mod->scheduleStart(omnetpp::simTime());
         mod->callInitialize();
@@ -1674,21 +1671,21 @@ void AddNode::addEmulated()
 }
 
 
-void AddNode::addCircle(std::string name, std::string type, const RGB color, bool filled, Coord *center, double radius)
+void AddNode::addCircle(std::string name, std::string type, const RGB color, bool filled, TraCICoord center, double radius)
 {
     std::list<TraCICoord> circlePoints;
 
     // Convert from degrees to radians via multiplication by PI/180
     for(int angleInDegrees = 0; angleInDegrees <= 360; angleInDegrees += 10)
     {
-        double x = (double)( radius * cos(angleInDegrees * 3.14 / 180) ) + center->x;
-        double y = (double)( radius * sin(angleInDegrees * 3.14 / 180) ) + center->y;
+        double x = (double)( radius * cos(angleInDegrees * 3.14 / 180) ) + center.x;
+        double y = (double)( radius * sin(angleInDegrees * 3.14 / 180) ) + center.y;
 
         circlePoints.push_back(TraCICoord(x, y));
     }
 
     // create polygon in SUMO
-    TraCI->polygonAddTraCI(name, type, color, filled /*filled*/, 1 /*layer*/, circlePoints);
+    TraCI->polygonAdd(name, type, color, filled /*filled*/, 1 /*layer*/, circlePoints);
 }
 
 
@@ -1799,7 +1796,7 @@ std::string AddNode::getAttrValue_string(rapidxml::xml_node<> *cNode, std::strin
 }
 
 
-Coord AddNode::getAttrValue_coord(rapidxml::xml_node<> *cNode, std::string attr, bool mandatory, Coord defaultVal)
+TraCICoord AddNode::getAttrValue_coord(rapidxml::xml_node<> *cNode, std::string attr, bool mandatory, TraCICoord defaultVal)
 {
     std::string tag = cNode->name();
 
@@ -1836,7 +1833,7 @@ Coord AddNode::getAttrValue_coord(rapidxml::xml_node<> *cNode, std::string attr,
         boost::trim(pos_z_str);
         double pos_z = boost::lexical_cast<double>(pos_z_str);
 
-        return Coord(pos_x, pos_y, pos_z);
+        return TraCICoord(pos_x, pos_y, pos_z);
     }
     catch (boost::bad_lexical_cast const&)
     {

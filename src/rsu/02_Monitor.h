@@ -28,7 +28,7 @@
 #ifndef APPLRSUMONITOR_H_
 #define APPLRSUMONITOR_H_
 
-#include "rsu/01_Base.h"
+#include "01_Beacon.h"
 #include "msg/BeaconVehicle_m.h"
 #include "msg/BeaconBicycle_m.h"
 #include "msg/BeaconPedestrian_m.h"
@@ -57,7 +57,7 @@ typedef struct laneInfoEntry
 } laneInfoEntry_t;
 
 
-class ApplRSUMonitor : public ApplRSUBase
+class ApplRSUMonitor : public ApplRSUBeacon
 {
 public:
     // collected info per lane by this RSU (only in the current simulation time).
@@ -66,7 +66,7 @@ public:
     laneInfo_t laneInfo;
 
 private:
-    typedef ApplRSUBase super;
+    typedef ApplRSUBeacon super;
 
     bool record_vehApproach_stat;
 
@@ -81,7 +81,7 @@ private:
         std::string vehicleName;
         std::string vehicleType;
         std::string entryLane;
-        Coord entryPos;
+        TraCICoord entryPos;
         double entrySpeed;
         double entryTime;
         double leaveTime;

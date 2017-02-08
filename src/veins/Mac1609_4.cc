@@ -280,17 +280,14 @@ void Mac1609_4::handleUpperMsg(omnetpp::cMessage* msg)
     t_channel chan;
 
     //rewrite SCH channel to actual SCH the Mac1609_4 is set to
-    if (thisMsg->getChannelNumber() == Channels::SCH1)
+    if (thisMsg->getChannelNumber() == Channels::CCH)
+        chan = type_CCH;
+    else
     {
         ASSERT(useSCH);
         thisMsg->setChannelNumber(mySCH);
         chan = type_SCH;
     }
-
-
-    //put this packet in its queue
-    if (thisMsg->getChannelNumber() == Channels::CCH)
-        chan = type_CCH;
 
     int num = myEDCA[chan]->queuePacket(ac,thisMsg);
 
@@ -660,7 +657,7 @@ WaveShortMessage* Mac1609_4::EDCA::initiateTransmit(omnetpp::simtime_t lastIdle)
                     //there was already another packet ready. we have to go increase cw and go into backoff. It's called internal contention and its wonderful
 
                     statsNumInternalContention++;
-                    iter->second.cwCur = std::min(iter->second.cwMax,iter->second.cwCur*2);
+                    iter->second.cwCur = std::min(iter->second.cwMax,(iter->second.cwCur+1)*2-1);
                     iter->second.currentBackoff = owner->intuniform(0,iter->second.cwCur);
                     EV << "Internal contention for queue " << iter->first  << " : "<< iter->second.currentBackoff << ". Increase cwCur to " << iter->second.cwCur << std::endl;
                 }
@@ -669,9 +666,7 @@ WaveShortMessage* Mac1609_4::EDCA::initiateTransmit(omnetpp::simtime_t lastIdle)
     }
 
     if (pktToSend == NULL)
-    {
         throw omnetpp::cRuntimeError("No packet was ready");
-    }
 
     return pktToSend;
 }

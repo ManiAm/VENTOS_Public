@@ -30,16 +30,13 @@
 
 #include <eigen3/Eigen/Dense>
 
-#include "veins/modules/BaseApplLayer.h"
-#include "veins/modules/ChannelAccess.h"
-#include "veins/WaveAppToMac1609_4Interface.h"
-#include "traci/TraCICommands.h"
+#include "global/BaseWaveApplLayer.h"
 #include "CerAuthority/Certificate.h"
 #include "msg/CRL_Piece_m.h"
 
 namespace VENTOS {
 
-class ApplCA : public BaseApplLayer
+class ApplCA : public BaseWaveApplLayer
 {
 public:
     // all entities use the same Matrix_A
@@ -68,7 +65,7 @@ public:
     virtual ~ApplCA();
     virtual void initialize(int);
     virtual void finish();
-    virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, omnetpp::cObject *, cObject* details);
+    virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, omnetpp::cObject *, omnetpp::cObject* details);
 
 protected:
     virtual void handleSelfMsg(omnetpp::cMessage* msg);

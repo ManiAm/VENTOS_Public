@@ -99,7 +99,7 @@ void ApplCA::initialize(int stage)
         Signal_Magic_Req = registerSignal("Magic_Req");
         omnetpp::getSimulation()->getSystemModule()->subscribe("Magic_Req", this);
 
-        Timer1 = new omnetpp::cMessage("Timer_Initial_Wait_CA", TYPE_TIMER);
+        Timer1 = new omnetpp::cMessage("Timer_Initial_Wait_CA");
         scheduleAt(omnetpp::simTime() + InitialWait, Timer1);
     }
 }
@@ -126,7 +126,7 @@ void ApplCA::handleSelfMsg(omnetpp::cMessage *msg)
         delete msg;
     }
     else
-        throw omnetpp::cRuntimeError("Can't handle msg %s of kind %d", msg->getFullName(), msg->getKind());
+        throw omnetpp::cRuntimeError("Can't handle msg '%s' of kind '%d'", msg->getFullName(), msg->getKind());
 }
 
 

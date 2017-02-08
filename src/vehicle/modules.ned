@@ -21,9 +21,6 @@ module vehicle
         bool hasOBU = default(false);
         string IPaddress = default("");
         
-        int SUMOControllerType = default(-1);
-        int SUMOControllerNumber = default(-1);
-        
         bool SUMOvehicleDebug = default(false);  // controling SUMO debug output
         bool degradeToACC = default(true);
         
@@ -56,25 +53,9 @@ module vehicle
 }
 
 
-import VENTOS.src.veins.modules.IBaseApplLayer;
+import VENTOS.src.global.BaseWaveApplLayer;
 
-simple ApplVBase like IBaseApplLayer
-{
-    parameters:
-        @class(VENTOS::ApplVBase);
-        
-        int headerLength = default(256bit) @unit(bit); //header length of the application        
-        bool debug = default(false); //whether to print debug output
-
-    gates:
-        input lowerLayerIn;    // from mac layer
-        output lowerLayerOut;  // to mac layer
-        input lowerControlIn;
-        output lowerControlOut;
-}
-
-
-simple ApplVBeacon extends ApplVBase
+simple ApplVBeacon extends BaseWaveApplLayer
 {
     parameters:
         @class(VENTOS::ApplVBeacon);
@@ -82,20 +63,8 @@ simple ApplVBeacon extends ApplVBase
         
         double sonarDist = default(900);
         
-        // vehicle beacon msg parameters
-        bool sendBeacons = default(true); //tell the applayer to periodically send beacons. You can turn beaconing off/on in any point
-        volatile double beaconInterval = default(0.1s) @unit(s); //the intervall between 2 beacon messages
-        double maxOffset = default(0.005s) @unit(s); //the maximum delay of messages sent down to avoid synchronous channel access
-        int beaconLengthBits = default(512bit) @unit(bit); //the length of a beacon packet
-        int beaconPriority = default(3); //the access category of the beacon messages
-        
         bool signalBeaconing = default(false); // vehicles send beacons using signals rather than wireless broadcast. Any module
                                                // registered to signalBeaconing signal will receive the beacon 
-        
-        // vehicle data msg parameters
-        bool dataOnSch = default(true); //tells the applayer whether to use a service channel for datapackets or the control channel
-        int dataLengthBits = default(1024bit) @unit(bit); //the length of a data packet
-        int dataPriority = default(2); //the access category for data packets  
 }
 
 

@@ -109,7 +109,7 @@ void TraCIMobilityMod::handleSelfMsg(omnetpp::cMessage *msg)
 		}
 	}
 	else
-	    throw omnetpp::cRuntimeError("Can't handle msg %s of kind %d", msg->getFullName(), msg->getKind());
+	    throw omnetpp::cRuntimeError("Can't handle msg '%s' of kind '%d'", msg->getFullName(), msg->getKind());
 }
 
 void TraCIMobilityMod::preInitialize(std::string external_id, const Coord& position, std::string road_id, double speed, double angle)

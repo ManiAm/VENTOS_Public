@@ -45,6 +45,9 @@ void ApplVManager::initialize(int stage)
 
     if (stage == 0)
     {
+        SUMOControllerType = TraCI->vehicleGetControllerType(SUMOID);
+        SUMOControllerNumber = TraCI->vehicleGetControllerNumber(SUMOID);
+
         // NED variables (packet loss ratio)
         droppT = par("droppT").doubleValue();
         droppV = par("droppV").stringValue();
@@ -90,13 +93,7 @@ void ApplVManager::receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal
 {
     Enter_Method_Silent();
 
-    if (signalID == mobilityStateChangedSignal)
-    {
-        handlePositionUpdate(obj);
-    }
-    // pass it up, if we do not know how to handle the signal
-    else
-        super::receiveSignal(source, signalID, obj, details);
+    super::receiveSignal(source, signalID, obj, details);
 }
 
 

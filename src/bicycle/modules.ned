@@ -48,42 +48,16 @@ module bicycle
 }
 
 
-import VENTOS.src.veins.modules.IBaseApplLayer;
+import VENTOS.src.global.BaseWaveApplLayer;
 
-simple ApplBikeBase like IBaseApplLayer
-{
-    parameters:
-        @class(VENTOS::ApplBikeBase);
-        
-        int headerLength = default(256bit) @unit(bit); //header length of the application        
-        bool debug = default(false); //whether to print debug output
-
-    gates:
-        input lowerLayerIn;    // from mac layer
-        output lowerLayerOut;  // to mac layer
-        input lowerControlIn;
-        output lowerControlOut;
-}
-
-
-simple ApplBikeBeacon extends ApplBikeBase
+simple ApplBikeBeacon extends BaseWaveApplLayer
 {
     parameters:
         @class(VENTOS::ApplBikeBeacon);
         @display("i=block/app2");
-                
-        bool sendBeacons = default(false); //tell the applayer to periodically send beacons
-        volatile double beaconInterval = default(0.1s) @unit(s); //the intervall between 2 beacon messages
-        double maxOffset = default(0.005s) @unit(s); //the maximum delay of messages sent down to avoid synchronous channel access
-        int beaconLengthBits = default(512bit) @unit(bit); //the length of a beacon packet
-        int beaconPriority = default(3); //the access category of the beacon messages
         
-        bool signalBeaconing = default(false);
-        
-        // Bicycle data msg parameters
-        bool dataOnSch = default(true); //tells the applayer whether to use a service channel for datapackets or the control channel
-        int dataLengthBits = default(1024bit) @unit(bit); //the length of a data packet
-        int dataPriority = default(2); //the access category for data packets  
+        bool signalBeaconing = default(false); // vehicles send beacons using signals rather than wireless broadcast. Any module
+                                               // registered to signalBeaconing signal will receive the beacon 
 }
 
 

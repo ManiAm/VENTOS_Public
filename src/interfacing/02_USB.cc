@@ -83,8 +83,8 @@ void USB::initialize(int stage)
         Signal_executeEachTS = registerSignal("executeEachTS");
         omnetpp::getSimulation()->getSystemModule()->subscribe("executeEachTS", this);
 
-        USBevents = new omnetpp::cMessage("USBevents", TYPE_TIMER);
-        USBInterrupt = new omnetpp::cMessage("USBInterrupt", TYPE_TIMER);
+        USBevents = new omnetpp::cMessage("USBevents");
+        USBInterrupt = new omnetpp::cMessage("USBInterrupt");
 
         if(listUSBdevices)
         {
@@ -164,7 +164,7 @@ void USB::handleMessage(omnetpp::cMessage *msg)
         scheduleAt(omnetpp::simTime() + 0.2, USBInterrupt);
     }
     else
-        throw omnetpp::cRuntimeError("Can't handle msg %s of kind %d", msg->getFullName(), msg->getKind());
+        throw omnetpp::cRuntimeError("Can't handle msg '%s' of kind '%d'", msg->getFullName(), msg->getKind());
 }
 
 

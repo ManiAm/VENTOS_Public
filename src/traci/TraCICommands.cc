@@ -67,7 +67,7 @@ void TraCI_Commands::finish()
 
 void TraCI_Commands::handleMessage(omnetpp::cMessage *msg)
 {
-    throw omnetpp::cRuntimeError("Can't handle msg %s of kind %d", msg->getFullName(), msg->getKind());
+    throw omnetpp::cRuntimeError("Can't handle msg '%s' of kind '%d'", msg->getFullName(), msg->getKind());
 }
 
 
@@ -443,11 +443,11 @@ uint8_t TraCI_Commands::vehicleGetStopState(std::string nodeId)
 }
 
 
-Coord TraCI_Commands::vehicleGetPosition(std::string nodeId)
+TraCICoord TraCI_Commands::vehicleGetPosition(std::string nodeId)
 {
     record_TraCI_activity_func("commandStart", CMD_GET_VEHICLE_VARIABLE, VAR_POSITION, "vehicleGetPosition");
 
-    Coord result = genericGetCoordv2(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_POSITION, RESPONSE_GET_VEHICLE_VARIABLE);
+    TraCICoord result = genericGetCoord(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_POSITION, RESPONSE_GET_VEHICLE_VARIABLE);
 
     record_TraCI_activity_func("commandComplete", CMD_GET_VEHICLE_VARIABLE, VAR_POSITION, "vehicleGetPosition");
     return result;
@@ -642,14 +642,14 @@ uint8_t* TraCI_Commands::vehicleGetColor(std::string nodeId)
 }
 
 
-uint32_t TraCI_Commands::vehicleGetSignalStatus(std::string nodeId)
+VehicleSignal_t TraCI_Commands::vehicleGetSignalStatus(std::string nodeId)
 {
     record_TraCI_activity_func("commandStart", CMD_GET_VEHICLE_VARIABLE, VAR_SIGNALS, "vehicleGetSignalStatus");
 
     uint32_t result = genericGetInt(CMD_GET_VEHICLE_VARIABLE, nodeId, 0x5b, RESPONSE_GET_VEHICLE_VARIABLE);
 
     record_TraCI_activity_func("commandComplete", CMD_GET_VEHICLE_VARIABLE, VAR_SIGNALS, "vehicleGetSignalStatus");
-    return result;
+    return (VehicleSignal_t) result;
 }
 
 
@@ -852,14 +852,14 @@ double TraCI_Commands::vehicleGetCurrentAccel(std::string nodeId)
 }
 
 
-int TraCI_Commands::vehicleGetCarFollowingMode(std::string nodeId)
+CFMODES_t TraCI_Commands::vehicleGetCarFollowingMode(std::string nodeId)
 {
     record_TraCI_activity_func("commandStart", CMD_GET_VEHICLE_VARIABLE, 0x75, "vehicleGetCarFollowingMode");
 
     int result = genericGetInt(CMD_GET_VEHICLE_VARIABLE, nodeId, 0x75, RESPONSE_GET_VEHICLE_VARIABLE);
 
     record_TraCI_activity_func("commandComplete", CMD_GET_VEHICLE_VARIABLE, 0x75, "vehicleGetCarFollowingMode");
-    return result;
+    return (CFMODES_t) result;
 }
 
 
@@ -2453,11 +2453,11 @@ uint32_t TraCI_Commands::junctionGetIDCount()
 }
 
 
-Coord TraCI_Commands::junctionGetPosition(std::string id)
+TraCICoord TraCI_Commands::junctionGetPosition(std::string id)
 {
     record_TraCI_activity_func("commandStart", CMD_GET_JUNCTION_VARIABLE, VAR_POSITION, "junctionGetPosition");
 
-    Coord result = genericGetCoordv2(CMD_GET_JUNCTION_VARIABLE, id, VAR_POSITION, RESPONSE_GET_JUNCTION_VARIABLE);
+    TraCICoord result = genericGetCoord(CMD_GET_JUNCTION_VARIABLE, id, VAR_POSITION, RESPONSE_GET_JUNCTION_VARIABLE);
 
     record_TraCI_activity_func("commandComplete", CMD_GET_JUNCTION_VARIABLE, VAR_POSITION, "junctionGetPosition");
     return result;
@@ -2472,11 +2472,11 @@ Coord TraCI_Commands::junctionGetPosition(std::string id)
 // CMD_GET_GUI_VARIABLE
 // #####################
 
-Coord TraCI_Commands::GUIGetOffset(std::string viewID)
+TraCICoord TraCI_Commands::GUIGetOffset(std::string viewID)
 {
     record_TraCI_activity_func("commandStart", CMD_GET_GUI_VARIABLE, VAR_VIEW_OFFSET, "GUIGetOffset");
 
-    Coord result = genericGetCoordv2(CMD_GET_GUI_VARIABLE, viewID, VAR_VIEW_OFFSET, RESPONSE_GET_GUI_VARIABLE);
+    TraCICoord result = genericGetCoord(CMD_GET_GUI_VARIABLE, viewID, VAR_VIEW_OFFSET, RESPONSE_GET_GUI_VARIABLE);
 
     record_TraCI_activity_func("commandComplete", CMD_GET_GUI_VARIABLE, VAR_VIEW_OFFSET, "GUIGetOffset");
     return result;
@@ -2571,7 +2571,7 @@ uint32_t TraCI_Commands::polygonGetIDCount()
 }
 
 
-std::vector<Coord> TraCI_Commands::polygonGetShape(std::string polyId)
+std::vector<TraCICoord> TraCI_Commands::polygonGetShape(std::string polyId)
 {
     record_TraCI_activity_func("commandStart", CMD_GET_POLYGON_VARIABLE, VAR_SHAPE, "polygonGetShape");
 
@@ -2597,34 +2597,7 @@ std::string TraCI_Commands::polygonGetTypeID(std::string polyId)
 // CMD_SET_POLYGON_VARIABLE
 // ########################
 
-void TraCI_Commands::polygonAddTraCI(std::string polyId, std::string polyType, const RGB color, bool filled, int32_t layer, const std::list<TraCICoord>& points)
-{
-    record_TraCI_activity_func("commandStart", CMD_SET_POLYGON_VARIABLE, ADD, "polygonAddTraCI");
-
-    TraCIBuffer p;
-
-    p << static_cast<uint8_t>(ADD) << polyId;
-    p << static_cast<uint8_t>(TYPE_COMPOUND) << static_cast<int32_t>(5);
-    p << static_cast<uint8_t>(TYPE_STRING) << polyType;
-    p << static_cast<uint8_t>(TYPE_COLOR) << (uint8_t)color.red << (uint8_t)color.green << (uint8_t)color.blue << (uint8_t)255 /*alpha*/;
-    p << static_cast<uint8_t>(TYPE_UBYTE) << static_cast<uint8_t>(filled);
-    p << static_cast<uint8_t>(TYPE_INTEGER) << layer;
-    p << static_cast<uint8_t>(TYPE_POLYGON) << static_cast<uint8_t>(points.size());
-
-    for (std::list<TraCICoord>::const_iterator i = points.begin(); i != points.end(); ++i)
-    {
-        const TraCICoord& pos = *i;
-        p << static_cast<double>(pos.x) << static_cast<double>(pos.y);
-    }
-
-    TraCIBuffer buf = connection->query(CMD_SET_POLYGON_VARIABLE, p);
-    ASSERT(buf.eof());
-
-    record_TraCI_activity_func("commandComplete", CMD_SET_POLYGON_VARIABLE, ADD, "polygonAddTraCI");
-}
-
-
-void TraCI_Commands::polygonAdd(std::string polyId, std::string polyType, const RGB color, bool filled, int32_t layer, const std::list<Coord>& points)
+void TraCI_Commands::polygonAdd(std::string polyId, std::string polyType, const RGB color, bool filled, int32_t layer, const std::list<TraCICoord>& points)
 {
     record_TraCI_activity_func("commandStart", CMD_SET_POLYGON_VARIABLE, ADD, "polygonAdd");
 
@@ -2638,16 +2611,23 @@ void TraCI_Commands::polygonAdd(std::string polyId, std::string polyType, const 
     p << static_cast<uint8_t>(TYPE_INTEGER) << layer;
     p << static_cast<uint8_t>(TYPE_POLYGON) << static_cast<uint8_t>(points.size());
 
-    for (std::list<Coord>::const_iterator i = points.begin(); i != points.end(); ++i)
-    {
-        const Coord& pos = *i;
+    for (auto &pos : points)
         p << static_cast<double>(pos.x) << static_cast<double>(pos.y);
-    }
 
     TraCIBuffer buf = connection->query(CMD_SET_POLYGON_VARIABLE, p);
     ASSERT(buf.eof());
 
     record_TraCI_activity_func("commandComplete", CMD_SET_POLYGON_VARIABLE, ADD, "polygonAdd");
+}
+
+
+void TraCI_Commands::polygonAdd(std::string polyId, std::string polyType, const RGB color, bool filled, int32_t layer, const std::list<Coord>& points)
+{
+    std::list<TraCICoord> points_traci;
+    for(auto &n : points)
+        points_traci.push_back(omnet2traciCoord(n));
+
+    polygonAdd(polyId, polyType, color, filled, layer, points_traci);
 }
 
 
@@ -2669,13 +2649,12 @@ void TraCI_Commands::polygonSetFilled(std::string polyId, uint8_t filled)
 //                               POI
 // ################################################################
 
-void TraCI_Commands::poiAdd(std::string poiId, std::string poiType, const RGB color, int32_t layer, const Coord& pos_)
+void TraCI_Commands::poiAdd(std::string poiId, std::string poiType, const RGB color, int32_t layer, const TraCICoord& pos)
 {
     record_TraCI_activity_func("commandStart", CMD_SET_POI_VARIABLE, ADD, "addPoi");
 
     TraCIBuffer p;
 
-    TraCICoord pos = omnet2traciCoord(pos_);
     p << static_cast<uint8_t>(ADD) << poiId;
     p << static_cast<uint8_t>(TYPE_COMPOUND) << static_cast<int32_t>(4);
     p << static_cast<uint8_t>(TYPE_STRING) << poiType;
@@ -2687,6 +2666,12 @@ void TraCI_Commands::poiAdd(std::string poiId, std::string poiType, const RGB co
     ASSERT(buf.eof());
 
     record_TraCI_activity_func("commandComplete", CMD_SET_POI_VARIABLE, ADD, "addPoi");
+}
+
+
+void TraCI_Commands::poiAdd(std::string poiId, std::string poiType, const RGB color, int32_t layer, const Coord& pos)
+{
+    poiAdd(poiId, poiType, color, layer, omnet2traciCoord(pos));
 }
 
 
@@ -2731,11 +2716,11 @@ std::string TraCI_Commands::personGetTypeID(std::string pId)
 }
 
 
-Coord TraCI_Commands::personGetPosition(std::string pId)
+TraCICoord TraCI_Commands::personGetPosition(std::string pId)
 {
     record_TraCI_activity_func("commandStart", CMD_GET_PERSON_VARIABLE, VAR_POSITION, "personGetPosition");
 
-    Coord result = genericGetCoordv2(CMD_GET_PERSON_VARIABLE, pId, VAR_POSITION, RESPONSE_GET_PERSON_VARIABLE);
+    TraCICoord result = genericGetCoord(CMD_GET_PERSON_VARIABLE, pId, VAR_POSITION, RESPONSE_GET_PERSON_VARIABLE);
 
     record_TraCI_activity_func("commandComplete", CMD_GET_PERSON_VARIABLE, VAR_POSITION, "personGetPosition");
     return result;
@@ -3145,7 +3130,7 @@ std::vector<std::string> TraCI_Commands::genericGetStringVector(uint8_t commandI
 }
 
 
-Coord TraCI_Commands::genericGetCoord(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId)
+TraCICoord TraCI_Commands::genericGetCoord(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId)
 {
     uint8_t resultTypeId = POSITION_2D;
     double x;
@@ -3171,14 +3156,14 @@ Coord TraCI_Commands::genericGetCoord(uint8_t commandId, std::string objectId, u
 
     ASSERT(buf.eof());
 
-    return traci2omnetCoord(TraCICoord(x, y));
+    return TraCICoord(x, y);
 }
 
 
-std::vector<Coord> TraCI_Commands::genericGetCoordVector(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId)
+std::vector<TraCICoord> TraCI_Commands::genericGetCoordVector(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId)
 {
     uint8_t resultTypeId = TYPE_POLYGON;
-    std::vector<Coord> res;
+    std::vector<TraCICoord> res;
 
     TraCIBuffer buf = connection->query(commandId, TraCIBuffer() << variableId << objectId);
 
@@ -3199,7 +3184,7 @@ std::vector<Coord> TraCI_Commands::genericGetCoordVector(uint8_t commandId, std:
     for (uint32_t i = 0; i < count; i++) {
         double x; buf >> x;
         double y; buf >> y;
-        res.push_back(traci2omnetCoord(TraCICoord(x, y)));
+        res.push_back(TraCICoord(x, y));
     }
 
     ASSERT(buf.eof());
@@ -3233,39 +3218,6 @@ uint8_t TraCI_Commands::genericGetUnsignedByte(uint8_t commandId, std::string ob
     ASSERT(buf.eof());
 
     return res;
-}
-
-
-// same as genericGetCoordv, but no conversion to omnet++ coordinates at the end
-Coord TraCI_Commands::genericGetCoordv2(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId)
-{
-    uint8_t resultTypeId = POSITION_2D;
-    double x;
-    double y;
-
-    TraCIBuffer buf = connection->query(commandId, TraCIBuffer() << variableId << objectId);
-
-    uint8_t cmdLength; buf >> cmdLength;
-    if (cmdLength == 0) {
-        uint32_t cmdLengthX;
-        buf >> cmdLengthX;
-    }
-    uint8_t commandId_r; buf >> commandId_r;
-    ASSERT(commandId_r == responseId);
-    uint8_t varId; buf >> varId;
-    ASSERT(varId == variableId);
-    std::string objectId_r; buf >> objectId_r;
-    ASSERT(objectId_r == objectId);
-    uint8_t resType_r; buf >> resType_r;
-    ASSERT(resType_r == resultTypeId);
-
-    // now we start getting real data that we are looking for
-    buf >> x;
-    buf >> y;
-
-    ASSERT(buf.eof());
-
-    return Coord(x, y);
 }
 
 

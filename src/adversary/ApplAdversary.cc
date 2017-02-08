@@ -28,8 +28,6 @@
 
 namespace VENTOS {
 
-const simsignalwrap_t ApplAdversary::mobilityStateChangedSignal = simsignalwrap_t(MIXIM_SIGNAL_MOBILITY_CHANGE_NAME);
-
 Define_Module(VENTOS::ApplAdversary);
 
 ApplAdversary::~ApplAdversary()
@@ -44,16 +42,6 @@ void ApplAdversary::initialize(int stage)
 
 	if (stage==0)
 	{
-        // get a pointer to the TraCI module
-        cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
-        TraCI = static_cast<TraCI_Commands *>(module);
-        ASSERT(TraCI);
-
-        // vehicle id in omnet++
-		myId = getParentModule()->getIndex();
-
-		myFullId = getParentModule()->getFullName();
-
 		AttackT = par("AttackT").doubleValue();
 		falsificationAttack = par("falsificationAttack").boolValue();
 		replayAttack = par("replayAttack").boolValue();
@@ -65,27 +53,13 @@ void ApplAdversary::initialize(int stage)
 	    {
             //scheduleAt(simTime(), JammingEvt);
 	    }
-
-        // comment this to speedup simulation
-        // this->getParentModule()->subscribe(mobilityStateChangedSignal, this);
 	}
 }
 
 
 void ApplAdversary::finish()
 {
-    // this->getParentModule()->unsubscribe(mobilityStateChangedSignal, this);
-}
 
-
-void ApplAdversary::receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, cObject* obj, cObject* details)
-{
-    Enter_Method_Silent();
-
-    if (signalID == mobilityStateChangedSignal)
-    {
-        ApplAdversary::handlePositionUpdate(obj);
-    }
 }
 
 
@@ -126,13 +100,6 @@ void ApplAdversary::handleLowerMsg(omnetpp::cMessage* msg)
     }
 
     delete msg;
-}
-
-
-void ApplAdversary::handlePositionUpdate(cObject* obj)
-{
-    ChannelMobilityPtrType const mobility = omnetpp::check_and_cast<ChannelMobilityPtrType>(obj);
-    curPosition = mobility->getCurrentPosition();
 }
 
 

@@ -27,11 +27,11 @@
 
 cplusplus {{
         #include "WaveShortMessage_m.h"
-        #include <Coord.h>
+        #include <TraCICoord.h>
 }}
 
 class Veins::WaveShortMessage;
-class noncobject Coord;
+class noncobject TraCICoord;
 
 namespace VENTOS;
 
@@ -40,7 +40,7 @@ packet BeaconPedestrian extends WaveShortMessage
         string sender;
         string senderType;
         string recipient;
-        Coord pos;
+        TraCICoord pos;
         double speed;
         double accel;
         double maxDecel;
