@@ -41,7 +41,7 @@ ApplCA::~ApplCA()
 
 void ApplCA::initialize(int stage)
 {
-    BaseApplLayer::initialize(stage);
+    super::initialize(stage);
 
     if(stage == 0) 
     {
@@ -107,6 +107,8 @@ void ApplCA::initialize(int stage)
 
 void ApplCA::finish()
 {
+    super::finish();
+
     if(!active)
         return;
 
@@ -126,7 +128,7 @@ void ApplCA::handleSelfMsg(omnetpp::cMessage *msg)
         delete msg;
     }
     else
-        throw omnetpp::cRuntimeError("Can't handle msg '%s' of kind '%d'", msg->getFullName(), msg->getKind());
+        super::handleSelfMsg(msg);
 }
 
 
@@ -155,6 +157,8 @@ void ApplCA::receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t sig
 
         LOG_FLUSH;
     }
+    else
+        super::receiveSignal(source, signalID, obj, details);
 }
 
 

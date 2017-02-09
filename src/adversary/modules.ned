@@ -7,7 +7,13 @@ import VENTOS.src.global.ConstSpeedMobility;
 module Adversary
 {
     parameters:
+        string SUMOID = default("");
+        string SUMOType = default("");
+        string vehicleClass = default("");
+        
         bool DSRCenabled = default(true);
+        bool hasOBU = default(false);
+        string IPaddress = default("");
 
     gates:
         input radioIn; // gate for sendDirect

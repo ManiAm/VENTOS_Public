@@ -38,7 +38,7 @@ ApplAdversary::~ApplAdversary()
 
 void ApplAdversary::initialize(int stage)
 {
-	BaseApplLayer::initialize(stage);
+	super::initialize(stage);
 
 	if (stage==0)
 	{
@@ -59,7 +59,7 @@ void ApplAdversary::initialize(int stage)
 
 void ApplAdversary::finish()
 {
-
+    super::finish();
 }
 
 
@@ -73,11 +73,15 @@ void ApplAdversary::handleSelfMsg(omnetpp::cMessage* msg)
         // schedule for next jamming attack
         scheduleAt(omnetpp::simTime() + 0.001, JammingEvt);
     }
+    else
+        super::handleSelfMsg(msg);
 }
 
 
 void ApplAdversary::handleLowerMsg(omnetpp::cMessage* msg)
 {
+    super::handleLowerMsg(msg);
+
     // Attack time has not arrived yet!
     if(omnetpp::simTime().dbl() < AttackT)
         return;
@@ -117,7 +121,7 @@ void ApplAdversary::DoFalsificationAttack(BeaconVehicle* wsm)
     //FalseMsg->setPos(*newCord);
 
     // send it
-    sendDelayed(FalseMsg, 0., lowerLayerOut);
+    send(FalseMsg, lowerLayerOut);
 
     EV << "## Altered msg is sent." << std::endl;
 }
@@ -142,7 +146,7 @@ void ApplAdversary::DoJammingAttack()
     DummyMsg* dm = CreateDummyMessage();
 
     // send it
-    sendDelayed(dm, 0, lowerLayerOut);
+    send(dm, lowerLayerOut);
 }
 
 

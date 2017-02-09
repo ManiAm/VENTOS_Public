@@ -42,7 +42,7 @@ BaseWaveApplLayer::~BaseWaveApplLayer()
 
 void BaseWaveApplLayer::initialize(int stage)
 {
-    BaseApplLayer::initialize(stage);
+    super::initialize(stage);
 
     if (stage == 0)
     {
@@ -91,8 +91,6 @@ void BaseWaveApplLayer::initialize(int stage)
 
         //this->getParentModule()->subscribe(mobilityStateChangedSignal, this);
         //this->getParentModule()->subscribe(parkingStateChangedSignal, this);
-
-        sendBeaconEvt = new omnetpp::cMessage("beacon evt");
     }
     else if (stage == 1)
     {
@@ -130,7 +128,7 @@ void BaseWaveApplLayer::initialize(int stage)
 
 void BaseWaveApplLayer::finish()
 {
-
+    super::finish();
 }
 
 
@@ -176,7 +174,7 @@ void BaseWaveApplLayer::handleSelfMsg(omnetpp::cMessage* msg)
         scheduleAt(omnetpp::simTime() + beaconInterval, sendBeaconEvt);
     }
     else
-        throw omnetpp::cRuntimeError("Can't handle msg '%s' of kind '%d'", msg->getFullName(), msg->getKind());
+        super::handleSelfMsg(msg);
 }
 
 
@@ -226,7 +224,7 @@ omnetpp::simtime_t BaseWaveApplLayer::computeAsynchronousSendingTime(omnetpp::si
 
 void BaseWaveApplLayer::sendBeacon()
 {
-
+    throw omnetpp::cRuntimeError("derived class should implement this method!");
 }
 
 }

@@ -36,6 +36,9 @@ namespace VENTOS {
 
 class ApplAdversary : public BaseWaveApplLayer
 {
+private:
+    typedef BaseWaveApplLayer super;
+
 protected:
     // NED variables
     double AttackT;

@@ -39,6 +39,9 @@ namespace VENTOS {
 
 class BaseWaveApplLayer : public BaseApplLayer
 {
+private:
+    typedef BaseApplLayer super;
+
 protected:
     enum WaveApplMessageTypes {
         TYPE_BEACON_VEHICLE,     // beaconVehicle

@@ -2,13 +2,20 @@
 package VENTOS.src.CerAuthority;
 
 import VENTOS.src.veins.Nic80211p;
-import VENTOS.src.global.ConstSpeedMobility;
+import VENTOS.src.veins.modules.BaseMobility;
 
 module CA
 {
     parameters:
         @signal[CRL_pieces]();
+        
+        string SUMOID = default("");
+        string SUMOType = default("");
+        string vehicleClass = default("");
+        
         bool DSRCenabled = default(true);
+        bool hasOBU = default(false);
+        string IPaddress = default("");
         
     gates:
         input radioIn; // gate for sendDirect
@@ -24,7 +31,7 @@ module CA
                 @display("p=60,166");
         }
         
-        mobility: ConstSpeedMobility {
+        mobility: BaseMobility {
             parameters:
                 @display("p=130,172;i=block/cogwheel");
         }
@@ -38,15 +45,14 @@ module CA
 }
 
 
-import VENTOS.src.veins.modules.IBaseApplLayer;
+import VENTOS.src.global.BaseWaveApplLayer;
 
-simple ApplCA like IBaseApplLayer
+simple ApplCA extends BaseWaveApplLayer
 {
     parameters:
         @class(VENTOS::ApplCA);
         
-        bool active = default(false); 
-        int headerLength = default(256bit) @unit(bit); // header length of the application    
+        bool active = default(false);   
         
         int InitialWait = default(0);
         int CRLsize = default(1000);
@@ -54,16 +60,10 @@ simple ApplCA like IBaseApplLayer
         bool ErasureCode = default(true);
         
         int NoSegments = default(20);  // number of CRL pieces (only when ErasureCode = false)
-
+        
         int M = default(20);
         int N = default(30); 
         
         double Pseudonym_lifeTime = default(120s) @unit(s);
-
-    gates:
-        input lowerLayerIn;    // from mac layer
-        output lowerLayerOut;  // to mac layer
-        input lowerControlIn;
-        output lowerControlOut;
 }
 

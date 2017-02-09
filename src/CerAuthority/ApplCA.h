@@ -43,6 +43,8 @@ public:
     Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> Matrix_A;
 
 private:
+    typedef BaseWaveApplLayer super;
+
     bool active;
     bool ErasureCode;
     double Pseudonym_lifeTime;
