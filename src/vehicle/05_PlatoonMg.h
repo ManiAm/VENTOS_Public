@@ -28,7 +28,7 @@
 #ifndef APPLVPLATOONMG_H
 #define APPLVPLATOONMG_H
 
-#include <04_PlatoonFormed.h>
+#include "vehicle/04_PlatoonFormed.h"
 
 namespace VENTOS {
 

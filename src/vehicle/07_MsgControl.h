@@ -28,7 +28,7 @@
 #ifndef ApplVMSGCONTROL_H
 #define ApplVMSGCONTROL_H
 
-#include <06_PlatoonCoordinator.h>
+#include "vehicle/06_PlatoonCoordinator.h"
 
 namespace VENTOS {
 

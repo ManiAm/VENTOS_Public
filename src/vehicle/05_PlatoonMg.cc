@@ -1175,8 +1175,7 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
             std::string targetVeh = *it;
             PlatoonMsg* dataMsg = prepareData(targetVeh, CHANGE_PL, plnID, (-splittingDepth), splittingVehicle);
             EV << "### " << SUMOID << ": sent CHANGE_PL." << std::endl;
-            omnetpp::simtime_t offset = dblrand() * 0.005;
-            sendDelayed(dataMsg, offset, lowerLayerOut);
+            send(dataMsg, lowerLayerOut);
             reportCommandToStat(dataMsg);
 
             TotalPLSent++;

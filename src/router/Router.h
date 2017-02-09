@@ -30,7 +30,6 @@
 #ifndef ROUTER_H
 #define ROUTER_H
 
-#include <01_Beacon.h>
 #include <vector>
 #include <list>
 #include <fstream>
@@ -115,10 +114,9 @@ protected:
     std::map<std::string, std::list<std::string> > dijkstraRoutes;
     std::map<std::string, int> dijkstraTimes;
 
-    //Message passing
-    TraCI_Commands* TraCI;    //Link to TraCI
-    omnetpp::simsignal_t Signal_system;      //Receives signals to here
-
+    // Message passing
+    TraCI_Commands* TraCI;
+    omnetpp::simsignal_t Signal_system;
     omnetpp::simsignal_t Signal_executeEachTS;
 
     int debugLevel;
