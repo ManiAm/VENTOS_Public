@@ -44,16 +44,15 @@ void ApplRSUCRL::initialize(int stage)
     if(stage == 0) 
     {
         CRLdistAlg = par("CRLdistAlg").longValue();
-        if(CRLdistAlg < 0)
+        if(CRLdistAlg < 0 || CRLdistAlg >= NUM_CRL_ALG)
+            throw omnetpp::cRuntimeError("Invalid CRLdistAlg!");
+
+        if(CRLdistAlg == 0)
             return;
 
         CRL_Interval = par("CRL_Interval");
         if(CRL_Interval <= 0)
             throw omnetpp::cRuntimeError("value for CRL_Interval is incorrect !!");
-
-        beacon_Interval = par("beacon_Interval").doubleValue();
-        if(beacon_Interval <= 0)
-            throw omnetpp::cRuntimeError("value for beacon_Interval is incorrect !!");
 
         I2V_tho = par("I2V_tho");
         if(I2V_tho < 0)
@@ -72,7 +71,7 @@ void ApplRSUCRL::initialize(int stage)
         else
         {
             Timer1 = new omnetpp::cMessage("Timer_Beacon_RSU");
-            scheduleAt(omnetpp::simTime() + dblrand() * beacon_Interval, Timer1);
+            //scheduleAt(omnetpp::simTime() + dblrand() * beacon_Interval, Timer1); // todo
 
             Timer3 = new omnetpp::cMessage("Timer_Wait_Beacon_V");
         }
@@ -87,7 +86,7 @@ void ApplRSUCRL::finish()
 {
     super::finish();
 
-    if(CRLdistAlg < 0)
+    if(CRLdistAlg == 0)
         return;
 
     cancelAndDelete(Timer1);
@@ -178,7 +177,7 @@ void ApplRSUCRL::onBeaconVehicle(BeaconVehicle* wsm)
 {
     super::onBeaconVehicle(wsm);
 
-    if(CRLdistAlg < 0)
+    if(CRLdistAlg == 0)
         return;
 
     // todo

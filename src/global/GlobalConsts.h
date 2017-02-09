@@ -31,6 +31,7 @@
 namespace VENTOS {
 
 enum CRLdistAlgorithm {
+    CRL_OFF,
     CRL_RSU_Only,
     CRL_C2C_Epidemic,
     CRL_MPB,
@@ -40,6 +41,8 @@ enum CRLdistAlgorithm {
     CRL_BBroadcast,
     CRL_C2C_Epidemic_Ideal,
     CRL_NewMPB,
+
+    NUM_CRL_ALG
 };
 
 enum LaneCostsMode {

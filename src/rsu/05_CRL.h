@@ -41,7 +41,6 @@ private:
     // parameters
     int CRLdistAlg;
     double CRL_Interval;
-    double beacon_Interval;
     double I2V_tho;
     double bitrate;
 
