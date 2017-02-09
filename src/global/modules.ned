@@ -38,10 +38,10 @@ simple BaseWaveApplLayer like IBaseApplLayer
 
         int headerLength = default(88bit) @unit(bit); //header length of the application
 
-        bool sendBeacons = default(true); //tell the applayer to periodically send beacons
+        bool sendBeacons = default(false); //tell the applayer to periodically send beacons
         int beaconLengthBits = default(256bit) @unit(bit); //the length of a beacon packet
         int beaconPriority = default(3); //the access category of the beacon messages
-        double beaconInterval = default(0.1s) @unit(s); //the intervall between 2 beacon messages
+        double beaconInterval = default(1s) @unit(s); //the intervall between 2 beacon messages
 
         int dataLengthBits = default(1024bit) @unit(bit); //the length of a data packet
         bool dataOnSCH = default(false); //tells the applayer whether to use a service channel for datapackets or the control channel
