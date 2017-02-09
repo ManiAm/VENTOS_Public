@@ -28,7 +28,6 @@
 #include "CerAuthority/ApplCA.h"
 #include "CerAuthority/FiniteFieldMath.h"
 #include "global/SignalObj.h"
-#include "logging/vlog.h"
 
 namespace VENTOS {
 
