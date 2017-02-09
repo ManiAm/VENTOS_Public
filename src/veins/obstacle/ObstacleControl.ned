@@ -17,19 +17,16 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 
-package VENTOS.src.veins;
+package VENTOS.src.veins.obstacle;
 
 // ObstacleControl models obstacles that block radio transmissions
-//
 simple ObstacleControl
 {
     parameters:
         @class(Veins::ObstacleControl);
+        @display("i=misc/town");
+        @labels(node);
         
         bool debug = default(false);  // emit debug messages?
         xml obstacles = default(xml("<obstacles/>")); // list of obstacle types and obstacles to load
-        
-        @display("i=misc/town");
-        @labels(node);
 }
-
