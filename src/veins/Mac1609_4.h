@@ -63,7 +63,6 @@ namespace Veins {
 class Mac1609_4 : public BaseMacLayer, public WaveAppToMac1609_4Interface
 {
 public:
-
     enum t_access_category
     {
         AC_BK = 0,
@@ -214,6 +213,8 @@ protected:
 
 private:
     void record_MAC_stat_func();
+
+private:
     VENTOS::TraCI_Commands* TraCI;
     VENTOS::Statistics* STAT;
     bool record_stat;
@@ -245,20 +246,20 @@ protected:
 
     std::map<t_channel,EDCA*> myEDCA;
 
-    bool idleChannel;
+    bool idleChannel = true;
 
     /** @brief stats */
-    long statsReceivedPackets;
-    long statsReceivedBroadcasts;
-    long statsSentPackets;
-    long statsTXRXLostPackets;
-    long statsSNIRLostPackets;
-    long statsDroppedPackets;
-    long statsNumTooLittleTime;
-    long statsNumInternalContention;
-    long statsNumBackoff;
-    long statsSlotsBackoff;
-    omnetpp::simtime_t statsTotalBusyTime;
+    long statsReceivedPackets = 0;
+    long statsReceivedBroadcasts = 0;
+    long statsSentPackets = 0;
+    long statsTXRXLostPackets = 0;
+    long statsSNIRLostPackets = 0;
+    long statsDroppedPackets = 0;
+    long statsNumTooLittleTime = 0;
+    long statsNumInternalContention = 0;
+    long statsNumBackoff = 0;
+    long statsSlotsBackoff = 0;
+    omnetpp::simtime_t statsTotalBusyTime = 0;
 
     /** @brief This MAC layers MAC address.*/
     int myMacAddress;
@@ -270,7 +271,7 @@ protected:
     uint64_t bitrate;
 
     /** @brief N_DBPS, derived from bitrate, for frame length calculation */
-    double n_dbps;
+    double n_dbps = 0;
 
     /** @brief Id for debug messages */
     std::string myId;

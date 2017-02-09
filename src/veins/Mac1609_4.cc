@@ -28,11 +28,9 @@
 #include "PhyToMacControlInfo.h"
 #include "PhyControlMessage_m.h"
 
-
 namespace Veins {
 
 Define_Module(Veins::Mac1609_4);
-
 
 void Mac1609_4::initialize(int stage)
 {
@@ -46,17 +44,20 @@ void Mac1609_4::initialize(int stage)
         //this is required to circumvent double precision issues with constants from CONST80211p.h
         assert(omnetpp::simTime().getScaleExp() == -12);
 
-        sigChannelBusy = registerSignal("sigChannelBusy");
-        sigCollision = registerSignal("sigCollision");
-
         txPower = par("txPower").doubleValue();
         bitrate = par("bitrate").longValue();
-        n_dbps = 0;
         setParametersForBitrate(bitrate);
 
         //mac-adresses
         myMacAddress = intuniform(0,0xFFFFFFFE);
         myId = getParentModule()->getParentModule()->getFullPath();
+
+        headerLength = par("headerLength");
+
+        nextMacEvent = new omnetpp::cMessage("next Mac Event");
+
+        sigChannelBusy = registerSignal("sigChannelBusy");
+        sigCollision = registerSignal("sigCollision");
 
         //create frequency mappings
         frequency[Channels::CRIT_SOL] = 5.86e9;
@@ -86,6 +87,7 @@ void Mac1609_4::initialize(int stage)
         myEDCA[type_SCH]->createQueue(9,CWMIN_11P,CWMAX_11P,AC_BK);
 
         useSCH = par("useServiceChannel").boolValue();
+
         if (useSCH)
         {
             //set the initial service channel
@@ -97,14 +99,7 @@ void Mac1609_4::initialize(int stage)
             case 4: mySCH = Channels::SCH4; break;
             default: throw omnetpp::cRuntimeError("Service Channel must be between 1 and 4"); break;
             }
-        }
 
-        headerLength = par("headerLength");
-
-        nextMacEvent = new omnetpp::cMessage("next Mac Event");
-
-        if (useSCH)
-        {
             uint64_t currenTime = omnetpp::simTime().raw();
             uint64_t switchingTime = SWITCHING_INTERVAL_11P.raw();
             double timeToNextSwitch = (double)(switchingTime - (currenTime % switchingTime)) / omnetpp::simTime().getScale();
@@ -128,24 +123,9 @@ void Mac1609_4::initialize(int stage)
             setActiveChannel(type_CCH);
         }
 
-        // stats
-        statsReceivedPackets = 0;
-        statsReceivedBroadcasts = 0;
-        statsSentPackets = 0;
-        statsTXRXLostPackets = 0;
-        statsSNIRLostPackets = 0;
-        statsDroppedPackets = 0;
-        statsNumTooLittleTime = 0;
-        statsNumInternalContention = 0;
-        statsNumBackoff = 0;
-        statsSlotsBackoff = 0;
-        statsTotalBusyTime = 0;
-
-        idleChannel = true;
         lastBusy = omnetpp::simTime();
         channelIdle(true);
 
-        // Mani
         record_stat = par("record_stat").boolValue();
 
         // get a pointer to the TraCI module
@@ -159,6 +139,32 @@ void Mac1609_4::initialize(int stage)
         ASSERT(STAT);
     }
 }
+
+
+void Mac1609_4::finish()
+{
+    //clean up queues.
+
+    for (std::map<t_channel,EDCA*>::iterator iter = myEDCA.begin(); iter != myEDCA.end(); iter++)
+    {
+        statsNumInternalContention += iter->second->statsNumInternalContention;
+        statsNumBackoff += iter->second->statsNumBackoff;
+        statsSlotsBackoff += iter->second->statsSlotsBackoff;
+        iter->second->cleanUp();
+        delete iter->second;
+    }
+
+    myEDCA.clear();
+
+    if (nextMacEvent->isScheduled())
+        cancelAndDelete(nextMacEvent);
+    else
+        delete nextMacEvent;
+
+    if (nextChannelSwitch && nextChannelSwitch->isScheduled())
+        cancelAndDelete(nextChannelSwitch);
+}
+
 
 void Mac1609_4::handleSelfMsg(omnetpp::cMessage* msg)
 {
@@ -267,8 +273,9 @@ void Mac1609_4::handleUpperControl(omnetpp::cMessage* msg)
 // all messages from application layer are sent to this method!
 void Mac1609_4::handleUpperMsg(omnetpp::cMessage* msg)
 {
-    WaveShortMessage* thisMsg;
-    if ((thisMsg = dynamic_cast<WaveShortMessage*>(msg)) == NULL)
+    WaveShortMessage* thisMsg = dynamic_cast<WaveShortMessage*>(msg);
+
+    if (thisMsg == NULL)
         throw omnetpp::cRuntimeError("WaveMac only accepts WaveShortMessages");
 
     t_access_category ac = mapPriority(thisMsg->getPriority());
@@ -298,15 +305,15 @@ void Mac1609_4::handleUpperMsg(omnetpp::cMessage* msg)
         return;
     }
 
-    //if this packet is not at the front of a new queue we dont have to reevaluate times
+    //if this packet is not at the front of a new queue we don't have to re-evaluate times
     EV << "sorted packet into queue of EDCA " << chan << " this packet is now at position: " << num << std::endl;
 
     if (chan == activeChannel)
-        EV << "this packet is for the currently active channel" << std::endl;
+        EV << "this packet is for the currently active channel \n";
     else
-        EV << "this packet is NOT for the currently active channel" << std::endl;
+        EV << "this packet is NOT for the currently active channel \n";
 
-    if (num == 1 && idleChannel == true && chan == activeChannel)
+    if (num == 1 && idleChannel && chan == activeChannel)
     {
         omnetpp::simtime_t nextEvent = myEDCA[chan]->startContent(lastIdle,guardActive());
 
@@ -317,7 +324,8 @@ void Mac1609_4::handleUpperMsg(omnetpp::cMessage* msg)
                 if (nextMacEvent->isScheduled())
                     cancelEvent(nextMacEvent);
 
-                scheduleAt(nextEvent,nextMacEvent);
+                scheduleAt(nextEvent, nextMacEvent);
+
                 EV << "Updated nextMacEvent:" << nextMacEvent->getArrivalTime().raw() << std::endl;
             }
             else
@@ -335,10 +343,9 @@ void Mac1609_4::handleUpperMsg(omnetpp::cMessage* msg)
         }
     }
 
-    if (num == 1 && idleChannel == false && myEDCA[chan]->myQueues[ac].currentBackoff == 0 && chan == activeChannel)
+    if (num == 1 && !idleChannel && myEDCA[chan]->myQueues[ac].currentBackoff == 0 && chan == activeChannel)
         myEDCA[chan]->backoff(ac);
 
-    // Mani
     if(record_stat)
         record_MAC_stat_func();
 }
@@ -398,7 +405,6 @@ void Mac1609_4::handleLowerControl(omnetpp::cMessage* msg)
 
     delete msg;
 
-    // Mani
     if(record_stat)
         record_MAC_stat_func();
 }
@@ -409,43 +415,6 @@ void Mac1609_4::setActiveChannel(t_channel state)
     assert(state == type_CCH || (useSCH && state == type_SCH));
 }
 
-void Mac1609_4::finish()
-{
-    //clean up queues.
-
-    for (std::map<t_channel,EDCA*>::iterator iter = myEDCA.begin(); iter != myEDCA.end(); iter++)
-    {
-        statsNumInternalContention += iter->second->statsNumInternalContention;
-        statsNumBackoff += iter->second->statsNumBackoff;
-        statsSlotsBackoff += iter->second->statsSlotsBackoff;
-        iter->second->cleanUp();
-        delete iter->second;
-    }
-
-    myEDCA.clear();
-
-    if (nextMacEvent->isScheduled())
-        cancelAndDelete(nextMacEvent);
-    else
-        delete nextMacEvent;
-
-    if (nextChannelSwitch && nextChannelSwitch->isScheduled())
-        cancelAndDelete(nextChannelSwitch);
-
-    // stats
-    //    recordScalar("ReceivedUnicastPackets",statsReceivedPackets);
-    //    recordScalar("ReceivedBroadcasts",statsReceivedBroadcasts);
-    //    recordScalar("SentPackets",statsSentPackets);
-    //    recordScalar("SNIRLostPackets",statsSNIRLostPackets);
-    //    recordScalar("RXTXLostPackets",statsTXRXLostPackets);
-    //    recordScalar("TotalLostPackets",statsSNIRLostPackets+statsTXRXLostPackets);
-    //    recordScalar("DroppedPacketsInMac",statsDroppedPackets);
-    //    recordScalar("TooLittleTime",statsNumTooLittleTime);
-    //    recordScalar("TimesIntoBackoff",statsNumBackoff);
-    //    recordScalar("SlotsBackoff",statsSlotsBackoff);
-    //    recordScalar("NumInternalContention",statsNumInternalContention);
-    //    recordScalar("totalBusyTime",statsTotalBusyTime.dbl());
-}
 
 void Mac1609_4::attachSignal(Mac80211Pkt* mac, omnetpp::simtime_t startTime, double frequency, uint64_t datarate, double txPower_mW)
 {
@@ -900,7 +869,7 @@ void Mac1609_4::channelIdle(bool afterSwitch)
 {
     EV << "Channel turned idle: Switch: " << afterSwitch << std::endl;
 
-    if (nextMacEvent->isScheduled() == true)
+    if (nextMacEvent->isScheduled())
     {
         //this rare case can happen when another node's time has such a big offset that the node sent a packet although we already changed the channel
         //the workaround is not trivial and requires a lot of changes to the phy and decider
