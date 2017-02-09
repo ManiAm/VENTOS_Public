@@ -58,7 +58,7 @@ protected:
     };
 
     static const simsignalwrap_t mobilityStateChangedSignal;
-    //static const simsignalwrap_t parkingStateChangedSignal;
+    static const simsignalwrap_t parkingStateChangedSignal;
 
     TraCI_Commands* TraCI;
     BaseMobility* mobility;

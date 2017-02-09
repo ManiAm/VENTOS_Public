@@ -26,17 +26,16 @@
 //
 
 #include "global/BaseWaveApplLayer.h"
+#include "traci/TraCIMobility.h"
 
 namespace VENTOS {
 
 const simsignalwrap_t BaseWaveApplLayer::mobilityStateChangedSignal = simsignalwrap_t(MIXIM_SIGNAL_MOBILITY_CHANGE_NAME);
-//const simsignalwrap_t BaseWaveApplLayer::parkingStateChangedSignal = simsignalwrap_t(TRACI_SIGNAL_PARKING_CHANGE_NAME);
+const simsignalwrap_t BaseWaveApplLayer::parkingStateChangedSignal = simsignalwrap_t(TRACI_SIGNAL_PARKING_CHANGE_NAME);
 
 BaseWaveApplLayer::~BaseWaveApplLayer()
 {
     cancelAndDelete(sendBeaconEvt);
-
-    //findHost()->unsubscribe(mobilityStateChangedSignal, this);
 }
 
 
@@ -88,9 +87,6 @@ void BaseWaveApplLayer::initialize(int stage)
         SUMOID = getParentModule()->par("SUMOID").stringValue();
         SUMOType = getParentModule()->par("SUMOType").stringValue();
         vehicleClass = getParentModule()->par("vehicleClass").stringValue();
-
-        //this->getParentModule()->subscribe(mobilityStateChangedSignal, this);
-        //this->getParentModule()->subscribe(parkingStateChangedSignal, this);
     }
     else if (stage == 1)
     {
