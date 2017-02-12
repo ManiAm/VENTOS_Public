@@ -48,54 +48,6 @@
 
 namespace VENTOS {
 
-class sample_t
-{
-public:
-    double xPos;
-    double yPos;
-    double speed;
-    double angle;
-
-    sample_t(double x, double y, double z, double w)
-    {
-        this->xPos = x;
-        this->yPos = y;
-        this->speed = z;
-        this->angle = w;
-    }
-};
-
-
-class resultEntry
-{
-public:
-    unsigned int label_predicted;
-    unsigned int label_true;
-    double time;
-
-    resultEntry(unsigned int i1, unsigned int i2, double d)
-    {
-        this->label_predicted = i1;
-        this->label_true = i2;
-        this->time = d;
-    }
-};
-
-
-class dataBlockEntry
-{
-public:
-    unsigned int counter;
-    HSV color;
-
-    dataBlockEntry(unsigned int u1, HSV c)
-    {
-        this->counter = u1;
-        this->color = c;
-    }
-};
-
-
 class ApplRSUCLASSIFY : public ApplRSUMonitor
 {
 private:
@@ -109,7 +61,16 @@ private:
 
     FILE *plotterPtr = NULL;
     boost::filesystem::path trainingFilePath;
+
+    typedef struct sample
+    {
+        TraCICoord pos;
+        double speed;
+        double angle;
+    } sample_t;
+
     std::vector<sample_t> samples;
+
     std::vector<int> labels;
 
     // all incoming lanes for the intersection that this RSU belongs to
@@ -137,7 +98,21 @@ private:
     shark::ClassificationDataset trainingData;
     shark::KernelClassifier<shark::RealVector> *kc_model;
     std::map< std::string /*entity id*/, boost::circular_buffer<unsigned int> > predictionQueue;
-    std::map< std::string /*entity id*/, std::vector<resultEntry> > classifyResults;
+
+    typedef struct resultEntry
+    {
+        unsigned int label_predicted;
+        unsigned int label_true;
+        double time;
+    } resultEntry_t;
+
+    std::map< std::string /*entity id*/, std::vector<resultEntry_t> > classifyResults;
+
+    typedef struct dataBlockEntry
+    {
+        unsigned int counter;
+        HSV color;
+    } dataBlockEntry_t;
 
     /* two-level categorization for plotting:
      *     level 1: beacons of the same class

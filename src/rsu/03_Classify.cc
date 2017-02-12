@@ -377,8 +377,8 @@ void ApplRSUCLASSIFY::onBeaconAny(beaconGeneral wsm)
             addError(wsm, trainError);
 
         // make an instance and push it to samples
-        sample_t *m = new sample_t(wsm->getPos().x, wsm->getPos().y, wsm->getSpeed(), wsm->getAngle());
-        samples.push_back(*m);
+        sample_t m = {TraCICoord(wsm->getPos().x, wsm->getPos().y), wsm->getSpeed(), wsm->getAngle()};
+        samples.push_back(m);
 
         // get class label
         auto it2 = classLabel.find(lane);
@@ -421,15 +421,15 @@ void ApplRSUCLASSIFY::onBeaconAny(beaconGeneral wsm)
     }
 
     // save classification results for each entity
-    resultEntry *res = new resultEntry(predicted_label, real_label, omnetpp::simTime().dbl());
+    resultEntry_t res = {predicted_label, real_label, omnetpp::simTime().dbl()};
     auto xr = classifyResults.find(sender);
     if(xr == classifyResults.end())
     {
-        std::vector<resultEntry> tmp {*res};
+        std::vector<resultEntry_t> tmp {res};
         classifyResults[sender] = tmp;
     }
     else
-        xr->second.push_back(*res);
+        xr->second.push_back(res);
 
     // draw samples on West direction in Gnuplot
     if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && lane.find("WC") != std::string::npos)
@@ -520,7 +520,7 @@ void ApplRSUCLASSIFY::saveTrainingDataToFile()
     FILE *filePtr = fopen (trainingFilePath.string().c_str(), "w");
 
     for(unsigned int i = 0; i < samples.size(); ++i)
-        fprintf (filePtr, "%0.3f %0.3f %0.3f %0.3f %d \n", samples[i].xPos, samples[i].yPos, samples[i].speed, samples[i].angle, labels[i]);
+        fprintf (filePtr, "%0.3f %0.3f %0.3f %0.3f %d \n", samples[i].pos.x, samples[i].pos.y, samples[i].speed, samples[i].angle, labels[i]);
 
     fclose(filePtr);
 }
@@ -621,15 +621,15 @@ void ApplRSUCLASSIFY::draw(beaconGeneral &wsm, unsigned int real_label)
         }
         else
         {
-            int size = 0;
+            unsigned int size = 0;
             for(auto i : dataBlockCounter)
                 for(auto j : i.second)
                     size++;
 
             auto firstElement = it1->second.begin();  // get the first element of the nested map
             HSV color = firstElement->second.color;   // get the color in this block
-            dataBlockEntry *entry = new dataBlockEntry(size + 1, color);
-            (it1->second).insert( std::make_pair(wsm->getSender(), *entry) );
+            dataBlockEntry_t entry = {size + 1, color};
+            (it1->second).insert( std::make_pair(wsm->getSender(), entry) );
 
             // update color shades
             std::vector<double> shades = Color::generateColorShades(it1->second.size());
@@ -648,14 +648,14 @@ void ApplRSUCLASSIFY::draw(beaconGeneral &wsm, unsigned int real_label)
     }
     else
     {
-        int size = 0;
+        unsigned int size = 0;
         for(auto i : dataBlockCounter)
             for(auto j : i.second)
                 size++;
 
         HSV color = Color::getUniqueHSVColor();
-        dataBlockEntry *entry = new dataBlockEntry(size + 1, color);
-        dataBlockCounter[real_label].insert( std::make_pair(wsm->getSender(), *entry) );
+        dataBlockEntry_t entry = {size + 1, color};
+        dataBlockCounter[real_label].insert( std::make_pair(wsm->getSender(), entry) );
 
         // creating a new datablock
         fprintf(plotterPtr, "$data%d << EOD \n", size + 1);
