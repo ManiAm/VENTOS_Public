@@ -44,25 +44,32 @@ namespace Veins {
 Define_Module(Veins::PhyLayer80211p);
 
 /** This is needed to circumvent a bug in MiXiM that allows different header length interpretations for receiving and sending airframes*/
-void PhyLayer80211p::initialize(int stage) {
-    if (stage == 0) {
+void PhyLayer80211p::initialize(int stage)
+{
+    if (stage == 0)
+    {
         //get ccaThreshold before calling BasePhyLayer::initialize() which instantiates the deciders
         ccaThreshold = pow(10, par("ccaThreshold").doubleValue() / 10);
         collectCollisionStatistics = par("collectCollisionStatistics").boolValue();
     }
+
     BasePhyLayer::initialize(stage);
-    if (stage == 0) {
-        if (par("headerLength").longValue() != PHY_HDR_TOTAL_LENGTH) {
+
+    if (stage == 0)
+    {
+        if (par("headerLength").longValue() != PHY_HDR_TOTAL_LENGTH)
             throw omnetpp::cRuntimeError("The header length of the 802.11p standard is 46bit, please change your omnetpp.ini accordingly by either setting it to 46bit or removing the entry");
-        }
+
         //erase the RadioStateAnalogueModel
         analogueModels.erase(analogueModels.begin());
     }
 }
 
-AnalogueModel* PhyLayer80211p::getAnalogueModelFromName(std::string name, ParameterMap& params) {
 
-    if (name == "SimplePathlossModel") {
+AnalogueModel* PhyLayer80211p::getAnalogueModelFromName(std::string name, ParameterMap& params)
+{
+    if (name == "SimplePathlossModel")
+    {
         return initializeSimplePathlossModel(params);
     }
     else if (name == "LogNormalShadowing")
@@ -76,7 +83,8 @@ AnalogueModel* PhyLayer80211p::getAnalogueModelFromName(std::string name, Parame
     else if(name == "BreakpointPathlossModel")
     {
         return initializeBreakpointPathlossModel(params);
-    } else if(name == "PERModel")
+    }
+    else if(name == "PERModel")
     {
         return initializePERModel(params);
     }
@@ -98,7 +106,9 @@ AnalogueModel* PhyLayer80211p::getAnalogueModelFromName(std::string name, Parame
     return BasePhyLayer::getAnalogueModelFromName(name, params);
 }
 
-AnalogueModel* PhyLayer80211p::initializeLogNormalShadowing(ParameterMap& params) {
+
+AnalogueModel* PhyLayer80211p::initializeLogNormalShadowing(ParameterMap& params)
+{
     double mean = params["mean"].doubleValue();
     double stdDev = params["stdDev"].doubleValue();
     omnetpp::simtime_t interval = params["interval"].doubleValue();
@@ -106,26 +116,31 @@ AnalogueModel* PhyLayer80211p::initializeLogNormalShadowing(ParameterMap& params
     return new LogNormalShadowing(mean, stdDev, interval);
 }
 
-AnalogueModel* PhyLayer80211p::initializeJakesFading(ParameterMap& params) {
+
+AnalogueModel* PhyLayer80211p::initializeJakesFading(ParameterMap& params)
+{
     int fadingPaths = params["fadingPaths"].longValue();
     omnetpp::simtime_t delayRMS = params["delayRMS"].doubleValue();
     omnetpp::simtime_t interval = params["interval"].doubleValue();
 
     double carrierFrequency = 5.890e+9;
-    if (params.count("carrierFrequency") > 0) {
+    if (params.count("carrierFrequency") > 0)
+    {
         carrierFrequency = params["carrierFrequency"];
     }
-    else {
-        if (cc->hasPar("carrierFrequency")) {
+    else
+    {
+        if (cc->hasPar("carrierFrequency"))
             carrierFrequency = cc->par("carrierFrequency").doubleValue();
-        }
     }
 
     return new JakesFading(fadingPaths, delayRMS, carrierFrequency, interval);
 }
 
-AnalogueModel* PhyLayer80211p::initializeBreakpointPathlossModel(ParameterMap& params) {
-    double alpha1 =-1, alpha2=-1, breakpointDistance=-1;
+
+AnalogueModel* PhyLayer80211p::initializeBreakpointPathlossModel(ParameterMap& params)
+{
+    double alpha1 = -1, alpha2 = -1, breakpointDistance = -1;
     double L01=-1, L02=-1;
     double carrierFrequency = 5.890e+9;
     bool useTorus = world->useTorus();
@@ -146,12 +161,16 @@ AnalogueModel* PhyLayer80211p::initializeBreakpointPathlossModel(ParameterMap& p
 	               ConnectionManager. Please adjust your config.xml file accordingly");
         }
     }
+
     it = params.find("L01");
-    if(it != params.end()) {
+    if(it != params.end())
+    {
         L01 = it->second.doubleValue();
     }
+
     it = params.find("L02");
-    if(it != params.end()) {
+    if(it != params.end())
+    {
         L02 = it->second.doubleValue();
     }
 
@@ -169,6 +188,7 @@ AnalogueModel* PhyLayer80211p::initializeBreakpointPathlossModel(ParameterMap& p
 	               ConnectionManager. Please adjust your config.xml file accordingly");
         }
     }
+
     it = params.find("breakpointDistance");
     if ( it != params.end() ) // parameter alpha1 has been specified in config.xml
     {
@@ -179,7 +199,6 @@ AnalogueModel* PhyLayer80211p::initializeBreakpointPathlossModel(ParameterMap& p
 
     // get carrierFrequency from config
     it = params.find("carrierFrequency");
-
     if ( it != params.end() ) // parameter carrierFrequency has been specified in config.xml
     {
         // set carrierFrequency
@@ -209,32 +228,35 @@ AnalogueModel* PhyLayer80211p::initializeBreakpointPathlossModel(ParameterMap& p
         }
     }
 
-    if(alpha1 ==-1 || alpha2==-1 || breakpointDistance==-1 || L01==-1 || L02==-1) {
+    if(alpha1 ==-1 || alpha2==-1 || breakpointDistance==-1 || L01==-1 || L02==-1)
         throw omnetpp::cRuntimeError("Undefined parameters for breakpointPathlossModel. Please check your configuration.");
-    }
 
     return new BreakpointPathlossModel(L01, L02, alpha1, alpha2, breakpointDistance, carrierFrequency, useTorus, playgroundSize, coreDebug);
-
 }
 
-AnalogueModel* PhyLayer80211p::initializeTwoRayInterferenceModel(ParameterMap& params) {
+
+AnalogueModel* PhyLayer80211p::initializeTwoRayInterferenceModel(ParameterMap& params)
+{
     ASSERT(params.count("DielectricConstant") == 1);
     double dielectricConstant= params["DielectricConstant"].doubleValue();
 
     return new TwoRayInterferenceModel(dielectricConstant, coreDebug);
 }
 
-AnalogueModel* PhyLayer80211p::initializeNakagamiFading(ParameterMap& params) {
+
+AnalogueModel* PhyLayer80211p::initializeNakagamiFading(ParameterMap& params)
+{
     bool constM = params["constM"].boolValue();
     double m = 0;
-    if (constM) {
+    if (constM)
         m = params["m"].doubleValue();
-    }
+
     return new NakagamiFading(constM, m, coreDebug);
 }
 
-AnalogueModel* PhyLayer80211p::initializeSimplePathlossModel(ParameterMap& params){
 
+AnalogueModel* PhyLayer80211p::initializeSimplePathlossModel(ParameterMap& params)
+{
     // init with default value
     double alpha = 2.0;
     double carrierFrequency = 5.890e+9;
@@ -275,7 +297,6 @@ AnalogueModel* PhyLayer80211p::initializeSimplePathlossModel(ParameterMap& param
 
     // get carrierFrequency from config
     it = params.find("carrierFrequency");
-
     if ( it != params.end() ) // parameter carrierFrequency has been specified in config.xml
     {
         // set carrierFrequency
@@ -306,24 +327,30 @@ AnalogueModel* PhyLayer80211p::initializeSimplePathlossModel(ParameterMap& param
     }
 
     return new SimplePathlossModel(alpha, carrierFrequency, useTorus, playgroundSize, coreDebug);
-
 }
 
-AnalogueModel* PhyLayer80211p::initializePERModel(ParameterMap& params) {
+
+AnalogueModel* PhyLayer80211p::initializePERModel(ParameterMap& params)
+{
     double per = params["packetErrorRate"].doubleValue();
     return new PERModel(per);
 }
 
-Decider* PhyLayer80211p::getDeciderFromName(std::string name, ParameterMap& params) {
-    if(name == "Decider80211p") {
+
+Decider* PhyLayer80211p::getDeciderFromName(std::string name, ParameterMap& params)
+{
+    if(name == "Decider80211p")
+    {
         protocolId = IEEE_80211;
         return initializeDecider80211p(params);
     }
+
     return BasePhyLayer::getDeciderFromName(name, params);
 }
 
-AnalogueModel* PhyLayer80211p::initializeSimpleObstacleShadowing(ParameterMap& params){
 
+AnalogueModel* PhyLayer80211p::initializeSimpleObstacleShadowing(ParameterMap& params)
+{
     // init with default value
     double carrierFrequency = 5.890e+9;
     bool useTorus = world->useTorus();
@@ -369,35 +396,45 @@ AnalogueModel* PhyLayer80211p::initializeSimpleObstacleShadowing(ParameterMap& p
     return new SimpleObstacleShadowing(*obstacleControlP, carrierFrequency, useTorus, playgroundSize, coreDebug);
 }
 
-Decider* PhyLayer80211p::initializeDecider80211p(ParameterMap& params) {
+
+Decider* PhyLayer80211p::initializeDecider80211p(ParameterMap& params)
+{
     double centerFreq = params["centerFrequency"];
     Decider80211p* dec = new Decider80211p(this, sensitivity, ccaThreshold, allowTxDuringRx, centerFreq, findHost()->getIndex(), collectCollisionStatistics, coreDebug);
     dec->setPath(getParentModule()->getFullPath());
     return dec;
 }
 
-void PhyLayer80211p::changeListeningFrequency(double freq) {
+
+void PhyLayer80211p::changeListeningFrequency(double freq)
+{
     Decider80211p* dec = dynamic_cast<Decider80211p*>(decider);
     assert(dec);
     dec->changeFrequency(freq);
 }
-void PhyLayer80211p::handleSelfMessage(omnetpp::cMessage* msg) {
 
-    switch(msg->getKind()) {
+
+void PhyLayer80211p::handleSelfMessage(omnetpp::cMessage* msg)
+{
+    switch(msg->getKind())
+    {
     //transmission overBasePhyLayer::
-    case TX_OVER: {
+    case TX_OVER:
+    {
         assert(msg == txOverTimer);
         sendControlMsgToMac(new omnetpp::cMessage("Transmission over", TX_OVER));
         //check if there is another packet on the chan, and change the chan-state to idle
         Decider80211p* dec = dynamic_cast<Decider80211p*>(decider);
         assert(dec);
-        if (dec->cca(omnetpp::simTime(),NULL)) {
+        if (dec->cca(omnetpp::simTime(),NULL))
+        {
             //chan is idle
             DBG << "Channel idle after transmit!\n";
             dec->setChannelIdleStatus(true);
 
         }
-        else {
+        else
+        {
             DBG << "Channel not yet idle after transmit!\n";
         }
         break;
@@ -422,6 +459,8 @@ void PhyLayer80211p::handleSelfMessage(omnetpp::cMessage* msg) {
         break;
     }
 }
+
+
 AirFrame *PhyLayer80211p::encapsMsg(omnetpp::cPacket *macPkt)
 {
     // the cMessage passed must be a MacPacket... but no cast needed here
@@ -455,7 +494,6 @@ AirFrame *PhyLayer80211p::encapsMsg(omnetpp::cPacket *macPkt)
     frame->setId(world->getUniqueAirFrameId());
     frame->setChannel(radio->getCurrentChannel());
 
-
     // pointer and Signal not needed anymore
     delete s;
     s = 0;
@@ -472,21 +510,32 @@ AirFrame *PhyLayer80211p::encapsMsg(omnetpp::cPacket *macPkt)
 
     return frame;
 }
-int PhyLayer80211p::getRadioState() {
+
+
+int PhyLayer80211p::getRadioState()
+{
     return BasePhyLayer::getRadioState();
 };
 
-omnetpp::simtime_t PhyLayer80211p::setRadioState(int rs) {
+
+
+omnetpp::simtime_t PhyLayer80211p::setRadioState(int rs)
+{
     if (rs == Radio::TX)
         decider->switchToTx();
     return BasePhyLayer::setRadioState(rs);
 }
 
-void PhyLayer80211p::setCCAThreshold(double ccaThreshold_dBm) {
+
+void PhyLayer80211p::setCCAThreshold(double ccaThreshold_dBm)
+{
     ccaThreshold = pow(10, ccaThreshold_dBm / 10);
     ((Decider80211p *)decider)->setCCAThreshold(ccaThreshold_dBm);
 }
-double PhyLayer80211p::getCCAThreshold() {
+
+
+double PhyLayer80211p::getCCAThreshold()
+{
     return 10 * log10(ccaThreshold);
 }
 

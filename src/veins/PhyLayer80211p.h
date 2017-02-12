@@ -50,10 +50,8 @@ namespace Veins {
  * @see PhyLayer80211p
  * @see Decider80211p
  */
-class PhyLayer80211p	: 	public BasePhyLayer,
-public Mac80211pToPhy11pInterface,
-public Decider80211pToPhy80211pInterface
 
+class PhyLayer80211p : public BasePhyLayer, public Mac80211pToPhy11pInterface, public Decider80211pToPhy80211pInterface
 {
 public:
     void initialize(int stage);
@@ -66,6 +64,7 @@ public:
      * @brief Return the cca threshold in dBm
      */
     double getCCAThreshold();
+
 protected:
 
     /** @brief CCA threshold. See Decider80211p for details */

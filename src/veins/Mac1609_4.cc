@@ -38,8 +38,14 @@ void Mac1609_4::initialize(int stage)
 
     if (stage == 0)
     {
+        // get a pointer to the phy11p module
         phy11p = FindModule<Mac80211pToPhy11pInterface*>::findSubModule(getParentModule());
         assert(phy11p);
+
+        // get a pointer to the Statistics module
+        omnetpp::cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("statistics");
+        STAT = static_cast<VENTOS::Statistics *>(module);
+        ASSERT(STAT);
 
         //this is required to circumvent double precision issues with constants from CONST80211p.h
         assert(omnetpp::simTime().getScaleExp() == -12);
@@ -53,6 +59,7 @@ void Mac1609_4::initialize(int stage)
         myId = getParentModule()->getParentModule()->getFullPath();
 
         headerLength = par("headerLength");
+        record_stat = par("record_stat").boolValue();
 
         nextMacEvent = new omnetpp::cMessage("next Mac Event");
 
@@ -68,23 +75,25 @@ void Mac1609_4::initialize(int stage)
         frequency[Channels::SCH4] = 5.91e9;
         frequency[Channels::HPPS] = 5.92e9;
 
-        //create two EDCA systems
-
+        // EDCA for type_CCH
         myEDCA[type_CCH] = new EDCA(this, type_CCH, par("queueSize").longValue());
         myEDCA[type_CCH]->myId = myId;
         myEDCA[type_CCH]->myId.append(" CCH");
-        myEDCA[type_CCH]->createQueue(2,(((CWMIN_11P+1)/4)-1),(((CWMIN_11P +1)/2)-1),AC_VO);
-        myEDCA[type_CCH]->createQueue(3,(((CWMIN_11P+1)/2)-1),CWMIN_11P,AC_VI);
-        myEDCA[type_CCH]->createQueue(6,CWMIN_11P,CWMAX_11P,AC_BE);
-        myEDCA[type_CCH]->createQueue(9,CWMIN_11P,CWMAX_11P,AC_BK);
+        // creating four queues
+        myEDCA[type_CCH]->createQueue(2 /*AIFS*/, (((CWMIN_11P+1)/4)-1) /*CWmin*/, (((CWMIN_11P +1)/2)-1) /*CWmax*/, AC_VO);
+        myEDCA[type_CCH]->createQueue(3 /*AIFS*/, (((CWMIN_11P+1)/2)-1) /*CWmin*/, CWMIN_11P /*CWmax*/, AC_VI);
+        myEDCA[type_CCH]->createQueue(6 /*AIFS*/, CWMIN_11P /*CWmin*/, CWMAX_11P /*CWmax*/, AC_BE);
+        myEDCA[type_CCH]->createQueue(9 /*AIFS*/, CWMIN_11P /*CWmin*/, CWMAX_11P /*CWmax*/, AC_BK);
 
+        // EDCA for type_SCH
         myEDCA[type_SCH] = new EDCA(this, type_SCH, par("queueSize").longValue());
         myEDCA[type_SCH]->myId = myId;
         myEDCA[type_SCH]->myId.append(" SCH");
-        myEDCA[type_SCH]->createQueue(2,(((CWMIN_11P+1)/4)-1),(((CWMIN_11P +1)/2)-1),AC_VO);
-        myEDCA[type_SCH]->createQueue(3,(((CWMIN_11P+1)/2)-1),CWMIN_11P,AC_VI);
-        myEDCA[type_SCH]->createQueue(6,CWMIN_11P,CWMAX_11P,AC_BE);
-        myEDCA[type_SCH]->createQueue(9,CWMIN_11P,CWMAX_11P,AC_BK);
+        // creating four queues
+        myEDCA[type_SCH]->createQueue(2 /*AIFS*/, (((CWMIN_11P+1)/4)-1) /*CWmin*/,(((CWMIN_11P +1)/2)-1) /*CWmax*/, AC_VO);
+        myEDCA[type_SCH]->createQueue(3 /*AIFS*/, (((CWMIN_11P+1)/2)-1) /*CWmin*/, CWMIN_11P /*CWmax*/, AC_VI);
+        myEDCA[type_SCH]->createQueue(6 /*AIFS*/, CWMIN_11P /*CWmin*/, CWMAX_11P /*CWmax*/, AC_BE);
+        myEDCA[type_SCH]->createQueue(9 /*AIFS*/, CWMIN_11P /*CWmin*/,CWMAX_11P /*CWmax*/, AC_BK);
 
         useSCH = par("useServiceChannel").boolValue();
 
@@ -125,33 +134,21 @@ void Mac1609_4::initialize(int stage)
 
         lastBusy = omnetpp::simTime();
         channelIdle(true);
-
-        record_stat = par("record_stat").boolValue();
-
-        // get a pointer to the TraCI module
-        cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
-        TraCI = static_cast<VENTOS::TraCI_Commands *>(module);
-        ASSERT(TraCI);
-
-        // get a pointer to the Statistics module
-        module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("statistics");
-        STAT = static_cast<VENTOS::Statistics *>(module);
-        ASSERT(STAT);
     }
 }
 
 
 void Mac1609_4::finish()
 {
-    //clean up queues.
+    //clean up queues
 
-    for (std::map<t_channel,EDCA*>::iterator iter = myEDCA.begin(); iter != myEDCA.end(); iter++)
+    for (auto &iter : myEDCA)
     {
-        statsNumInternalContention += iter->second->statsNumInternalContention;
-        statsNumBackoff += iter->second->statsNumBackoff;
-        statsSlotsBackoff += iter->second->statsSlotsBackoff;
-        iter->second->cleanUp();
-        delete iter->second;
+        statsNumInternalContention += iter.second->statsNumInternalContention;
+        statsNumBackoff += iter.second->statsNumBackoff;
+        statsSlotsBackoff += iter.second->statsSlotsBackoff;
+        iter.second->cleanUp();
+        delete iter.second;
     }
 
     myEDCA.clear();
@@ -235,25 +232,33 @@ void Mac1609_4::handleSelfMsg(omnetpp::cMessage* msg)
         }
 
         omnetpp::simtime_t sendingDuration = RADIODELAY_11P + getFrameDuration(mac->getBitLength(), mcs);
+
         EV << "Sending duration will be" << sendingDuration << std::endl;
+
         if ((!useSCH) || (timeLeftInSlot() > sendingDuration))
         {
-            if (useSCH) EV << " Time in this slot left: " << timeLeftInSlot() << std::endl;
+            if (useSCH)
+                EV << " Time in this slot left: " << timeLeftInSlot() << std::endl;
+
             // give time for the radio to be in Tx state before transmitting
             phy->setRadioState(Radio::TX);
 
             double freq = (activeChannel == type_CCH) ? frequency[Channels::CCH] : frequency[mySCH];
 
             attachSignal(mac, omnetpp::simTime()+RADIODELAY_11P, freq, datarate, txPower_mW);
+
             MacToPhyControlInfo* phyInfo = dynamic_cast<MacToPhyControlInfo*>(mac->getControlInfo());
             assert(phyInfo);
+
             EV << "Sending a Packet. Frequency " << freq << " Priority" << lastAC << std::endl;
+
             sendDelayed(mac, RADIODELAY_11P, lowerLayerOut);
+
             statsSentPackets++;
         }
         else
         {   //not enough time left now
-            EV << "Too little Time left. This packet cannot be send in this slot." << std::endl;
+            EV << "Too little Time left. This packet cannot be send in this slot. \n";
             statsNumTooLittleTime++;
 
             //revoke TXOP
@@ -265,10 +270,12 @@ void Mac1609_4::handleSelfMsg(omnetpp::cMessage* msg)
     }
 }
 
+
 void Mac1609_4::handleUpperControl(omnetpp::cMessage* msg)
 {
     assert(false);
 }
+
 
 // all messages from application layer are sent to this method!
 void Mac1609_4::handleUpperMsg(omnetpp::cMessage* msg)
@@ -280,9 +287,7 @@ void Mac1609_4::handleUpperMsg(omnetpp::cMessage* msg)
 
     t_access_category ac = mapPriority(thisMsg->getPriority());
 
-    EV << "Received a message from upper layer for channel "
-            << thisMsg->getChannelNumber() << " Access Category (Priority):  "
-            << ac << std::endl;
+    EV << "Received a message from upper layer for channel " << thisMsg->getChannelNumber() << " Access Category (Priority):  " << ac << std::endl;
 
     t_channel chan;
 
@@ -305,7 +310,6 @@ void Mac1609_4::handleUpperMsg(omnetpp::cMessage* msg)
         return;
     }
 
-    //if this packet is not at the front of a new queue we don't have to re-evaluate times
     EV << "sorted packet into queue of EDCA " << chan << " this packet is now at position: " << num << std::endl;
 
     if (chan == activeChannel)
@@ -313,42 +317,44 @@ void Mac1609_4::handleUpperMsg(omnetpp::cMessage* msg)
     else
         EV << "this packet is NOT for the currently active channel \n";
 
-    if (num == 1 && idleChannel && chan == activeChannel)
+    //if this packet is not at the front of a new queue we don't have to re-evaluate times
+    if(num == 1 && chan == activeChannel)
     {
-        omnetpp::simtime_t nextEvent = myEDCA[chan]->startContent(lastIdle,guardActive());
-
-        if (nextEvent != -1)
+        if(idleChannel)
         {
-            if ((!useSCH) || (nextEvent <= nextChannelSwitch->getArrivalTime()))
+            omnetpp::simtime_t nextEvent = myEDCA[chan]->startContent(lastIdle,guardActive());
+
+            if (nextEvent != -1)
             {
-                if (nextMacEvent->isScheduled())
-                    cancelEvent(nextMacEvent);
+                if ((!useSCH) || (nextEvent <= nextChannelSwitch->getArrivalTime()))
+                {
+                    if (nextMacEvent->isScheduled())
+                        cancelEvent(nextMacEvent);
 
-                scheduleAt(nextEvent, nextMacEvent);
+                    scheduleAt(nextEvent, nextMacEvent);
 
-                EV << "Updated nextMacEvent:" << nextMacEvent->getArrivalTime().raw() << std::endl;
+                    EV << "Updated nextMacEvent:" << nextMacEvent->getArrivalTime().raw() << std::endl;
+                }
+                else
+                {
+                    EV << "Too little time in this interval. Will not schedule nextMacEvent" << std::endl;
+
+                    //it is possible that this queue has an txop. we have to revoke it
+                    myEDCA[activeChannel]->revokeTxOPs();
+                    statsNumTooLittleTime++;
+                }
             }
             else
-            {
-                EV << "Too little time in this interval. Will not schedule nextMacEvent" << std::endl;
-
-                //it is possible that this queue has an txop. we have to revoke it
-                myEDCA[activeChannel]->revokeTxOPs();
-                statsNumTooLittleTime++;
-            }
+                cancelEvent(nextMacEvent);
         }
-        else
-        {
-            cancelEvent(nextMacEvent);
-        }
+        else if(myEDCA[chan]->myQueues[ac].currentBackoff == 0)
+            myEDCA[chan]->backoff(ac);
     }
-
-    if (num == 1 && !idleChannel && myEDCA[chan]->myQueues[ac].currentBackoff == 0 && chan == activeChannel)
-        myEDCA[chan]->backoff(ac);
 
     if(record_stat)
         record_MAC_stat_func();
 }
+
 
 void Mac1609_4::handleLowerControl(omnetpp::cMessage* msg)
 {
@@ -409,6 +415,7 @@ void Mac1609_4::handleLowerControl(omnetpp::cMessage* msg)
         record_MAC_stat_func();
 }
 
+
 void Mac1609_4::setActiveChannel(t_channel state)
 {
     activeChannel = state;
@@ -425,6 +432,7 @@ void Mac1609_4::attachSignal(Mac80211Pkt* mac, omnetpp::simtime_t startTime, dou
 
     mac->setControlInfo(cinfo);
 }
+
 
 Signal* Mac1609_4::createSignal(omnetpp::simtime_t start, omnetpp::simtime_t length, double power, uint64_t bitrate, double frequency)
 {
@@ -449,6 +457,7 @@ Signal* Mac1609_4::createSignal(omnetpp::simtime_t start, omnetpp::simtime_t len
     return s;
 }
 
+
 /* checks if guard is active */
 bool Mac1609_4::guardActive() const
 {
@@ -460,6 +469,7 @@ bool Mac1609_4::guardActive() const
 
     return false;
 }
+
 
 /* returns the time until the guard is over */
 omnetpp::simtime_t Mac1609_4::timeLeftTillGuardOver() const
@@ -475,12 +485,14 @@ omnetpp::simtime_t Mac1609_4::timeLeftTillGuardOver() const
         return 0;
 }
 
+
 /* returns the time left in this channel window */
 omnetpp::simtime_t Mac1609_4::timeLeftInSlot() const
 {
     ASSERT(useSCH);
     return nextChannelSwitch->getArrivalTime() - omnetpp::simTime();
 }
+
 
 /* Will change the Service Channel on which the mac layer is listening and sending */
 void Mac1609_4::changeServiceChannel(int cN)
@@ -499,10 +511,12 @@ void Mac1609_4::changeServiceChannel(int cN)
     }
 }
 
+
 void Mac1609_4::setTxPower(double txPower_mW)
 {
     txPower = txPower_mW;
 }
+
 
 void Mac1609_4::setMCS(enum PHY_MCS mcs)
 {
@@ -511,10 +525,12 @@ void Mac1609_4::setMCS(enum PHY_MCS mcs)
     setParametersForBitrate(bitrate);
 }
 
+
 void Mac1609_4::setCCAThreshold(double ccaThreshold_dBm)
 {
     phy11p->setCCAThreshold(ccaThreshold_dBm);
 }
+
 
 void Mac1609_4::handleLowerMsg(omnetpp::cMessage* msg)
 {
@@ -532,14 +548,11 @@ void Mac1609_4::handleLowerMsg(omnetpp::cMessage* msg)
 
     long dest = macPkt->getDestAddr();
 
-    EV << "Received frame name= " << macPkt->getName()
-	                                                                                        << ", myState=" << " src=" << macPkt->getSrcAddr()
-	                                                                                        << " dst=" << macPkt->getDestAddr() << " myAddr="
-	                                                                                        << myMacAddress << std::endl;
+    EV << "Received frame name= " << macPkt->getName() << ", myState=" << " src=" << macPkt->getSrcAddr() << " dst=" << macPkt->getDestAddr() << " myAddr=" << myMacAddress << std::endl;
 
     if (macPkt->getDestAddr() == myMacAddress)
     {
-        EV << "Received a data packet addressed to me." << std::endl;
+        EV << "Received a data packet addressed to me. \n";
         statsReceivedPackets++;
         sendUp(wsm);
     }
@@ -550,38 +563,15 @@ void Mac1609_4::handleLowerMsg(omnetpp::cMessage* msg)
     }
     else
     {
-        EV << "Packet not for me, deleting..." << std::endl;
+        EV << "Packet not for me, deleting... \n";
         delete wsm;
     }
 
     delete macPkt;
 }
 
-int Mac1609_4::EDCA::queuePacket(t_access_category ac,WaveShortMessage* msg)
-{
 
-    if (maxQueueSize && myQueues[ac].queue.size() >= maxQueueSize)
-    {
-        delete msg;
-        return -1;
-    }
-
-    myQueues[ac].queue.push(msg);
-    return myQueues[ac].queue.size();
-}
-
-int Mac1609_4::EDCA::createQueue(int aifsn, int cwMin, int cwMax,t_access_category ac)
-{
-    if (myQueues.find(ac) != myQueues.end())
-        throw omnetpp::cRuntimeError("You can only add one queue per Access Category per EDCA subsystem");
-
-    EDCAQueue newQueue(aifsn,cwMin,cwMax,ac);
-    myQueues[ac] = newQueue;
-
-    return ++numQueues;
-}
-
-Mac1609_4::t_access_category Mac1609_4::mapPriority(int prio)
+t_access_category Mac1609_4::mapPriority(int prio)
 {
     //dummy mapping function
     switch (prio)
@@ -596,224 +586,6 @@ Mac1609_4::t_access_category Mac1609_4::mapPriority(int prio)
     return AC_VO;
 }
 
-WaveShortMessage* Mac1609_4::EDCA::initiateTransmit(omnetpp::simtime_t lastIdle)
-{
-    EV_STATICCONTEXT
-
-    //iterate through the queues to return the packet we want to send
-    WaveShortMessage* pktToSend = NULL;
-
-    omnetpp::simtime_t idleTime = omnetpp::simTime() - lastIdle;
-
-    EV << "Initiating transmit at " << omnetpp::simTime() << ". I've been idle since " << idleTime << std::endl;
-
-    for (std::map<t_access_category, EDCAQueue>::iterator iter = myQueues.begin(); iter != myQueues.end(); iter++)
-    {
-        if (iter->second.queue.size() != 0)
-        {
-            if (idleTime >= iter->second.aifsn* SLOTLENGTH_11P + SIFS_11P && iter->second.txOP == true)
-            {
-                EV << "Queue " << iter->first << " is ready to send!" << std::endl;
-
-                iter->second.txOP = false;
-                //this queue is ready to send
-                if (pktToSend == NULL)
-                {
-                    pktToSend = iter->second.queue.front();
-                }
-                else
-                {
-                    //there was already another packet ready. we have to go increase cw and go into backoff. It's called internal contention and its wonderful
-
-                    statsNumInternalContention++;
-                    iter->second.cwCur = std::min(iter->second.cwMax,(iter->second.cwCur+1)*2-1);
-                    iter->second.currentBackoff = owner->intuniform(0,iter->second.cwCur);
-                    EV << "Internal contention for queue " << iter->first  << " : "<< iter->second.currentBackoff << ". Increase cwCur to " << iter->second.cwCur << std::endl;
-                }
-            }
-        }
-    }
-
-    if (pktToSend == NULL)
-        throw omnetpp::cRuntimeError("No packet was ready");
-
-    return pktToSend;
-}
-
-omnetpp::simtime_t Mac1609_4::EDCA::startContent(omnetpp::simtime_t idleSince, bool guardActive)
-{
-    EV_STATICCONTEXT
-
-    EV << "Restarting contention." << std::endl;
-
-    omnetpp::simtime_t nextEvent = -1;
-
-    omnetpp::simtime_t idleTime = omnetpp::SimTime().setRaw(std::max((int64_t)0,(omnetpp::simTime() - idleSince).raw()));;
-
-    lastStart = idleSince;
-
-    EV << "Channel is already idle for:" << idleTime << " since " << idleSince << std::endl;
-
-    //this returns the nearest possible event in this EDCA subsystem after a busy channel
-
-    for (std::map<t_access_category, EDCAQueue>::iterator iter = myQueues.begin(); iter != myQueues.end(); iter++)
-    {
-        if (iter->second.queue.size() != 0)
-        {
-            /* 1609_4 says that when attempting to send (backoff == 0) when guard is active, a random backoff is invoked */
-
-            if (guardActive == true && iter->second.currentBackoff == 0)
-            {
-                //cw is not increased
-                iter->second.currentBackoff = owner->intuniform(0,iter->second.cwCur);
-                statsNumBackoff++;
-            }
-
-            omnetpp::simtime_t DIFS = iter->second.aifsn * SLOTLENGTH_11P + SIFS_11P;
-
-            //the next possible time to send can be in the past if the channel was idle for a long time, meaning we COULD have sent earlier if we had a packet
-            omnetpp::simtime_t possibleNextEvent = DIFS + iter->second.currentBackoff * SLOTLENGTH_11P;
-
-
-            EV << "Waiting Time for Queue " << iter->first <<  ":" << possibleNextEvent << "=" << iter->second.aifsn << " * "  << SLOTLENGTH_11P << " + " << SIFS_11P << "+" << iter->second.currentBackoff << "*" << SLOTLENGTH_11P << "; Idle time: " << idleTime << std::endl;
-
-            if (idleTime > possibleNextEvent)
-            {
-                EV << "Could have already send if we had it earlier" << std::endl;
-                //we could have already sent. round up to next boundary
-                omnetpp::simtime_t base = idleSince + DIFS;
-                possibleNextEvent =  omnetpp::simTime() - omnetpp::simtime_t().setRaw((omnetpp::simTime() - base).raw() % SLOTLENGTH_11P.raw()) + SLOTLENGTH_11P;
-            }
-            else
-            {
-                //we are gonna send in the future
-                EV << "Sending in the future" << std::endl;
-                possibleNextEvent =  idleSince + possibleNextEvent;
-            }
-
-            nextEvent == -1? nextEvent =  possibleNextEvent : nextEvent = std::min(nextEvent,possibleNextEvent);
-        }
-    }
-
-    return nextEvent;
-}
-
-void Mac1609_4::EDCA::stopContent(bool allowBackoff, bool generateTxOp)
-{
-    EV_STATICCONTEXT
-
-    //update all Queues
-
-    EV << "Stopping Contention at " << omnetpp::simTime().raw() << std::endl;
-
-    omnetpp::simtime_t passedTime = omnetpp::simTime() - lastStart;
-
-    EV << "Channel was idle for " << passedTime << std::endl;
-
-    lastStart = -1; //indicate that there was no last start
-
-    for (std::map<t_access_category, EDCAQueue>::iterator iter = myQueues.begin(); iter != myQueues.end(); iter++)
-    {
-        if (iter->second.currentBackoff != 0 || iter->second.queue.size() != 0)
-        {
-            //check how many slots we already waited until the chan became busy
-
-            int oldBackoff = iter->second.currentBackoff;
-
-            std::string info;
-            if (passedTime < iter->second.aifsn * SLOTLENGTH_11P + SIFS_11P)
-            {
-                //we didnt even make it one DIFS :(
-                info.append(" No DIFS");
-            }
-            else
-            {
-                //decrease the backoff by one because we made it longer than one DIFS
-                iter->second.currentBackoff--;
-
-                //check how many slots we waited after the first DIFS
-                int passedSlots = (int)((passedTime - omnetpp::SimTime(iter->second.aifsn * SLOTLENGTH_11P + SIFS_11P)) / SLOTLENGTH_11P);
-
-                EV << "Passed slots after DIFS: " << passedSlots << std::endl;
-
-
-                if (iter->second.queue.size() == 0)
-                {
-                    //this can be below 0 because of post transmit backoff -> backoff on empty queues will not generate macevents,
-                    //we dont want to generate a txOP for empty queues
-                    iter->second.currentBackoff -= std::min(iter->second.currentBackoff,passedSlots);
-                    info.append(" PostCommit Over");
-                }
-                else
-                {
-                    iter->second.currentBackoff -= passedSlots;
-                    if (iter->second.currentBackoff <= -1)
-                    {
-                        if (generateTxOp)
-                        {
-                            iter->second.txOP = true; info.append(" TXOP");
-                        }
-                        //else: this packet couldnt be sent because there was too little time. we could have generated a txop, but the channel switched
-                        iter->second.currentBackoff = 0;
-                    }
-
-                }
-            }
-
-            EV << "Updating backoff for Queue " << iter->first << ": " << oldBackoff << " -> " << iter->second.currentBackoff << info <<std::endl;
-        }
-    }
-}
-
-void Mac1609_4::EDCA::backoff(t_access_category ac)
-{
-    EV_STATICCONTEXT
-
-    myQueues[ac].currentBackoff = owner->intuniform(0,myQueues[ac].cwCur);
-    statsSlotsBackoff += myQueues[ac].currentBackoff;
-    statsNumBackoff++;
-    EV << "Going into Backoff because channel was busy when new packet arrived from upperLayer" << std::endl;
-}
-
-void Mac1609_4::EDCA::postTransmit(t_access_category ac)
-{
-    EV_STATICCONTEXT
-
-    delete myQueues[ac].queue.front();
-    myQueues[ac].queue.pop();
-    myQueues[ac].cwCur = myQueues[ac].cwMin;
-    //post transmit backoff
-    myQueues[ac].currentBackoff = owner->intuniform(0,myQueues[ac].cwCur);
-    statsSlotsBackoff += myQueues[ac].currentBackoff;
-    statsNumBackoff++;
-    EV << "Queue " << ac << " will go into post-transmit backoff for " << myQueues[ac].currentBackoff << " slots" << std::endl;
-}
-
-void Mac1609_4::EDCA::cleanUp()
-{
-    for (std::map<t_access_category, EDCAQueue>::iterator iter = myQueues.begin(); iter != myQueues.end(); iter++)
-    {
-        while (iter->second.queue.size() != 0)
-        {
-            delete iter->second.queue.front();
-            iter->second.queue.pop();
-        }
-    }
-
-    myQueues.clear();
-}
-
-void Mac1609_4::EDCA::revokeTxOPs()
-{
-    for (std::map<t_access_category, EDCAQueue>::iterator iter = myQueues.begin(); iter != myQueues.end(); iter++)
-    {
-        if (iter->second.txOP == true)
-        {
-            iter->second.txOP = false;
-            iter->second.currentBackoff = 0;
-        }
-    }
-}
 
 void Mac1609_4::channelBusySelf(bool generateTxOp)
 {
@@ -841,6 +613,7 @@ void Mac1609_4::channelBusySelf(bool generateTxOp)
     emit(sigChannelBusy, true);
 }
 
+
 void Mac1609_4::channelBusy()
 {
     if (!idleChannel) return;
@@ -865,6 +638,7 @@ void Mac1609_4::channelBusy()
     emit(sigChannelBusy, true);
 }
 
+
 void Mac1609_4::channelIdle(bool afterSwitch)
 {
     EV << "Channel turned idle: Switch: " << afterSwitch << std::endl;
@@ -884,7 +658,7 @@ void Mac1609_4::channelIdle(bool afterSwitch)
     //account for 1609.4 guards
     if (afterSwitch)
     {
-        //	delay = GUARD_INTERVAL_11P;
+        //  delay = GUARD_INTERVAL_11P;
     }
 
     if (useSCH)
@@ -903,11 +677,13 @@ void Mac1609_4::channelIdle(bool afterSwitch)
         if ((!useSCH) || (nextEvent < nextChannelSwitch->getArrivalTime()))
         {
             scheduleAt(nextEvent,nextMacEvent);
+
             EV << "next Event is at " << nextMacEvent->getArrivalTime().raw() << std::endl;
         }
         else
         {
             EV << "Too little time in this interval. will not schedule macEvent" << std::endl;
+
             statsNumTooLittleTime++;
             myEDCA[activeChannel]->revokeTxOPs();
         }
@@ -918,8 +694,8 @@ void Mac1609_4::channelIdle(bool afterSwitch)
     }
 
     emit(sigChannelBusy, false);
-
 }
+
 
 void Mac1609_4::setParametersForBitrate(uint64_t bitrate)
 {
@@ -950,7 +726,7 @@ omnetpp::simtime_t Mac1609_4::getSwitchingInterval()
 
 bool Mac1609_4::isCurrentChannelCCH()
 {
-    return (activeChannel ==  type_CCH);
+    return (activeChannel == type_CCH);
 }
 
 
@@ -995,6 +771,265 @@ void Mac1609_4::record_MAC_stat_func()
         STAT->global_MAC_stat[myId] = entry;
     else
         it->second = entry;
+}
+
+
+// -------------------------------------------------------------------------
+
+
+int EDCA::createQueue(int aifsn, int cwMin, int cwMax, t_access_category ac)
+{
+    if (myQueues.find(ac) != myQueues.end())
+        throw omnetpp::cRuntimeError("You can only add one queue per Access Category per EDCA subsystem");
+
+    EDCAQueue_t newQueue(aifsn, cwMin, cwMax, ac);
+    myQueues[ac] = newQueue;
+
+    return ++numQueues;
+}
+
+
+int EDCA::queuePacket(t_access_category ac,WaveShortMessage* msg)
+{
+    if (maxQueueSize && myQueues[ac].queue.size() >= maxQueueSize)
+    {
+        delete msg;
+        return -1;
+    }
+
+    myQueues[ac].queue.push(msg);
+    return myQueues[ac].queue.size();
+}
+
+
+WaveShortMessage* EDCA::initiateTransmit(omnetpp::simtime_t lastIdle)
+{
+    EV_STATICCONTEXT
+
+    //iterate through the queues to return the packet we want to send
+    WaveShortMessage* pktToSend = NULL;
+
+    omnetpp::simtime_t idleTime = omnetpp::simTime() - lastIdle;
+
+    EV << "Initiating transmit at " << omnetpp::simTime() << ". I've been idle since " << idleTime << std::endl;
+
+    for (auto &iter : myQueues)
+    {
+        if (iter.second.queue.size() != 0)
+        {
+            if (idleTime >= (iter.second.aifsn * SLOTLENGTH_11P) + SIFS_11P && iter.second.txOP)
+            {
+                EV << "Queue " << iter.first << " is ready to send! \n";
+
+                iter.second.txOP = false;
+
+                //this queue is ready to send
+                if (pktToSend == NULL)
+                {
+                    pktToSend = iter.second.queue.front();
+                }
+                else
+                {
+                    // there was already another packet ready.
+                    // we have to go increase cw and go into backoff.
+                    // It's called internal contention and its wonderful
+                    statsNumInternalContention++;
+
+                    iter.second.cwCur = std::min(iter.second.cwMax,(iter.second.cwCur+1)*2-1);
+                    iter.second.currentBackoff = owner->intuniform(0,iter.second.cwCur);
+
+                    EV << "Internal contention for queue " << iter.first  << " : "<< iter.second.currentBackoff << ". Increase cwCur to " << iter.second.cwCur << std::endl;
+                }
+            }
+        }
+    }
+
+    if (pktToSend == NULL)
+        throw omnetpp::cRuntimeError("No packet was ready");
+
+    return pktToSend;
+}
+
+
+omnetpp::simtime_t EDCA::startContent(omnetpp::simtime_t idleSince, bool guardActive)
+{
+    EV_STATICCONTEXT
+
+    EV << "Restarting contention. \n";
+
+    omnetpp::simtime_t nextEvent = -1;
+
+    omnetpp::simtime_t idleTime = omnetpp::SimTime().setRaw(std::max((int64_t)0,(omnetpp::simTime() - idleSince).raw()));;
+
+    lastStart = idleSince;
+
+    EV << "Channel is already idle for:" << idleTime << " since " << idleSince << std::endl;
+
+    //this returns the nearest possible event in this EDCA subsystem after a busy channel
+
+    for (auto &iter : myQueues)
+    {
+        if (iter.second.queue.size() != 0)
+        {
+            /* 1609_4 says that when attempting to send (backoff == 0) when guard is active, a random backoff is invoked */
+
+            if (guardActive && iter.second.currentBackoff == 0)
+            {
+                //cw is not increased
+                iter.second.currentBackoff = owner->intuniform(0, iter.second.cwCur);
+                statsNumBackoff++;
+            }
+
+            omnetpp::simtime_t DIFS = iter.second.aifsn * SLOTLENGTH_11P + SIFS_11P;
+
+            //the next possible time to send can be in the past if the channel was idle for a long time, meaning we COULD have sent earlier if we had a packet
+            omnetpp::simtime_t possibleNextEvent = DIFS + iter.second.currentBackoff * SLOTLENGTH_11P;
+
+            EV << "Waiting Time for Queue " << iter.first <<  ":" << possibleNextEvent << "=" << iter.second.aifsn << " * "  << SLOTLENGTH_11P << " + " << SIFS_11P << "+" << iter.second.currentBackoff << "*" << SLOTLENGTH_11P << "; Idle time: " << idleTime << std::endl;
+
+            if (idleTime > possibleNextEvent)
+            {
+                EV << "Could have already send if we had it earlier" << std::endl;
+
+                //we could have already sent. round up to next boundary
+                omnetpp::simtime_t base = idleSince + DIFS;
+                possibleNextEvent =  omnetpp::simTime() - omnetpp::simtime_t().setRaw((omnetpp::simTime() - base).raw() % SLOTLENGTH_11P.raw()) + SLOTLENGTH_11P;
+            }
+            else
+            {
+                //we are gonna send in the future
+                EV << "Sending in the future \n";
+                possibleNextEvent =  idleSince + possibleNextEvent;
+            }
+
+            nextEvent == -1 ? nextEvent =  possibleNextEvent : nextEvent = std::min(nextEvent, possibleNextEvent);
+        }
+    }
+
+    return nextEvent;
+}
+
+
+void EDCA::stopContent(bool allowBackoff, bool generateTxOp)
+{
+    EV_STATICCONTEXT
+
+    //update all Queues
+
+    EV << "Stopping Contention at " << omnetpp::simTime().raw() << std::endl;
+
+    omnetpp::simtime_t passedTime = omnetpp::simTime() - lastStart;
+
+    EV << "Channel was idle for " << passedTime << std::endl;
+
+    lastStart = -1; //indicate that there was no last start
+
+    for (auto &iter : myQueues)
+    {
+        if (iter.second.currentBackoff != 0 || iter.second.queue.size() != 0)
+        {
+            //check how many slots we already waited until the chan became busy
+
+            int oldBackoff = iter.second.currentBackoff;
+
+            std::string info;
+            if (passedTime < iter.second.aifsn * SLOTLENGTH_11P + SIFS_11P)
+            {
+                //we didnt even make it one DIFS :(
+                info.append(" No DIFS");
+            }
+            else
+            {
+                //decrease the backoff by one because we made it longer than one DIFS
+                iter.second.currentBackoff--;
+
+                //check how many slots we waited after the first DIFS
+                int passedSlots = (int)((passedTime - omnetpp::SimTime(iter.second.aifsn * SLOTLENGTH_11P + SIFS_11P)) / SLOTLENGTH_11P);
+
+                EV << "Passed slots after DIFS: " << passedSlots << std::endl;
+
+                if (iter.second.queue.size() == 0)
+                {
+                    //this can be below 0 because of post transmit backoff -> backoff on empty queues will not generate macevents,
+                    //we dont want to generate a txOP for empty queues
+                    iter.second.currentBackoff -= std::min(iter.second.currentBackoff,passedSlots);
+                    info.append(" PostCommit Over");
+                }
+                else
+                {
+                    iter.second.currentBackoff -= passedSlots;
+                    if (iter.second.currentBackoff <= -1)
+                    {
+                        if (generateTxOp)
+                        {
+                            iter.second.txOP = true; info.append(" TXOP");
+                        }
+                        //else: this packet couldnt be sent because there was too little time. we could have generated a txop, but the channel switched
+                        iter.second.currentBackoff = 0;
+                    }
+
+                }
+            }
+
+            EV << "Updating backoff for Queue " << iter.first << ": " << oldBackoff << " -> " << iter.second.currentBackoff << info <<std::endl;
+        }
+    }
+}
+
+
+void EDCA::backoff(t_access_category ac)
+{
+    EV_STATICCONTEXT
+
+    myQueues[ac].currentBackoff = owner->intuniform(0,myQueues[ac].cwCur);
+    statsSlotsBackoff += myQueues[ac].currentBackoff;
+    statsNumBackoff++;
+
+    EV << "Going into Backoff because channel was busy when new packet arrived from upperLayer" << std::endl;
+}
+
+
+void EDCA::postTransmit(t_access_category ac)
+{
+    EV_STATICCONTEXT
+
+    delete myQueues[ac].queue.front();
+    myQueues[ac].queue.pop();
+    myQueues[ac].cwCur = myQueues[ac].cwMin;
+    //post transmit backoff
+    myQueues[ac].currentBackoff = owner->intuniform(0,myQueues[ac].cwCur);
+    statsSlotsBackoff += myQueues[ac].currentBackoff;
+    statsNumBackoff++;
+
+    EV << "Queue " << ac << " will go into post-transmit backoff for " << myQueues[ac].currentBackoff << " slots" << std::endl;
+}
+
+
+void EDCA::revokeTxOPs()
+{
+    for (auto &iter : myQueues)
+    {
+        if (iter.second.txOP)
+        {
+            iter.second.txOP = false;
+            iter.second.currentBackoff = 0;
+        }
+    }
+}
+
+
+void EDCA::cleanUp()
+{
+    for (auto &iter : myQueues)
+    {
+        while (iter.second.queue.size() != 0)
+        {
+            delete iter.second.queue.front();
+            iter.second.queue.pop();
+        }
+    }
+
+    myQueues.clear();
 }
 
 }

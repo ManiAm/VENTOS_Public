@@ -32,11 +32,22 @@
 #include "NistErrorRate.h"
 #include "ConstsPhy.h"
 
-
 namespace Veins {
 
-omnetpp::simtime_t Decider80211p::processNewSignal(AirFrame* msg) {
+Decider80211p::~Decider80211p() {}
 
+void Decider80211p::finish()
+{
+    // omnetpp::simtime_t totalTime = omnetpp::simTime() - myStartTime;
+    // phy->recordScalar("busyTime", myBusyTime / totalTime.dbl());
+    // if (collectCollisionStats) {
+    //    phy->recordScalar("ncollisions", collisions);
+    // }
+}
+
+
+omnetpp::simtime_t Decider80211p::processNewSignal(AirFrame* msg)
+{
     EV_STATICCONTEXT
 
     AirFrame11p *frame = omnetpp::check_and_cast<AirFrame11p *>(msg);
@@ -52,32 +63,38 @@ omnetpp::simtime_t Decider80211p::processNewSignal(AirFrame* msg) {
 
     double recvPower = signal.getReceivingPower()->getValue(start);
 
-    if (recvPower < sensitivity) {
+    if (recvPower < sensitivity)
+    {
         //annotate the frame, so that we won't try decoding it at its end
         frame->setUnderSensitivity(true);
         //check channel busy status. a superposition of low power frames might turn channel status to busy
-        if (cca(omnetpp::simTime(), NULL) == false) {
+        if (cca(omnetpp::simTime(), NULL) == false)
+        {
             setChannelIdleStatus(false);
         }
+
         return signal.getReceptionEnd();
     }
-    else {
-
+    else
+    {
         setChannelIdleStatus(false);
 
-        if (phy11p->getRadioState() == Radio::TX) {
+        if (phy11p->getRadioState() == Radio::TX)
+        {
             frame->setBitError(true);
             frame->setWasTransmitting(true);
             EV << "AirFrame: " << frame->getId() << " (" << recvPower << ") received, while already sending. Setting BitErrors to true" << std::endl;
         }
-        else {
-
-            if (!currentSignal.first) {
+        else
+        {
+            if (!currentSignal.first)
+            {
                 //NIC is not yet synced to any frame, so lock and try to decode this frame
                 currentSignal.first = frame;
                 EV << "AirFrame: " << frame->getId() << " with (" << recvPower << " > " << sensitivity << ") -> Trying to receive AirFrame." << std::endl;
             }
-            else {
+            else
+            {
                 //NIC is currently trying to decode another frame. this frame will be simply treated as interference
                 EV << "AirFrame: " << frame->getId() << " with (" << recvPower << " > " << sensitivity << ") -> Already synced to another AirFrame. Treating AirFrame as interference." << std::endl;
             }
@@ -86,22 +103,27 @@ omnetpp::simtime_t Decider80211p::processNewSignal(AirFrame* msg) {
             //measure communication density
             myBusyTime += signal.getDuration().dbl();
         }
+
         return signal.getReceptionEnd();
     }
 }
 
-int Decider80211p::getSignalState(AirFrame* frame) {
 
-    if (signalStates.find(frame) == signalStates.end()) {
+int Decider80211p::getSignalState(AirFrame* frame)
+{
+    if (signalStates.find(frame) == signalStates.end())
+    {
         return NEW;
     }
-    else {
+    else
+    {
         return signalStates[frame];
     }
 }
 
-double Decider80211p::calcChannelSenseRSSI(omnetpp::simtime_t_cref start, omnetpp::simtime_t_cref end) {
 
+double Decider80211p::calcChannelSenseRSSI(omnetpp::simtime_t_cref start, omnetpp::simtime_t_cref end)
+{
     Mapping* rssiMap = calculateRSSIMapping(start, end);
 
     Argument min(DimensionSet::timeFreqDomain());
@@ -118,8 +140,9 @@ double Decider80211p::calcChannelSenseRSSI(omnetpp::simtime_t_cref start, omnetp
     return rssi;
 }
 
-void Decider80211p::calculateSinrAndSnrMapping(AirFrame* frame, Mapping **sinrMap, Mapping **snrMap) {
 
+void Decider80211p::calculateSinrAndSnrMapping(AirFrame* frame, Mapping **sinrMap, Mapping **snrMap)
+{
     /* calculate Noise-Strength-Mapping */
     Signal& signal = frame->getSignal();
 
@@ -144,20 +167,22 @@ void Decider80211p::calculateSinrAndSnrMapping(AirFrame* frame, Mapping **sinrMa
     noiseInterferenceMap = 0;
     delete noiseMap;
     noiseMap = 0;
-
 }
 
-Mapping* Decider80211p::calculateNoiseRSSIMapping(omnetpp::simtime_t_cref start, omnetpp::simtime_t_cref end, AirFrame *exclude) {
 
+Mapping* Decider80211p::calculateNoiseRSSIMapping(omnetpp::simtime_t_cref start, omnetpp::simtime_t_cref end, AirFrame *exclude)
+{
     // create an empty mapping
     Mapping* resultMap = MappingUtils::createMapping(Argument::MappedZero(), DimensionSet::timeDomain());
 
     // add thermal noise
     ConstMapping* thermalNoise = phy->getThermalNoise(start, end);
-    if (thermalNoise) {
+    if (thermalNoise)
+    {
         // FIXME: workaround needed to make *really* sure that the resultMap is defined for the range of the exclude-frame
         const ConstMapping* excludePwr = exclude ? exclude->getSignal().getReceivingPower() : 0;
-        if (excludePwr) {
+        if (excludePwr)
+        {
             Mapping* p1 = resultMap;
             // p2 = exclude + thermal
             Mapping* p2 = MappingUtils::add(*excludePwr, *thermalNoise);
@@ -169,7 +194,8 @@ Mapping* Decider80211p::calculateNoiseRSSIMapping(omnetpp::simtime_t_cref start,
             delete p2;
             delete p1;
         }
-        else {
+        else
+        {
             Mapping* p1 = resultMap;
             resultMap = MappingUtils::add(*resultMap, *thermalNoise);
             delete p1;
@@ -177,23 +203,26 @@ Mapping* Decider80211p::calculateNoiseRSSIMapping(omnetpp::simtime_t_cref start,
     }
 
     return resultMap;
-
 }
 
-DeciderResult* Decider80211p::checkIfSignalOk(AirFrame* frame) {
 
+DeciderResult* Decider80211p::checkIfSignalOk(AirFrame* frame)
+{
     EV_STATICCONTEXT
 
     Mapping* sinrMap = 0;
     Mapping *snrMap = 0;
 
-    if (collectCollisionStats) {
+    if (collectCollisionStats)
+    {
         calculateSinrAndSnrMapping(frame, &sinrMap, &snrMap);
         assert(snrMap);
     }
-    else {
+    else
+    {
         sinrMap = calculateSnrMapping(frame);
     }
+
     assert(sinrMap);
 
     Signal& s = frame->getSignal();
@@ -217,10 +246,12 @@ DeciderResult* Decider80211p::checkIfSignalOk(AirFrame* frame) {
 
     double snirMin = MappingUtils::findMin(*sinrMap, min, max);
     double snrMin;
-    if (collectCollisionStats) {
+    if (collectCollisionStats)
+    {
         snrMin = MappingUtils::findMin(*snrMap, min, max);
     }
-    else {
+    else
+    {
         //just set to any value. if collectCollisionStats != true
         //it will be ignored by packetOk
         snrMin = 1e200;
@@ -233,18 +264,20 @@ DeciderResult* Decider80211p::checkIfSignalOk(AirFrame* frame) {
 
     DeciderResult80211* result = 0;
 
-    switch (packetOk(snirMin, snrMin, frame->getBitLength(), payloadBitrate)) {
-
+    switch (packetOk(snirMin, snrMin, frame->getBitLength(), payloadBitrate))
+    {
     case DECODED:
         EV << "Packet is fine! We can decode it" << std::endl;
         result = new DeciderResult80211(true, payloadBitrate, snirMin, recvPower_dBm, false);
         break;
 
     case NOT_DECODED:
-        if (!collectCollisionStats) {
+        if (!collectCollisionStats)
+        {
             EV << "Packet has bit Errors. Lost " << std::endl;
         }
-        else {
+        else
+        {
             EV << "Packet has bit Errors due to low power. Lost " << std::endl;
         }
         result = new DeciderResult80211(false, payloadBitrate, snirMin, recvPower_dBm, false);
@@ -259,17 +292,18 @@ DeciderResult* Decider80211p::checkIfSignalOk(AirFrame* frame) {
     default:
         ASSERT2(false, "Impossible packet result returned by packetOk(). Check the code.");
         break;
-
     }
 
     delete sinrMap;
+
     if (snrMap)
         delete snrMap;
+
     return result;
 }
 
-enum Decider80211p::PACKET_OK_RESULT Decider80211p::packetOk(double snirMin, double snrMin, int lengthMPDU, double bitrate) {
-
+enum Decider80211p::PACKET_OK_RESULT Decider80211p::packetOk(double snirMin, double snrMin, int lengthMPDU, double bitrate)
+{
     //the lengthMPDU includes the PHY_SIGNAL_LENGTH + PHY_PSDU_HEADER + Payload, while the first is sent with PHY_HEADER_BANDWIDTH
 
     double packetOkSinr;
@@ -283,8 +317,8 @@ enum Decider80211p::PACKET_OK_RESULT Decider80211p::packetOk(double snirMin, dou
 
     double headerNoErrorSnr;
     //compute PER also for SNR only
-    if (collectCollisionStats) {
-
+    if (collectCollisionStats)
+    {
         packetOkSnr = NistErrorRate::getChunkSuccessRate(bitrate, BW_OFDM_10_MHZ, snrMin, lengthMPDU);
         headerNoErrorSnr = NistErrorRate::getChunkSuccessRate(PHY_HDR_BITRATE, BW_OFDM_10_MHZ, snrMin, PHY_HDR_PLCPSIGNAL_LENGTH);
 
@@ -292,71 +326,78 @@ enum Decider80211p::PACKET_OK_RESULT Decider80211p::packetOk(double snirMin, dou
         //MUST be greater or equal than when consider it
         assert(packetOkSnr >= packetOkSinr);
         assert(headerNoErrorSnr >= headerNoError);
-
     }
 
     //probability of no bit error in the PLCP header
 
     double rand = omnetpp::cSimulation::getActiveSimulation()->getContext()->dblrand();
 
-    if (!collectCollisionStats) {
+    if (!collectCollisionStats)
+    {
         if (rand > headerNoError)
             return NOT_DECODED;
     }
-    else {
-
-        if (rand > headerNoError) {
+    else
+    {
+        if (rand > headerNoError)
+        {
             //ups, we have a header error. is that due to interference?
-            if (rand > headerNoErrorSnr) {
+            if (rand > headerNoErrorSnr)
+            {
                 //no. we would have not been able to receive that even
                 //without interference
                 return NOT_DECODED;
             }
-            else {
+            else
+            {
                 //yes. we would have decoded that without interference
                 return COLLISION;
             }
-
         }
-
     }
 
     //probability of no bit error in the rest of the packet
 
     rand = omnetpp::cSimulation::getActiveSimulation()->getContext()->dblrand();
 
-    if (!collectCollisionStats) {
-        if (rand > packetOkSinr) {
+    if (!collectCollisionStats)
+    {
+        if (rand > packetOkSinr)
+        {
             return NOT_DECODED;
         }
-        else {
+        else
+        {
             return DECODED;
         }
     }
-    else {
-
-        if (rand > packetOkSinr) {
+    else
+    {
+        if (rand > packetOkSinr)
+        {
             //ups, we have an error in the payload. is that due to interference?
-            if (rand > packetOkSnr) {
+            if (rand > packetOkSnr)
+            {
                 //no. we would have not been able to receive that even
                 //without interference
                 return NOT_DECODED;
             }
-            else {
+            else
+            {
                 //yes. we would have decoded that without interference
                 return COLLISION;
             }
-
         }
-        else {
+        else
+        {
             return DECODED;
         }
-
     }
 }
 
 
-bool Decider80211p::cca(omnetpp::simtime_t_cref time, AirFrame* exclude) {
+bool Decider80211p::cca(omnetpp::simtime_t_cref time, AirFrame* exclude)
+{
     EV_STATICCONTEXT
 
     AirFrameVector airFrames;
@@ -366,13 +407,13 @@ bool Decider80211p::cca(omnetpp::simtime_t_cref time, AirFrame* exclude) {
 
     Mapping* resultMap = MappingUtils::createMapping(Argument::MappedZero(), DimensionSet::timeDomain());
 
-
     // iterate over all AirFrames (except exclude)
     // and sum up their receiving-power-mappings
-    for (AirFrameVector::const_iterator it = airFrames.begin(); it != airFrames.end(); ++it) {
-        if (*it == exclude) {
+    for (AirFrameVector::const_iterator it = airFrames.begin(); it != airFrames.end(); ++it)
+    {
+        if (*it == exclude)
             continue;
-        }
+
         // the vector should not contain pointers to 0
         assert(*it != 0);
 
@@ -404,7 +445,8 @@ bool Decider80211p::cca(omnetpp::simtime_t_cref time, AirFrame* exclude) {
 
     //add thermal noise
     ConstMapping* thermalNoise = phy->getThermalNoise(time, time);
-    if (thermalNoise) {
+    if (thermalNoise)
+    {
         Mapping* tmp = resultMap;
         resultMap = MappingUtils::add(*resultMap, *thermalNoise);
         delete tmp;
@@ -425,7 +467,8 @@ bool Decider80211p::cca(omnetpp::simtime_t_cref time, AirFrame* exclude) {
 }
 
 
-omnetpp::simtime_t Decider80211p::processSignalEnd(AirFrame* msg) {
+omnetpp::simtime_t Decider80211p::processSignalEnd(AirFrame* msg)
+{
     EV_STATICCONTEXT
 
     AirFrame11p *frame = omnetpp::check_and_cast<AirFrame11p *>(msg);
@@ -446,19 +489,22 @@ omnetpp::simtime_t Decider80211p::processSignalEnd(AirFrame* msg) {
 
     DeciderResult* result;
 
-    if (frame->getUnderSensitivity()) {
+    if (frame->getUnderSensitivity())
+    {
         //this frame was not even detected by the radio card
         result = new DeciderResult80211(false,0,0,recvPower_dBm);
     }
-    else if (frame->getWasTransmitting() || phy11p->getRadioState() == Radio::TX) {
+    else if (frame->getWasTransmitting() || phy11p->getRadioState() == Radio::TX)
+    {
         //this frame was received while sending
         whileSending = true;
         result = new DeciderResult80211(false,0,0,recvPower_dBm);
     }
-    else {
-
+    else
+    {
         //first check whether this is the frame NIC is currently synced on
-        if (frame == currentSignal.first) {
+        if (frame == currentSignal.first)
+        {
             // check if the snrMapping is above the Decider's specific threshold,
             // i.e. the Decider has received it correctly
             result = checkIfSignalOk(frame);
@@ -467,58 +513,75 @@ omnetpp::simtime_t Decider80211p::processSignalEnd(AirFrame* msg) {
             //and it is ready for syncing on a new one
             currentSignal.first = 0;
         }
-        else {
+        else
+        {
             //if this is not the frame we are synced on, we cannot receive it
             result = new DeciderResult80211(false, 0, 0,recvPower_dBm);
         }
     }
 
-    if (result->isSignalCorrect()) {
+    if (result->isSignalCorrect())
+    {
         EV << "packet was received correctly, it is now handed to upper layer...\n";
 
         // go on with processing this AirFrame, send it to the Mac-Layer
         phy->sendUp(frame, result);
     }
-    else {
-        if (frame->getUnderSensitivity()) {
+    else
+    {
+        if (frame->getUnderSensitivity())
+        {
             EV << "packet was not detected by the card. power was under sensitivity threshold\n";
         }
-        else if (whileSending) {
+        else if (whileSending)
+        {
             EV << "packet was received while sending, sending it as control message to upper layer\n";
             phy->sendControlMsgToMac(new omnetpp::cMessage("Error",RECWHILESEND));
         }
-        else {
+        else
+        {
             EV << "packet was not received correctly, sending it as control message to upper layer\n";
-            if (((DeciderResult80211 *)result)->isCollision()) {
+            if (((DeciderResult80211 *)result)->isCollision())
+            {
                 phy->sendControlMsgToMac(new omnetpp::cMessage("Error", Decider80211p::COLLISION));
             }
-            else {
+            else
+            {
                 phy->sendControlMsgToMac(new omnetpp::cMessage("Error",BITERROR));
             }
         }
+
         delete result;
     }
 
-    if (phy11p->getRadioState() == Radio::TX) {
+    if (phy11p->getRadioState() == Radio::TX)
+    {
         EV << "I'm currently sending\n";
     }
+
     //check if channel is idle now
     //we declare channel busy if CCA tells us so, or if we are currently
     //decoding a frame
-    else if (cca(omnetpp::simTime(), frame) == false || currentSignal.first != 0) {
+    else if (cca(omnetpp::simTime(), frame) == false || currentSignal.first != 0)
+    {
         EV << "Channel not yet idle!\n";
     }
-    else {
+    else
+    {
         //might have been idle before (when the packet rxpower was below sens)
-        if (isChannelIdle != true) {
+        if (isChannelIdle != true)
+        {
             EV << "Channel idle now!\n";
             setChannelIdleStatus(true);
         }
     }
+
     return notAgain;
 }
 
-void Decider80211p::setChannelIdleStatus(bool isIdle) {
+
+void Decider80211p::setChannelIdleStatus(bool isIdle)
+{
     isChannelIdle = isIdle;
     channelStateChanged();
 
@@ -528,22 +591,32 @@ void Decider80211p::setChannelIdleStatus(bool isIdle) {
         phy->sendControlMsgToMac(new omnetpp::cMessage("ChannelStatus",Mac80211pToPhy11pInterface::CHANNEL_BUSY));
 }
 
-void Decider80211p::changeFrequency(double freq) {
+
+void Decider80211p::changeFrequency(double freq)
+{
     centerFrequency = freq;
 }
 
-double Decider80211p::getCCAThreshold() {
+
+double Decider80211p::getCCAThreshold()
+{
     return 10 * log10(ccaThreshold);
 }
 
-void Decider80211p::setCCAThreshold(double ccaThreshold_dBm) {
+
+void Decider80211p::setCCAThreshold(double ccaThreshold_dBm)
+{
     ccaThreshold = pow(10, ccaThreshold_dBm / 10);
 }
 
-void Decider80211p::switchToTx() {
-    if (currentSignal.first != 0) {
+
+void Decider80211p::switchToTx()
+{
+    if (currentSignal.first != 0)
+    {
         //we are currently trying to receive a frame.
-        if (allowTxDuringRx) {
+        if (allowTxDuringRx)
+        {
             //if the above layer decides to transmit anyhow, we need to abort reception
             AirFrame11p *currentFrame = dynamic_cast<AirFrame11p *>(currentSignal.first);
             assert(currentFrame);
@@ -553,21 +626,11 @@ void Decider80211p::switchToTx() {
             //forget about the signal
             currentSignal.first = 0;
         }
-        else {
+        else
+        {
             throw omnetpp::cRuntimeError("Decider80211p: mac layer requested phy to transmit a frame while currently receiving another");
         }
     }
 }
-
-void Decider80211p::finish()
-{
-    // omnetpp::simtime_t totalTime = omnetpp::simTime() - myStartTime;
-    // phy->recordScalar("busyTime", myBusyTime / totalTime.dbl());
-    // if (collectCollisionStats) {
-    //    phy->recordScalar("ncollisions", collisions);
-    // }
-}
-
-Decider80211p::~Decider80211p() {}
 
 }

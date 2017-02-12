@@ -37,7 +37,6 @@
 
 #include "Mac80211Pkt_m.h"
 #include "WaveShortMessage_m.h"
-#include "traci/TraCICommands.h"
 #include "global/Statistics.h"
 
 namespace Veins {
@@ -46,6 +45,7 @@ namespace Veins {
  * @brief
  * Manages timeslots for CCH and SCH listening and sending.
  *
+ * @author Mani Amoozadeh
  * @author David Eckhoff : rewrote complete model
  * @author Christoph Sommer : features and bug fixes
  * @author Michele Segata : features and bug fixes
@@ -60,76 +60,152 @@ namespace Veins {
  * @see Decider80211p
  */
 
-class Mac1609_4 : public BaseMacLayer, public WaveAppToMac1609_4Interface
+
+// access categories for EDCA
+enum t_access_category
+{
+    AC_BK = 0,  // background
+    AC_BE = 1,  // best effort
+    AC_VI = 2,  // video
+    AC_VO = 3   // voice
+};
+
+
+class EDCA
 {
 public:
-    enum t_access_category
+    typedef struct EDCAQueue
     {
-        AC_BK = 0,
-        AC_BE = 1,
-        AC_VI = 2,
-        AC_VO = 3
+        std::queue<WaveShortMessage*> queue;
+        int aifsn;          // number of AIFS (arbitration inter-frame space) slots
+        int cwMin;          // minimum contention window
+        int cwMax;          // maximum contention size
+        int cwCur;          // current contention window
+        int currentBackoff; // current backoff value
+        bool txOP;          // Transmit Opportunity (TXOP)
+
+        EDCAQueue() {   };
+        EDCAQueue(int aifsn, int cwMin, int cwMax, t_access_category ac)
+        {
+            this->aifsn = aifsn;
+            this->cwMin = cwMin;
+            this->cwMax = cwMax;
+            this->cwCur = cwMin;
+            this->currentBackoff = 0;
+            this->txOP = false;
+        };
+    } EDCAQueue_t;
+
+    omnetpp::cModule *owner;
+    std::map<t_access_category, EDCAQueue_t> myQueues;
+    int numQueues;
+    uint32_t maxQueueSize;
+    omnetpp::simtime_t lastStart; //when we started the last contention;
+    t_channel channelType;
+
+    /** @brief Stats */
+    long statsNumInternalContention;
+    long statsNumBackoff;
+    long statsSlotsBackoff;
+
+    /** @brief Id for debug messages */
+    std::string myId;
+
+    EDCA(omnetpp::cModule *owner, t_channel channelType, int maxQueueLength = 0)
+    {
+        this->owner = owner;
+        this->numQueues = 0;
+        this->maxQueueSize = maxQueueLength;
+        this->channelType = channelType;
+        this->statsNumInternalContention = 0;
+        this->statsNumBackoff = 0;
+        this->statsSlotsBackoff = 0;
     };
 
-    class EDCA
-    {
-    public:
-        class EDCAQueue
-        {
-        public:
+    // @brief currently you have to call createQueue in the right order. First Call is priority 0, second 1 and so on...
+    int createQueue(int aifsn, int cwMin, int cwMax, t_access_category);
+    int queuePacket(t_access_category AC, WaveShortMessage* cmsg);
+    void backoff(t_access_category ac);
+    omnetpp::simtime_t startContent(omnetpp::simtime_t idleSince, bool guardActive);
+    void stopContent(bool allowBackoff, bool generateTxOp);
+    void postTransmit(t_access_category);
+    void revokeTxOPs();
+    void cleanUp();
 
-            std::queue<WaveShortMessage*> queue;
-            int aifsn; //number of aifs slots for this queue
-            int cwMin; //minimum contention window
-            int cwMax; //maximum contention size
-            int cwCur; //current contention window
-            int currentBackoff; //current Backoff value for this queue
-            bool txOP;
+    /** @brief return the next packet to send, send all lower Queues into backoff */
+    WaveShortMessage* initiateTransmit(omnetpp::simtime_t idleSince);
+};
 
-            EDCAQueue() {	};
-            EDCAQueue(int aifsn,int cwMin, int cwMax, t_access_category ac):aifsn(aifsn),cwMin(cwMin),cwMax(cwMax),cwCur(cwMin),currentBackoff(0),txOP(false)
-            {	};
-        };
 
-        EDCA(omnetpp::cModule *owner, t_channel channelType, int maxQueueLength = 0): owner(owner), numQueues(0),maxQueueSize(maxQueueLength),channelType(channelType)
-        {
-            statsNumInternalContention = 0;
-            statsNumBackoff = 0;
-            statsSlotsBackoff = 0;
-        };
+class Mac1609_4 : public BaseMacLayer, public WaveAppToMac1609_4Interface
+{
+private:
+    Mac80211pToPhy11pInterface* phy11p;
+    VENTOS::Statistics* STAT;
 
-        /*
-         * Currently you have to call createQueue in the right order. First Call is priority 0, second 1 and so on...
-         */
-        int createQueue(int aifsn, int cwMin, int cwMax,t_access_category);
-        int queuePacket(t_access_category AC,WaveShortMessage* cmsg);
-        void backoff(t_access_category ac);
-        omnetpp::simtime_t startContent(omnetpp::simtime_t idleSince, bool guardActive);
-        void stopContent(bool allowBackoff, bool generateTxOp);
-        void postTransmit(t_access_category);
-        void revokeTxOPs();
+    bool record_stat;
 
-        void cleanUp();
+protected:
+    /** @brief Self message to indicate that the current channel shall be switched.*/
+    omnetpp::cMessage* nextChannelSwitch;
 
-        /** @brief return the next packet to send, send all lower Queues into backoff */
-        WaveShortMessage* initiateTransmit(omnetpp::simtime_t idleSince);
+    /** @brief Self message to wake up at next MacEvent */
+    omnetpp::cMessage* nextMacEvent;
 
-    public:
-        cModule *owner;
-        std::map<t_access_category,EDCAQueue> myQueues;
-        int numQueues;
-        uint32_t maxQueueSize;
-        omnetpp::simtime_t lastStart; //when we started the last contention;
-        t_channel channelType;
+    /** @brief Last time the channel went idle */
+    omnetpp::simtime_t lastIdle;
+    omnetpp::simtime_t lastBusy;
 
-        /** @brief Stats */
-        long statsNumInternalContention;
-        long statsNumBackoff;
-        long statsSlotsBackoff;
+    /** @brief Current state of the channel selecting operation.*/
+    t_channel activeChannel;
 
-        /** @brief Id for debug messages */
-        std::string myId;
-    };
+    /** @brief access category of last sent packet */
+    t_access_category lastAC;
+
+    /** @brief Stores the frequencies in Hz that are associated to the channel numbers.*/
+    std::map<int, double> frequency;
+
+    int headerLength;
+
+    bool useSCH;
+    int mySCH;
+
+    std::map<t_channel, EDCA*> myEDCA;
+
+    bool idleChannel = true;
+
+    /** @brief stats */
+    long statsReceivedPackets = 0;
+    long statsReceivedBroadcasts = 0;
+    long statsSentPackets = 0;
+    long statsTXRXLostPackets = 0;
+    long statsSNIRLostPackets = 0;
+    long statsDroppedPackets = 0;
+    long statsNumTooLittleTime = 0;
+    long statsNumInternalContention = 0;
+    long statsNumBackoff = 0;
+    long statsSlotsBackoff = 0;
+    omnetpp::simtime_t statsTotalBusyTime = 0;
+
+    /** @brief This MAC layers MAC address.*/
+    int myMacAddress;
+
+    /** @brief The power (in mW) to transmit with.*/
+    double txPower;
+
+    /** @brief the bit rate at which we transmit */
+    uint64_t bitrate;
+
+    /** @brief N_DBPS, derived from bitrate, for frame length calculation */
+    double n_dbps = 0;
+
+    /** @brief Id for debug messages */
+    std::string myId;
+
+    //tell to anybody which is interested when the channel turns busy or idle
+    omnetpp::simsignal_t sigChannelBusy;
+    //tell to anybody which is interested when a collision occurred
+    omnetpp::simsignal_t sigCollision;
 
 public:
     ~Mac1609_4() { };
@@ -165,7 +241,6 @@ public:
      */
     void setCCAThreshold(double ccaThreshold_dBm);
 
-
 protected:
     /** @brief Initialization of the module and some variables.*/
     virtual void initialize(int);
@@ -181,7 +256,6 @@ protected:
 
     /** @brief Handle control messages from upper layer.*/
     virtual void handleUpperControl(omnetpp::cMessage* msg);
-
 
     /** @brief Handle self messages such as timers.*/
     virtual void handleSelfMsg(omnetpp::cMessage*);
@@ -213,75 +287,6 @@ protected:
 
 private:
     void record_MAC_stat_func();
-
-private:
-    VENTOS::TraCI_Commands* TraCI;
-    VENTOS::Statistics* STAT;
-    bool record_stat;
-
-protected:
-    /** @brief Self message to indicate that the current channel shall be switched.*/
-    omnetpp::cMessage* nextChannelSwitch;
-
-    /** @brief Self message to wake up at next MacEvent */
-    omnetpp::cMessage* nextMacEvent;
-
-    /** @brief Last time the channel went idle */
-    omnetpp::simtime_t lastIdle;
-    omnetpp::simtime_t lastBusy;
-
-    /** @brief Current state of the channel selecting operation.*/
-    t_channel activeChannel;
-
-    /** @brief access category of last sent packet */
-    t_access_category lastAC;
-
-    /** @brief Stores the frequencies in Hz that are associated to the channel numbers.*/
-    std::map<int,double> frequency;
-
-    int headerLength;
-
-    bool useSCH;
-    int mySCH;
-
-    std::map<t_channel,EDCA*> myEDCA;
-
-    bool idleChannel = true;
-
-    /** @brief stats */
-    long statsReceivedPackets = 0;
-    long statsReceivedBroadcasts = 0;
-    long statsSentPackets = 0;
-    long statsTXRXLostPackets = 0;
-    long statsSNIRLostPackets = 0;
-    long statsDroppedPackets = 0;
-    long statsNumTooLittleTime = 0;
-    long statsNumInternalContention = 0;
-    long statsNumBackoff = 0;
-    long statsSlotsBackoff = 0;
-    omnetpp::simtime_t statsTotalBusyTime = 0;
-
-    /** @brief This MAC layers MAC address.*/
-    int myMacAddress;
-
-    /** @brief The power (in mW) to transmit with.*/
-    double txPower;
-
-    /** @brief the bit rate at which we transmit */
-    uint64_t bitrate;
-
-    /** @brief N_DBPS, derived from bitrate, for frame length calculation */
-    double n_dbps = 0;
-
-    /** @brief Id for debug messages */
-    std::string myId;
-
-    Mac80211pToPhy11pInterface* phy11p;
-
-    //tell to anybody which is interested when the channel turns busy or idle
-    omnetpp::simsignal_t sigChannelBusy;
-    //tell to anybody which is interested when a collision occurred
-    omnetpp::simsignal_t sigCollision;
 };
 
 }

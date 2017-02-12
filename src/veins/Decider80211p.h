@@ -27,7 +27,6 @@
 #include "Mac80211pToPhy11pInterface.h"
 #include "Decider80211pToPhy80211pInterface.h"
 
-
 namespace Veins {
 
 /**
@@ -44,9 +43,12 @@ namespace Veins {
  * @see PhyLayer80211p
  * @see Decider80211p
  */
-class Decider80211p: public BaseDecider {
+
+class Decider80211p: public BaseDecider
+{
 public:
-    enum Decider80211ControlKinds {
+    enum Decider80211ControlKinds
+    {
         NOTHING = 22100,
         BITERROR,       //the phy has recognized a bit error in the packet
         LAST_DECIDER_80211_CONTROL_KIND,
@@ -203,10 +205,10 @@ public:
                 collisions(0) {
         phy11p = dynamic_cast<Decider80211pToPhy80211pInterface*>(phy);
         assert(phy11p);
-
     }
 
-    void setPath(std::string myPath) {
+    void setPath(std::string myPath)
+    {
         this->myPath = myPath;
     }
 
@@ -245,7 +247,6 @@ public:
      * because of the transmission.
      */
     virtual void switchToTx();
-
 };
 
 }
