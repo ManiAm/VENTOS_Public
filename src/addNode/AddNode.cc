@@ -867,7 +867,7 @@ void AddNode::parseVehicleFlow(rapidxml::xml_node<> *pNode)
         int laneChangeMode = getAttrValue_int(cNode, "laneChangeMode", false, LANECHANGEMODE_DEFAULT);
         double begin = getAttrValue_double(cNode, "begin", false, 0);
         int number = getAttrValue_int(cNode, "number", false, -1);
-        double end = getAttrValue_double(cNode, "end", false, (terminate != -1) ? terminate : std::numeric_limits<int32_t>::max());
+        double end = getAttrValue_double(cNode, "end", false, -1);
         int seed = getAttrValue_int(cNode, "seed", false, 0);
         std::string distribution_str = getAttrValue_string(cNode, "distribution");
         double period = getAttrValue_double(cNode, "period", false, -1);
@@ -909,11 +909,8 @@ void AddNode::parseVehicleFlow(rapidxml::xml_node<> *pNode)
         if(cNode->first_attribute("number") && cNode->first_attribute("end"))
             throw omnetpp::cRuntimeError("either 'end' or 'number' should be present in element '%s'", vehicle_flow_tag.c_str());
 
-        if(end <= begin)
+        if(end != -1 && end <= begin)
             throw omnetpp::cRuntimeError("'end' value is smaller than 'begin' value in element '%s'", vehicle_flow_tag.c_str());
-
-        if(terminate != -1 && end > terminate)
-            throw omnetpp::cRuntimeError("'end' value is bigger than simulation terminate time in element '%s'", vehicle_flow_tag.c_str());
 
         if(seed < 0)
             throw omnetpp::cRuntimeError("'seed' value should be positive in element '%s': %d", vehicle_flow_tag.c_str(), seed);
@@ -995,6 +992,22 @@ void AddNode::addVehicleFlow()
     // iterate over each flow
     for(auto &entry : allVehicleFlow)
     {
+        if(entry.second.end == -1)
+        {
+            if(terminate != -1)
+                entry.second.end = terminate;
+            else
+                entry.second.end = std::numeric_limits<int32_t>::max();
+        }
+        else
+        {
+            if(terminate != -1)
+                entry.second.end = std::min(entry.second.end, terminate);
+        }
+
+        if(entry.second.end <= entry.second.begin)
+            continue;
+
         // each flow has its own seed/generator
         // mersenne twister engine -- choose a fix seed to make tests reproducible
         std::mt19937 generator(entry.second.seed);
@@ -1205,7 +1218,7 @@ void AddNode::parseVehicleMultiFlow(rapidxml::xml_node<> *pNode)
         int laneChangeMode = getAttrValue_int(cNode, "laneChangeMode", false, LANECHANGEMODE_DEFAULT);
         double begin = getAttrValue_double(cNode, "begin", false, 0);
         int number = getAttrValue_int(cNode, "number", false, -1);
-        double end = getAttrValue_double(cNode, "end", false, (terminate != -1) ? terminate : std::numeric_limits<int32_t>::max());
+        double end = getAttrValue_double(cNode, "end", false, -1);
         int seed = getAttrValue_int(cNode, "seed", false, 0);
         std::string distribution_str = getAttrValue_string(cNode, "distribution");
         double period = getAttrValue_double(cNode, "period", false, -1);
@@ -1260,11 +1273,8 @@ void AddNode::parseVehicleMultiFlow(rapidxml::xml_node<> *pNode)
         if(cNode->first_attribute("number") && cNode->first_attribute("end"))
             throw omnetpp::cRuntimeError("either 'end' or 'number' should be present in element '%s'", vehicle_multiFlow_tag.c_str());
 
-        if(end <= begin)
+        if(end != -1 && end <= begin)
             throw omnetpp::cRuntimeError("'end' value is smaller than 'begin' value in element '%s'", vehicle_multiFlow_tag.c_str());
-
-        if(terminate != -1 && end > terminate)
-            throw omnetpp::cRuntimeError("'end' value is bigger than simulation terminate time in element '%s'", vehicle_multiFlow_tag.c_str());
 
         if(seed < 0)
             throw omnetpp::cRuntimeError("'seed' value should be positive in element '%s': %d", vehicle_multiFlow_tag.c_str(), seed);
@@ -1344,6 +1354,22 @@ void AddNode::addVehicleMultiFlow()
     // iterate over each flow
     for(auto &entry : allVehicleMultiFlow)
     {
+        if(entry.second.end == -1)
+        {
+            if(terminate != -1)
+                entry.second.end = terminate;
+            else
+                entry.second.end = std::numeric_limits<int32_t>::max();
+        }
+        else
+        {
+            if(terminate != -1)
+                entry.second.end = std::min(entry.second.end, terminate);
+        }
+
+        if(entry.second.end <= entry.second.begin)
+            continue;
+
         // each flow has its own seed/generator
         // mersenne twister engine -- choose a fix seed to make tests reproducible
         std::mt19937 generator(entry.second.seed);
