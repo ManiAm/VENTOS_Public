@@ -30,8 +30,8 @@
 
 #include <queue>
 
-#include "veins/modules/BaseWorldUtility.h"
-#include "veins/connectionManager/ConnectionManager.h"
+#include "global/BaseWorldUtility.h"
+#include "MIXIM_veins/connectionManager/ConnectionManager.h"
 #include "traci/TraCICommands.h"
 
 namespace VENTOS {

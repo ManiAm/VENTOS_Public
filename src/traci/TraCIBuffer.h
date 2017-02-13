@@ -31,7 +31,7 @@
 #include <string>
 
 #include "omnetpp.h"
-#include "traci/TraCICoord.h"
+#include "mobility/TraCICoord.h"
 
 namespace VENTOS {
 

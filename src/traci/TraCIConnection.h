@@ -30,9 +30,9 @@
 
 #include <stdint.h>
 
-#include "veins/utils/Coord.h"
+#include "mobility/Coord.h"
+#include "mobility/TraCICoord.h"
 #include "traci/TraCIBuffer.h"
-#include "traci/TraCICoord.h"
 
 namespace VENTOS {
 

@@ -30,9 +30,10 @@
  * in the simulation (like vehicles and bikes).
  * */
 
+#undef ev
+#include "boost/filesystem.hpp"
+#include <boost/format.hpp>
 #include "global/Statistics.h"
-#include "rsu/06_Manager.h"
-#include "global/SignalObj.h"
 
 namespace VENTOS {
 

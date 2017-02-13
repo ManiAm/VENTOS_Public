@@ -28,9 +28,7 @@
 #ifndef STATISTICS_H
 #define STATISTICS_H
 
-#include "veins/modules/BaseApplLayer.h"
-#include "veins/modules/ChannelAccess.h"
-#include "veins/WaveAppToMac1609_4Interface.h"
+#include "baseAppl/03_BaseApplLayer.h"
 #include "traci/TraCICommands.h"
 
 namespace VENTOS {

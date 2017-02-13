@@ -1,7 +1,5 @@
 package VENTOS.src;
 
-import VENTOS.src.veins.modules.*;
-import VENTOS.src.veins.connectionManager.*;
 import VENTOS.src.traci.*;
 import VENTOS.src.global.*;
 import VENTOS.src.gettingStarted.*;
@@ -11,7 +9,7 @@ import VENTOS.src.router.*;
 import VENTOS.src.interfacing.*;
 import VENTOS.src.trafficLight.*;
 import VENTOS.src.cobalt.*;
-import VENTOS.src.veins.*;
+import VENTOS.src.MIXIM_veins.connectionManager.*;
 
 network Network
 {

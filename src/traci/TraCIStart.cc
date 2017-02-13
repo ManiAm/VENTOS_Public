@@ -36,9 +36,9 @@
 #include "traci/TraCIStart.h"
 #include "traci/TraCIConstants.h"
 #include "traci/TraCIScenarioManagerInet.h"
-#include "traci/TraCIMobility.h"
+#include "mobility/TraCIMobility.h"
 
-#include "veins/obstacle/ObstacleControl.h"
+#include "MIXIM_veins/obstacle/ObstacleControl.h"
 #include "router/Router.h"
 #include "logging/vlog.h"
 

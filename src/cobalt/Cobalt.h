@@ -28,7 +28,7 @@
 #ifndef COBALT_H_
 #define COBALT_H_
 
-#include "veins/modules/BaseApplLayer.h"
+#include "baseAppl/03_BaseApplLayer.h"
 #include "traci/TraCICommands.h"
 #include "cobalt/SNMP.h"
 

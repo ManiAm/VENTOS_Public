@@ -42,7 +42,7 @@
 #undef ev
 #include "boost/filesystem.hpp"
 
-#include "veins/modules/BaseApplLayer.h"
+#include "baseAppl/03_BaseApplLayer.h"
 #include "traci/TraCICommands.h"
 
 namespace VENTOS {

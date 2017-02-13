@@ -29,7 +29,7 @@
 
 #include "traci/TraCIBuffer.h"
 #include "traci/TraCIConstants.h"
-#include "traci/TraCICoord.h"
+#include "mobility/TraCICoord.h"
 
 namespace VENTOS {
 

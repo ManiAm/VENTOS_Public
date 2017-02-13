@@ -29,7 +29,7 @@
 #define AddNode_H_
 
 #include "traci/TraCICommands.h"
-#include "veins/modules/BaseApplLayer.h"
+#include "baseAppl/03_BaseApplLayer.h"
 
 #define LANECHANGEMODE_DEFAULT   597  // 10 01 01 01 01
 #define LANECHANGEMODE_STOPPED   533  // 10 00 01 01 01

@@ -34,9 +34,8 @@
 
 #include "traci/TraCIConnection.h"
 #include "traci/TraCIBuffer.h"
-#include "traci/TraCICoord.h"
-
-#include "veins/utils/Coord.h"
+#include "mobility/TraCICoord.h"
+#include "mobility/Coord.h"
 #include "global/Color.h"
 #include "global/GlobalConsts.h"
 
