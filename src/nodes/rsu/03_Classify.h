@@ -66,6 +66,7 @@ private:
     {
         TraCICoord pos;
         double speed;
+        double accel;
         double angle;
     } sample_t;
 

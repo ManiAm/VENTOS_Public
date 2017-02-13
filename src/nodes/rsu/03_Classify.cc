@@ -361,10 +361,12 @@ template <typename beaconGeneral>
 void ApplRSUCLASSIFY::onBeaconAny(beaconGeneral wsm)
 {
     std::string lane = wsm->getLane();
+
     auto it = lanesTL.find(lane);
     // return if this vehicle is not on any incoming lanes
     if(it == lanesTL.end())
         return;
+
     // return if I do not control this lane. I might have received
     // this beacon from my nearby intersections
     if(it->second != myTLid)
@@ -377,7 +379,7 @@ void ApplRSUCLASSIFY::onBeaconAny(beaconGeneral wsm)
             addError(wsm, trainError);
 
         // make an instance and push it to samples
-        sample_t m = {TraCICoord(wsm->getPos().x, wsm->getPos().y), wsm->getSpeed(), wsm->getAngle()};
+        sample_t m = {TraCICoord(wsm->getPos().x, wsm->getPos().y), wsm->getSpeed(), wsm->getAccel(), wsm->getAngle()};
         samples.push_back(m);
 
         // get class label
@@ -440,14 +442,15 @@ void ApplRSUCLASSIFY::onBeaconAny(beaconGeneral wsm)
 template <typename beaconGeneral>
 unsigned int ApplRSUCLASSIFY::makePrediction(beaconGeneral wsm)
 {
-    // we have 4 features, thus shark_sample should be 1 * 4
-    shark::blas::matrix<double, shark::blas::row_major> shark_sample(1,4);
+    // we have 5 features, thus shark_sample should be 1 * 5
+    shark::blas::matrix<double, shark::blas::row_major> shark_sample(1,5);
 
     // retrieve info from beacon
     shark_sample(0,0) = wsm->getPos().x;
     shark_sample(0,1) = wsm->getPos().y;
     shark_sample(0,2) = wsm->getSpeed();
-    shark_sample(0,3) = wsm->getAngle();
+    shark_sample(0,3) = wsm->getAccel();
+    shark_sample(0,4) = wsm->getAngle();
 
     // make prediction
     unsigned int predicted_label = (*kc_model)(shark_sample)[0];
@@ -487,8 +490,10 @@ void ApplRSUCLASSIFY::addError(beaconGeneral &wsm, double maxError)
     // retrieve info from beacon
     double posX = wsm->getPos().x;
     double posY = wsm->getPos().y;
+
     double speed = wsm->getSpeed();
-    // double angle = wsm->getAngle();
+   // double accel = wsm->getAccel();
+   // double angle = wsm->getAngle();
 
     double r = 0;
 
@@ -520,7 +525,7 @@ void ApplRSUCLASSIFY::saveTrainingDataToFile()
     FILE *filePtr = fopen (trainingFilePath.string().c_str(), "w");
 
     for(unsigned int i = 0; i < samples.size(); ++i)
-        fprintf (filePtr, "%0.3f %0.3f %0.3f %0.3f %d \n", samples[i].pos.x, samples[i].pos.y, samples[i].speed, samples[i].angle, labels[i]);
+        fprintf (filePtr, "%0.3f  %0.3f  %0.3f  %0.3f  %0.3f  %d \n", samples[i].pos.x, samples[i].pos.y, samples[i].speed, samples[i].accel, samples[i].angle, labels[i]);
 
     fclose(filePtr);
 }

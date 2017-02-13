@@ -126,7 +126,7 @@ BeaconVehicle*  ApplVBeacon::generateBeacon()
     // set current lane
     wsm->setLane( TraCI->vehicleGetLaneID(SUMOID).c_str() );
 
-    // set heading
+    // set heading -- used in rsu/classify beacons
     wsm->setAngle( TraCI->vehicleGetAngle(SUMOID) );
 
     return wsm;
