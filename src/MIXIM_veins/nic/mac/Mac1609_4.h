@@ -23,20 +23,18 @@
 
 #include <assert.h>
 #include <omnetpp.h>
-#include <queue>
 #include <stdint.h>
 
 #include "baseAppl/02_BaseLayer.h"
 #include "MacToPhyControlInfo.h"
 #include "PhyLayer80211p.h"
 #include "WaveAppToMac1609_4Interface.h"
-#include "Consts80211p.h"
 #include "FindModule.h"
 #include "BaseMacLayer.h"
 #include "ConstsPhy.h"
+#include "Mac1609_4_EDCA.h"
 
 #include "Mac80211Pkt_m.h"
-#include "WaveShortMessage_m.h"
 #include "global/Statistics.h"
 
 namespace Veins {
@@ -59,83 +57,6 @@ namespace Veins {
  * @see PhyLayer80211p
  * @see Decider80211p
  */
-
-
-// access categories for EDCA
-enum t_access_category
-{
-    AC_BK = 0,  // background
-    AC_BE = 1,  // best effort
-    AC_VI = 2,  // video
-    AC_VO = 3   // voice
-};
-
-
-class EDCA
-{
-public:
-    typedef struct EDCAQueue
-    {
-        std::queue<WaveShortMessage*> queue;
-        int aifsn;          // number of AIFS (arbitration inter-frame space) slots
-        int cwMin;          // minimum contention window
-        int cwMax;          // maximum contention size
-        int cwCur;          // current contention window
-        int currentBackoff; // current backoff value
-        bool txOP;          // Transmit Opportunity (TXOP)
-
-        EDCAQueue() {   };
-        EDCAQueue(int aifsn, int cwMin, int cwMax, t_access_category ac)
-        {
-            this->aifsn = aifsn;
-            this->cwMin = cwMin;
-            this->cwMax = cwMax;
-            this->cwCur = cwMin;
-            this->currentBackoff = 0;
-            this->txOP = false;
-        };
-    } EDCAQueue_t;
-
-    omnetpp::cModule *owner;
-    std::map<t_access_category, EDCAQueue_t> myQueues;
-    int numQueues;
-    uint32_t maxQueueSize;
-    omnetpp::simtime_t lastStart; //when we started the last contention;
-    t_channel channelType;
-
-    /** @brief Stats */
-    long statsNumInternalContention;
-    long statsNumBackoff;
-    long statsSlotsBackoff;
-
-    /** @brief Id for debug messages */
-    std::string myId;
-
-    EDCA(omnetpp::cModule *owner, t_channel channelType, int maxQueueLength = 0)
-    {
-        this->owner = owner;
-        this->numQueues = 0;
-        this->maxQueueSize = maxQueueLength;
-        this->channelType = channelType;
-        this->statsNumInternalContention = 0;
-        this->statsNumBackoff = 0;
-        this->statsSlotsBackoff = 0;
-    };
-
-    // @brief currently you have to call createQueue in the right order. First Call is priority 0, second 1 and so on...
-    int createQueue(int aifsn, int cwMin, int cwMax, t_access_category);
-    int queuePacket(t_access_category AC, WaveShortMessage* cmsg);
-    void backoff(t_access_category ac);
-    omnetpp::simtime_t startContent(omnetpp::simtime_t idleSince, bool guardActive);
-    void stopContent(bool allowBackoff, bool generateTxOp);
-    void postTransmit(t_access_category);
-    void revokeTxOPs();
-    void cleanUp();
-
-    /** @brief return the next packet to send, send all lower Queues into backoff */
-    WaveShortMessage* initiateTransmit(omnetpp::simtime_t idleSince);
-};
-
 
 class Mac1609_4 : public BaseMacLayer, public WaveAppToMac1609_4Interface
 {
