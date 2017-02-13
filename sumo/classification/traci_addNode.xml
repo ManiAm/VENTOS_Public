@@ -71,10 +71,10 @@
   <vehicle_multiflow id="veh_1000_E_1600_2000" type="passenger" route="movement4,movement7,route4" routeDist="70,30,0" departLane="-5" begin="1600" end="2000" distribution="poisson" lambda="1000" seed="43" />
   
   <!-- bike flow arrival during [1600,2000) with poisson dist and lambda=100 veh/h -->
-  <vehicle_multiflow id="bike_100_N_1600_2000" type="bicycle" route="movement2,movement5,route1" routeDist="100,0,0" departLane="-5" departPos="600" begin="1200" end="1600" distribution="poisson" lambda="100" seed="43" />
-  <vehicle_multiflow id="bike_100_S_1600_2000" type="bicycle" route="movement6,movement1,route2" routeDist="100,0,0" departLane="-5" departPos="600" begin="1200" end="1600" distribution="poisson" lambda="100" seed="43" />
-  <vehicle_multiflow id="bike_100_W_1600_2000" type="bicycle" route="movement8,movement3,route3" routeDist="100,0,0" departLane="-5" departPos="600" begin="1200" end="1600" distribution="poisson" lambda="100" seed="43" />
-  <vehicle_multiflow id="bike_100_E_1600_2000" type="bicycle" route="movement4,movement7,route4" routeDist="100,0,0" departLane="-5" departPos="600" begin="1200" end="1600" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_multiflow id="bike_100_N_1600_2000" type="bicycle" route="movement2,movement5,route1" routeDist="100,0,0" departLane="-5" departPos="600" begin="1600" end="2000" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_multiflow id="bike_100_S_1600_2000" type="bicycle" route="movement6,movement1,route2" routeDist="100,0,0" departLane="-5" departPos="600" begin="1600" end="2000" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_multiflow id="bike_100_W_1600_2000" type="bicycle" route="movement8,movement3,route3" routeDist="100,0,0" departLane="-5" departPos="600" begin="1600" end="2000" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_multiflow id="bike_100_E_1600_2000" type="bicycle" route="movement4,movement7,route4" routeDist="100,0,0" departLane="-5" departPos="600" begin="1600" end="2000" distribution="poisson" lambda="100" seed="43" />
   
   
   
