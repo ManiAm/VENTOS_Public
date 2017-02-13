@@ -1,8 +1,8 @@
 VENTOS
 ======
 
-Please check the manual for installation instructions.
-    
+See VENTOS [website](http://maniam.github.io/VENTOS/) for documentation, installation instructions and tutorial.
+
 
 Contact Info
 ------------
