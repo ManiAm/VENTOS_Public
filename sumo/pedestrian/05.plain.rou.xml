@@ -47,43 +47,6 @@
   <!-- East inbound -->
   <route id="movement4" edges="EC CW" />     <!-- Through -->
   <route id="route4" edges="EC CN" />        <!-- Right -->
-  <route id="movement7" edges="EC CS" />     <!-- Left -->   
-  
-  <person id="ped1" type="pedestrian" depart="10">
-      <walk from="EC" to="CW" departPos="-100" />
-  </person>
-  
-      <person id="ped5" type="pedestrian" depart="10">
-      <walk from="NC" to="CS" departPos="-100" />
-  </person>  
-  
-  
-    <person id="ped2" type="pedestrian" depart="20">
-      <walk from="EC" to="CW" departPos="-100" />
-  </person>
-  
-        <person id="ped6" type="pedestrian" depart="20">
-      <walk from="NC" to="CS" departPos="-100" />
-  </person>  
-  
-  
-    <person id="ped3" type="pedestrian" depart="30">
-      <walk from="EC" to="CW" departPos="-100" />
-  </person>  
-  
-        <person id="ped7" type="pedestrian" depart="30">
-      <walk from="NC" to="CS" departPos="-100" />
-  </person>
-  
-    <person id="ped4" type="pedestrian" depart="40">
-      <walk from="EC" to="CW" departPos="-100" />
-  </person>
-  
-      <person id="ped8" type="pedestrian" depart="40">
-      <walk from="NC" to="CS" departPos="-100" />
-  </person>
-  
-  
-  
+  <route id="movement7" edges="EC CS" />     <!-- Left -->    
 
 </routes>
