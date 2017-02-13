@@ -166,7 +166,7 @@ void IntersectionQueue::measureQueue()
         auto &queuedVehs = location->second.vehs;
 
         // remove the vehicles in queuedVehs that are not in vehsOnLane anymore
-        for (auto it = queuedVehs.cbegin(); it != queuedVehs.cend() /* not hoisted */; /* no increment */)
+        for (auto it = queuedVehs.begin(); it != queuedVehs.end() /* not hoisted */; /* no increment */)
         {
             auto search = std::find(vehsOnLane.begin(), vehsOnLane.end(), (*it).id);
             if (search == vehsOnLane.end())

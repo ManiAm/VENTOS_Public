@@ -234,7 +234,7 @@ void TrafficLight_LQF_MWM::chooseNextGreenInterval(std::string TLid)
                     // get the corresponding lane for this link
                     auto itt = link2Lane.find(std::make_pair(TLid,linkNumber));
                     if(itt == link2Lane.end())
-                        throw omnetpp::cRuntimeError("linkNumber %s is not found in TL %s", linkNumber, TLid);
+                        throw omnetpp::cRuntimeError("linkNumber %d is not found in TL %s", linkNumber, TLid.c_str());
                     std::string lane = itt->second;
 
                     auto queuedVehs = laneGetQueueSize(lane).vehs;
