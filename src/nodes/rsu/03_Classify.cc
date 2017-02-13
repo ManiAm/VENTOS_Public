@@ -62,8 +62,9 @@ void ApplRSUCLASSIFY::initialize(int stage)
         debugLevel = omnetpp::getSimulation()->getSystemModule()->par("debugLevel").longValue();
 
         // construct file name for training data
+        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
         std::stringstream fileName;
-        fileName << boost::format("trainData_%0.3f.txt") % trainError;
+        fileName << boost::format("%03d_trainData_%0.3f.txt") % currentRun % trainError;
         trainingFilePath = boost::filesystem::path("results") / fileName.str();
 
         // for each incoming lane in this TL
@@ -245,7 +246,8 @@ void ApplRSUCLASSIFY::loadTrainer()
     trainer->setMcSvmType(shark::McSvm::OVA);
 
     std::stringstream fileName;
-    fileName << boost::format("%s_%s_%0.3f.model") % trainer->name() % (trainer->trainOffset() ? "withOffset" : "withoutOffset") % trainError;
+    int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
+    fileName << boost::format("%03d_%s_%s_%0.3f.model") % currentRun % trainer->name() % (trainer->trainOffset() ? "withOffset" : "withoutOffset") % trainError;
     boost::filesystem::path filePath = boost::filesystem::path("results") / fileName.str();
 
     std::cout << "\n>>> Looking for '" << fileName.str() << "'... ";
