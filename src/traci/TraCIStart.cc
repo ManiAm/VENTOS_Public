@@ -221,7 +221,7 @@ void TraCI_Start::init_traci()
 
     LOG_INFO << boost::format("    TraCI server \"%1%\" reports API version %2% \n") % serverVersionS % apiVersionS << std::flush;
 
-    if (apiVersionS != 12)
+    if (apiVersionS != 14)
         throw omnetpp::cRuntimeError("Unsupported TraCI server API version!");
 
     // query road network boundaries from SUMO
