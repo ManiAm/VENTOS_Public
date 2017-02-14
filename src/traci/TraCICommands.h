@@ -449,6 +449,10 @@ public:
     double personGetSpeed(std::string);
     std::string personGetNextEdge(std::string);
 
+    // CMD_SET_PERSON
+    void personAdd(std::string, std::string, double, int, std::string);
+
+
     // ################################################################
     //                      SUMO-OMNET conversion
     // ################################################################

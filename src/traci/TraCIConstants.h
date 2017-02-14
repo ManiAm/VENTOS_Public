@@ -17,7 +17,7 @@
 /// holds codes used for TraCI
 /****************************************************************************/
 // SUMO, Simulation of Urban MObility; see http://sumo.dlr.de/
-// Copyright (C) 2007-2015 DLR (http://www.dlr.de/) and contributors
+// Copyright (C) 2007-2017 DLR (http://www.dlr.de/) and contributors
 /****************************************************************************/
 //
 //   This file is part of SUMO.
@@ -27,7 +27,6 @@
 //   (at your option) any later version.
 //
 /****************************************************************************/
-
 #ifndef TRACICONSTANTS_H
 #define TRACICONSTANTS_H
 
@@ -36,7 +35,7 @@ namespace VENTOS {
 // ****************************************
 // VERSION
 // ****************************************
-#define TRACI_VERSION 12
+#define TRACI_VERSION 14
 
 
 // ****************************************
@@ -391,12 +390,14 @@ namespace VENTOS {
 // ****************************************
 // PERSON/CONTAINER STAGES
 // ****************************************
-// person walking / container transhiping
-#define STAGE_WALKING 0x00
-// person riding / container being transported
-#define STAGE_DRIVING 0x01
 // person / container stopping
-#define STAGE_WAITING 0x02
+#define STAGE_WAITING_FOR_DEPART 0x00
+// person / container stopping
+#define STAGE_WAITING 0x01
+// person walking / container transhiping
+#define STAGE_WALKING 0x02
+// person riding / container being transported
+#define STAGE_DRIVING 0x03
 
 
 // ****************************************
@@ -621,7 +622,7 @@ namespace VENTOS {
 #define VAR_SPEEDSETMODE 0xb3
 
 // move vehicle, VTD version (set: vehicle)
-#define VAR_MOVE_TO_VTD 0xb4
+#define MOVE_TO_XY 0xb4
 
 // is the vehicle stopped, and if so parked and/or triggered?
 // value = stopped + 2 * parking + 4 * triggered
@@ -644,6 +645,15 @@ namespace VENTOS {
 
 // get/set minimum lateral gap (vehicle, vtypes)
 #define VAR_MINGAP_LAT 0xbb
+
+// get/set vehicle height (vehicle, vtypes)
+#define VAR_HEIGHT 0xbc
+
+// get/set vehicle line
+#define VAR_LINE 0xbd
+
+// get/set vehicle via
+#define VAR_VIA 0xbe
 
 // current CO2 emission of a node (get: vehicle, lane, edge)
 #define VAR_CO2EMISSION 0x60
@@ -764,10 +774,10 @@ namespace VENTOS {
 
 
 
-// add an instance (poi, polygon, vehicle, route)
+// add an instance (poi, polygon, vehicle, person, route)
 #define ADD 0x80
 
-// remove an instance (poi, polygon, vehicle)
+// remove an instance (poi, polygon, vehicle, person)
 #define REMOVE 0x81
 
 // convert coordinates
@@ -797,8 +807,17 @@ namespace VENTOS {
 // retrieve information regarding the next edge including crossings and walkingAreas (pedestrians only)
 #define VAR_NEXT_EDGE 0xc1
 
-// retrieve the number of stages (person, container)
-#define VAR_NUM_STAGES 0xc2
+// retrieve information regarding the number of remaining stages
+#define VAR_STAGES_REMAINING 0xc2
+
+// retrieve the current vehicle id for the driving stage (person, container)
+#define VAR_VEHICLE 0xc3
+
+// append a person stage (person)
+#define APPEND_STAGE 0xc4
+
+// append a person stage (person)
+#define REMOVE_STAGE 0xc5
 
 // zoom
 #define VAR_VIEW_ZOOM 0xa0

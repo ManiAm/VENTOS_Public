@@ -2781,6 +2781,36 @@ std::string TraCI_Commands::personGetNextEdge(std::string pId)
     return result;
 }
 
+// ##############
+// CMD_SET_PERSON
+// ##############
+
+void TraCI_Commands::personAdd(std::string pId, std::string edgeId, double pos, int depart, std::string pedestrianTypeId)
+{
+    record_TraCI_activity_func("commandStart", CMD_SET_PERSON_VARIABLE, ADD, "personAdd");
+
+    uint8_t variableId = ADD;
+    uint8_t variableType = TYPE_COMPOUND;
+    uint8_t variableTypeS = TYPE_STRING;
+    uint8_t variableTypeI = TYPE_INTEGER;
+    uint8_t variableTypeD = TYPE_DOUBLE;
+
+    TraCIBuffer buf = connection->query(CMD_SET_PERSON_VARIABLE, TraCIBuffer() << variableId << pId
+            << variableType << (int32_t) 4
+            << variableTypeS
+            << pedestrianTypeId
+            << variableTypeS
+            << edgeId
+            << variableTypeI
+            << depart
+            << variableTypeD
+            << pos);
+
+    ASSERT(buf.eof());
+
+    record_TraCI_activity_func("commandComplete", CMD_SET_PERSON_VARIABLE, ADD, "personAdd");
+}
+
 
 // ################################################################
 //                      SUMO-OMNET conversion
