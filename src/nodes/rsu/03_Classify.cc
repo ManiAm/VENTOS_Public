@@ -334,9 +334,7 @@ void ApplRSUCLASSIFY::readTrainingSamples()
 
 void ApplRSUCLASSIFY::trainClassifier(shark::CSvmTrainer<shark::RealVector, unsigned int> *trainer)
 {
-    std::stringstream modelName;
-    modelName << boost::format("%s_%s_%0.3f") % trainer->name() % (trainer->trainOffset() ? "withOffset" : "withoutOffset") % trainError;
-    std::cout << ">>> Training '" << modelName.str() << "' model... Please wait \n" << std::flush;
+    std::cout << ">>> Training the model... Please wait \n" << std::flush;
 
     // start training --- on Mars server, the training takes around 20 min for 29162 training samples collected
     // during 300s with training error 0m. For training error of 3m, training takes around 50 min!
