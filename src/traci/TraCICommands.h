@@ -268,7 +268,6 @@ public:
     void vehicleSetControllerParameters(std::string, std::string);  // new command [set the controller's parameters for this vehicle]
     void vehicleSetErrorGap(std::string, double);                   // new command [set an error value for the gap]
     void vehicleSetErrorRelSpeed(std::string, double);              // new command [set an error value for relative speed]
-    void vehicleSetDowngradeToACC(std::string, bool);               // new command [should the controller degrade to ACC ?]
     void vehicleSetDebug(std::string, bool);                        // new command [should the debug info be printed in the SUMO output console ?]
     void vehicleSetVint(std::string, double);                       // new command
     void vehicleSetComfAccel(std::string, double);                  // new command

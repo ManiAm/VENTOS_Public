@@ -22,7 +22,6 @@ module vehicle
         string IPaddress = default("");
         
         bool SUMOvehicleDebug = default(false);  // controling SUMO debug output
-        bool degradeToACC = default(true);
         
     gates:
         input radioIn; // gate for sendDirect

@@ -67,7 +67,6 @@ void ApplVManager::initialize(int stage)
 
         // set parameters in SUMO
         TraCI->vehicleSetDebug(SUMOID, getParentModule()->par("SUMOvehicleDebug").boolValue());
-        TraCI->vehicleSetDowngradeToACC(SUMOID, getParentModule()->par("degradeToACC").boolValue());
 
         if(measurementError)
         {

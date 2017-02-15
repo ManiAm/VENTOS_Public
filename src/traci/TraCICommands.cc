@@ -1302,21 +1302,6 @@ void TraCI_Commands::vehicleSetErrorRelSpeed(std::string nodeId, double value)
 }
 
 
-void TraCI_Commands::vehicleSetDowngradeToACC(std::string nodeId, bool value)
-{
-    record_TraCI_activity_func("commandStart", CMD_SET_VEHICLE_VARIABLE, 0x17, "vehicleSetDowngradeToACC");
-
-    uint8_t variableId = 0x17;
-    uint8_t variableType = TYPE_INTEGER;
-
-    TraCIBuffer buf = connection->query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << (int)value);
-
-    ASSERT(buf.eof());
-
-    record_TraCI_activity_func("commandComplete", CMD_SET_VEHICLE_VARIABLE, 0x17, "vehicleSetDowngradeToACC");
-}
-
-
 void TraCI_Commands::vehicleSetDebug(std::string nodeId, bool value)
 {
     record_TraCI_activity_func("commandStart", CMD_SET_VEHICLE_VARIABLE, 0x16, "vehicleSetDebug");
