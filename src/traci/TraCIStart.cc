@@ -901,7 +901,7 @@ bool TraCI_Start::isModuleUnequipped(std::string nodeId)
 }
 
 
-void TraCI_Start::addModule(std::string nodeId /*sumo id*/, const Coord& position, std::string road_id, double speed, double angle)
+void TraCI_Start::addModule(std::string nodeId /*sumo id*/, const Coord& position /*omnet coordinates*/, std::string road_id, double speed, double angle)
 {
     if (hosts.find(nodeId) != hosts.end())
         throw omnetpp::cRuntimeError("tried adding duplicate module");
@@ -920,7 +920,7 @@ void TraCI_Start::addModule(std::string nodeId /*sumo id*/, const Coord& positio
     // reserved for obstacles
     if(vClass == "custom1")
     {
-        addVehicle(nodeId,
+        omnetpp::cModule *mod = addVehicle(nodeId,
                 addNode_module->par("obstacle_ModuleType").stringValue(),
                 addNode_module->par("obstacle_ModuleName").stdstringValue(),
                 addNode_module->par("obstacle_ModuleDisplayString").stdstringValue(),
@@ -929,6 +929,11 @@ void TraCI_Start::addModule(std::string nodeId /*sumo id*/, const Coord& positio
                 road_id,
                 speed,
                 angle);
+
+        // move the obstacle to the right position
+        omnetpp::cDisplayString &disp = mod->getDisplayString();
+        disp.setTagArg("p", 0, position.x);
+        disp.setTagArg("p", 1, position.y);
     }
     // all motor vehicles
     else if(vClass == "passenger" || vClass == "private" || vClass == "emergency" || vClass == "bus" || vClass == "truck")
@@ -969,7 +974,7 @@ void TraCI_Start::addModule(std::string nodeId /*sumo id*/, const Coord& positio
 }
 
 
-void TraCI_Start::addVehicle(std::string SUMOID, std::string type, std::string name, std::string displayString, std::string vClass, const Coord& position, std::string road_id, double speed, double angle)
+omnetpp::cModule* TraCI_Start::addVehicle(std::string SUMOID, std::string type, std::string name, std::string displayString, std::string vClass, const Coord& position, std::string road_id, double speed, double angle)
 {
     cModule* parentmod = getParentModule();
     if (!parentmod)
@@ -1079,25 +1084,29 @@ void TraCI_Start::addVehicle(std::string SUMOID, std::string type, std::string n
         veh_status_entry_t entry = {active, record_tokenize};
         record_status[SUMOID] = entry;
     }
+
+    return mod;
 }
 
 
 
-void TraCI_Start::addPedestrian()
+omnetpp::cModule* TraCI_Start::addPedestrian()
 {
     //cout << simTime().dbl() << ": " << allPedestrians.size() << endl;
 
-    // add new inserted pedestrians
-    std::set<std::string> needSubscribe;
-    std::set_difference(allPedestrians.begin(), allPedestrians.end(), subscribedPedestrians.begin(), subscribedPedestrians.end(), std::inserter(needSubscribe, needSubscribe.begin()));
-    for (std::set<std::string>::const_iterator i = needSubscribe.begin(); i != needSubscribe.end(); ++i)
-        subscribedPedestrians.insert(*i);
+//    // add new inserted pedestrians
+//    std::set<std::string> needSubscribe;
+//    std::set_difference(allPedestrians.begin(), allPedestrians.end(), subscribedPedestrians.begin(), subscribedPedestrians.end(), std::inserter(needSubscribe, needSubscribe.begin()));
+//    for (std::set<std::string>::const_iterator i = needSubscribe.begin(); i != needSubscribe.end(); ++i)
+//        subscribedPedestrians.insert(*i);
+//
+//    // remove pedestrians that are not present in the network
+//    std::set<std::string> needUnsubscribe;
+//    std::set_difference(subscribedPedestrians.begin(), subscribedPedestrians.end(), allPedestrians.begin(), allPedestrians.end(), std::inserter(needUnsubscribe, needUnsubscribe.begin()));
+//    for (std::set<std::string>::const_iterator i = needUnsubscribe.begin(); i != needUnsubscribe.end(); ++i)
+//        subscribedPedestrians.erase(*i);
 
-    // remove pedestrians that are not present in the network
-    std::set<std::string> needUnsubscribe;
-    std::set_difference(subscribedPedestrians.begin(), subscribedPedestrians.end(), allPedestrians.begin(), allPedestrians.end(), std::inserter(needUnsubscribe, needUnsubscribe.begin()));
-    for (std::set<std::string>::const_iterator i = needUnsubscribe.begin(); i != needUnsubscribe.end(); ++i)
-        subscribedPedestrians.erase(*i);
+    return NULL;
 }
 
 

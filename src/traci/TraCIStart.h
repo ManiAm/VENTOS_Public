@@ -136,8 +136,8 @@ private:
     void processVehicleSubscription(std::string objectId, TraCIBuffer& buf);
 
     void addModule(std::string nodeId, const Coord& position, std::string road_id = "", double speed = -1, double angle = -1);
-    void addVehicle(std::string nodeId, std::string type, std::string name, std::string displayString, std::string vClass, const Coord& position, std::string road_id, double speed, double angle);
-    void addPedestrian();
+    omnetpp::cModule* addVehicle(std::string nodeId, std::string type, std::string name, std::string displayString, std::string vClass, const Coord& position, std::string road_id, double speed, double angle);
+    omnetpp::cModule* addPedestrian();
     void deleteManagedModule(std::string nodeId);
 
     // returns a pointer to the managed module named moduleName, or 0 if no module can be found

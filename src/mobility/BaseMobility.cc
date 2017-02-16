@@ -85,13 +85,9 @@ void BaseMobility::initialize(int stage)
         coreEV << "initializing BaseUtility stage " << stage << std::endl; // for node position
 
         if (hasPar("updateInterval"))
-        {
             updateInterval = par("updateInterval");
-        }
         else
-        {
             updateInterval = 0;
-        }
 
         // initialize Move parameter
         bool use2D = world->use2D();

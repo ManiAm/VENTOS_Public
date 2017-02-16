@@ -24,7 +24,7 @@ module obstacle
         input radioIn; // gate for sendDirect
         
     submodules:
-        appl: ApplObstacleManager {    // <applType> like IBaseApplLayer {
+        appl: ApplObstacleManager {
             parameters:
                 @display("p=60,50");
         }
