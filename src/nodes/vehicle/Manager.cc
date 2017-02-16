@@ -310,14 +310,14 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
 void ApplVManager::onBeaconBicycle(BeaconBicycle* wsm)
 {
     // pass it down
-    super::onBeaconBicycle(wsm);
+    //super::onBeaconBicycle(wsm);
 }
 
 
 void ApplVManager::onBeaconPedestrian(BeaconPedestrian* wsm)
 {
     // pass it down
-    super::onBeaconPedestrian(wsm);
+    //super::onBeaconPedestrian(wsm);
 
     char buffer [200];
     sprintf (buffer, "%f#%f#%f#%f#%s#%s", (double)wsm->getSpeed(), (double)wsm->getAccel(), (double)wsm->getMaxDecel(), (omnetpp::simTime().dbl())*1000, wsm->getSender(), "preceding");

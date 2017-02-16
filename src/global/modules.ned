@@ -21,7 +21,13 @@ simple BaseWorldUtility
 }
 
 
-simple Statistics
+// Interface for Statistics module
+moduleinterface IBaseStatistics
+{
+
+}
+
+simple Statistics like IBaseStatistics
 {
     parameters:
         @class(VENTOS::Statistics);

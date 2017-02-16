@@ -1,12 +1,15 @@
 
 package VENTOS.src.MIXIM_veins.nic;
 
-import VENTOS.src.MIXIM_veins.nic.mac.Mac1609_4;
-import VENTOS.src.MIXIM_veins.nic.phy.PhyLayer80211p;
+import VENTOS.src.MIXIM_veins.nic.mac.IWirelessMac;
+import VENTOS.src.MIXIM_veins.nic.phy.IWirelessPhy;
 
 module Nic80211p
 {
     parameters:
+        string macType;
+        string phyType;
+        
         bool drawMaxIntfDist = default(true);           
             
     gates:
@@ -18,11 +21,11 @@ module Nic80211p
 
     submodules:
 
-        mac1609_4: Mac1609_4 {
+        mac1609_4: <macType> like IWirelessMac {
             @display("p=69,82");
         }
         
-        phy80211p: PhyLayer80211p {
+        phy80211p: <phyType> like IWirelessPhy {
             @display("p=69,218;i=block/process_s");
         }
 

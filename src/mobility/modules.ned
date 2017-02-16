@@ -45,7 +45,7 @@ simple ConstSpeedMobility extends BaseMobility
 }
 
 
-simple TraCIMobilityMod extends BaseMobility
+simple TraCIMobility_Mod extends BaseMobility
 {
     parameters:
         @class(VENTOS::TraCIMobilityMod);

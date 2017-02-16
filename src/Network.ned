@@ -17,6 +17,8 @@ network Network
         double playgroundSizeX @unit(m); // x size of the area the nodes are in (in meters)
         double playgroundSizeY @unit(m); // y size of the area the nodes are in (in meters)
         double playgroundSizeZ @unit(m); // z size of the area the nodes are in (in meters)
+        
+        string statisticsType;
 
         // 0=no debug. 
         // Higher numbers output more debug info
@@ -60,7 +62,7 @@ network Network
             parameters:
                 @display("p=245,135;i=block/table");
         }
-        statistics: Statistics {
+        statistics: <statisticsType> like IBaseStatistics {
             parameters:
                 @display("p=337,47;i=block/timer");
         }

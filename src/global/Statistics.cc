@@ -65,7 +65,6 @@ void Statistics::initialize(int stage)
 void Statistics::finish()
 {
     save_beacon_stat_toFile();
-    save_MAC_stat_toFile();
 
     save_plnManage_toFile();
     save_plnStat_toFile();
@@ -169,96 +168,6 @@ void Statistics::save_beacon_stat_toFile()
         fprintf (filePtr, "%-20s", y.senderID.c_str());
         fprintf (filePtr, "%-20s", y.receiverID.c_str());
         fprintf (filePtr, "%-20d \n", y.dropped);
-    }
-
-    fclose(filePtr);
-}
-
-
-void Statistics::save_MAC_stat_toFile()
-{
-    if(global_MAC_stat.empty())
-        return;
-
-    int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
-
-    std::ostringstream fileName;
-    fileName << boost::format("%03d_MACdata.txt") % currentRun;
-
-    boost::filesystem::path filePath ("results");
-    filePath /= fileName.str();
-
-    FILE *filePtr = fopen (filePath.c_str(), "w");
-    if (!filePtr)
-        throw omnetpp::cRuntimeError("Cannot create file '%s'", filePath.c_str());
-
-    // write simulation parameters at the beginning of the file
-    {
-        // get the current config name
-        std::string configName = omnetpp::getEnvir()->getConfigEx()->getVariable("configname");
-
-        std::string iniFile = omnetpp::getEnvir()->getConfigEx()->getVariable("inifile");
-
-        // PID of the simulation process
-        std::string processid = omnetpp::getEnvir()->getConfigEx()->getVariable("processid");
-
-        // globally unique identifier for the run, produced by
-        // concatenating the configuration name, run number, date/time, etc.
-        std::string runID = omnetpp::getEnvir()->getConfigEx()->getVariable("runid");
-
-        // get number of total runs in this config
-        int totalRun = omnetpp::getEnvir()->getConfigEx()->getNumRunsInConfig(configName.c_str());
-
-        // get the current run number
-        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
-
-        // get all iteration variables
-        std::vector<std::string> iterVar = omnetpp::getEnvir()->getConfigEx()->unrollConfig(configName.c_str(), false);
-
-        // write to file
-        fprintf (filePtr, "configName      %s\n", configName.c_str());
-        fprintf (filePtr, "iniFile         %s\n", iniFile.c_str());
-        fprintf (filePtr, "processID       %s\n", processid.c_str());
-        fprintf (filePtr, "runID           %s\n", runID.c_str());
-        fprintf (filePtr, "totalRun        %d\n", totalRun);
-        fprintf (filePtr, "currentRun      %d\n", currentRun);
-        fprintf (filePtr, "currentConfig   %s\n", iterVar[currentRun].c_str());
-        fprintf (filePtr, "startDateTime   %s\n", TraCI->simulationGetStartTime().c_str());
-        fprintf (filePtr, "endDateTime     %s\n", TraCI->simulationGetEndTime().c_str());
-        fprintf (filePtr, "duration        %s\n\n\n", TraCI->simulationGetDuration().c_str());
-    }
-
-    // write header
-    fprintf (filePtr, "%-20s","lastStatTime");
-    fprintf (filePtr, "%-20s","vehicleName");
-    fprintf (filePtr, "%-20s","DroppedPackets");
-    fprintf (filePtr, "%-20s","NumTooLittleTime");
-    fprintf (filePtr, "%-30s","NumInternalContention");
-    fprintf (filePtr, "%-20s","NumBackoff");
-    fprintf (filePtr, "%-20s","SlotsBackoff");
-    fprintf (filePtr, "%-20s","TotalBusyTime");
-    fprintf (filePtr, "%-20s","SentPackets");
-    fprintf (filePtr, "%-20s","SNIRLostPackets");
-    fprintf (filePtr, "%-20s","TXRXLostPackets");
-    fprintf (filePtr, "%-20s","ReceivedPackets");
-    fprintf (filePtr, "%-20s\n\n","ReceivedBroadcasts");
-
-    // write body
-    for(auto &y : global_MAC_stat)
-    {
-        fprintf (filePtr, "%-20.8f", y.second.last_stat_time);
-        fprintf (filePtr, "%-20s", y.first.c_str());
-        fprintf (filePtr, "%-20ld", y.second.statsDroppedPackets);
-        fprintf (filePtr, "%-20ld", y.second.statsNumTooLittleTime);
-        fprintf (filePtr, "%-30ld", y.second.statsNumInternalContention);
-        fprintf (filePtr, "%-20ld", y.second.statsNumBackoff);
-        fprintf (filePtr, "%-20ld", y.second.statsSlotsBackoff);
-        fprintf (filePtr, "%-20.8f", y.second.statsTotalBusyTime);
-        fprintf (filePtr, "%-20ld", y.second.statsSentPackets);
-        fprintf (filePtr, "%-20ld", y.second.statsSNIRLostPackets);
-        fprintf (filePtr, "%-20ld", y.second.statsTXRXLostPackets);
-        fprintf (filePtr, "%-20ld", y.second.statsReceivedPackets);
-        fprintf (filePtr, "%-20ld\n", y.second.statsReceivedBroadcasts);
     }
 
     fclose(filePtr);

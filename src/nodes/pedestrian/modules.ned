@@ -2,7 +2,7 @@
 package VENTOS.src.nodes.pedestrian;
 
 import VENTOS.src.MIXIM_veins.nic.Nic80211p;
-import VENTOS.src.mobility.TraCIMobilityMod;
+import VENTOS.src.mobility.TraCIMobility_Mod;
 
 module pedestrian
 {
@@ -34,7 +34,7 @@ module pedestrian
                 @display("p=60,166");
         }
         
-        mobility: TraCIMobilityMod {
+        mobility: TraCIMobility_Mod {
             parameters:
                 @display("p=130,172;i=block/cogwheel");
         }

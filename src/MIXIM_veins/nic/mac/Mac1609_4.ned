@@ -97,6 +97,4 @@ simple Mac1609_4 extends BaseMacLayer
         
         // the maximum queue size of an EDCA queue in the MAC. 0 for unlimited. Queue strategy is "drop if full"
         int queueSize = default(0);
-        
-        bool record_stat = default(false);
 }

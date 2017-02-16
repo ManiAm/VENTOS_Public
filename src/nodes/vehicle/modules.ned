@@ -2,7 +2,7 @@
 package VENTOS.src.nodes.vehicle;
 
 import VENTOS.src.MIXIM_veins.nic.Nic80211p;
-import VENTOS.src.mobility.TraCIMobilityMod;
+import VENTOS.src.mobility.TraCIMobility_Mod;
 
 module vehicle
 {
@@ -27,7 +27,7 @@ module vehicle
         input radioIn; // gate for sendDirect
         
     submodules:
-        appl: ApplVManager {    // <applType> like IBaseApplLayer {
+        appl: ApplVManager {
             parameters:
                 @display("p=60,50");
         }
@@ -37,7 +37,7 @@ module vehicle
                 @display("p=60,166");
         }
         
-        mobility: TraCIMobilityMod {
+        mobility: TraCIMobility_Mod {
             parameters:
                 @display("p=130,172;i=block/cogwheel");
         }
@@ -133,17 +133,7 @@ simple ApplVPlatoonMg extends ApplVPlatoonFormed
 }
 
 
-simple ApplVMsgControl extends ApplVPlatoonMg
-{
-    parameters:
-        @class(VENTOS::ApplVMsgControl);
-        @display("i=block/app2");
-        
-        bool printCtrlData = default(false);
-}
-
-
-simple ApplVManager extends ApplVMsgControl
+simple ApplVManager extends ApplVPlatoonMg
 {
     parameters:
         @class(VENTOS::ApplVManager);

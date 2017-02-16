@@ -33,30 +33,6 @@
 
 namespace VENTOS {
 
-
-typedef struct MAC_stat_entry
-{
-    double last_stat_time;
-
-    long statsDroppedPackets;        // packet was dropped in Mac
-    long statsNumTooLittleTime;      // Too little time in this interval. Will not schedule nextMacEvent
-    long statsNumInternalContention; // there was already another packet ready.
-    // we have to go increase CW and go into backoff.
-    // It's called internal contention and its wonderful
-    long statsNumBackoff;
-    long statsSlotsBackoff;
-    double statsTotalBusyTime;
-
-    long statsSentPackets;
-
-    long statsSNIRLostPackets;     // A packet was not received due to bit-errors
-    long statsTXRXLostPackets;     // A packet was not received because we were sending while receiving
-
-    long statsReceivedPackets;     // Received a data packet addressed to me
-    long statsReceivedBroadcasts;  // Received a broadcast data packet
-
-} MAC_stat_entry_t;
-
 typedef struct BeaconStat
 {
     double time;
@@ -88,13 +64,12 @@ public:
 class Statistics : public BaseApplLayer
 {
 public:
-    std::map<std::string, MAC_stat_entry_t> global_MAC_stat;
     std::vector<BeaconStat_t> global_Beacon_stat;
 
     std::vector<plnManagement_t> global_plnManagement_stat;
     std::vector<plnStat_t> global_plnData_stat;
 
-private:
+protected:
     // NED variables
     TraCI_Commands *TraCI;
 
@@ -108,14 +83,14 @@ public:
     virtual void handleMessage(omnetpp::cMessage *);
     virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, long, cObject* details);
 
-private:
+protected:
     void initialize_withTraCI();
     void executeEachTimestep();
 
+private:
     void save_plnManage_toFile();
     void save_plnStat_toFile();
 
-    void save_MAC_stat_toFile();
     void save_beacon_stat_toFile();
 };
 

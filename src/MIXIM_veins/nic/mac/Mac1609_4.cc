@@ -19,11 +19,8 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <iterator>
-#include <boost/filesystem.hpp>
-#include <boost/format.hpp>
-
 #include "Mac1609_4.h"
+
 #include "DeciderResult80211.h"
 #include "PhyToMacControlInfo.h"
 #include "PhyControlMessage_m.h"
@@ -42,11 +39,6 @@ void Mac1609_4::initialize(int stage)
         phy11p = FindModule<Mac80211pToPhy11pInterface*>::findSubModule(getParentModule());
         assert(phy11p);
 
-        // get a pointer to the Statistics module
-        omnetpp::cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("statistics");
-        STAT = static_cast<VENTOS::Statistics *>(module);
-        ASSERT(STAT);
-
         //this is required to circumvent double precision issues with constants from CONST80211p.h
         assert(omnetpp::simTime().getScaleExp() == -12);
 
@@ -59,7 +51,6 @@ void Mac1609_4::initialize(int stage)
         myId = getParentModule()->getParentModule()->getFullPath();
 
         headerLength = par("headerLength");
-        record_stat = par("record_stat").boolValue();
 
         nextMacEvent = new omnetpp::cMessage("next Mac Event");
 
@@ -350,9 +341,6 @@ void Mac1609_4::handleUpperMsg(omnetpp::cMessage* msg)
         else if(myEDCA[chan]->myQueues[ac].currentBackoff == 0)
             myEDCA[chan]->backoff(ac);
     }
-
-    if(record_stat)
-        record_MAC_stat_func();
 }
 
 
@@ -410,9 +398,6 @@ void Mac1609_4::handleLowerControl(omnetpp::cMessage* msg)
         emit(sigCollision, true);
 
     delete msg;
-
-    if(record_stat)
-        record_MAC_stat_func();
 }
 
 
@@ -746,31 +731,6 @@ omnetpp::simtime_t Mac1609_4::getFrameDuration(int payloadLengthBits, enum PHY_M
     }
 
     return duration;
-}
-
-
-void Mac1609_4::record_MAC_stat_func()
-{
-    VENTOS::MAC_stat_entry_t entry = {};
-
-    entry.last_stat_time = omnetpp::simTime().dbl();
-    entry.statsDroppedPackets = statsDroppedPackets;
-    entry.statsNumTooLittleTime = statsNumTooLittleTime;
-    entry.statsNumInternalContention = statsNumInternalContention;
-    entry.statsNumBackoff = statsNumBackoff;
-    entry.statsSlotsBackoff = statsSlotsBackoff;
-    entry.statsTotalBusyTime = statsTotalBusyTime.dbl();
-    entry.statsSentPackets = statsSentPackets;
-    entry.statsSNIRLostPackets = statsSNIRLostPackets;
-    entry.statsTXRXLostPackets = statsTXRXLostPackets;
-    entry.statsReceivedPackets = statsReceivedPackets;
-    entry.statsReceivedBroadcasts = statsReceivedBroadcasts;
-
-    auto it = STAT->global_MAC_stat.find(myId);
-    if(it == STAT->global_MAC_stat.end())
-        STAT->global_MAC_stat[myId] = entry;
-    else
-        it->second = entry;
 }
 
 }
