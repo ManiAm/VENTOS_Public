@@ -187,7 +187,6 @@ protected:
 
     bool guardActive() const;
 
-    void attachSignal(Mac80211Pkt* mac, omnetpp::simtime_t startTime, double frequency, uint64_t datarate, double txPower_mW);
     Signal* createSignal(omnetpp::simtime_t start, omnetpp::simtime_t length, double power, uint64_t bitrate, double frequency);
 
     /** @brief maps a application layer priority (up) to an EDCA access category. */

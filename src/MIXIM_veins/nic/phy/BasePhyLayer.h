@@ -184,18 +184,6 @@ private:
 protected:
 
     /**
-     * @brief Reads and returns the parameter with the passed name.
-     *
-     * If the parameter couldn't be found the value of defaultValue
-     * is returned.
-     *
-     * @param parName 		- the name of the ned-parameter
-     * @param defaultValue 	- the value to be returned if the parameter
-     * 				  		  couldn't be found
-     */
-    template<class T> T readPar(const char* parName, const T defaultValue);
-
-    /**
      * @brief OMNeT++ initialization function.
      *
      * Read simple parameters.
@@ -314,33 +302,6 @@ protected:
     /*@}*/
 
     /**
-     * @name Send Messages
-     **/
-    /*@{ */
-
-    /**
-     * @brief Sends the passed control message to the upper layer.
-     */
-    void sendControlMessageUp(omnetpp::cMessage* msg);
-
-    /**
-     * @brief Sends the passed MacPkt to the upper layer.
-     */
-    void sendMacPktUp(omnetpp::cMessage* pkt);
-
-    /**
-     * @brief Sends the passed AirFrame to the channel
-     */
-    void sendMessageDown(AirFrame* pkt);
-
-    /**
-     * @brief Schedule self message to passed point in time.
-     */
-    void sendSelfMessage(omnetpp::cMessage* msg, omnetpp::simtime_t_cref time);
-
-    /*@}*/
-
-    /**
      * @brief This function encapsulates messages from the upper layer into an
      * AirFrame and sets all necessary attributes.
      */
@@ -385,6 +346,7 @@ protected:
     virtual bool isKnownProtocolId(int id) { return id == myProtocolId(); }
 
 public:
+
     BasePhyLayer();
 
     /**

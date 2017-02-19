@@ -69,39 +69,26 @@ void PhyLayer80211p::initialize(int stage)
 AnalogueModel* PhyLayer80211p::getAnalogueModelFromName(std::string name, ParameterMap& params)
 {
     if (name == "SimplePathlossModel")
-    {
         return initializeSimplePathlossModel(params);
-    }
     else if (name == "LogNormalShadowing")
-    {
         return initializeLogNormalShadowing(params);
-    }
     else if (name == "JakesFading")
-    {
         return initializeJakesFading(params);
-    }
     else if(name == "BreakpointPathlossModel")
-    {
         return initializeBreakpointPathlossModel(params);
-    }
     else if(name == "PERModel")
-    {
         return initializePERModel(params);
-    }
     else if (name == "SimpleObstacleShadowing")
-    {
         return initializeSimpleObstacleShadowing(params);
-    }
     else if (name == "TwoRayInterferenceModel")
     {
         if (world->use2D())
             throw omnetpp::cRuntimeError("The TwoRayInterferenceModel uses nodes' z-position as the antenna height over ground. Refusing to work in a 2D world");
+
         return initializeTwoRayInterferenceModel(params);
     }
     else if (name == "NakagamiFading")
-    {
         return initializeNakagamiFading(params);
-    }
 
     return BasePhyLayer::getAnalogueModelFromName(name, params);
 }
@@ -124,15 +111,11 @@ AnalogueModel* PhyLayer80211p::initializeJakesFading(ParameterMap& params)
     omnetpp::simtime_t interval = params["interval"].doubleValue();
 
     double carrierFrequency = 5.890e+9;
+
     if (params.count("carrierFrequency") > 0)
-    {
         carrierFrequency = params["carrierFrequency"];
-    }
-    else
-    {
-        if (cc->hasPar("carrierFrequency"))
-            carrierFrequency = cc->par("carrierFrequency").doubleValue();
-    }
+    else if (cc->hasPar("carrierFrequency"))
+        carrierFrequency = cc->par("carrierFrequency").doubleValue();
 
     return new JakesFading(fadingPaths, delayRMS, carrierFrequency, interval);
 }
@@ -410,6 +393,7 @@ void PhyLayer80211p::changeListeningFrequency(double freq)
 {
     Decider80211p* dec = dynamic_cast<Decider80211p*>(decider);
     assert(dec);
+
     dec->changeFrequency(freq);
 }
 
@@ -423,20 +407,20 @@ void PhyLayer80211p::handleSelfMessage(omnetpp::cMessage* msg)
     {
         assert(msg == txOverTimer);
         sendControlMsgToMac(new omnetpp::cMessage("Transmission over", TX_OVER));
-        //check if there is another packet on the chan, and change the chan-state to idle
+
         Decider80211p* dec = dynamic_cast<Decider80211p*>(decider);
         assert(dec);
+
+        // check if there is another packet on the chan
         if (dec->cca(omnetpp::simTime(),NULL))
         {
-            //chan is idle
+            // change the chan-state to idle
             DBG << "Channel idle after transmit!\n";
             dec->setChannelIdleStatus(true);
-
         }
         else
-        {
-            DBG << "Channel not yet idle after transmit!\n";
-        }
+            DBG << "Channel not yet idle after transmit! \n";
+
         break;
     }
     //radio switch over
@@ -461,17 +445,12 @@ void PhyLayer80211p::handleSelfMessage(omnetpp::cMessage* msg)
 }
 
 
+// is identical to BasePhyLayer::encapsMsg, but with AirFrame11p
 AirFrame *PhyLayer80211p::encapsMsg(omnetpp::cPacket *macPkt)
 {
-    // the cMessage passed must be a MacPacket... but no cast needed here
-    // MacPkt* pkt = static_cast<MacPkt*>(msg);
-
-    // ...and must always have a ControlInfo attached (contains Signal)
+    // the macPkt must always have a ControlInfo attached (contains Signal)
     cObject* ctrlInfo = macPkt->removeControlInfo();
     assert(ctrlInfo);
-
-    // create the new AirFrame
-    AirFrame* frame = new AirFrame11p(macPkt->getName(), AIR_FRAME);
 
     // Retrieve the pointer to the Signal-instance from the ControlInfo-instance.
     // We are now the new owner of this instance.
@@ -479,15 +458,17 @@ AirFrame *PhyLayer80211p::encapsMsg(omnetpp::cPacket *macPkt)
     // make sure we really obtained a pointer to an instance
     assert(s);
 
-    // set the members
+    // create the new AirFrame11p
+    AirFrame* frame = new AirFrame11p(macPkt->getName(), AIR_FRAME);
+
     assert(s->getDuration() > 0);
     frame->setDuration(s->getDuration());
     // copy the signal into the AirFrame
     frame->setSignal(*s);
-    //set priority of AirFrames above the normal priority to ensure
-    //channel consistency (before any thing else happens at a time
-    //point t make sure that the channel has removed every AirFrame
-    //ended at t and added every AirFrame started at t)
+    // set priority of AirFrames above the normal priority to ensure
+    // channel consistency (before any thing else happens at a time
+    // point t make sure that the channel has removed every AirFrame
+    // ended at t and added every AirFrame started at t)
     frame->setSchedulingPriority(airFramePriority());
     frame->setProtocolId(myProtocolId());
     frame->setBitLength(headerLength);
@@ -504,7 +485,7 @@ AirFrame *PhyLayer80211p::encapsMsg(omnetpp::cPacket *macPkt)
 
     frame->encapsulate(macPkt);
 
-    // --- from here on, the AirFrame is the owner of the MacPacket ---
+    // from here on, the AirFrame is the owner of the MacPacket
     macPkt = 0;
     coreEV <<"AirFrame encapsulated, length: " << frame->getBitLength() << "\n";
 
@@ -515,14 +496,14 @@ AirFrame *PhyLayer80211p::encapsMsg(omnetpp::cPacket *macPkt)
 int PhyLayer80211p::getRadioState()
 {
     return BasePhyLayer::getRadioState();
-};
-
+}
 
 
 omnetpp::simtime_t PhyLayer80211p::setRadioState(int rs)
 {
     if (rs == Radio::TX)
         decider->switchToTx();
+
     return BasePhyLayer::setRadioState(rs);
 }
 

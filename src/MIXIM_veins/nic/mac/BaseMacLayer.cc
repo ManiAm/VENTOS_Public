@@ -39,7 +39,6 @@ Define_Module(BaseMacLayer);
 /**
  * First we have to initialize the module from which we derived ours,
  * in this case BaseLayer.
- *
  **/
 void BaseMacLayer::initialize(int stage)
 {
@@ -48,38 +47,48 @@ void BaseMacLayer::initialize(int stage)
     if(stage==0)
     {
         // get handle to phy layer
-        if ((phy = FindModule<MacToPhyInterface*>::findSubModule(getParentModule())) == NULL) {
+        phy = FindModule<MacToPhyInterface*>::findSubModule(getParentModule());
+        if (phy == NULL)
             throw omnetpp::cRuntimeError("Could not find a PHY module.");
-        }
-        headerLength    = par("headerLength");
+
+        headerLength = par("headerLength");
         phyHeaderLength = phy->getPhyHeaderLength();
 
         hasPar("coreDebug") ? coreDebug = par("coreDebug").boolValue() : coreDebug = false;
     }
-    if (myMacAddr == LAddress::L2NULL()) {
+
+    if (myMacAddr == LAddress::L2NULL())
+    {
         // see if there is an addressing module available
         // otherwise use NIC modules id as MAC address
         AddressingInterface* addrScheme = FindModule<AddressingInterface*>::findSubModule(findHost());
-        if(addrScheme) {
+        if(addrScheme)
             myMacAddr = addrScheme->myMacAddr(this);
-        } else {
+        else
+        {
             const std::string addressString = par("address").stringValue();
+
             if (addressString.empty() || addressString == "auto")
                 myMacAddr = LAddress::L2Type(getParentModule()->getId());
             else
                 myMacAddr = LAddress::L2Type(addressString.c_str());
+
             // use streaming operator for string conversion, this makes it more
             // independent from the myMacAddr type
             std::ostringstream oSS; oSS << myMacAddr;
             par("address").setStringValue(oSS.str());
         }
+
         registerInterface();
     }
 }
 
+
 void BaseMacLayer::registerInterface()
 {
+
 }
+
 
 /**
  * Decapsulates the network packet from the received MacPkt
@@ -91,8 +100,10 @@ omnetpp::cPacket* BaseMacLayer::decapsMsg(MacPkt* msg)
     // delete the macPkt
     delete msg;
     coreEV << " message decapsulated " << std::endl;
+
     return m;
 }
+
 
 /**
  * Encapsulates the received NetwPkt into a MacPkt and set all needed
@@ -123,6 +134,7 @@ MacPkt* BaseMacLayer::encapsMsg(omnetpp::cPacket *netwPkt)
     return pkt;
 }
 
+
 /**
  * Redefine this function if you want to process messages from upper
  * layers before they are send to lower layers.
@@ -136,6 +148,7 @@ void BaseMacLayer::handleUpperMsg(omnetpp::cMessage *mac)
     sendDown(encapsMsg(static_cast<omnetpp::cPacket*>(mac)));
 }
 
+
 /**
  * This basic implementation just forwards all message that are
  * broadcast (destAddr = L2BROADCAST) or destined for this node
@@ -143,7 +156,6 @@ void BaseMacLayer::handleUpperMsg(omnetpp::cMessage *mac)
  *
  * @sa sendUp
  **/
-
 void BaseMacLayer::handleLowerMsg(omnetpp::cMessage *msg)
 {
     MacPkt*          mac  = static_cast<MacPkt *>(msg);
@@ -151,19 +163,22 @@ void BaseMacLayer::handleLowerMsg(omnetpp::cMessage *msg)
     LAddress::L2Type src  = mac->getSrcAddr();
 
     //only foward to upper layer if message is for me or broadcast
-    if((dest == myMacAddr) || LAddress::isL2Broadcast(dest)) {
+    if((dest == myMacAddr) || LAddress::isL2Broadcast(dest))
+    {
         coreEV << "message with mac addr " << src
                 << " for me (dest=" << dest
                 << ") -> forward packet to upper layer\n";
         sendUp(decapsMsg(mac));
     }
-    else{
+    else
+    {
         coreEV << "message with mac addr " << src
                 << " not for me (dest=" << dest
                 << ") -> delete (my MAC="<<myMacAddr<<")\n";
         delete mac;
     }
 }
+
 
 void BaseMacLayer::handleLowerControl(omnetpp::cMessage* msg)
 {
@@ -179,6 +194,7 @@ void BaseMacLayer::handleLowerControl(omnetpp::cMessage* msg)
         break;
     }
 }
+
 
 Signal* BaseMacLayer::createSimpleSignal(omnetpp::simtime_t_cref start, omnetpp::simtime_t_cref length, double power, double bitrate)
 {
@@ -196,6 +212,7 @@ Signal* BaseMacLayer::createSimpleSignal(omnetpp::simtime_t_cref start, omnetpp:
 
     return s;
 }
+
 
 Mapping* BaseMacLayer::createConstantMapping(omnetpp::simtime_t_cref start, omnetpp::simtime_t_cref end, Argument::mapped_type_cref value)
 {
@@ -217,6 +234,7 @@ Mapping* BaseMacLayer::createConstantMapping(omnetpp::simtime_t_cref start, omne
     return m;
 }
 
+
 Mapping* BaseMacLayer::createRectangleMapping(omnetpp::simtime_t_cref start, omnetpp::simtime_t_cref end, Argument::mapped_type_cref value)
 {
     //create mapping over time
@@ -235,8 +253,9 @@ Mapping* BaseMacLayer::createRectangleMapping(omnetpp::simtime_t_cref start, omn
     return m;
 }
 
-ConstMapping* BaseMacLayer::createSingleFrequencyMapping(omnetpp::simtime_t_cref             start,
-        omnetpp::simtime_t_cref             end,
+
+ConstMapping* BaseMacLayer::createSingleFrequencyMapping(omnetpp::simtime_t_cref start,
+        omnetpp::simtime_t_cref end,
         Argument::mapped_type_cref centerFreq,
         Argument::mapped_type_cref halfBandwidth,
         Argument::mapped_type_cref value)
@@ -261,14 +280,19 @@ ConstMapping* BaseMacLayer::createSingleFrequencyMapping(omnetpp::simtime_t_cref
     return res;
 }
 
-BaseConnectionManager* BaseMacLayer::getConnectionManager() {
+
+BaseConnectionManager* BaseMacLayer::getConnectionManager()
+{
     cModule* nic = getParentModule();
     return ChannelAccess::getConnectionManager(nic);
 }
 
-const LAddress::L2Type& BaseMacLayer::getUpperDestinationFromControlInfo(const cObject *const pCtrlInfo) {
+
+const LAddress::L2Type& BaseMacLayer::getUpperDestinationFromControlInfo(const cObject *const pCtrlInfo)
+{
     return NetwToMacControlInfo::getDestFromControlInfo(pCtrlInfo);
 }
+
 
 /**
  * Attaches a "control info" (MacToNetw) structure (object) to the message pMsg.
@@ -277,6 +301,7 @@ omnetpp::cObject *const BaseMacLayer::setUpControlInfo(omnetpp::cMessage *const 
 {
     return MacToNetwControlInfo::setControlInfo(pMsg, pSrcAddr);
 }
+
 
 /**
  * Attaches a "control info" (MacToPhy) structure (object) to the message pMsg.

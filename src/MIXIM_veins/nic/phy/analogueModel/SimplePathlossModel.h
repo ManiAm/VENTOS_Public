@@ -23,16 +23,19 @@ class SimplePathlossModel;
  */
 class MIXIM_API SimplePathlossConstMapping : public SimpleConstMapping
 {
-
 protected:
+
 	/** @brief The factor dependent on the distance of the transmission.*/
 	const double distFactor;
+
 	/** @brief Pointer to the model.*/
 	SimplePathlossModel* model;
+
 	/** @brief Is the Signal to attenuate defined over frequency?*/
 	bool hasFrequency;
 
 public:
+
 	/**
 	 * @brief initializes the PathlossMapping for the passed dimensions,
 	 * its model and the distance factor for the signal to attenuate.

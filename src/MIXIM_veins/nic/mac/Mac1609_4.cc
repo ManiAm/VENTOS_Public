@@ -236,10 +236,13 @@ void Mac1609_4::handleSelfMsg(omnetpp::cMessage* msg)
 
             double freq = (activeChannel == type_CCH) ? frequency[Channels::CCH] : frequency[mySCH];
 
-            attachSignal(mac, omnetpp::simTime()+RADIODELAY_11P, freq, datarate, txPower_mW);
+            // create signal
+            omnetpp::simtime_t duration = getFrameDuration(mac->getBitLength());
+            Signal* s = createSignal(omnetpp::simTime()+RADIODELAY_11P, duration, txPower_mW, datarate, freq);
 
-            MacToPhyControlInfo* phyInfo = dynamic_cast<MacToPhyControlInfo*>(mac->getControlInfo());
-            assert(phyInfo);
+            // attach the signal to the mac message
+            MacToPhyControlInfo* cinfo = new MacToPhyControlInfo(s);
+            mac->setControlInfo(cinfo);
 
             EV << "Sending a Packet. Frequency " << freq << " Priority" << lastAC << std::endl;
 
@@ -405,17 +408,6 @@ void Mac1609_4::setActiveChannel(t_channel state)
 {
     activeChannel = state;
     assert(state == type_CCH || (useSCH && state == type_SCH));
-}
-
-
-void Mac1609_4::attachSignal(Mac80211Pkt* mac, omnetpp::simtime_t startTime, double frequency, uint64_t datarate, double txPower_mW)
-{
-    omnetpp::simtime_t duration = getFrameDuration(mac->getBitLength());
-
-    Signal* s = createSignal(startTime, duration, txPower_mW, datarate, frequency);
-    MacToPhyControlInfo* cinfo = new MacToPhyControlInfo(s);
-
-    mac->setControlInfo(cinfo);
 }
 
 

@@ -173,7 +173,7 @@ class MIXIM_API BaseMobility : public BaseModule
     virtual void finish(){};
 
     /** @brief Returns the current position at the current simulation time. */
-    virtual Coord getCurrentPosition(/*simtime_t_cref stWhen = simTime()*/) const
+    virtual Coord getCurrentPosition() const
     {
     	//return move.getPositionAt(stWhen);
     	return move.getStartPos();

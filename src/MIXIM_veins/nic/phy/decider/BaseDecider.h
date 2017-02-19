@@ -127,6 +127,7 @@ public:
     virtual ~BaseDecider() {}
 
 public:
+
     /**
      * @brief Processes an AirFrame given by the PhyLayer
      *
@@ -158,9 +159,8 @@ public:
      */
     virtual omnetpp::simtime_t handleChannelSenseRequest(ChannelSenseRequest* request);
 
-
-
 protected:
+
     /**
      * @brief Processes a new Signal. Returns the time it wants to
      * handle the signal again.
@@ -179,9 +179,9 @@ protected:
      *
      * Default implementation does not handle signal headers.
      */
-    virtual omnetpp::simtime_t processSignalHeader(AirFrame* frame) {
+    virtual omnetpp::simtime_t processSignalHeader(AirFrame* frame)
+    {
         throw omnetpp::cRuntimeError("BaseDecider does not handle Signal headers!");
-        return notAgain;
     }
 
     /**
@@ -282,8 +282,7 @@ protected:
      * @param end The end of the interval to collect AirFrames from.
      * @param out The output vector in which to put the AirFrames.
      */
-    virtual void getChannelInfo(omnetpp::simtime_t_cref start, omnetpp::simtime_t_cref end,
-            AirFrameVector& out);
+    virtual void getChannelInfo(omnetpp::simtime_t_cref start, omnetpp::simtime_t_cref end, AirFrameVector& out);
 
     //------Utility methods------------
 
