@@ -1737,7 +1737,7 @@ void AddNode::printLoadedStatistics()
     //##################################
 
     auto loadedVehTypeList = TraCI->vehicleTypeGetIDList();
-    LOG_DEBUG << boost::format("  %1% vehicle/bike types are loaded: \n      ") % loadedVehTypeList.size();
+    LOG_DEBUG << boost::format("  %1% vehicle types are loaded: \n      ") % loadedVehTypeList.size();
     for(std::string type : loadedVehTypeList)
         LOG_DEBUG << boost::format("%1%, ") % type;
 
@@ -1748,8 +1748,17 @@ void AddNode::printLoadedStatistics()
     //#############################
 
     auto loadedVehList = TraCI->simulationGetLoadedVehiclesIDList();
-    LOG_DEBUG << boost::format("  %1% vehicles/bikes are loaded: \n") % loadedVehList.size();
-    // get vehicle/bike type distribution
+
+    for (auto it = loadedVehList.begin(); it != loadedVehList.end();)
+    {
+        if (std::find(TraCI->removed_vehicles.begin(), TraCI->removed_vehicles.end(), *it ) != TraCI->removed_vehicles.end())
+            it = loadedVehList.erase( it );
+        else
+            ++it;
+    }
+
+    LOG_DEBUG << boost::format("  %1% vehicles are loaded: \n") % loadedVehList.size();
+    // get vehicle type distribution
     std::list<std::string> loadedVehType;
     for(std::string vehID : loadedVehList)
     {

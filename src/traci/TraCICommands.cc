@@ -1253,6 +1253,8 @@ void TraCI_Commands::vehicleRemove(std::string nodeId, uint8_t reason)
     buf = subscribeVehicle(0, 0x7FFFFFFF, nodeId, variables);
     ASSERT(buf.eof());
 
+    removed_vehicles.push_back(nodeId);
+
     record_TraCI_activity_func("commandComplete", CMD_SET_VEHICLE_VARIABLE, REMOVE, "vehicleRemove");
 }
 

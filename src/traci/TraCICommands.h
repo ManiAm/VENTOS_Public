@@ -138,6 +138,11 @@ typedef enum VehicleSignal {
 
 class TraCI_Commands : public omnetpp::cSimpleModule
 {
+public:
+    // list of vehicles removed from the simulation with vehicleRemove method
+    // this is necessary to circumvent the SUMO bug in getting the loaded vehicles list after vehicleRemove
+    std::vector<std::string> removed_vehicles;
+
 protected:
     typedef std::chrono::high_resolution_clock::time_point Htime_t;
 
