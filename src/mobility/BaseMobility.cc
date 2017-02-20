@@ -100,16 +100,9 @@ void BaseMobility::initialize(int stage)
         double y = hasPar("y") ? par("y").doubleValue() : -1;
         double z = hasPar("z") ? par("z").doubleValue() : -1;
 
-        // get a pointer to the TraCI module
-        omnetpp::cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
-        VENTOS::TraCI_Commands *TraCI = static_cast<VENTOS::TraCI_Commands *>(module);
-
-        // and then change coordinates to omnet
-        Coord posOmnet = TraCI->traci2omnetCoord(VENTOS::TraCICoord(x,y));
-
         //set position with values from parameters if available
-        if(x > -1) pos.x = posOmnet.x;
-        if(y > -1) pos.y = posOmnet.y;
+        if(x > -1) pos.x = x;
+        if(y > -1) pos.y = y;
         if(!use2D && z > -1) pos.z = z;
 
         // set start-position and start-time (i.e. current simulation-time) of the Move

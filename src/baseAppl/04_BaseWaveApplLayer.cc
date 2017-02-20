@@ -83,6 +83,8 @@ void BaseWaveApplLayer::initialize(int stage)
         myId = getParentModule()->getIndex();
         myFullId = getParentModule()->getFullName();
         entryTime = omnetpp::simTime().dbl();
+        curPosition = Coord(getParentModule()->getSubmodule("mobility")->par("x"), getParentModule()->getSubmodule("mobility")->par("y"));
+        curSpeed = Coord(0,0);
 
         SUMOID = getParentModule()->par("SUMOID").stringValue();
         SUMOType = getParentModule()->par("SUMOType").stringValue();

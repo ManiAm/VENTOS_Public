@@ -920,7 +920,7 @@ void TraCI_Start::addModule(std::string nodeId /*sumo id*/, const Coord& positio
     // reserved for obstacles
     if(vClass == "custom1")
     {
-        omnetpp::cModule *mod = addVehicle(nodeId,
+        addVehicle(nodeId,
                 addNode_module->par("obstacle_ModuleType").stringValue(),
                 addNode_module->par("obstacle_ModuleName").stdstringValue(),
                 addNode_module->par("obstacle_ModuleDisplayString").stdstringValue(),
@@ -929,11 +929,6 @@ void TraCI_Start::addModule(std::string nodeId /*sumo id*/, const Coord& positio
                 road_id,
                 speed,
                 angle);
-
-        // move the obstacle to the right position
-        omnetpp::cDisplayString &disp = mod->getDisplayString();
-        disp.setTagArg("p", 0, position.x);
-        disp.setTagArg("p", 1, position.y);
     }
     // all motor vehicles
     else if(vClass == "passenger" || vClass == "private" || vClass == "emergency" || vClass == "bus" || vClass == "truck")
@@ -1012,6 +1007,13 @@ omnetpp::cModule* TraCI_Start::addVehicle(std::string SUMOID, std::string type, 
 
     mod->par("hasOBU") = hasOBU_val;
     mod->par("IPaddress") = IPaddress_val;
+
+    // update initial position in obstacles
+    if(vClass == "custom1")
+    {
+        mod->getSubmodule("mobility")->par("x") = position.x;
+        mod->getSubmodule("mobility")->par("y") = position.y;
+    }
 
     mod->scheduleStart(omnetpp::simTime() + updateInterval);
 
@@ -1094,17 +1096,17 @@ omnetpp::cModule* TraCI_Start::addPedestrian()
 {
     //cout << simTime().dbl() << ": " << allPedestrians.size() << endl;
 
-//    // add new inserted pedestrians
-//    std::set<std::string> needSubscribe;
-//    std::set_difference(allPedestrians.begin(), allPedestrians.end(), subscribedPedestrians.begin(), subscribedPedestrians.end(), std::inserter(needSubscribe, needSubscribe.begin()));
-//    for (std::set<std::string>::const_iterator i = needSubscribe.begin(); i != needSubscribe.end(); ++i)
-//        subscribedPedestrians.insert(*i);
-//
-//    // remove pedestrians that are not present in the network
-//    std::set<std::string> needUnsubscribe;
-//    std::set_difference(subscribedPedestrians.begin(), subscribedPedestrians.end(), allPedestrians.begin(), allPedestrians.end(), std::inserter(needUnsubscribe, needUnsubscribe.begin()));
-//    for (std::set<std::string>::const_iterator i = needUnsubscribe.begin(); i != needUnsubscribe.end(); ++i)
-//        subscribedPedestrians.erase(*i);
+    //    // add new inserted pedestrians
+    //    std::set<std::string> needSubscribe;
+    //    std::set_difference(allPedestrians.begin(), allPedestrians.end(), subscribedPedestrians.begin(), subscribedPedestrians.end(), std::inserter(needSubscribe, needSubscribe.begin()));
+    //    for (std::set<std::string>::const_iterator i = needSubscribe.begin(); i != needSubscribe.end(); ++i)
+    //        subscribedPedestrians.insert(*i);
+    //
+    //    // remove pedestrians that are not present in the network
+    //    std::set<std::string> needUnsubscribe;
+    //    std::set_difference(subscribedPedestrians.begin(), subscribedPedestrians.end(), allPedestrians.begin(), allPedestrians.end(), std::inserter(needUnsubscribe, needUnsubscribe.begin()));
+    //    for (std::set<std::string>::const_iterator i = needUnsubscribe.begin(); i != needUnsubscribe.end(); ++i)
+    //        subscribedPedestrians.erase(*i);
 
     return NULL;
 }
