@@ -348,7 +348,7 @@ cd $VENTOS_DIR
 # change directory to parent of VENTOS (Desktop)
 cd ..
 # make directory in tmp to store all downloaded files
-mkdir /tmp/VENTOS_tmp
+mkdir -p /tmp/VENTOS_tmp
 
 if [[ "$OS" == "Mac OS X" ]]; then
 
