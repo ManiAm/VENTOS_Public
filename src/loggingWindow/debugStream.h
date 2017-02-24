@@ -126,6 +126,11 @@ private:
             tag->property_foreground() = "red";
             tag->property_weight() = PANGO_WEIGHT_BOLD;
         }
+
+        {
+            auto tag = textBuffer->create_tag("blue_text");
+            tag->property_foreground() = "blue";
+        }
     }
 
     void updateTextView(std::ostringstream & sink_)
@@ -161,16 +166,6 @@ private:
         {
             Gtk::TextIter match_start;
             Gtk::TextIter match_end;
-            while( search_iter.backward_search(">>>>", Gtk::TEXT_SEARCH_CASE_INSENSITIVE, match_start, match_end, limit) )
-            {
-                textBuffer->apply_tag_by_name("green_text", match_start, match_end);
-                search_iter = match_start;
-            }
-        }
-
-        {
-            Gtk::TextIter match_start;
-            Gtk::TextIter match_end;
             while( search_iter.backward_search("WARNING", Gtk::TEXT_SEARCH_CASE_INSENSITIVE, match_start, match_end, limit) )
             {
                 textBuffer->apply_tag_by_name("orange_text", match_start, match_end);
@@ -184,6 +179,16 @@ private:
             while( search_iter.backward_search("ERROR", Gtk::TEXT_SEARCH_CASE_INSENSITIVE, match_start, match_end, limit) )
             {
                 textBuffer->apply_tag_by_name("red_text", match_start, match_end);
+                search_iter = match_start;
+            }
+        }
+
+        {
+            Gtk::TextIter match_start;
+            Gtk::TextIter match_end;
+            while( search_iter.backward_search(">>>>", Gtk::TEXT_SEARCH_CASE_INSENSITIVE, match_start, match_end, limit) )
+            {
+                textBuffer->apply_tag_by_name("green_text", match_start, match_end);
                 search_iter = match_start;
             }
         }
