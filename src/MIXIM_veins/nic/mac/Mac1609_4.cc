@@ -23,7 +23,7 @@
 
 #include "DeciderResult80211.h"
 #include "PhyToMacControlInfo.h"
-#include "PhyControlMessage_m.h"
+#include "baseAppl/ApplToPhyControlInfo.h"
 
 namespace Veins {
 
@@ -200,7 +200,7 @@ void Mac1609_4::handleSelfMsg(omnetpp::cMessage* msg)
         enum PHY_MCS mcs;
         double txPower_mW;
         uint64_t datarate;
-        PhyControlMessage *controlInfo = dynamic_cast<PhyControlMessage *>(pktToSend->getControlInfo());
+        VENTOS::ApplToPhyControlInfo *controlInfo = dynamic_cast<VENTOS::ApplToPhyControlInfo *>(pktToSend->getControlInfo());
         if (controlInfo)
         {
             //if MCS is not specified, just use the default one
@@ -372,10 +372,17 @@ void Mac1609_4::handleLowerControl(omnetpp::cMessage* msg)
     {
         channelIdle();
     }
-    else if (msg->getKind() == Decider80211p::BITERROR || msg->getKind() == Decider80211p::COLLISION)
+    else if (msg->getKind() == Decider80211p::BITERROR)
     {
         statsSNIRLostPackets++;
         EV << "A packet was not received due to biterrors" << std::endl;
+    }
+    else if (msg->getKind() == Decider80211p::COLLISION)
+    {
+        statsSNIRLostPackets++;
+        EV << "A packet was not received due to collision" << std::endl;
+
+        emit(sigCollision, true);
     }
     else if (msg->getKind() == Decider80211p::RECWHILESEND)
     {
@@ -393,12 +400,9 @@ void Mac1609_4::handleLowerControl(omnetpp::cMessage* msg)
     }
     else
     {
-        EV << "Invalid control message type (type=NOTHING) : name=" << msg->getName() << " modulesrc=" << msg->getSenderModule()->getFullPath() << "." << std::endl;
+        EV << "Invalid control message type (type=NOTHING): name=" << msg->getName() << " modulesrc=" << msg->getSenderModule()->getFullPath() << "." << std::endl;
         assert(false);
     }
-
-    if (msg->getKind() == Decider80211p::COLLISION)
-        emit(sigCollision, true);
 
     delete msg;
 }

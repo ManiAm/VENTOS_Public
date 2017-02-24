@@ -754,7 +754,6 @@ void BasePhyLayer::sendUp(AirFrame* frame, DeciderResult* result)
     coreEV << "Decapsulating MacPacket from Airframe with ID " << frame->getId() << " and sending it up to MAC." << std::endl;
 
     omnetpp::cMessage* packet = frame->decapsulate();
-
     assert(packet);
 
     setUpControlInfo(packet, result);

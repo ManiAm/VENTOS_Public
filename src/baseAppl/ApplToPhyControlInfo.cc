@@ -1,8 +1,8 @@
 /****************************************************************************/
-/// @file    GlobalConsts.h
+/// @file    ApplToPhyControlInfo.cc
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
-/// @author  second author name
-/// @date    August 2013
+/// @author
+/// @date    Feb 207
 ///
 /****************************************************************************/
 // VENTOS, Vehicular Network Open Simulator; see http:?
@@ -25,39 +25,60 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef GLOBALCONSTS_H
-#define GLOBALCONSTS_H
+#include <iostream>
+#include <sstream>
+#include <ApplToPhyControlInfo.h>
 
 namespace VENTOS {
 
-enum CRLdistAlgorithm {
-    CRL_OFF,
-    CRL_RSU_Only,
-    CRL_C2C_Epidemic,
-    CRL_MPB,
-    CRL_ICE,
-    CRL_ICEv2,
-    CRL_Broadcast,
-    CRL_BBroadcast,
-    CRL_C2C_Epidemic_Ideal,
-    CRL_NewMPB,
-
-    NUM_CRL_ALG
-};
-
-enum LaneCostsMode {
-    MODE_NOTHING,
-    MODE_RECORD,
-    MODE_EWMA
-};
-
-enum RouterMessage {
-    DIJKSTRA,
-    HYPERTREE,
-    DONE,
-    STARTED
-};
-
+ApplToPhyControlInfo::ApplToPhyControlInfo(const char *name, int kind)
+{
+    this->mcs = 0;
+    this->txPower_mW = 0;
 }
 
-#endif
+ApplToPhyControlInfo::ApplToPhyControlInfo(const ApplToPhyControlInfo& other)
+{
+    copy(other);
+}
+
+ApplToPhyControlInfo::~ApplToPhyControlInfo()
+{
+}
+
+ApplToPhyControlInfo& ApplToPhyControlInfo::operator=(const ApplToPhyControlInfo& other)
+{
+    if (this == &other)
+        return *this;
+
+    copy(other);
+    return *this;
+}
+
+void ApplToPhyControlInfo::copy(const ApplToPhyControlInfo& other)
+{
+    this->mcs = other.mcs;
+    this->txPower_mW = other.txPower_mW;
+}
+
+int ApplToPhyControlInfo::getMcs() const
+{
+    return this->mcs;
+}
+
+void ApplToPhyControlInfo::setMcs(int mcs)
+{
+    this->mcs = mcs;
+}
+
+double ApplToPhyControlInfo::getTxPower_mW() const
+{
+    return this->txPower_mW;
+}
+
+void ApplToPhyControlInfo::setTxPower_mW(double txPower_mW)
+{
+    this->txPower_mW = txPower_mW;
+}
+
+}

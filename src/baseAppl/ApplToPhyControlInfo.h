@@ -1,8 +1,8 @@
 /****************************************************************************/
-/// @file    GlobalConsts.h
+/// @file    ApplToPhyControlInfo.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
-/// @author  second author name
-/// @date    August 2013
+/// @author
+/// @date    Feb 207
 ///
 /****************************************************************************/
 // VENTOS, Vehicular Network Open Simulator; see http:?
@@ -25,37 +25,40 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef GLOBALCONSTS_H
-#define GLOBALCONSTS_H
+#ifndef APPLTOPHYCONTROLINFO_M_H
+#define APPLTOPHYCONTROLINFO_M_H
+
+#include <omnetpp.h>
 
 namespace VENTOS {
 
-enum CRLdistAlgorithm {
-    CRL_OFF,
-    CRL_RSU_Only,
-    CRL_C2C_Epidemic,
-    CRL_MPB,
-    CRL_ICE,
-    CRL_ICEv2,
-    CRL_Broadcast,
-    CRL_BBroadcast,
-    CRL_C2C_Epidemic_Ideal,
-    CRL_NewMPB,
+class ApplToPhyControlInfo : public ::omnetpp::cObject
+{
+  protected:
+    int mcs;
+    double txPower_mW;
 
-    NUM_CRL_ALG
-};
+  private:
+    void copy(const ApplToPhyControlInfo& other);
 
-enum LaneCostsMode {
-    MODE_NOTHING,
-    MODE_RECORD,
-    MODE_EWMA
-};
+  protected:
+    // protected and unimplemented operator==(), to prevent accidental usage
+    bool operator==(const ApplToPhyControlInfo&);
 
-enum RouterMessage {
-    DIJKSTRA,
-    HYPERTREE,
-    DONE,
-    STARTED
+  public:
+
+    ApplToPhyControlInfo(const char *name=nullptr, int kind=0);
+    ApplToPhyControlInfo(const ApplToPhyControlInfo& other);
+    virtual ~ApplToPhyControlInfo();
+    ApplToPhyControlInfo& operator=(const ApplToPhyControlInfo& other);
+
+    // getter methods
+    virtual int getMcs() const;
+    virtual double getTxPower_mW() const;
+
+    // setter methods
+    virtual void setMcs(int mcs);
+    virtual void setTxPower_mW(double txPower_mW);
 };
 
 }
