@@ -67,11 +67,10 @@ omnetpp::simtime_t Decider80211p::processNewSignal(AirFrame* msg)
     {
         //annotate the frame, so that we won't try decoding it at its end
         frame->setUnderSensitivity(true);
+
         //check channel busy status. a superposition of low power frames might turn channel status to busy
         if (cca(omnetpp::simTime(), NULL) == false)
-        {
             setChannelIdleStatus(false);
-        }
 
         return signal.getReceptionEnd();
     }
@@ -112,13 +111,9 @@ omnetpp::simtime_t Decider80211p::processNewSignal(AirFrame* msg)
 int Decider80211p::getSignalState(AirFrame* frame)
 {
     if (signalStates.find(frame) == signalStates.end())
-    {
         return NEW;
-    }
     else
-    {
         return signalStates[frame];
-    }
 }
 
 
@@ -152,9 +147,11 @@ void Decider80211p::calculateSinrAndSnrMapping(AirFrame* frame, Mapping **sinrMa
     //call BaseDecider function to get Noise plus Interference mapping
     Mapping* noiseInterferenceMap = calculateRSSIMapping(start, end, frame);
     assert(noiseInterferenceMap);
+
     //call calculateNoiseRSSIMapping() to get Noise only mapping
     Mapping* noiseMap = calculateNoiseRSSIMapping(start, end, frame);
     assert(noiseMap);
+
     //get power map for frame currently under reception
     ConstMapping* recvPowerMap = signal.getReceivingPower();
     assert(recvPowerMap);
@@ -529,25 +526,38 @@ omnetpp::simtime_t Decider80211p::processSignalEnd(AirFrame* msg)
     }
     else
     {
+        long int frameId = (dynamic_cast<omnetpp::cPacket *>(frame))->getId();
+
         if (frame->getUnderSensitivity())
         {
-            EV << "packet was not detected by the card. power was under sensitivity threshold\n";
+            EV << "packet was not detected by the card. power was under sensitivity threshold \n";
         }
         else if (whileSending)
         {
-            EV << "packet was received while sending, sending it as control message to upper layer\n";
-            phy->sendControlMsgToMac(new omnetpp::cMessage("Error",RECWHILESEND));
+            EV << "packet was received while sending, sending it as control message to upper layer \n";
+
+            VENTOS::PhyToMacReport *report = new VENTOS::PhyToMacReport("Error", RECWHILESEND);
+            report->setMsgId(frameId);
+
+            phy->sendControlMsgToMac(report);
         }
         else
         {
-            EV << "packet was not received correctly, sending it as control message to upper layer\n";
+            EV << "packet was not received correctly, sending it as control message to upper layer \n";
+
             if (((DeciderResult80211 *)result)->isCollision())
             {
-                phy->sendControlMsgToMac(new omnetpp::cMessage("Error", Decider80211p::COLLISION));
+                VENTOS::PhyToMacReport *report = new VENTOS::PhyToMacReport("Error", Decider80211p::COLLISION);
+                report->setMsgId(frameId);
+
+                phy->sendControlMsgToMac(report);
             }
             else
             {
-                phy->sendControlMsgToMac(new omnetpp::cMessage("Error",BITERROR));
+                VENTOS::PhyToMacReport *report = new VENTOS::PhyToMacReport("Error", BITERROR);
+                report->setMsgId(frameId);
+
+                phy->sendControlMsgToMac(report);
             }
         }
 
@@ -586,9 +596,9 @@ void Decider80211p::setChannelIdleStatus(bool isIdle)
     channelStateChanged();
 
     if (isIdle)
-        phy->sendControlMsgToMac(new omnetpp::cMessage("ChannelStatus",Mac80211pToPhy11pInterface::CHANNEL_IDLE));
+        phy->sendControlMsgToMac(new VENTOS::PhyToMacReport("ChannelStatus", Mac80211pToPhy11pInterface::CHANNEL_IDLE));
     else
-        phy->sendControlMsgToMac(new omnetpp::cMessage("ChannelStatus",Mac80211pToPhy11pInterface::CHANNEL_BUSY));
+        phy->sendControlMsgToMac(new VENTOS::PhyToMacReport("ChannelStatus", Mac80211pToPhy11pInterface::CHANNEL_BUSY));
 }
 
 

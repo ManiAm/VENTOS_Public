@@ -62,6 +62,13 @@ void PhyLayer80211p::initialize(int stage)
 
         //erase the RadioStateAnalogueModel
         analogueModels.erase(analogueModels.begin());
+
+        record_stat = par("record_stat").boolValue();
+
+        // get a pointer to the Statistics module
+        omnetpp::cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("statistics");
+        STAT = static_cast<VENTOS::Statistics*>(module);
+        ASSERT(STAT);
     }
 }
 
@@ -352,10 +359,7 @@ AnalogueModel* PhyLayer80211p::initializeSimpleObstacleShadowing(ParameterMap& p
 
         // check whether carrierFrequency is not smaller than specified in ConnectionManager
         if(cc->hasPar("carrierFrequency") && carrierFrequency < cc->par("carrierFrequency").doubleValue())
-        {
-            // throw error
             throw omnetpp::cRuntimeError("initializeSimpleObstacleShadowing(): carrierFrequency can't be smaller than specified in ConnectionManager. Please adjust your config.xml file accordingly");
-        }
     }
     else // carrierFrequency has not been specified in config.xml
     {
@@ -402,11 +406,12 @@ void PhyLayer80211p::handleSelfMessage(omnetpp::cMessage* msg)
 {
     switch(msg->getKind())
     {
-    //transmission overBasePhyLayer::
+    //transmission over
     case TX_OVER:
     {
         assert(msg == txOverTimer);
-        sendControlMsgToMac(new omnetpp::cMessage("Transmission over", TX_OVER));
+
+        sendControlMsgToMac(new VENTOS::PhyToMacReport("Transmission over", TX_OVER));
 
         Decider80211p* dec = dynamic_cast<Decider80211p*>(decider);
         assert(dec);
@@ -518,6 +523,68 @@ void PhyLayer80211p::setCCAThreshold(double ccaThreshold_dBm)
 double PhyLayer80211p::getCCAThreshold()
 {
     return 10 * log10(ccaThreshold);
+}
+
+
+void PhyLayer80211p::sendControlMsgToMac(VENTOS::PhyToMacReport* msg)
+{
+    BasePhyLayer::sendControlMsgToMac(msg);
+
+    if(record_stat)
+    {
+        if (msg->getKind() == Decider80211p::BITERROR)
+        {
+            statsSNIRLostPackets++;
+            updateStat(msg, "BITERROR");
+        }
+        else if(msg->getKind() == Decider80211p::COLLISION)
+        {
+            statsSNIRLostPackets++;
+            updateStat(msg, "COLLISION");
+        }
+        else if(msg->getKind() == Decider80211p::RECWHILESEND)
+        {
+            statsTXRXLostPackets++;
+            updateStat(msg, "RECWHILESEND");
+        }
+    }
+}
+
+
+void PhyLayer80211p::updateStat(VENTOS::PhyToMacReport* msg, std::string report)
+{
+    VENTOS::PhyToMacReport *phyReport = dynamic_cast<VENTOS::PhyToMacReport *>(msg);
+    ASSERT(phyReport);
+
+    long int frameId = phyReport->getMsgId();
+    long int nicId = this->getParentModule()->getId();
+
+    auto it = STAT->global_msgTxRx_stat.find(std::make_pair(frameId, nicId));
+    if(it == STAT->global_msgTxRx_stat.end())
+        throw omnetpp::cRuntimeError("received frame '%d' has never been transmitted!", frameId);
+
+    it->second.receivedAt = omnetpp::simTime().dbl();
+    it->second.receivedStatus = report;
+}
+
+
+void PhyLayer80211p::sendUp(AirFrame* frame, DeciderResult* result)
+{
+    if(record_stat)
+    {
+        // we need the id of the message assigned by OMNET++
+        long int frameId = (dynamic_cast<omnetpp::cPacket *>(frame))->getId();
+        long int nicId = this->getParentModule()->getId();
+
+        auto it = STAT->global_msgTxRx_stat.find(std::make_pair(frameId, nicId));
+        if(it == STAT->global_msgTxRx_stat.end())
+            throw omnetpp::cRuntimeError("received frame '%d' has never been transmitted!", frameId);
+
+        it->second.receivedAt = omnetpp::simTime().dbl();
+        it->second.receivedStatus = "healthy";
+    }
+
+    BasePhyLayer::sendUp(frame, result);
 }
 
 }

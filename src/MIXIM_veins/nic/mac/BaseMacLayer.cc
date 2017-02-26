@@ -188,6 +188,7 @@ void BaseMacLayer::handleLowerControl(omnetpp::cMessage* msg)
         msg->setKind(TX_OVER);
         sendControlUp(msg);
         break;
+
     default:
         EV << "BaseMacLayer does not handle control messages of this type (name was "<<msg->getName()<<")\n";
         delete msg;

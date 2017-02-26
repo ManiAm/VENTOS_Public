@@ -12,7 +12,7 @@ enum SenseMode {
 };
     
 //
-// The ChannelSenseRequest is a control packet from the
+// The MacToPhyCSR (Channel Sense Request) is a control packet from the
 // MAC layer to the physical layer. In contrast to the
 // "getChannelState()" method of the MacToPhyInterface
 // which imediatly returns the current ChannelState
@@ -41,11 +41,15 @@ enum SenseMode {
 // in the form of a ChannelState object. How the idle and
 // rssi info contained in the ChannelState are calculated
 // and interpreted depends on the Decider.
-//
-packet ChannelSenseRequest
+
+packet MacToPhyCSR
 {
-    int senseMode enum(SenseMode);	// defines the sensing mode (see SenseMode enum)
-    simtime_t senseTimeout; 		// Time to listen on the channel
-    ChannelState result; 			// The result of the request containing the current state of the channel.
-									// See ChannelState for details.
+    // defines the sensing mode
+    int senseMode enum(SenseMode);
+    
+    // Time to listen on the channel
+    simtime_t senseTimeout;
+    
+    // The result of the request containing the current state of the channel
+    ChannelState result;									
 }

@@ -510,7 +510,7 @@ void BasePhyLayer::filterSignal(AirFrame *frame)
 
 void BasePhyLayer::handleChannelSenseRequest(omnetpp::cMessage* msg)
 {
-    ChannelSenseRequest* senseReq = static_cast<ChannelSenseRequest*>(msg);
+    MacToPhyCSR* senseReq = static_cast<MacToPhyCSR*>(msg);
 
     omnetpp::simtime_t nextHandleTime = decider->handleChannelSenseRequest(senseReq);
 
@@ -553,7 +553,7 @@ void BasePhyLayer::handleSelfMessage(omnetpp::cMessage* msg)
     //transmission over
     case TX_OVER:
         assert(msg == txOverTimer);
-        sendControlMsgToMac(new omnetpp::cMessage("Transmission over", TX_OVER));
+        sendControlMsgToMac(new VENTOS::PhyToMacReport("Transmission over", TX_OVER));
         break;
         //radio switch over
     case RADIO_SWITCHING_OVER:
@@ -644,7 +644,7 @@ int BasePhyLayer::getRadioState()
 void BasePhyLayer::finishRadioSwitching()
 {
     radio->endSwitch(omnetpp::simTime());
-    sendControlMsgToMac(new omnetpp::cMessage("Radio switching over", RADIO_SWITCHING_OVER));
+    sendControlMsgToMac(new VENTOS::PhyToMacReport("Radio switching over", RADIO_SWITCHING_OVER));
 }
 
 
@@ -737,7 +737,7 @@ ConstMapping* BasePhyLayer::getThermalNoise(omnetpp::simtime_t_cref from, omnetp
 }
 
 
-void BasePhyLayer::sendControlMsgToMac(omnetpp::cMessage* msg)
+void BasePhyLayer::sendControlMsgToMac(VENTOS::PhyToMacReport* msg)
 {
     if(msg->getKind() == CHANNEL_SENSE_REQUEST)
     {
@@ -759,13 +759,6 @@ void BasePhyLayer::sendUp(AirFrame* frame, DeciderResult* result)
     setUpControlInfo(packet, result);
 
     send(packet, upperLayerOut);
-}
-
-
-omnetpp::simtime_t BasePhyLayer::getSimTime()
-{
-
-    return omnetpp::simTime();
 }
 
 

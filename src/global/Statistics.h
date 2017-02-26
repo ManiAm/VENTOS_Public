@@ -60,6 +60,36 @@ public:
     std::string maneuver;
 } plnStat_t;
 
+typedef struct MAC_stat
+{
+    double last_stat_time;
+
+    long statsDroppedPackets;        // packet was dropped in Mac
+    long statsNumTooLittleTime;      // Too little time in this interval. Will not schedule nextMacEvent
+    long statsNumInternalContention; // there was already another packet ready. we have to go increase CW and go into backoff. It's called internal contention and its wonderful
+    long statsNumBackoff;
+    long statsSlotsBackoff;
+    double statsTotalBusyTime;
+    long statsSentPackets;
+    long statsReceivedPackets;     // Received a data packet addressed to me
+    long statsReceivedBroadcasts;  // Received a broadcast data packet
+} MAC_stat_t;
+
+
+typedef struct msgTxRxStat
+{
+    std::string msgName;
+    std::string senderNode;
+    std::string receiverNode;
+    int frameSize;
+    double sentAt;
+    double TxSpeed;
+    double TxTime;
+    double propagationDelay;
+    double receivedAt;
+    std::string receivedStatus;
+} msgTxRxStat_t;
+
 
 class Statistics : public BaseApplLayer
 {
@@ -68,6 +98,9 @@ public:
 
     std::vector<plnManagement_t> global_plnManagement_stat;
     std::vector<plnStat_t> global_plnData_stat;
+
+    std::map<std::string, MAC_stat_t> global_MAC_stat;
+    std::map<std::pair<long int /*msg id*/, long int /*rx nic id*/>, msgTxRxStat_t> global_msgTxRx_stat;
 
 protected:
     // NED variables
@@ -92,6 +125,9 @@ private:
     void save_plnStat_toFile();
 
     void save_beacon_stat_toFile();
+
+    void save_MAC_stat_toFile();
+    void save_PHY_stat_toFile();
 };
 
 }

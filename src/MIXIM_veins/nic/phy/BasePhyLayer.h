@@ -4,11 +4,13 @@
 #include <map>
 #include <vector>
 #include <string>
+
 #include "MiXiMDefs.h"
 #include "ChannelAccess.h"
 #include "DeciderToPhyInterface.h"
 #include "MacToPhyInterface.h"
 #include "ChannelInfo.h"
+#include "PhyToMacReport_m.h"
 
 class AnalogueModel;
 class Decider;
@@ -156,9 +158,6 @@ protected:
     /** @brief Pointer to the World Utility, to obtain some global information*/
     BaseWorldUtility* world;
 
-public:
-
-
 private:
 
     /**
@@ -178,8 +177,6 @@ private:
      * passed XML-config data.
      */
     void initializeDecider(omnetpp::cXMLElement* xmlConfig);
-
-
 
 protected:
 
@@ -447,7 +444,7 @@ public:
      * This function can be used to answer a ChannelSenseRequest to the MACLayer
      *
      */
-    virtual void sendControlMsgToMac(omnetpp::cMessage* msg);
+    virtual void sendControlMsgToMac(VENTOS::PhyToMacReport* msg);
 
     /**
      * @brief Called to send an AirFrame with DeciderResult to the MACLayer
@@ -458,11 +455,6 @@ public:
      *
      */
     virtual void sendUp(AirFrame* packet, DeciderResult* result);
-
-    /**
-     * @brief Returns the current simulation time
-     */
-    virtual omnetpp::simtime_t getSimTime();
 
     /**
      * @brief Tells the PhyLayer to cancel a scheduled message (AirFrame or

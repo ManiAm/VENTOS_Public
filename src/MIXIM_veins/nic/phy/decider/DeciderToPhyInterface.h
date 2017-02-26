@@ -10,7 +10,9 @@
 #include <vector>
 #include <list>
 #include <omnetpp.h>
+
 #include "MiXiMDefs.h"
+#include "PhyToMacReport_m.h"
 
 class AirFrame;
 class BaseWorldUtility;
@@ -68,7 +70,7 @@ public:
 	 * This function can be used to answer a ChannelSenseRequest to the MACLayer
 	 *
 	 */
-	virtual void sendControlMsgToMac(omnetpp::cMessage* msg) = 0;
+	virtual void sendControlMsgToMac(VENTOS::PhyToMacReport* msg) = 0;
 
 	/**
 	 * @brief Called to send an AirFrame with DeciderResult to the MACLayer
@@ -79,12 +81,6 @@ public:
 	 *
 	 */
 	virtual void sendUp(AirFrame* packet, DeciderResult* result) = 0;
-
-	/**
-	 * @brief Returns the current simulation time
-	 *
-	 */
-	virtual omnetpp::simtime_t getSimTime() = 0;
 
 	/**
 	 * @brief Tells the PhyLayer to cancel a scheduled message (AirFrame or

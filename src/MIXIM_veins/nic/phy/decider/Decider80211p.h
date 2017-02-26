@@ -26,6 +26,7 @@
 #include "Consts80211p.h"
 #include "Mac80211pToPhy11pInterface.h"
 #include "Decider80211pToPhy80211pInterface.h"
+#include "msg/AirFrame11p_m.h"
 
 namespace Veins {
 

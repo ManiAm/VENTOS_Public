@@ -137,4 +137,6 @@ simple PhyLayer80211p extends BasePhyLayer
         //decides whether aborting the simulation or not if the MAC layer
         //requires phy to transmit a frame while currently receiveing another
         bool allowTxDuringRx = default(false);
+        
+        bool record_stat = default(false);
 }

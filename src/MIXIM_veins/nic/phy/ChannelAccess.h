@@ -20,7 +20,6 @@
  *                from this class and use the sendToChannel() function!!
  **************************************************************************/
 
-
 #ifndef CHANNEL_ACCESS_H
 #define CHANNEL_ACCESS_H
 
@@ -30,6 +29,7 @@
 #include "MiXiMDefs.h"
 #include "FindModule.h"
 #include "BaseMobility.h"
+#include "global/Statistics.h"
 
 typedef AccessModuleWrap<BaseMobility> ChannelMobilityAccessType;
 typedef ChannelMobilityAccessType::wrapType* ChannelMobilityPtrType;
@@ -56,7 +56,13 @@ class BaseWorldUtility;
 
 class MIXIM_API ChannelAccess : public BaseModule, protected ChannelMobilityAccessType
 {
+private:
+
+    VENTOS::Statistics* STAT;
+    bool record_stat;
+
 protected:
+
 	/** @brief A signal used to subscribe to mobility state changes. */
 	const static simsignalwrap_t mobilityStateChangedSignal;
 
@@ -78,7 +84,12 @@ protected:
 	/** @brief Pointer to the World Utility, to obtain some global information*/
 	BaseWorldUtility* world;
 
+private:
+
+	void recordFrameTx(omnetpp::cPacket *msg, omnetpp::cGate *gate, omnetpp::simtime_t propDelay);
+
 protected:
+
 	/**
 	 * @brief Calculates the propagation delay to the passed receiving nic.
 	 */
@@ -96,6 +107,7 @@ protected:
 	void sendToChannel(omnetpp::cPacket *msg);
 
 public:
+
 	/**
 	 * @brief Returns a pointer to the ConnectionManager responsible for the
 	 * passed NIC module.
@@ -128,4 +140,3 @@ public:
 };
 
 #endif
-

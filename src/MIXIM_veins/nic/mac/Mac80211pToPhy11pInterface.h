@@ -34,14 +34,18 @@ namespace Veins {
  *
  * @ingroup phyLayer
  */
-class Mac80211pToPhy11pInterface {
+class Mac80211pToPhy11pInterface
+{
 	public:
-		enum BasePhyMessageKinds {
+
+		enum BasePhyMessageKinds
+		{
 			CHANNEL_IDLE,
 			CHANNEL_BUSY,
 		};
 
 	public:
+
 		virtual void changeListeningFrequency(double freq) = 0;
 		virtual void setCCAThreshold(double ccaThreshold_dBm) = 0;
 		virtual ~Mac80211pToPhy11pInterface() {};

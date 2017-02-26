@@ -80,12 +80,12 @@ protected:
 
     /** @brief Data about an currently ongoing ChannelSenseRequest. */
     typedef struct{
-        ChannelSenseRequest* first;
+        MacToPhyCSR* first;
         omnetpp::simtime_t second;
         omnetpp::simtime_t canAnswerAt;
 
-        ChannelSenseRequest* getRequest() const { return first; }
-        void setRequest(ChannelSenseRequest* request) { first = request; }
+        MacToPhyCSR* getRequest() const { return first; }
+        void setRequest(MacToPhyCSR* request) { first = request; }
         omnetpp::simtime_t_cref getSenseStart() const { return second; }
         void setSenseStart(omnetpp::simtime_t_cref start) { second = start; }
         omnetpp::simtime_t_cref getAnswerTime() const { return canAnswerAt; }
@@ -157,7 +157,7 @@ public:
      * and "answers" by calling the "sendControlMsg"-function on the
      * DeciderToPhyInterface, i.e. telling the PhyLayer to send it back.
      */
-    virtual omnetpp::simtime_t handleChannelSenseRequest(ChannelSenseRequest* request);
+    virtual omnetpp::simtime_t handleChannelSenseRequest(MacToPhyCSR* request);
 
 protected:
 
@@ -214,7 +214,7 @@ protected:
      * @brief Handles a new incoming ChannelSenseRequest and returns the next
      * (or latest) time to handle the request again.
      */
-    virtual omnetpp::simtime_t handleNewSenseRequest(ChannelSenseRequest* request);
+    virtual omnetpp::simtime_t handleNewSenseRequest(MacToPhyCSR* request);
 
     /**
      * @brief Handles the timeout or end of a ChannelSenseRequest by calculating

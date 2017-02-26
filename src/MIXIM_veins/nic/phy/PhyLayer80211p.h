@@ -31,6 +31,7 @@
 #include "Decider80211pToPhy80211pInterface.h"
 #include "BaseConnectionManager.h"
 #include "Move.h"
+#include "global/Statistics.h"
 
 #ifndef DBG
 #define DBG EV
@@ -53,17 +54,14 @@ namespace Veins {
 
 class PhyLayer80211p : public BasePhyLayer, public Mac80211pToPhy11pInterface, public Decider80211pToPhy80211pInterface
 {
-public:
-    void initialize(int stage);
-    /**
-     * @brief Set the carrier sense threshold
-     * @param ccaThreshold_dBm the cca threshold in dBm
-     */
-    void setCCAThreshold(double ccaThreshold_dBm);
-    /**
-     * @brief Return the cca threshold in dBm
-     */
-    double getCCAThreshold();
+private:
+
+    VENTOS::Statistics* STAT;
+
+    long statsSNIRLostPackets;     // A packet was not received due to bit-errors
+    long statsTXRXLostPackets;     // A packet was not received because we were sending while receiving
+
+    bool record_stat;
 
 protected:
 
@@ -82,6 +80,30 @@ protected:
     enum ProtocolIds {
         IEEE_80211 = 12123
     };
+
+public:
+
+    void initialize(int stage);
+
+    /**
+     * @brief Set the carrier sense threshold
+     * @param ccaThreshold_dBm the cca threshold in dBm
+     */
+    void setCCAThreshold(double ccaThreshold_dBm);
+
+    /**
+     * @brief Return the cca threshold in dBm
+     */
+    double getCCAThreshold();
+
+    void sendControlMsgToMac(VENTOS::PhyToMacReport* msg);
+
+    void updateStat(VENTOS::PhyToMacReport* msg, std::string report);
+
+    void sendUp(AirFrame* packet, DeciderResult* result);
+
+protected:
+
     /**
      * @brief Creates and returns an instance of the AnalogueModel with the
      * specified name.
@@ -164,6 +186,7 @@ protected:
     virtual void changeListeningFrequency(double freq);
 
     virtual void handleSelfMessage(omnetpp::cMessage* msg);
+
     virtual int getRadioState();
     virtual omnetpp::simtime_t setRadioState(int rs);
 };

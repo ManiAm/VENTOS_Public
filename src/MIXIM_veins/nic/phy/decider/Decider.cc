@@ -22,7 +22,7 @@ ChannelState Decider::getChannelState()
 }
 
 
-omnetpp::simtime_t Decider::handleChannelSenseRequest(ChannelSenseRequest* request)
+omnetpp::simtime_t Decider::handleChannelSenseRequest(MacToPhyCSR* request)
 {
 	return -1;
 }

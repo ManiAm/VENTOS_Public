@@ -34,6 +34,7 @@
 #include "ConstsPhy.h"
 #include "Mac1609_4_EDCA.h"
 #include "Mac80211Pkt_m.h"
+#include "global/Statistics.h"
 
 namespace Veins {
 
@@ -60,6 +61,8 @@ class Mac1609_4 : public BaseMacLayer, public WaveAppToMac1609_4Interface
 {
 private:
     Mac80211pToPhy11pInterface* phy11p;
+    VENTOS::Statistics* STAT;
+    bool record_stat;
 
 protected:
     /** @brief Self message to indicate that the current channel shall be switched.*/
@@ -94,8 +97,6 @@ protected:
     long statsReceivedPackets = 0;
     long statsReceivedBroadcasts = 0;
     long statsSentPackets = 0;
-    long statsTXRXLostPackets = 0;
-    long statsSNIRLostPackets = 0;
     long statsDroppedPackets = 0;
     long statsNumTooLittleTime = 0;
     long statsNumInternalContention = 0;
@@ -124,6 +125,7 @@ protected:
     omnetpp::simsignal_t sigCollision;
 
 public:
+
     ~Mac1609_4() { };
 
     // return true if alternate access is enabled
@@ -158,6 +160,7 @@ public:
     void setCCAThreshold(double ccaThreshold_dBm);
 
 protected:
+
     /** @brief Initialization of the module and some variables.*/
     virtual void initialize(int);
 
@@ -199,6 +202,9 @@ protected:
     void setParametersForBitrate(uint64_t bitrate);
 
     omnetpp::simtime_t getFrameDuration(int payloadLengthBits, enum PHY_MCS mcs = MCS_DEFAULT) const;
+
+private:
+    void record_MAC_stat_func();
 };
 
 }

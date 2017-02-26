@@ -95,27 +95,22 @@ omnetpp::simtime_t BaseDecider::processUnknownSignal(AirFrame* frame)
 
 ChannelState BaseDecider::getChannelState()
 {
-    omnetpp::simtime_t now = phy->getSimTime();
+    omnetpp::simtime_t now = omnetpp::simTime();
     double rssiValue = calcChannelSenseRSSI(now, now);
 
     return ChannelState(isChannelIdle, rssiValue);
 }
 
 
-omnetpp::simtime_t BaseDecider::handleChannelSenseRequest(ChannelSenseRequest* request)
+omnetpp::simtime_t BaseDecider::handleChannelSenseRequest(MacToPhyCSR* request)
 {
     assert(request);
 
     if (currentChannelSenseRequest.first == 0)
-    {
         return handleNewSenseRequest(request);
-    }
 
     if (currentChannelSenseRequest.first != request)
-    {
         throw omnetpp::cRuntimeError("Got a new ChannelSenseRequest while already handling another one!");
-        return notAgain;
-    }
 
     handleSenseRequestEnd(currentChannelSenseRequest);
 
@@ -124,10 +119,10 @@ omnetpp::simtime_t BaseDecider::handleChannelSenseRequest(ChannelSenseRequest* r
 }
 
 
-omnetpp::simtime_t BaseDecider::handleNewSenseRequest(ChannelSenseRequest* request)
+omnetpp::simtime_t BaseDecider::handleNewSenseRequest(MacToPhyCSR* request)
 {
     // no request handled at the moment, handling the new one
-    omnetpp::simtime_t now = phy->getSimTime();
+    omnetpp::simtime_t now = omnetpp::simTime();
 
     // saving the pointer to the request and its start-time (now)
     currentChannelSenseRequest.setRequest(request);
@@ -150,7 +145,7 @@ omnetpp::simtime_t BaseDecider::handleNewSenseRequest(ChannelSenseRequest* reque
 
 void BaseDecider::handleSenseRequestEnd(CSRInfo& requestInfo)
 {
-    assert(canAnswerCSR(requestInfo) == phy->getSimTime());
+    assert(canAnswerCSR(requestInfo) == omnetpp::simTime());
     answerCSR(requestInfo);
 }
 
@@ -176,7 +171,7 @@ void BaseDecider::channelStateChanged()
     if(canAnswerAt != currentChannelSenseRequest.canAnswerAt)
     {
         //can we answer it now?
-        if(canAnswerAt == phy->getSimTime())
+        if(canAnswerAt == omnetpp::simTime())
         {
             phy->cancelScheduledMessage(currentChannelSenseRequest.getRequest());
             answerCSR(currentChannelSenseRequest);
@@ -194,7 +189,6 @@ void BaseDecider::channelStateChanged()
 void BaseDecider::setChannelIdleStatus(bool isIdle)
 {
     isChannelIdle = isIdle;
-
     channelStateChanged();
 }
 
@@ -217,7 +211,7 @@ omnetpp::simtime_t BaseDecider::canAnswerCSR(const CSRInfo& requestInfo)
 
     if(modeFulfilled)
     {
-        return phy->getSimTime();
+        return omnetpp::simTime();
     }
 
     //return point in time when time out is reached
@@ -239,12 +233,15 @@ double BaseDecider::calcChannelSenseRSSI(omnetpp::simtime_t_cref start, omnetpp:
 
 void BaseDecider::answerCSR(CSRInfo& requestInfo)
 {
-    double rssiValue = calcChannelSenseRSSI(requestInfo.second, phy->getSimTime());
+    double rssiValue = calcChannelSenseRSSI(requestInfo.second, omnetpp::simTime());
 
-    // put the sensing-result to the request and
-    // send it to the Mac-Layer as Control-message (via Interface)
+    // put the sensing-result to the request
     requestInfo.first->setResult( ChannelState(isChannelIdle, rssiValue) );
-    phy->sendControlMsgToMac(requestInfo.first);
+
+    // todo: I commented the following line and the program reaches here
+    ASSERT(false);
+    // and send it to the Mac-Layer as Control-message (via Interface)
+    // phy->sendControlMsgToMac(requestInfo.first);
 
     requestInfo.first = 0;
     requestInfo.second = -1;

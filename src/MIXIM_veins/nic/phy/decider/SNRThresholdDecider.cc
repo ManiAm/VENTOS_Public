@@ -106,7 +106,7 @@ bool SNRThresholdDecider::checkIfAboveThreshold(Mapping* map, omnetpp::simtime_t
 ChannelState SNRThresholdDecider::getChannelState()
 {
 
-    omnetpp::simtime_t now = phy->getSimTime();
+    omnetpp::simtime_t now = omnetpp::simTime();
 	double rssiValue = calcChannelSenseRSSI(now, now);
 
 	return ChannelState(isIdleRSSI(rssiValue), rssiValue);
@@ -114,21 +114,26 @@ ChannelState SNRThresholdDecider::getChannelState()
 
 void SNRThresholdDecider::answerCSR(CSRInfo& requestInfo)
 {
-	// put the sensing-result to the request and
-	// send it to the Mac-Layer as Control-message (via Interface)
-	requestInfo.first->setResult( getChannelState() );
-	phy->sendControlMsgToMac(requestInfo.first);
+	// put the sensing-result to the request
+	requestInfo.first->setResult(getChannelState());
+
+    // todo: I commented the following line and the program reaches here
+    ASSERT(false);
+	// and send it to the Mac-Layer as Control-message (via Interface)
+	// phy->sendControlMsgToMac(requestInfo.first);
 
 	requestInfo.first = 0;
 	requestInfo.second = -1;
 	requestInfo.canAnswerAt = -1;
 }
 
-omnetpp::simtime_t SNRThresholdDecider::canAnswerCSR(const CSRInfo& requestInfo) {
-	const ChannelSenseRequest* request = requestInfo.getRequest();
+omnetpp::simtime_t SNRThresholdDecider::canAnswerCSR(const CSRInfo& requestInfo)
+{
+	const MacToPhyCSR* request = requestInfo.getRequest();
 	assert(request);
 
-	if(request->getSenseMode() == UNTIL_TIMEOUT) {
+	if(request->getSenseMode() == UNTIL_TIMEOUT)
+	{
 	    throw omnetpp::cRuntimeError("SNRThresholdDecider received an UNTIL_TIMEOUT ChannelSenseRequest.\n"
 				  "SNRThresholdDecider can only handle UNTIL_IDLE or UNTIL_BUSY requests because it "
 				  "implements only instantaneous sensing where UNTIL_TIMEOUT requests "
@@ -138,7 +143,7 @@ omnetpp::simtime_t SNRThresholdDecider::canAnswerCSR(const CSRInfo& requestInfo)
 
 	omnetpp::simtime_t requestTimeout = requestInfo.getSenseStart() + request->getSenseTimeout();
 
-	omnetpp::simtime_t now = phy->getSimTime();
+	omnetpp::simtime_t now = omnetpp::simTime();
 
 	ConstMapping* rssiMapping = calculateRSSIMapping(now, requestTimeout);
 
@@ -206,14 +211,14 @@ omnetpp::simtime_t SNRThresholdDecider::processSignalEnd(AirFrame* frame)
 		deciderEV << "SNR is above threshold("<<snrThreshold<<") -> sending up." << std::endl;
 		// go on with processing this AirFrame, send it to the Mac-Layer
 		phy->sendUp(frame, new DeciderResult(true));
-	} else
+	}
+	else
 	{
 		deciderEV << "SNR is below threshold("<<snrThreshold<<") -> dropped." << std::endl;
 	}
 
 	delete snrMap;
 	snrMap = 0;
-
 
 	// we have processed this AirFrame and we prepare to receive the next one
 	currentSignal.first = 0;

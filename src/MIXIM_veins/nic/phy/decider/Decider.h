@@ -8,7 +8,7 @@
 #define DECIDER_H_
 
 #include <omnetpp.h>
-#include "src/msg/ChannelSenseRequest_m.h"
+#include "src/msg/MacToPhyCSR_m.h"
 #include "MiXiMDefs.h"
 #include "DeciderToPhyInterface.h"
 #include "ChannelState.h"
@@ -112,7 +112,7 @@ public:
      * and "answers" by calling the "sendControlMsg"-function on the
      * DeciderToPhyInterface, i.e. telling the PhyLayer to send it back.
      */
-    virtual omnetpp::simtime_t handleChannelSenseRequest(ChannelSenseRequest* request);
+    virtual omnetpp::simtime_t handleChannelSenseRequest(MacToPhyCSR* request);
 
     /**
      * @brief Method to be called by an OMNeT-module during its own finish(),
