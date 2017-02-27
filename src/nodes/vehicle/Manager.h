@@ -96,6 +96,15 @@ protected:
 
     void onMessageType(omnetpp::cMessage* msg);
     bool dropBeacon(double time, std::string vehicle, double plr);
+
+private:
+    /**
+     * Returns the amount of CO2 emissions in grams/second, calculated for an average Car
+     * @param v speed in m/s
+     * @param a acceleration in m/s^2
+     * @returns emission in g/s
+     */
+    double calculateCO2emission(double v, double a);
 };
 
 }

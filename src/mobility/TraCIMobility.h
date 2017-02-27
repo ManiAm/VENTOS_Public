@@ -45,6 +45,7 @@
  *
  * @ingroup mobility
  */
+
 namespace VENTOS {
 
 #define TRACI_SIGNAL_PARKING_CHANGE_NAME "parkingStateChanged"
@@ -85,7 +86,8 @@ public:
     virtual void changeParkingState(bool);
     virtual void updateDisplayString();
     virtual void setExternalId(std::string external_id) { this->external_id = external_id; }
-    virtual std::string getExternalId() const {
+    virtual std::string getExternalId() const
+    {
         if (external_id == "")
             throw omnetpp::cRuntimeError("TraCIMobility::getExternalId called with no external_id set yet");
         return external_id;
@@ -93,17 +95,20 @@ public:
     virtual double getAntennaPositionOffset() const { return antennaPositionOffset; }
     virtual Coord getPositionAt(const omnetpp::simtime_t& t) const { return move.getPositionAt(t); }
     virtual bool getParkingState() const { return isParking; }
-    virtual std::string getRoadId() const {
+    virtual std::string getRoadId() const
+    {
         if (road_id == "")
             throw omnetpp::cRuntimeError("TraCIMobility::getRoadId called with no road_id set yet");
         return road_id;
     }
-    virtual double getSpeed() const {
+    virtual double getSpeed() const
+    {
         if (speed == -1)
             throw omnetpp::cRuntimeError("TraCIMobility::getSpeed called with no speed set yet");
         return speed;
     }
-    virtual VehicleSignal getSignals() const {
+    virtual VehicleSignal getSignals() const
+    {
         if (vehSignals == -1)
             throw omnetpp::cRuntimeError("TraCIMobility::getSignals called with no signals set yet");
         return vehSignals;
@@ -111,7 +116,8 @@ public:
     /**
      * returns angle in rads, 0 being east, with -M_PI <= angle < M_PI.
      */
-    virtual double getAngleRad() const {
+    virtual double getAngleRad() const
+    {
         if (angle == M_PI)
             throw omnetpp::cRuntimeError("TraCIMobility::getAngleRad called with no angle set yet");
         return angle;
@@ -119,14 +125,6 @@ public:
 
 protected:
     virtual void fixIfHostGetsOutside(); /**< called after each read to check for (and handle) invalid positions */
-
-    /**
-     * Returns the amount of CO2 emissions in grams/second, calculated for an average Car
-     * @param v speed in m/s
-     * @param a acceleration in m/s^2
-     * @returns emission in g/s
-     */
-    double calculateCO2emission(double v, double a) const;
 
     /**
      * Calculates where the antenna of this car is, given its front bumper position
