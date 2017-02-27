@@ -60,7 +60,7 @@ void PhyLayer80211p::initialize(int stage)
         if (par("headerLength").longValue() != PHY_HDR_TOTAL_LENGTH)
             throw omnetpp::cRuntimeError("The header length of the 802.11p standard is 46bit, please change your omnetpp.ini accordingly by either setting it to 46bit or removing the entry");
 
-        //erase the RadioStateAnalogueModel
+        // erase the RadioStateAnalogueModel
         analogueModels.erase(analogueModels.begin());
 
         // get a pointer to the Statistics module
@@ -134,7 +134,7 @@ AnalogueModel* PhyLayer80211p::initializeJakesFading(ParameterMap& params)
 AnalogueModel* PhyLayer80211p::initializeBreakpointPathlossModel(ParameterMap& params)
 {
     double alpha1 = -1, alpha2 = -1, breakpointDistance = -1;
-    double L01=-1, L02=-1;
+    double L01 = -1, L02 = -1;
     double carrierFrequency = 5.890e+9;
     bool useTorus = world->useTorus();
     const Coord& playgroundSize = *(world->getPgs());
@@ -149,7 +149,6 @@ AnalogueModel* PhyLayer80211p::initializeBreakpointPathlossModel(ParameterMap& p
         // check whether alpha is not smaller than specified in ConnectionManager
         if(cc->hasPar("alpha") && alpha1 < cc->par("alpha").doubleValue())
         {
-            // throw error
             throw omnetpp::cRuntimeError("TestPhyLayer::createPathLossModel(): alpha can't be smaller than specified in \
 	               ConnectionManager. Please adjust your config.xml file accordingly");
         }
@@ -157,15 +156,11 @@ AnalogueModel* PhyLayer80211p::initializeBreakpointPathlossModel(ParameterMap& p
 
     it = params.find("L01");
     if(it != params.end())
-    {
         L01 = it->second.doubleValue();
-    }
 
     it = params.find("L02");
     if(it != params.end())
-    {
         L02 = it->second.doubleValue();
-    }
 
     it = params.find("alpha2");
     if ( it != params.end() ) // parameter alpha1 has been specified in config.xml
@@ -176,7 +171,6 @@ AnalogueModel* PhyLayer80211p::initializeBreakpointPathlossModel(ParameterMap& p
         // check whether alpha is not smaller than specified in ConnectionManager
         if(cc->hasPar("alpha") && alpha2 < cc->par("alpha").doubleValue())
         {
-            // throw error
             throw omnetpp::cRuntimeError("TestPhyLayer::createPathLossModel(): alpha can't be smaller than specified in \
 	               ConnectionManager. Please adjust your config.xml file accordingly");
         }
@@ -268,7 +262,6 @@ AnalogueModel* PhyLayer80211p::initializeSimplePathlossModel(ParameterMap& param
         // check whether alpha is not smaller than specified in ConnectionManager
         if(cc->hasPar("alpha") && alpha < cc->par("alpha").doubleValue())
         {
-            // throw error
             throw omnetpp::cRuntimeError("TestPhyLayer::createPathLossModel(): alpha can't be smaller than specified in \
 	               ConnectionManager. Please adjust your config.xml file accordingly");
         }
@@ -299,7 +292,6 @@ AnalogueModel* PhyLayer80211p::initializeSimplePathlossModel(ParameterMap& param
         // check whether carrierFrequency is not smaller than specified in ConnectionManager
         if(cc->hasPar("carrierFrequency") && carrierFrequency < cc->par("carrierFrequency").doubleValue())
         {
-            // throw error
             throw omnetpp::cRuntimeError("TestPhyLayer::createPathLossModel(): carrierFrequency can't be smaller than specified in \
 	               ConnectionManager. Please adjust your config.xml file accordingly");
         }
@@ -409,7 +401,7 @@ void PhyLayer80211p::handleSelfMessage(omnetpp::cMessage* msg)
 {
     switch(msg->getKind())
     {
-    //transmission over
+    // transmission over
     case TX_OVER:
     {
         assert(msg == txOverTimer);
@@ -431,7 +423,7 @@ void PhyLayer80211p::handleSelfMessage(omnetpp::cMessage* msg)
 
         break;
     }
-    //radio switch over
+    // radio switch over
     case RADIO_SWITCHING_OVER:
         assert(msg == radioSwitchingOverTimer);
         BasePhyLayer::finishRadioSwitching();
@@ -549,39 +541,22 @@ void PhyLayer80211p::sendControlMsgToMac(VENTOS::PhyToMacReport* msg)
         statsBiteErrorLostFrames++;
 
         if(record_stat) record_PHY_stat_func();
-        if(record_frameTxRx) updateStat(msg, "BITERROR");
+        if(record_frameTxRx) record_frameTxRx_stat_func(msg, "BITERROR");
     }
     else if(msg->getKind() == Decider80211p::COLLISION)
     {
         statsCollisionLostFrames++;
 
         if(record_stat) record_PHY_stat_func();
-        if(record_frameTxRx) updateStat(msg, "COLLISION");
+        if(record_frameTxRx) record_frameTxRx_stat_func(msg, "COLLISION");
     }
     else if(msg->getKind() == Decider80211p::RECWHILESEND)
     {
         statsTXRXLostFrames++;
 
         if(record_stat) record_PHY_stat_func();
-        if(record_frameTxRx) updateStat(msg, "RECWHILESEND");
+        if(record_frameTxRx) record_frameTxRx_stat_func(msg, "RECWHILESEND");
     }
-}
-
-
-void PhyLayer80211p::updateStat(VENTOS::PhyToMacReport* msg, std::string report)
-{
-    VENTOS::PhyToMacReport *phyReport = dynamic_cast<VENTOS::PhyToMacReport *>(msg);
-    ASSERT(phyReport);
-
-    long int frameId = phyReport->getMsgId();
-    long int nicId = this->getParentModule()->getId();
-
-    auto it = STAT->global_frameTxRx_stat.find(std::make_pair(frameId, nicId));
-    if(it == STAT->global_frameTxRx_stat.end())
-        throw omnetpp::cRuntimeError("received frame '%d' has never been transmitted!", frameId);
-
-    it->second.receivedAt = omnetpp::simTime().dbl();
-    it->second.receivedStatus = report;
 }
 
 
@@ -626,6 +601,23 @@ void PhyLayer80211p::record_PHY_stat_func()
         STAT->global_PHY_stat[myId] = entry;
     else
         it->second = entry;
+}
+
+
+void PhyLayer80211p::record_frameTxRx_stat_func(VENTOS::PhyToMacReport* msg, std::string report)
+{
+    VENTOS::PhyToMacReport *phyReport = dynamic_cast<VENTOS::PhyToMacReport *>(msg);
+    ASSERT(phyReport);
+
+    long int frameId = phyReport->getMsgId();
+    long int nicId = this->getParentModule()->getId();
+
+    auto it = STAT->global_frameTxRx_stat.find(std::make_pair(frameId, nicId));
+    if(it == STAT->global_frameTxRx_stat.end())
+        throw omnetpp::cRuntimeError("received frame '%d' has never been transmitted!", frameId);
+
+    it->second.receivedAt = omnetpp::simTime().dbl();
+    it->second.receivedStatus = report;
 }
 
 }

@@ -90,6 +90,7 @@ protected:
 private:
 
     void record_PHY_stat_func();
+    void record_frameTxRx_stat_func(VENTOS::PhyToMacReport* msg, std::string report);
 
 public:
 
@@ -107,8 +108,6 @@ public:
     double getCCAThreshold();
 
     void sendControlMsgToMac(VENTOS::PhyToMacReport* msg);
-
-    void updateStat(VENTOS::PhyToMacReport* msg, std::string report);
 
     void sendUp(AirFrame* packet, DeciderResult* result);
 
@@ -172,8 +171,7 @@ protected:
     AnalogueModel* initializeNakagamiFading(ParameterMap& params);
 
     /**
-     * @brief Creates and returns an instance of the Decider with the specified
-     * name.
+     * @brief Creates and returns an instance of the Decider with the specified name.
      *
      * Is able to initialize the following Deciders:
      *

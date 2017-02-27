@@ -484,7 +484,6 @@ void Statistics::save_PHY_stat_toFile()
         fprintf (filePtr, "duration        %s\n\n\n", TraCI->simulationGetDuration().c_str());
     }
 
-
     // write header
     fprintf (filePtr, "%-20s","vehicleName");
     fprintf (filePtr, "%-20s","lastStatTime");
