@@ -53,10 +53,7 @@ class TraCIMobilityMod : public BaseMobility
 {
 protected:
 
-    TraCI_Commands* TraCI;
-
     bool debug; /**< whether to emit debug messages */
-    int accidentCount; /**< number of accidents */
 
     bool isPreInitialized; /**< true if preInitialize() has been called immediately before initialize() */
 
@@ -70,13 +67,9 @@ protected:
     double angle; /**< updated by nextPosition() */
     VehicleSignal vehSignals; /**<updated by nextPosition() */
 
-    omnetpp::cMessage* startAccidentMsg = NULL;
-    omnetpp::cMessage* stopAccidentMsg = NULL;
-    double last_speed;
-
     const static simsignalwrap_t parkingStateChangedSignal;
 
-    bool isParking;
+    bool isParking = false;
 
 public:
 

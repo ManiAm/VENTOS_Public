@@ -40,14 +40,8 @@ void TraCIMobilityMod::initialize(int stage)
 	{
 		BaseMobility::initialize(stage);
 
-        // get a pointer to the TraCI module
-        cModule *module =  omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
-        TraCI = static_cast<TraCI_Commands *>(module);
-        ASSERT(TraCI);
-
 		debug = par("debug");
 		antennaPositionOffset = par("antennaPositionOffset");
-		accidentCount = par("accidentCount");
 
 		ASSERT(isPreInitialized);
 		isPreInitialized = false;
@@ -58,19 +52,6 @@ void TraCIMobilityMod::initialize(int stage)
 		move.setStart(nextPos);
 		move.setDirectionByVector(Coord(cos(angle), -sin(angle)));
 		move.setSpeed(speed);
-
-		isParking = false;
-		startAccidentMsg = 0;
-		stopAccidentMsg = 0;
-		last_speed = -1;
-
-		if (accidentCount > 0)
-		{
-		    omnetpp::simtime_t accidentStart = par("accidentStart");
-			startAccidentMsg = new omnetpp::cMessage("scheduledAccident");
-			stopAccidentMsg = new omnetpp::cMessage("scheduledAccidentResolved");
-			scheduleAt(omnetpp::simTime() + accidentStart, startAccidentMsg);
-		}
 	}
 	else if (stage == 1)
 	{
@@ -85,33 +66,14 @@ void TraCIMobilityMod::initialize(int stage)
 
 void TraCIMobilityMod::finish()
 {
-	cancelAndDelete(startAccidentMsg);
-	cancelAndDelete(stopAccidentMsg);
-
 	isPreInitialized = false;
 }
 
 
 void TraCIMobilityMod::handleSelfMsg(omnetpp::cMessage *msg)
 {
-	if (msg == startAccidentMsg)
-	{
-	    TraCI->vehicleSetSpeed(getExternalId(), 0);
-	    omnetpp::simtime_t accidentDuration = par("accidentDuration");
-		scheduleAt(omnetpp::simTime() + accidentDuration, stopAccidentMsg);
-		accidentCount--;
-	}
-	else if (msg == stopAccidentMsg)
-	{
-        TraCI->vehicleSetSpeed(getExternalId(), -1);
-		if (accidentCount > 0)
-		{
-		    omnetpp::simtime_t accidentInterval = par("accidentInterval");
-			scheduleAt(omnetpp::simTime() + accidentInterval, startAccidentMsg);
-		}
-	}
-	else
-	    throw omnetpp::cRuntimeError("Can't handle msg '%s' of kind '%d'", msg->getFullName(), msg->getKind());
+
+
 }
 
 
