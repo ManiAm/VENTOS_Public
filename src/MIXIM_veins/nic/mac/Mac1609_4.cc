@@ -55,7 +55,7 @@ void Mac1609_4::initialize(int stage)
 
         //mac-adresses
         myMacAddress = intuniform(0,0xFFFFFFFE);
-        myId = getParentModule()->getParentModule()->getFullPath();
+        myId = getParentModule()->getParentModule()->getFullName();
 
         headerLength = par("headerLength");
 

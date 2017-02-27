@@ -139,4 +139,5 @@ simple PhyLayer80211p extends BasePhyLayer
         bool allowTxDuringRx = default(false);
         
         bool record_stat = default(false);
+        bool record_frameTxRx = default(false);
 }

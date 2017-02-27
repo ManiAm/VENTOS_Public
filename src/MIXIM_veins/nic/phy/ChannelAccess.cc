@@ -73,7 +73,7 @@ void ChannelAccess::initialize(int stage)
     }
     else if (stage == 1)
     {
-        record_stat = this->par("record_stat").boolValue();
+        record_frameTxRx = this->par("record_frameTxRx").boolValue();
     }
 
     usePropagationDelay = par("usePropagationDelay");
@@ -123,7 +123,7 @@ void ChannelAccess::sendToChannel(omnetpp::cPacket *msg)
                 for (int g = radioStart; g != radioEnd; ++g)
                 {
                     omnetpp::cPacket *msg_dup = msg->dup();
-                    if(record_stat) recordFrameTx(msg_dup, i->second, delay);
+                    if(record_frameTxRx) recordFrameTx(msg_dup, i->second, delay);
                     sendDirect(static_cast<omnetpp::cPacket*>(msg_dup), delay, msg->getDuration(), i->second->getOwnerModule(), g);
                 }
             }
@@ -136,11 +136,11 @@ void ChannelAccess::sendToChannel(omnetpp::cPacket *msg)
             for (int g = radioStart; g != --radioEnd; ++g)
             {
                 omnetpp::cPacket *msg_dup = msg->dup();
-                if(record_stat) recordFrameTx(msg_dup, i->second, delay);
+                if(record_frameTxRx) recordFrameTx(msg_dup, i->second, delay);
                 sendDirect(static_cast<omnetpp::cPacket*>(msg_dup), delay, msg->getDuration(), i->second->getOwnerModule(), g);
             }
 
-            if(record_stat) recordFrameTx(msg, i->second, delay);
+            if(record_frameTxRx) recordFrameTx(msg, i->second, delay);
             sendDirect(msg, delay, msg->getDuration(), i->second->getOwnerModule(), radioEnd);
         }
         else
@@ -207,8 +207,8 @@ void ChannelAccess::recordFrameTx(omnetpp::cPacket *msg /*AirFrame11p*/, omnetpp
     long int frameId = msg->getId();  // unique message id assigned by OMNET++
     long int nicId = gate->getOwnerModule()->getSubmodule("nic")->getId();
 
-    auto it = STAT->global_msgTxRx_stat.find(std::make_pair(frameId, nicId));
-    if(it != STAT->global_msgTxRx_stat.end())
+    auto it = STAT->global_frameTxRx_stat.find(std::make_pair(frameId, nicId));
+    if(it != STAT->global_frameTxRx_stat.end())
         throw omnetpp::cRuntimeError("frame/nic '(%d,%d)' is not unique", frameId, nicId);
     else
     {
@@ -228,6 +228,6 @@ void ChannelAccess::recordFrameTx(omnetpp::cPacket *msg /*AirFrame11p*/, omnetpp
         entry.TxTime = signal.getDuration().dbl();
         entry.propagationDelay = propDelay.dbl();
 
-        STAT->global_msgTxRx_stat.insert(std::make_pair(std::make_pair(frameId, nicId), entry));
+        STAT->global_frameTxRx_stat.insert(std::make_pair(std::make_pair(frameId, nicId), entry));
     }
 }

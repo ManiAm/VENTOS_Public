@@ -63,12 +63,15 @@ void PhyLayer80211p::initialize(int stage)
         //erase the RadioStateAnalogueModel
         analogueModels.erase(analogueModels.begin());
 
-        record_stat = par("record_stat").boolValue();
-
         // get a pointer to the Statistics module
         omnetpp::cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("statistics");
         STAT = static_cast<VENTOS::Statistics*>(module);
         ASSERT(STAT);
+
+        record_stat = par("record_stat").boolValue();
+        record_frameTxRx = par("record_frameTxRx").boolValue();
+
+        myId = getParentModule()->getParentModule()->getFullName();
     }
 }
 
@@ -498,6 +501,17 @@ AirFrame *PhyLayer80211p::encapsMsg(omnetpp::cPacket *macPkt)
 }
 
 
+void PhyLayer80211p::handleUpperMessage(omnetpp::cMessage* msg)
+{
+    BasePhyLayer::handleUpperMessage(msg);
+
+    statsSentFrames++;
+
+    if(record_stat)
+        record_PHY_stat_func();
+}
+
+
 int PhyLayer80211p::getRadioState()
 {
     return BasePhyLayer::getRadioState();
@@ -530,23 +544,26 @@ void PhyLayer80211p::sendControlMsgToMac(VENTOS::PhyToMacReport* msg)
 {
     BasePhyLayer::sendControlMsgToMac(msg);
 
-    if(record_stat)
+    if (msg->getKind() == Decider80211p::BITERROR)
     {
-        if (msg->getKind() == Decider80211p::BITERROR)
-        {
-            statsSNIRLostPackets++;
-            updateStat(msg, "BITERROR");
-        }
-        else if(msg->getKind() == Decider80211p::COLLISION)
-        {
-            statsSNIRLostPackets++;
-            updateStat(msg, "COLLISION");
-        }
-        else if(msg->getKind() == Decider80211p::RECWHILESEND)
-        {
-            statsTXRXLostPackets++;
-            updateStat(msg, "RECWHILESEND");
-        }
+        statsBiteErrorLostFrames++;
+
+        if(record_stat) record_PHY_stat_func();
+        if(record_frameTxRx) updateStat(msg, "BITERROR");
+    }
+    else if(msg->getKind() == Decider80211p::COLLISION)
+    {
+        statsCollisionLostFrames++;
+
+        if(record_stat) record_PHY_stat_func();
+        if(record_frameTxRx) updateStat(msg, "COLLISION");
+    }
+    else if(msg->getKind() == Decider80211p::RECWHILESEND)
+    {
+        statsTXRXLostFrames++;
+
+        if(record_stat) record_PHY_stat_func();
+        if(record_frameTxRx) updateStat(msg, "RECWHILESEND");
     }
 }
 
@@ -559,8 +576,8 @@ void PhyLayer80211p::updateStat(VENTOS::PhyToMacReport* msg, std::string report)
     long int frameId = phyReport->getMsgId();
     long int nicId = this->getParentModule()->getId();
 
-    auto it = STAT->global_msgTxRx_stat.find(std::make_pair(frameId, nicId));
-    if(it == STAT->global_msgTxRx_stat.end())
+    auto it = STAT->global_frameTxRx_stat.find(std::make_pair(frameId, nicId));
+    if(it == STAT->global_frameTxRx_stat.end())
         throw omnetpp::cRuntimeError("received frame '%d' has never been transmitted!", frameId);
 
     it->second.receivedAt = omnetpp::simTime().dbl();
@@ -570,21 +587,45 @@ void PhyLayer80211p::updateStat(VENTOS::PhyToMacReport* msg, std::string report)
 
 void PhyLayer80211p::sendUp(AirFrame* frame, DeciderResult* result)
 {
-    if(record_stat)
+    if(record_frameTxRx)
     {
         // we need the id of the message assigned by OMNET++
         long int frameId = (dynamic_cast<omnetpp::cPacket *>(frame))->getId();
         long int nicId = this->getParentModule()->getId();
 
-        auto it = STAT->global_msgTxRx_stat.find(std::make_pair(frameId, nicId));
-        if(it == STAT->global_msgTxRx_stat.end())
+        auto it = STAT->global_frameTxRx_stat.find(std::make_pair(frameId, nicId));
+        if(it == STAT->global_frameTxRx_stat.end())
             throw omnetpp::cRuntimeError("received frame '%d' has never been transmitted!", frameId);
 
         it->second.receivedAt = omnetpp::simTime().dbl();
         it->second.receivedStatus = "healthy";
     }
 
+    statsReceivedFrames++;
+
+    if(record_stat)
+        record_PHY_stat_func();
+
     BasePhyLayer::sendUp(frame, result);
+}
+
+
+void PhyLayer80211p::record_PHY_stat_func()
+{
+    VENTOS::PHY_stat_t entry = {};
+
+    entry.last_stat_time = omnetpp::simTime().dbl();
+    entry.statsBiteErrorLostFrames = statsBiteErrorLostFrames;
+    entry.statsCollisionLostFrames = statsCollisionLostFrames;
+    entry.statsReceivedFrames = statsReceivedFrames;
+    entry.statsSentFrames = statsSentFrames;
+    entry.statsTXRXLostFrames = statsTXRXLostFrames;
+
+    auto it = STAT->global_PHY_stat.find(myId);
+    if(it == STAT->global_PHY_stat.end())
+        STAT->global_PHY_stat[myId] = entry;
+    else
+        it->second = entry;
 }
 
 }

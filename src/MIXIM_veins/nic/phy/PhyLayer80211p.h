@@ -58,10 +58,16 @@ private:
 
     VENTOS::Statistics* STAT;
 
-    long statsSNIRLostPackets;     // A packet was not received due to bit-errors
-    long statsTXRXLostPackets;     // A packet was not received because we were sending while receiving
+    long statsSentFrames = 0;
+    long statsReceivedFrames = 0;
+    long statsBiteErrorLostFrames = 0;  // A frame was not received due to bit-errors
+    long statsCollisionLostFrames = 0;  // A frame was not received due to collision
+    long statsTXRXLostFrames = 0;       // A frame was not received because we were sending while receiving
 
     bool record_stat;
+    bool record_frameTxRx;
+
+    std::string myId;
 
 protected:
 
@@ -80,6 +86,10 @@ protected:
     enum ProtocolIds {
         IEEE_80211 = 12123
     };
+
+private:
+
+    void record_PHY_stat_func();
 
 public:
 
@@ -182,6 +192,8 @@ protected:
      * AirFrame and sets all necessary attributes.
      */
     virtual AirFrame *encapsMsg(omnetpp::cPacket *msg);
+
+    virtual void handleUpperMessage(omnetpp::cMessage* msg);
 
     virtual void changeListeningFrequency(double freq);
 

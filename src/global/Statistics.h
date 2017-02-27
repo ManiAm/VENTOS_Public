@@ -71,10 +71,20 @@ typedef struct MAC_stat
     long statsSlotsBackoff;
     double statsTotalBusyTime;
     long statsSentPackets;
-    long statsReceivedPackets;     // Received a data packet addressed to me
-    long statsReceivedBroadcasts;  // Received a broadcast data packet
+    long statsReceivedPackets;     // received a data packet addressed to me
+    long statsReceivedBroadcasts;  // received a broadcast data packet
 } MAC_stat_t;
 
+typedef struct PHY_stat
+{
+    double last_stat_time;
+
+    long statsSentFrames;
+    long statsReceivedFrames;
+    long statsBiteErrorLostFrames;
+    long statsCollisionLostFrames;
+    long statsTXRXLostFrames;
+} PHY_stat_t;
 
 typedef struct msgTxRxStat
 {
@@ -99,8 +109,9 @@ public:
     std::vector<plnManagement_t> global_plnManagement_stat;
     std::vector<plnStat_t> global_plnData_stat;
 
-    std::map<std::string, MAC_stat_t> global_MAC_stat;
-    std::map<std::pair<long int /*msg id*/, long int /*rx nic id*/>, msgTxRxStat_t> global_msgTxRx_stat;
+    std::map<std::string /*vehId*/, MAC_stat_t> global_MAC_stat;
+    std::map<std::string /*vehId*/, PHY_stat_t> global_PHY_stat;
+    std::map<std::pair<long int /*msg id*/, long int /*nicId of receiver*/>, msgTxRxStat_t> global_frameTxRx_stat;
 
 protected:
     // NED variables
@@ -128,6 +139,7 @@ private:
 
     void save_MAC_stat_toFile();
     void save_PHY_stat_toFile();
+    void save_FrameTxRx_stat_toFile();
 };
 
 }
