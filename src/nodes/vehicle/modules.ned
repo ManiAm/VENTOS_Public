@@ -11,7 +11,7 @@ module vehicle
         @signal[system]();
         
         bool record_stat = default(false);
-        string record_list = default("timeStep | id | lane | lanePos | speed");
+        string record_list = default("vehId | lane | lanePos | speed");
         
         string SUMOID = default("");
         string SUMOType = default("");

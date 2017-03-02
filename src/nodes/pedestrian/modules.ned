@@ -10,7 +10,7 @@ module pedestrian
         @signal[beaconSignaling]();
         
         bool record_stat = default(false);
-        string record_list = default("timeStep | id | lane | lanePos | speed");
+        string record_list = default("pedId | lane | lanePos | speed");
         
         string SUMOID = default("");
         string SUMOType = default("");
