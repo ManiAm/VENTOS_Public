@@ -224,6 +224,7 @@ void LoopDetectors::saveLDsData()
         fprintf (filePtr, "totalRun        %d\n", totalRun);
         fprintf (filePtr, "currentRun      %d\n", currentRun);
         fprintf (filePtr, "currentConfig   %s\n", iterVar[currentRun].c_str());
+        fprintf (filePtr, "sim timeStep    %u ms\n", TraCI->simulationGetTimeStep());
         fprintf (filePtr, "startDateTime   %s\n", TraCI->simulationGetStartTime().c_str());
         fprintf (filePtr, "endDateTime     %s\n", TraCI->simulationGetEndTime().c_str());
         fprintf (filePtr, "duration        %s\n\n\n", TraCI->simulationGetDuration().c_str());
