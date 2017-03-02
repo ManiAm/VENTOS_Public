@@ -223,7 +223,7 @@ void ApplVCoordinator::scenario4()
 
     // all vehicles entering after the stopTime
     // are background traffic
-    if(entryTime > stopTime)
+    if(TraCI->vehicleGetDepartureTime(SUMOID) > stopTime)
     {
         entryEnabled = false;
         DSRCenabled = false;

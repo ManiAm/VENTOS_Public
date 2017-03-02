@@ -122,7 +122,7 @@ void ApplVDynamicRouting::finish()
 
     if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 0)
     {
-        std::cout << std::endl <<"t=" << omnetpp::simTime().dbl() << ": " << SUMOID << " took " << omnetpp::simTime().dbl() - entryTime << " seconds to complete its route." << std::endl;
+        std::cout << std::endl <<"t=" << omnetpp::simTime().dbl() << ": " << SUMOID << " took " << omnetpp::simTime().dbl() - TraCI->vehicleGetDepartureTime(SUMOID) << " seconds to complete its route." << std::endl;
         std::cout.flush();
     }
 

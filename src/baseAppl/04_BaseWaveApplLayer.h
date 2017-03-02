@@ -85,7 +85,6 @@ protected:
     const char *myFullId;
     Coord curPosition;  // OMNET++ position
     Coord curSpeed;
-    double entryTime;
 
     /* info in SUMO */
     std::string SUMOID;
