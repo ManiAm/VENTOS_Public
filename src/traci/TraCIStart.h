@@ -45,26 +45,27 @@ private:
     bool active;  // run SUMO and establish TraCI?
     bool debug;
     double terminate;  // simulation end time (in seconds)
-    bool autoShutdown;  // shutdown module as soon as no more vehicles are in the simulation
+    bool autoShutdown;  // terminate simulation as soon as no more vehicles are in the simulation
     double penetrationRate;
 
     BaseWorldUtility* world = NULL;
     ConnectionManager* cc = NULL;
     cModule *addNode_module = NULL;
 
-    double updateInterval = -1;
+    uint32_t departedVehicleCount = 0; // accumulated number of departed vehicles
+    uint32_t arrivedVehicleCount = 0;  // accumulated number of arrived vehicles
 
-    uint32_t activeVehicleCount = 0;  // number of vehicles, be it parking or driving
-    uint32_t parkingVehicleCount = 0; // number of parking vehicles, derived from parking start/end events
-    uint32_t drivingVehicleCount = 0; // number of driving, as reported by SUMO
+    uint32_t activeVehicleCount = 0;  // number of active vehicles (be it parking or driving) at current time step
+    uint32_t parkingVehicleCount = 0; // number of parking vehicles at current time step
+    uint32_t drivingVehicleCount = 0; // number of driving vehicles at current time step
+
+    std::set<std::string> subscribedVehicles;    // all vehicles we have already subscribed to
+    std::set<std::string> subscribedPedestrians; // all pedestrians we have already subscribed to
+    std::vector<std::string> allPedestrians;
 
     std::map<std::string, cModule*> hosts;  // vector of all hosts managed by us
     std::set<std::string> unEquippedHosts;
     size_t nextNodeVectorIndex = 0;   // next OMNeT++ module vector index to use
-
-    std::set<std::string> subscribedVehicles; // all vehicles we have already subscribed to
-    std::set<std::string> subscribedPedestrians; // all pedestrians we have already subscribed to
-    std::vector<std::string> allPedestrians;
 
     omnetpp::cMessage* executeOneTimestepTrigger = NULL; // self-message scheduled for when to next call executeOneTimestep
 
@@ -86,6 +87,20 @@ private:
     bool equilibrium_vehicle;
     std::map<std::string /*SUMO id*/, departedNodes> departedVehicles;
 
+    typedef struct sim_status_entry
+    {
+        double timeStep;
+        long int loaded;
+        long int departed;
+        long int arrived;
+        long int running;
+        long int waiting;
+    } sim_status_entry_t;
+
+    bool record_sim_stat;
+    std::vector<std::string> record_sim_tokenize;
+    std::vector<sim_status_entry_t> sim_record_status;
+
     typedef struct veh_status_entry
     {
         bool active;  // should we record statistics for this vehicle?
@@ -97,18 +112,24 @@ private:
     typedef struct veh_data_entry
     {
         double timeStep;
-        std::string id;
-        std::string type;
+        std::string vehId;
+        std::string vehType;
         std::string lane;
         double lanePos;
         double speed;
         double accel;
+        double departure;
+        double arrival;
+        std::string route;
+        double routeDuration;
+        double drivingDistance;
         std::string CFMode;
         double timeGapSetting;
-        double spaceGap;
         double timeGap;
-        std::string TLid;  // TLid that controls this vehicle. Empty string means the vehicle is not controlled by any TLid
-        char linkStat;     // status of the TL ahead (character 'n' means no TL ahead)
+        double frontSpaceGap;
+        double rearSpaceGap;
+        std::string nextTLId;  // TLid that controls this vehicle. Empty string means the vehicle is not controlled by any TLid
+        char nextTLLinkStat;   // status of the TL ahead (character 'n' means no TL ahead)
     } veh_data_entry_t;
 
     std::vector<veh_data_entry_t> collected_veh_data;
@@ -126,10 +147,10 @@ public:
     virtual void handleMessage(omnetpp::cMessage *msg);
 
 private:
+    // initialize TraCI connection
     void init_traci();
-    void initRoi();
-    void roiRSUs();
-    void drawRoi();
+    // initialize 'region of interest'
+    void init_roi();
 
     void processSubcriptionResult(TraCIBuffer& buf);
     void processSimSubscription(std::string objectId, TraCIBuffer& buf);
@@ -148,7 +169,10 @@ private:
     // Modules are destroyed and re-created as managed vehicles leave and re-enter the ROI
     bool isInRegionOfInterest(const TraCICoord& position, std::string road_id, double speed, double angle);
 
-    void record_Veh_data(std::string);
+    void record_Sim_data();
+    void save_Sim_data_toFile();
+
+    void record_Veh_data(std::string vID, bool arrived = false);
     void save_Veh_data_toFile();
 };
 
