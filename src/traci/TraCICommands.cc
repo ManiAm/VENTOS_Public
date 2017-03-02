@@ -60,8 +60,7 @@ void TraCI_Commands::initialize(int stage)
 
 void TraCI_Commands::finish()
 {
-    if(record_TraCI_activity)
-        save_TraCI_activity_toFile();
+    save_TraCI_activity_toFile();
 }
 
 
@@ -261,7 +260,7 @@ uint32_t TraCI_Commands::simulationGetDepartedVehiclesCount()
 }
 
 
-double* TraCI_Commands::simulationGetNetBoundary()
+simBoundary_t TraCI_Commands::simulationGetNetBoundary()
 {
     record_TraCI_activity_func("commandStart", CMD_GET_SIM_VARIABLE, VAR_NET_BOUNDING_BOX, "simulationGetNetBoundary");
 
@@ -277,18 +276,18 @@ double* TraCI_Commands::simulationGetNetBoundary()
     uint8_t typeId_resp; buf >> typeId_resp;
     ASSERT(typeId_resp == TYPE_BOUNDINGBOX);
 
-    double *boundaries = new double[4] ;
+    simBoundary_t boundary = {};
 
-    buf >> boundaries[0];  // x1
-    buf >> boundaries[1];  // y1
-    buf >> boundaries[2];  // x2
-    buf >> boundaries[3];  // y2
+    buf >> boundary.x1;
+    buf >> boundary.y1;
+    buf >> boundary.x2;
+    buf >> boundary.y2;
 
     ASSERT(buf.eof());
 
     record_TraCI_activity_func("commandComplete", CMD_GET_SIM_VARIABLE, VAR_NET_BOUNDING_BOX, "simulationGetNetBoundary");
 
-    return boundaries;
+    return boundary;
 }
 
 
@@ -348,6 +347,11 @@ uint32_t TraCI_Commands::simulationGetArrivedNumber()
 
 uint32_t TraCI_Commands::simulationGetTimeStep()
 {
+    // do not ask SUMO if we alreayd know the time step
+    // this is also a workaround to call simulationGetTimeStep() in finish()
+    if(updateInterval != -1)
+        return (uint32_t)(updateInterval * 1000);
+
     record_TraCI_activity_func("commandStart", CMD_GET_SIM_VARIABLE, VAR_DELTA_T, "simulationGetTimeStep");
 
     TraCIBuffer buf = connection->query(CMD_GET_SIM_VARIABLE, TraCIBuffer() << static_cast<uint8_t>(VAR_DELTA_T) << std::string("sim0"));
@@ -542,6 +546,17 @@ uint32_t TraCI_Commands::vehicleGetRouteIndex(std::string nodeId)
 }
 
 
+double TraCI_Commands::vehicleGetDrivingDistance(std::string nodeId)
+{
+    record_TraCI_activity_func("commandStart", CMD_GET_VEHICLE_VARIABLE, VAR_DISTANCE, "vehicleGetDistance");
+
+    double result = genericGetDouble(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_DISTANCE, RESPONSE_GET_VEHICLE_VARIABLE);
+
+    record_TraCI_activity_func("commandComplete", CMD_GET_VEHICLE_VARIABLE, VAR_DISTANCE, "vehicleGetDistance");
+    return result;
+}
+
+
 std::map<int,bestLanesEntry_t> TraCI_Commands::vehicleGetBestLanes(std::string nodeId)
 {
     record_TraCI_activity_func("commandStart", CMD_GET_VEHICLE_VARIABLE, VAR_BEST_LANES, "vehicleGetBestLanes");
@@ -631,14 +646,39 @@ std::map<int,bestLanesEntry_t> TraCI_Commands::vehicleGetBestLanes(std::string n
 }
 
 
-uint8_t* TraCI_Commands::vehicleGetColor(std::string nodeId)
+colorVal_t TraCI_Commands::vehicleGetColor(std::string nodeId)
 {
     record_TraCI_activity_func("commandStart", CMD_GET_VEHICLE_VARIABLE, VAR_COLOR, "vehicleGetColor");
 
-    uint8_t *result = genericGetArrayUnsignedInt(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_COLOR, RESPONSE_GET_VEHICLE_VARIABLE);
+    TraCIBuffer buf = connection->query(CMD_GET_VEHICLE_VARIABLE, TraCIBuffer() << TYPE_COLOR << nodeId);
+
+    uint8_t cmdLength; buf >> cmdLength;
+    if (cmdLength == 0) {
+        uint32_t cmdLengthX;
+        buf >> cmdLengthX;
+    }
+    uint8_t commandId_r; buf >> commandId_r;
+    ASSERT(commandId_r == RESPONSE_GET_VEHICLE_VARIABLE);
+    uint8_t varId; buf >> varId;
+    ASSERT(varId == VAR_COLOR);
+    std::string objectId_r; buf >> objectId_r;
+    ASSERT(objectId_r == nodeId);
+    uint8_t resType_r; buf >> resType_r;
+    ASSERT(resType_r == TYPE_COLOR);
+
+    colorVal_t entry = {};
+
+    // now we start getting real data that we are looking for
+    buf >> entry.red;
+    buf >> entry.green;
+    buf >> entry.blue;
+    buf >> entry.alpha;
+
+    ASSERT(buf.eof());
 
     record_TraCI_activity_func("commandComplete", CMD_GET_VEHICLE_VARIABLE, VAR_COLOR, "vehicleGetColor");
-    return result;
+
+    return entry;
 }
 
 
@@ -882,6 +922,28 @@ int TraCI_Commands::vehicleGetControllerNumber(std::string nodeId)
 
     record_TraCI_activity_func("commandComplete", CMD_GET_VEHICLE_VARIABLE, 0x73, "vehicleTypeGetControllerNumber");
     return result;
+}
+
+
+double TraCI_Commands::vehicleGetDepartureTime(std::string nodeId)
+{
+    auto it = departureArrival.find(nodeId);
+
+    if(it == departureArrival.end())
+        return -1;
+    else
+        return it->second.departure;
+}
+
+
+double TraCI_Commands::vehicleGetArrivalTime(std::string nodeId)
+{
+    auto it = departureArrival.find(nodeId);
+
+    if(it == departureArrival.end())
+        return -1;
+    else
+        return it->second.arrival;
 }
 
 
@@ -2981,12 +3043,13 @@ void TraCI_Commands::terminate_simulation(bool TraCIclosed)
     tm *ltm = localtime(&now);
 
     std::ostringstream dateTime;
-    dateTime << boost::format("%4d%02d%02d-%02d:%02d:%02d") % (1900 + ltm->tm_year)
-                                            % (1 + ltm->tm_mon)
-                                            % (ltm->tm_mday)
-                                            % (ltm->tm_hour)
-                                            % (ltm->tm_min)
-                                            % (ltm->tm_sec);
+    dateTime << boost::format("%4d%02d%02d-%02d:%02d:%02d") %
+            (1900 + ltm->tm_year) %
+            (1 + ltm->tm_mon) %
+            (ltm->tm_mday) %
+            (ltm->tm_hour) %
+            (ltm->tm_min) %
+            (ltm->tm_sec);
 
     simEndDateTime = dateTime.str();
 
@@ -3282,39 +3345,6 @@ std::vector<double> TraCI_Commands::genericGetBoundingBox(uint8_t commandId, std
 }
 
 
-uint8_t* TraCI_Commands::genericGetArrayUnsignedInt(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId)
-{
-    uint8_t resultTypeId = TYPE_COLOR;
-    uint8_t* color = new uint8_t[4]; // RGBA
-
-    TraCIBuffer buf = connection->query(commandId, TraCIBuffer() << variableId << objectId);
-
-    uint8_t cmdLength; buf >> cmdLength;
-    if (cmdLength == 0) {
-        uint32_t cmdLengthX;
-        buf >> cmdLengthX;
-    }
-    uint8_t commandId_r; buf >> commandId_r;
-    ASSERT(commandId_r == responseId);
-    uint8_t varId; buf >> varId;
-    ASSERT(varId == variableId);
-    std::string objectId_r; buf >> objectId_r;
-    ASSERT(objectId_r == objectId);
-    uint8_t resType_r; buf >> resType_r;
-    ASSERT(resType_r == resultTypeId);
-
-    // now we start getting real data that we are looking for
-    buf >> color[0];
-    buf >> color[1];
-    buf >> color[2];
-    buf >> color[3];
-
-    ASSERT(buf.eof());
-
-    return color;
-}
-
-
 // ################################################################
 //               logging TraCI commands exchange
 // ################################################################
@@ -3365,7 +3395,7 @@ void TraCI_Commands::save_TraCI_activity_toFile()
     int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
 
     std::ostringstream fileName;
-    fileName << boost::format("%03d_TraCIlog.txt") % currentRun;
+    fileName << boost::format("%03d_TraCIActivity.txt") % currentRun;
 
     boost::filesystem::path filePath ("results");
     filePath /= fileName.str();
@@ -3374,12 +3404,49 @@ void TraCI_Commands::save_TraCI_activity_toFile()
     if (!filePtr)
         throw omnetpp::cRuntimeError("Cannot create file '%s'", filePath.c_str());
 
+    // write simulation parameters at the beginning of the file
+    {
+        // get the current config name
+        std::string configName = omnetpp::getEnvir()->getConfigEx()->getVariable("configname");
+
+        std::string iniFile = omnetpp::getEnvir()->getConfigEx()->getVariable("inifile");
+
+        // PID of the simulation process
+        std::string processid = omnetpp::getEnvir()->getConfigEx()->getVariable("processid");
+
+        // globally unique identifier for the run, produced by
+        // concatenating the configuration name, run number, date/time, etc.
+        std::string runID = omnetpp::getEnvir()->getConfigEx()->getVariable("runid");
+
+        // get number of total runs in this config
+        int totalRun = omnetpp::getEnvir()->getConfigEx()->getNumRunsInConfig(configName.c_str());
+
+        // get the current run number
+        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
+
+        // get all iteration variables
+        std::vector<std::string> iterVar = omnetpp::getEnvir()->getConfigEx()->unrollConfig(configName.c_str(), false);
+
+        // write to file
+        fprintf (filePtr, "configName      %s\n", configName.c_str());
+        fprintf (filePtr, "iniFile         %s\n", iniFile.c_str());
+        fprintf (filePtr, "processID       %s\n", processid.c_str());
+        fprintf (filePtr, "runID           %s\n", runID.c_str());
+        fprintf (filePtr, "totalRun        %d\n", totalRun);
+        fprintf (filePtr, "currentRun      %d\n", currentRun);
+        fprintf (filePtr, "currentConfig   %s\n", iterVar[currentRun].c_str());
+        fprintf (filePtr, "sim timeStep    %u ms\n", simulationGetTimeStep());
+        fprintf (filePtr, "startDateTime   %s\n", simulationGetStartTime().c_str());
+        fprintf (filePtr, "endDateTime     %s\n", simulationGetEndTime().c_str());
+        fprintf (filePtr, "duration        %s\n\n\n", simulationGetDuration().c_str());
+    }
+
     // write header
     fprintf (filePtr, "%-15s", "sentAt");
-    fprintf (filePtr, "%-15s", "duration(ms)");
-    fprintf (filePtr, "%-20s", "commandGroupId");
-    fprintf (filePtr, "%-19s", "commandId");
-    fprintf (filePtr, "%-40s \n\n", "commandName");
+    fprintf (filePtr, "%-15s", "duration");
+    fprintf (filePtr, "%-40s", "cmdName");
+    fprintf (filePtr, "%-20s", "cmdGroupId");
+    fprintf (filePtr, "%-19s \n\n", "cmdId");
 
     // write body
     double oldTime = -1;
@@ -3397,9 +3464,9 @@ void TraCI_Commands::save_TraCI_activity_toFile()
 
         fprintf (filePtr, "%-15.2f", y.timeStamp);
         fprintf (filePtr, "%-15.2f", duration);
+        fprintf (filePtr, "%-40s", y.commandName.c_str());
         fprintf (filePtr, "0x%-20x", y.commandGroupId);
-        fprintf (filePtr, "0x%-15x", y.commandId);
-        fprintf (filePtr, "%-40s \n", y.commandName.c_str());
+        fprintf (filePtr, "0x%-15x \n", y.commandId);
     }
 
     fclose(filePtr);

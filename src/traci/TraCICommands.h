@@ -41,6 +41,15 @@
 
 namespace VENTOS {
 
+typedef struct simBoundary
+{
+    double x1;
+    double y1;
+
+    double x2;
+    double y2;
+} simBoundary_t;
+
 typedef struct bestLanesEntry
 {
     std::string laneId;
@@ -50,7 +59,6 @@ typedef struct bestLanesEntry
     int continuingDrive;
     std::vector<std::string> best;
 } bestLanesEntry_t;
-
 
 typedef struct linkEntry
 {
@@ -72,7 +80,7 @@ typedef struct TL_info
     uint8_t linkState;
 } TL_info_t;
 
-
+// loop detector
 typedef struct vehLD
 {
     std::string vehID;
@@ -82,13 +90,11 @@ typedef struct vehLD
     std::string vehType;
 } vehLD_t;
 
-
 typedef struct leader
 {
     std::string leaderID;
     double distance2Leader;
 } leader_t;
-
 
 typedef enum CFMODES {
     Mode_Undefined,
@@ -99,7 +105,6 @@ typedef enum CFMODES {
     Mode_EmergencyBrake,
     Mode_Stopped
 } CFMODES_t;
-
 
 typedef enum VehicleSignal {
     VEH_SIGNAL_UNDEF = -1,
@@ -135,6 +140,20 @@ typedef enum VehicleSignal {
     VEH_SIGNAL_EMERGENCY_YELLOW = 8192
 } VehicleSignal_t;
 
+typedef struct departureArrivalEntry
+{
+    double departure;
+    double arrival;
+} departureArrivalEntry_t;
+
+typedef struct colorVal
+{
+    uint8_t red;
+    uint8_t green;
+    uint8_t blue;
+    uint8_t alpha;
+} colorVal_t;
+
 
 class TraCI_Commands : public omnetpp::cSimpleModule
 {
@@ -146,12 +165,20 @@ public:
 protected:
     typedef std::chrono::high_resolution_clock::time_point Htime_t;
 
-    // these variables are set by TraCIStart class
+    double updateInterval = -1;
     TraCIConnection* connection = NULL;
-    TraCICoord netbounds1;   /* network boundaries as reported by TraCI (x1, y1) */
-    TraCICoord netbounds2;   /* network boundaries as reported by TraCI (x2, y2) */
+
+    // network boundaries
+    TraCICoord netbounds1;
+    TraCICoord netbounds2;
+    int margin;
+
+    // record the departure and arrival time of each vehicle
+    std::map<std::string /*SUMOID*/, departureArrivalEntry_t> departureArrival;
 
     bool TraCIclosed = false;
+
+    // start/end/duration of simulation
     std::string simStartDateTime = "";
     std::string simEndDateTime = "";
     Htime_t simStartTime;
@@ -179,7 +206,6 @@ private:
         std::string commandName;
     } TraCIcommandEntry_t;
 
-    int margin;
     bool record_TraCI_activity;
     std::vector<TraCIcommandEntry_t> exchangedTraCIcommands;
 
@@ -204,11 +230,11 @@ public:
 
     // CMD_GET_SIM_VARIABLE
     uint32_t simulationGetLoadedVehiclesCount();
-    std::vector<std::string> simulationGetLoadedVehiclesIDList();
     uint32_t simulationGetDepartedVehiclesCount();
-    double* simulationGetNetBoundary();
-    uint32_t simulationGetMinExpectedNumber();
     uint32_t simulationGetArrivedNumber();
+    uint32_t simulationGetMinExpectedNumber();
+    std::vector<std::string> simulationGetLoadedVehiclesIDList();
+    simBoundary_t simulationGetNetBoundary();
     uint32_t simulationGetTimeStep();
 
     // ################################################################
@@ -230,8 +256,9 @@ public:
     std::string vehicleGetRouteID(std::string);
     std::vector<std::string> vehicleGetRoute(std::string);
     uint32_t vehicleGetRouteIndex(std::string);
+    double vehicleGetDrivingDistance(std::string);
     std::map<int,bestLanesEntry_t> vehicleGetBestLanes(std::string);
-    uint8_t* vehicleGetColor(std::string);
+    colorVal_t vehicleGetColor(std::string);
     VehicleSignal_t vehicleGetSignalStatus(std::string);
     double vehicleGetLength(std::string);
     double vehicleGetMinGap(std::string);
@@ -246,6 +273,8 @@ public:
     CFMODES_t vehicleGetCarFollowingMode(std::string);   // new command [returns the current ACC/CACC car following mode]
     int vehicleGetControllerType(std::string);           // new command [returns the car-following model type -- ACC/CACC]
     int vehicleGetControllerNumber(std::string);         // new command [returns the car-following model sub-type -- CACC 1, CACC 2]
+    double vehicleGetDepartureTime(std::string);         // new command
+    double vehicleGetArrivalTime(std::string);           // new command
 
     // CMD_SET_VEHICLE_VARIABLE
     void vehicleSetStop(std::string, std::string, double, uint8_t, int32_t, uint8_t);  // adds or modifies a stop with the given parameters
@@ -500,6 +529,8 @@ protected:
     //                      simulation control
     // ################################################################
 
+    // these methods are not meant to be exposed to the user!
+
     std::pair<uint32_t, std::string> getVersion();
     void close_TraCI_connection();
     std::pair<TraCIBuffer, uint32_t> simulationTimeStep(uint32_t targetTime);
@@ -515,12 +546,10 @@ private:
     std::vector<std::string> genericGetStringVector(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
     TraCICoord genericGetCoord(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
     std::vector<TraCICoord> genericGetCoordVector(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
-
     uint8_t genericGetUnsignedByte(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
     std::vector<double> genericGetBoundingBox(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
-    uint8_t* genericGetArrayUnsignedInt(uint8_t, std::string, uint8_t, uint8_t);
 
-    // method used internally to log TraCI exchange
+    // logging TraCI exchange
     void record_TraCI_activity_func(std::string, uint8_t, uint8_t, std::string);
     void save_TraCI_activity_toFile();
 };
