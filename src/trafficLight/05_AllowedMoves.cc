@@ -89,7 +89,7 @@ std::vector<std::vector<int>>& TrafficLightAllowedMoves::getMovements(std::strin
     // check if this file exists?
     if( boost::filesystem::exists( movementsFilePath ) )
     {
-        LOG_EVENT << "\nReading movements from file ... " << std::flush;
+        LOG_INFO << "\nReading movements from file ... " << std::flush;
         FILE *filePtr = fopen (movementsFilePath.string().c_str(), "r");
 
         std::vector<int> temp;
@@ -111,7 +111,7 @@ std::vector<std::vector<int>>& TrafficLightAllowedMoves::getMovements(std::strin
         }
 
         fclose(filePtr);
-        LOG_EVENT << "Done! \n";
+        LOG_INFO << "Done! \n";
     }
     else
         generateAllAllowedMovements();
@@ -341,7 +341,7 @@ void TrafficLightAllowedMoves::generateAllAllowedMovements()
     add_edge(23, 6, conflictGraph);
     add_edge(23, 16, conflictGraph);
 
-    LOG_EVENT << "\nGenerating all possible non-conflicting movements (out of 2^" << LINKSIZE << ") ... " << std::flush;
+    LOG_INFO << "\nGenerating all possible non-conflicting movements (out of 2^" << LINKSIZE << ") ... " << std::flush;
 
     // generate truth table from all links
     // check here: http://stackoverflow.com/questions/3504642/generate-a-truth-table-given-an-input

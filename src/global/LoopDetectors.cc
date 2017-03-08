@@ -30,7 +30,7 @@
 #include "boost/filesystem.hpp"
 
 #include "global/LoopDetectors.h"
-#include "logging/vlog.h"
+#include "logging/VENTOS_logging.h"
 
 namespace VENTOS {
 

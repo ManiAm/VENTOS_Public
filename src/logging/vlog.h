@@ -31,11 +31,19 @@
 #include "boost/format.hpp"
 #include <mutex>
 
-#include "baseAppl/03_BaseApplLayer.h"
-#include "logging/vlogConst.h"
 #include "omnetpp.h"
+#include "baseAppl/03_BaseApplLayer.h"
+#include "logging/debugStream.h"
 
 namespace VENTOS {
+
+#define   WARNING_LOG_VAL   0b0001
+#define   ERROR_LOG_VAL     0b0010
+#define   INFO_LOG_VAL      0b0100
+#define   DEBUG_LOG_VAL     0b1000
+
+#define   ALL_LOG_VAL       0b1111
+#define   NO_LOG_VAL        0b0000
 
 class vlog : public BaseApplLayer
 {
@@ -43,21 +51,26 @@ public:
     static std::mutex lock_log; // global lock
 
 private:
-    // NED variables
-    std::string loggingWindowPath = "";
-    uint8_t systemLogLevel = 0;
-    bool logRecordCMD = false;
-
     typedef BaseApplLayer super;
 
-    std::map< std::string, std::vector <std::string> * > allCategories;
-    static vlog *objPtr;
-    pid_t child_pid = -1;
-    int* socketPtr = NULL;
+    // NED variables
+    bool printLogLevel = false;
+    bool printTimeStep = false;
+    bool printFileName = false;
+    bool printLineNumber = false;
 
-    uint8_t lastLogLevel = INFO_LOG_VAL;
-    std::string lastCategory = "std::cout";
-    std::string lastSubcategory = "default";
+    debugStreamLog *buff = NULL;
+    std::ostream *out = NULL;
+    static vlog *objPtr;
+
+    uint8_t systemLogLevel = 0;
+    bool saveLog2File = false;
+    uint8_t logLevel = 0;
+    std::string lastLogPrefix = "";
+    std::string logPrefix = "";
+
+protected:
+    bool logRecordCMD = false;
 
 public:
     virtual ~vlog();
@@ -69,17 +82,8 @@ public:
     template<typename T>
     vlog& operator << (const T& inv)
     {
-        if(logActive(lastLogLevel))
-        {
-            if(lastCategory == "std::cout")
-                std::cout << inv;
-            else
-            {
-                std::ostringstream tmp;
-                tmp << inv;
-                sendToLogWindow(std::to_string(CMD_INSERT_TXT) + "||" + lastCategory + "||" + lastSubcategory + "||" + tmp.str());
-            }
-        }
+        if(logActive(logLevel))
+            printWithLogPrefix(inv);
 
         return *this;
     }
@@ -87,37 +91,58 @@ public:
     // overloading the << operator to accept std::endl and std::flush
     vlog& operator << (std::ostream& (*pf) (std::ostream&))
     {
-        if(logActive(lastLogLevel))
-        {
-            if(lastCategory == "std::cout")
-                std::cout << pf;
-            else
-            {
-                if(pf == (std::basic_ostream<char>& (*)(std::basic_ostream<char>&)) &std::endl)
-                    sendToLogWindow(std::to_string(CMD_INSERT_TXT) + "||" + lastCategory + "||" + lastSubcategory + "||" + "\n");
-                else if(pf == (std::basic_ostream<char>& (*)(std::basic_ostream<char>&)) &std::flush)
-                    sendToLogWindow(std::to_string(CMD_FLUSH) + "||" + lastCategory + "||" + lastSubcategory);
-                else
-                    throw omnetpp::cRuntimeError("The string manipulator is not supported!");
-            }
-        }
+        if(logActive(logLevel))
+            *(out) << pf;
 
         return *this;
     }
 
-    static vlog& WARNING(std::string category = "std::cout", std::string subcategory = "default");
-    static vlog& INFO(std::string category = "std::cout", std::string subcategory = "default");
-    static vlog& ERROR(std::string category = "std::cout", std::string subcategory = "default");
-    static vlog& DEBUG(std::string category = "std::cout", std::string subcategory = "default");
-    static vlog& EVENT(std::string category = "std::cout", std::string subcategory = "default");
-    static void FLUSH(std::string category = "std::cout", std::string subcategory = "default");
-    static bool ISLOGACTIVE(uint8_t);
+    static vlog& WARNING(std::string file, int line);
+    static vlog& ERROR(std::string file, int line);
+    static vlog& INFO(std::string file, int line);
+    static vlog& DEBUG(std::string file, int line);
+    static void FLUSH();
+    static bool ISLOGACTIVE(uint8_t userLogLevel);
 
 private:
     bool logActive(uint8_t);
-    vlog& setLog(uint8_t logLevel, std::string cat, std::string subcat);
-    void connect_to_TCP_server();
-    void sendToLogWindow(std::string);
+    std::string generateLogPrefix(std::string file, int line);
+
+    template<typename T> void printWithLogPrefix (const T& inv)
+    {
+        if(lastLogPrefix == logPrefix)
+        {
+            *(out) << inv;
+            return;
+        }
+
+        std::stringstream ss;
+        ss << inv;
+        std::string ss_string = ss.str();
+
+        // count number of leading new lines in ss_string
+        int newLineCount = 0;
+        for(auto &c : ss_string)
+        {
+            if(c != '\n')
+                break;
+            else
+                newLineCount++;
+        }
+
+        // remove leading new lines from ss_string and
+        // prepending to logPrefix
+        if(newLineCount != 0)
+        {
+            ss_string.erase(0, newLineCount);
+            logPrefix.insert(0, newLineCount, '\n');
+        }
+
+        *(out) << logPrefix;
+        *(out) << ss_string;
+
+        lastLogPrefix = logPrefix;
+    }
 };
 
 }

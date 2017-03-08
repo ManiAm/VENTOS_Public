@@ -33,7 +33,7 @@
 #include "baseAppl/03_BaseApplLayer.h"
 #include "traci/TraCICommands.h"
 #include "global/Statistics.h"
-#include "logging/vlog.h"
+#include "logging/VENTOS_logging.h"
 
 namespace VENTOS {
 

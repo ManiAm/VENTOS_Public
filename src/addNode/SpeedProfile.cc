@@ -26,7 +26,7 @@
 //
 
 #include "addNode/SpeedProfile.h"
-#include "logging/vlog.h"
+#include "logging/VENTOS_logging.h"
 
 namespace VENTOS {
 
@@ -98,7 +98,7 @@ void SpeedProfile::handleMessage(omnetpp::cMessage *msg)
     if (warmUp && msg == finishingWarmup)
     {
         IsWarmUpFinished = true;
-        LOG_EVENT << "t=" << omnetpp::simTime().dbl() << ": Warm-up phase finished. \n" << std::flush;
+        LOG_INFO << "t=" << omnetpp::simTime().dbl() << ": Warm-up phase finished. \n" << std::flush;
         delete msg;
     }
 }
@@ -180,7 +180,7 @@ bool SpeedProfile::DoWarmup()
     static bool wasExecuted = false;
     if (!wasExecuted)
     {
-        LOG_EVENT << "t=" << omnetpp::simTime().dbl() << ": Warm-up phase is started ... \n" << std::flush;
+        LOG_INFO << "t=" << omnetpp::simTime().dbl() << ": Warm-up phase is started ... \n" << std::flush;
         wasExecuted = true;
     }
 
@@ -199,7 +199,7 @@ bool SpeedProfile::DoWarmup()
         if(n == numVehicles)
         {
             scheduleAt(omnetpp::simTime() + waitingTime, finishingWarmup);
-            LOG_EVENT << "t=" << omnetpp::simTime().dbl() << ": Waiting for " << waitingTime << "s before finishing warm-up ... \n" << std::flush;
+            LOG_INFO << "t=" << omnetpp::simTime().dbl() << ": Waiting for " << waitingTime << "s before finishing warm-up ... \n" << std::flush;
         }
     }
 
@@ -213,7 +213,7 @@ void SpeedProfile::DoSpeedProfile()
     if (!wasExecuted)
     {
         startTimeTrajectory = omnetpp::simTime().dbl();
-        LOG_EVENT << "t=" << startTimeTrajectory << ": Speed profiling is started ... \n" << std::flush;
+        LOG_INFO << "t=" << startTimeTrajectory << ": Speed profiling is started ... \n" << std::flush;
         wasExecuted = true;
     }
 

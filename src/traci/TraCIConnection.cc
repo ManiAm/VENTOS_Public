@@ -43,7 +43,7 @@
 #include "traci/TraCIConnection.h"
 #include "traci/TraCIConstants.h"
 #include "traci/TraCICommands.h"
-#include "logging/vlog.h"
+#include "logging/VENTOS_logging.h"
 
 
 namespace VENTOS {

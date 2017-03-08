@@ -33,7 +33,7 @@
 #include "boost/filesystem.hpp"
 
 #include "interfacing/01_Ethernet.h"
-#include "logging/vlog.h"
+#include "logging/VENTOS_logging.h"
 #include "interfacing/DB/util.h"
 
 

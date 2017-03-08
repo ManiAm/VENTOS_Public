@@ -33,7 +33,7 @@
 #include "boost/filesystem.hpp"
 
 #include "interfacing/DB/util.h"
-#include "logging/vlog.h"
+#include "logging/VENTOS_logging.h"
 
 namespace VENTOS {
 

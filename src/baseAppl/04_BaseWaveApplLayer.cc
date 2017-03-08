@@ -111,7 +111,7 @@ void BaseWaveApplLayer::initialize(int stage)
                 if (mac->isChannelSwitchingActive())
                 {
                     if ( beaconInterval.raw() % (mac->getSwitchingInterval().raw()*2))
-                        LOG_EVENT << boost::format("The beacon interval '%1%' is smaller than or not a multiple of  one synchronization interval '%2%'. This means that beacons are generated during SCH intervals. \n") % beaconInterval % (2*mac->getSwitchingInterval());
+                        LOG_INFO << boost::format("The beacon interval '%1%' is smaller than or not a multiple of  one synchronization interval '%2%'. This means that beacons are generated during SCH intervals. \n") % beaconInterval % (2*mac->getSwitchingInterval());
 
                     firstBeaconOffSet = computeAsynchronousSendingTime(beaconInterval, Veins::type_CCH);
                 }

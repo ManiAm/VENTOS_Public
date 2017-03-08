@@ -208,13 +208,13 @@ void ApplRSUCRL::recieveCRL(std::vector<CRL_Piece *> data)
 {
     if ( omnetpp::cSimulation::getActiveEnvir()->isGUI() )
     {
-        LOG_EVENT << boost::format(">>> %1% received these CRL pieces from CA: \n") % myFullId;
+        LOG_INFO << boost::format(">>> %1% received these CRL pieces from CA: \n") % myFullId;
 
-        LOG_EVENT << "    ";
+        LOG_INFO << "    ";
         for(auto &i : data)
-            LOG_EVENT << i->getSeqNo() << " ";
+            LOG_INFO << i->getSeqNo() << " ";
 
-        LOG_EVENT << "\n";
+        LOG_INFO << "\n";
     }
 
     totalPieces = (int) data.size();

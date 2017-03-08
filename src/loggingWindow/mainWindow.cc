@@ -250,7 +250,7 @@ void mainWindow::processCMD()
             throw std::runtime_error("Received msg is not formated correctly!");
 
         if(strs[0] == std::to_string(CMD_ADD_TAB))
-            addTab(strs[1]);
+            addTab(strs[1], strs[2]);
         else if(strs[0] == std::to_string(CMD_ADD_SUB_TEXTVIEW))
             addSubTextView(strs[1], strs[2]);
         else if(strs[0] == std::to_string(CMD_INSERT_TXT))
@@ -277,18 +277,18 @@ void mainWindow::processCMD()
 }
 
 
-void mainWindow::addTab(std::string category)
+void mainWindow::addTab(std::string tab, std::string pane)
 {
-    auto it = vLogStreams.find(std::make_pair(category, "default"));
+    auto it = vLogStreams.find(std::make_pair(tab, pane));
     if(it != vLogStreams.end())
-        throw std::runtime_error("addTab: category/subcategory pair already exists!");
+        throw std::runtime_error("addTab: tab/pane pair already exists!");
 
     // creating a horizontal box
     Gtk::Box *m_HBox_tx = new Gtk::Box(Gtk::ORIENTATION_HORIZONTAL, 10);
     m_HBox_tx->set_homogeneous(true);
 
     // add text formatting to tab name
-    Gtk::Label *label = addTextFormatting(category);
+    Gtk::Label *label = addTextFormatting(tab);
 
     // iterate over notebook tabs and find a good pos to insert the new tab
     int pos = 0;
@@ -309,10 +309,10 @@ void mainWindow::addTab(std::string category)
     m_Notebook->set_border_width(5); // border for the whole notebook
 
     // save m_HBox_tx for later access in addSubTextView method
-    notebookBox[category] = m_HBox_tx;
+    notebookBox[tab] = m_HBox_tx;
 
     // create a new textview and add it to the box
-    Gtk::ScrolledWindow *m_ScrolledWindow = createTextView(category, "default");
+    Gtk::ScrolledWindow *m_ScrolledWindow = createTextView(tab, pane);
     m_HBox_tx->pack_start(*m_ScrolledWindow, Gtk::PACK_EXPAND_WIDGET);
 
     show_all_children();
@@ -372,7 +372,7 @@ Gtk::Label * mainWindow::addTextFormatting(std::string text)
 }
 
 
-Gtk::ScrolledWindow * mainWindow::createTextView(std::string category, std::string subcategory)
+Gtk::ScrolledWindow * mainWindow::createTextView(std::string tab, std::string pane)
 {
     // creating a ScrolledWindow
     Gtk::ScrolledWindow *m_ScrolledWindow = new Gtk::ScrolledWindow();
@@ -406,46 +406,46 @@ Gtk::ScrolledWindow * mainWindow::createTextView(std::string category, std::stri
     std::ostream *out = new std::ostream(buff);
 
     // save the associated stream
-    vLogStreams[std::make_pair(category, subcategory)] = out;
+    vLogStreams[std::make_pair(tab, pane)] = out;
 
     return m_ScrolledWindow;
 }
 
 
-void mainWindow::addSubTextView(std::string category, std::string subcategory)
+void mainWindow::addSubTextView(std::string tab, std::string pane)
 {
-    auto it = vLogStreams.find(std::make_pair(category, subcategory));
+    auto it = vLogStreams.find(std::make_pair(tab, pane));
     if(it != vLogStreams.end())
-        throw std::runtime_error("addSubTextView: category/subcategory pair already exists!");
+        throw std::runtime_error("addSubTextView: tab/pane pair already exists!");
 
     // find the horizontal box
-    auto itt = notebookBox.find(category);
+    auto itt = notebookBox.find(tab);
     if(itt == notebookBox.end())
         throw std::runtime_error("cannot find the box object!");
 
     // create a new textview and add it to the box
-    Gtk::ScrolledWindow *m_ScrolledWindow = createTextView(category, subcategory);
+    Gtk::ScrolledWindow *m_ScrolledWindow = createTextView(tab, pane);
     (itt->second)->pack_start(*m_ScrolledWindow, Gtk::PACK_EXPAND_WIDGET);
 
     show_all_children();
 }
 
 
-void mainWindow::writeStr(std::string category, std::string subcategory, std::string &msg)
+void mainWindow::writeStr(std::string tab, std::string pane, std::string &msg)
 {
-    auto it = vLogStreams.find(std::make_pair(category, subcategory));
+    auto it = vLogStreams.find(std::make_pair(tab, pane));
     if(it == vLogStreams.end())
-        throw std::runtime_error("writeStr: category/subcategory pair does not exist!");
+        throw std::runtime_error("writeStr: tab/pane pair does not exist!");
 
     *(it->second) << msg;
 }
 
 
-void mainWindow::flushStr(std::string category, std::string subcategory)
+void mainWindow::flushStr(std::string tab, std::string pane)
 {
-    auto it = vLogStreams.find(std::make_pair(category, subcategory));
+    auto it = vLogStreams.find(std::make_pair(tab, pane));
     if(it == vLogStreams.end())
-        throw std::runtime_error("writeStr: category/subcategory pair does not exist!");
+        throw std::runtime_error("writeStr: tab/pane pair does not exist!");
 
     (it->second)->flush();
 }

@@ -40,7 +40,7 @@
 
 #include "MIXIM_veins/obstacle/ObstacleControl.h"
 #include "router/Router.h"
-#include "logging/vlog.h"
+#include "logging/VENTOS_logging.h"
 
 namespace VENTOS {
 
@@ -547,7 +547,7 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
 
                     departedNodes node = it->second;
 
-                    LOG_EVENT << boost::format("t=%1%: %2% of type %3% arrived. Inserting it again on edge %4% in pos %5% with entrySpeed of %6% from lane %7% \n")
+                    LOG_INFO << boost::format("t=%1%: %2% of type %3% arrived. Inserting it again on edge %4% in pos %5% with entrySpeed of %6% from lane %7% \n")
                     % omnetpp::simTime().dbl() % node.vehicleId % node.vehicleTypeId % node.routeId % node.pos % node.speed % node.lane << std::flush;
 
                     departedVehicles.erase(it);  // remove this entry before adding

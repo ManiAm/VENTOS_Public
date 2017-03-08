@@ -32,11 +32,9 @@
 #include "boost/filesystem.hpp"
 
 #include "cobalt/SNMP.h"
-#include "logging/vlog.h"
-
+#include "logging/VENTOS_logging.h"
 
 namespace VENTOS {
-
 
 SNMP::~SNMP()
 {

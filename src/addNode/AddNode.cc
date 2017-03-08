@@ -37,7 +37,7 @@
 
 #include "addNode/AddNode.h"
 #include "MIXIM_veins/connectionManager/ConnectionManager.h"
-#include "logging/vlog.h"
+#include "logging/VENTOS_logging.h"
 
 namespace VENTOS {
 

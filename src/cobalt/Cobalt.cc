@@ -27,7 +27,7 @@
 
 #include "cobalt/Cobalt.h"
 #include "cobalt/MIB_OBJ_ASC.h"
-#include "logging/vlog.h"
+#include "logging/VENTOS_logging.h"
 
 namespace VENTOS {
 

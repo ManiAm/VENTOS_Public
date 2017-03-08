@@ -138,11 +138,11 @@ void ApplCA::receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t sig
     // we receive a Magic_Req signal from magic vehicle.
     if(signalID == Signal_Magic_Req)
     {
-        LOG_EVENT << boost::format("\n>>> %s receives a CRL request signal from %s \n") % moduleName % source->getFullName();
+        LOG_INFO << boost::format("\n>>> %s receives a CRL request signal from %s \n") % moduleName % source->getFullName();
 
         if(PiecesCRL.size() > 0)
         {
-            LOG_EVENT << "    sending the CRL ... \n";
+            LOG_INFO << "    sending the CRL ... \n";
 
             CRLPiecesData *data = new CRLPiecesData(source->getFullName(), EnableShuffle ? shuffle(PiecesCRL): PiecesCRL);
 
@@ -152,7 +152,7 @@ void ApplCA::receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t sig
             this->getParentModule()->emit(Signal_Magic_Res, data);
         }
         else
-            LOG_EVENT << "    CRL is empty! \n";
+            LOG_INFO << "    CRL is empty! \n";
 
         LOG_FLUSH;
     }
@@ -164,7 +164,7 @@ void ApplCA::receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t sig
 // Calculate Matrix A when Erasure Code is enabled. This matrix is N by M.
 void ApplCA::CalculateMatrixA()
 {
-    LOG_EVENT << boost::format("\n>>> %1% is calculating Matrix_A --> N is %2% and M is %3% \n") % moduleName % N % M << std::flush;
+    LOG_INFO << boost::format("\n>>> %1% is calculating Matrix_A --> N is %2% and M is %3% \n") % moduleName % N % M << std::flush;
 
     Matrix_A.resize(N,M);
 
@@ -195,7 +195,7 @@ void ApplCA::CalculateMatrixA()
 
 void ApplCA::createCRL()
 {
-    LOG_EVENT << boost::format("\n>>> %1% is creating a CRL of size %2% \n") % moduleName % CRLsize << std::flush;
+    LOG_INFO << boost::format("\n>>> %1% is creating a CRL of size %2% \n") % moduleName % CRLsize << std::flush;
 
     // CRL consists of one or more certificates
     std::vector<Certificate *> CRL;
@@ -222,7 +222,7 @@ void ApplCA::createCRL()
     boost::archive::text_oarchive oa(CRLbytes);
     oa << CRL;
 
-    LOG_EVENT << boost::format(">>> %1% converted the CRL into a raw data of %2% bytes \n") % moduleName % CRLbytes.str().size() << std::flush;
+    LOG_INFO << boost::format(">>> %1% converted the CRL into a raw data of %2% bytes \n") % moduleName % CRLbytes.str().size() << std::flush;
 
     // Step 2: encode CRL
     std::vector<std::string> EncodedCRL = ErasureCode ? erasure(CRLbytes): NOerasure(CRLbytes);
@@ -237,7 +237,7 @@ void ApplCA::createCRL()
 
 std::vector<std::string> ApplCA::NOerasure(std::ostringstream &CRLbytes)
 {
-    LOG_EVENT << boost::format(">>> %1% is dividing CRL message into %2% segments (Erasure code is disabled) \n") % moduleName % NoSegments;
+    LOG_INFO << boost::format(">>> %1% is dividing CRL message into %2% segments (Erasure code is disabled) \n") % moduleName % NoSegments;
 
     unsigned long len = CRLbytes.str().size();
     int n;   // number of bytes in each pieces
@@ -278,7 +278,7 @@ std::vector<std::string> ApplCA::NOerasure(std::ostringstream &CRLbytes)
     if(len % NoSegments != 0)
         tmp.push_back(oss.str());
 
-    LOG_EVENT << "\n \n" << std::flush;
+    LOG_INFO << "\n \n" << std::flush;
 
     return tmp;
 }
@@ -286,7 +286,7 @@ std::vector<std::string> ApplCA::NOerasure(std::ostringstream &CRLbytes)
 
 std::vector<std::string> ApplCA::erasure(std::ostringstream &CRLbytes)
 {
-    LOG_EVENT << boost::format(">>> %1% is applying erasure code on CRL \n") % moduleName;
+    LOG_INFO << boost::format(">>> %1% is applying erasure code on CRL \n") % moduleName;
 
     LOG_DEBUG << boost::format("    Step 1: M is %1%, so we split CRL bytes into %2%-byte segments. \n") % M % M;
 

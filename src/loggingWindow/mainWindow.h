@@ -68,7 +68,7 @@ private:
     void listenToClient(mainWindow *);
 
     void processCMD();
-    void addTab(std::string);
+    void addTab(std::string, std::string);
     Gtk::Label * addTextFormatting(std::string);
     Gtk::ScrolledWindow * createTextView(std::string, std::string);
     void addSubTextView(std::string, std::string);
@@ -84,7 +84,7 @@ protected:
     std::condition_variable cv;
     std::string response = "";
 
-    std::map< std::pair<std::string /*category name*/, std::string /*subcategory name*/>, std::ostream *> vLogStreams;
+    std::map< std::pair<std::string /*tab*/, std::string /*pane*/>, std::ostream *> vLogStreams;
     std::map< std::string, Gtk::Box *> notebookBox;
     int newsockfd;
     std::string rx_cmd = "";

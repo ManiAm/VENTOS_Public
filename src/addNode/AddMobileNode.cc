@@ -30,7 +30,7 @@
 
 #include "addNode/AddMobileNode.h"
 #include "router/Router.h"
-#include "logging/vlog.h"
+#include "logging/VENTOS_logging.h"
 
 namespace VENTOS {
 

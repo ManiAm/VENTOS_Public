@@ -42,7 +42,7 @@ network Network
             parameters:
                 @display("p=48,135");
         }
-        vLogging: vlog {
+        vLogging: vglog {
             parameters:
                 @display("p=48,48;i=old/floppy2");
         }
