@@ -83,17 +83,7 @@ void vglog::finish()
 
     // making sure to flush the remaining data in buffer
     if(socketPtr)
-    {
-        // iterate over all categories/sub-categories and flush each
-        for(auto &ii : allCategories)
-        {
-            std::string tab = ii.first;
-            std::vector<std::string> *subcats = ii.second;
-
-            for(auto &jj : *subcats)
-                objPtr->sendToLogWindow(std::to_string(CMD_FLUSH) + "||" + tab + "||" + jj);
-        }
-    }
+        GFLUSHALL();
 }
 
 
@@ -124,6 +114,20 @@ void vglog::GFLUSH(std::string tab, std::string pane)
         throw omnetpp::cRuntimeError("pane name can't be empty!");
 
     objPtr->sendToLogWindow(std::to_string(CMD_FLUSH) + "||" + tab + "||" + pane);
+}
+
+
+void vglog::GFLUSHALL()
+{
+    // iterate over all tab/pane and flush each
+    for(auto &ii : objPtr->allCategories)
+    {
+        std::string tab = ii.first;
+        std::vector<std::string> *panes = ii.second;
+
+        for(auto &jj : *panes)
+            objPtr->sendToLogWindow(std::to_string(CMD_FLUSH) + "||" + tab + "||" + jj);
+    }
 }
 
 

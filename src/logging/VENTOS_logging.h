@@ -38,6 +38,8 @@ namespace VENTOS {
 #define GLOG_FLUSH(category, subcategory) \
         std::lock_guard<std::mutex>{VENTOS::vlog::lock_log}, VENTOS::vglog::GFLUSH(category, subcategory)
 
+#define GLOG_FLUSH_ALL \
+        std::lock_guard<std::mutex>{VENTOS::vlog::lock_log}, VENTOS::vglog::GFLUSHALL()
 }
 
 #endif

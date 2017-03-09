@@ -99,6 +99,7 @@ public:
 
     static vglog& GLOGF(std::string tab, std::string pane);
     static void GFLUSH(std::string tab, std::string pane);
+    static void GFLUSHALL();
 
 private:
     bool logActive();
