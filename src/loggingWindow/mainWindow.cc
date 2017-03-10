@@ -235,7 +235,7 @@ void mainWindow::processCMD()
 
         // tokenize the buffer
         std::vector<std::string> strs;
-        std::string delimiter = "||";
+        std::string delimiter = "<||?>";
         size_t pos = 0;
         std::string token;
         while ((pos = rx_cmd.find(delimiter)) != std::string::npos)
@@ -249,7 +249,9 @@ void mainWindow::processCMD()
         if(strs.size() <= 1)
             throw std::runtime_error("Received msg is not formated correctly!");
 
-        if(strs[0] == std::to_string(CMD_ADD_TAB))
+        if(strs[0] == std::to_string(CMD_SYNTAX_HIGHLIGHTING))
+            this->syntaxHighlighting = strs[1];
+        else if(strs[0] == std::to_string(CMD_ADD_TAB))
             addTab(strs[1], strs[2]);
         else if(strs[0] == std::to_string(CMD_ADD_SUB_TEXTVIEW))
             addSubTextView(strs[1], strs[2]);
@@ -401,7 +403,7 @@ Gtk::ScrolledWindow * mainWindow::createTextView(std::string tab, std::string pa
     textBuffer->create_mark("last_line", textBuffer->end(), /* left_gravity= */ true);
 
     // making my own stream buffer
-    debugStream *buff = new debugStream(m_TextView);
+    debugStream *buff = new debugStream(m_TextView, this->syntaxHighlighting);
     // re-direct ostream to my own stream buffer
     std::ostream *out = new std::ostream(buff);
 

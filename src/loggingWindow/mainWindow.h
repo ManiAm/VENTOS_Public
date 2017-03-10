@@ -46,6 +46,7 @@ namespace VENTOS {
 
 enum logWindowCMD
 {
+    CMD_SYNTAX_HIGHLIGHTING,
     CMD_ADD_TAB,
     CMD_ADD_SUB_TEXTVIEW,
     CMD_INSERT_TXT,
@@ -83,6 +84,7 @@ protected:
     std::mutex mtx;
     std::condition_variable cv;
     std::string response = "";
+    std::string syntaxHighlighting = "";
 
     std::map< std::pair<std::string /*tab*/, std::string /*pane*/>, std::ostream *> vLogStreams;
     std::map< std::string, Gtk::Box *> notebookBox;

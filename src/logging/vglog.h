@@ -44,7 +44,10 @@ private:
 
     // NED variables
     std::string loggingWindowPath = "";
+    bool syntaxHighlighting;
+    std::string syntaxHighlightingExpression = "";
 
+    std::string delimiter = "<||?>";
     std::map< std::string, std::vector <std::string> * > allCategories;
     static vglog *objPtr;
     pid_t child_pid = -1;
@@ -55,6 +58,7 @@ private:
 
     enum logWindowCMD
     {
+        CMD_SYNTAX_HIGHLIGHTING,
         CMD_ADD_TAB,
         CMD_ADD_SUB_TEXTVIEW,
         CMD_INSERT_TXT,
@@ -75,7 +79,7 @@ public:
         {
             std::ostringstream tmp;
             tmp << inv;
-            sendToLogWindow(std::to_string(CMD_INSERT_TXT) + "||" + lastTab + "||" + lastPane + "||" + tmp.str());
+            sendToLogWindow(std::to_string(CMD_INSERT_TXT) + objPtr->delimiter + lastTab + objPtr->delimiter + lastPane + objPtr->delimiter + tmp.str());
         }
 
         return *this;
@@ -87,9 +91,9 @@ public:
         if(logActive())
         {
             if(pf == (std::basic_ostream<char>& (*)(std::basic_ostream<char>&)) &std::endl)
-                sendToLogWindow(std::to_string(CMD_INSERT_TXT) + "||" + lastTab + "||" + lastPane + "||" + "\n");
+                sendToLogWindow(std::to_string(CMD_INSERT_TXT) + objPtr->delimiter + lastTab + objPtr->delimiter + lastPane + objPtr->delimiter + "\n");
             else if(pf == (std::basic_ostream<char>& (*)(std::basic_ostream<char>&)) &std::flush)
-                sendToLogWindow(std::to_string(CMD_FLUSH) + "||" + lastTab + "||" + lastPane);
+                sendToLogWindow(std::to_string(CMD_FLUSH) + objPtr->delimiter + lastTab + objPtr->delimiter + lastPane);
             else
                 throw omnetpp::cRuntimeError("The string manipulator is not supported!");
         }

@@ -27,5 +27,8 @@ simple vglog extends vlog
         @display("i=block/network2");
         
         // relative path to mainWindow
-        string loggingWindowPath = default("src/loggingWindow/mainWindow");        
+        string loggingWindowPath = default("src/loggingWindow/mainWindow");  
+        
+        bool syntaxHighlighting = default(true);
+        string syntaxHighlightingExpression = default("");              
 }

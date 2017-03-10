@@ -70,6 +70,21 @@ void vglog::initialize(int stage)
     if(stage == 0)
     {
         loggingWindowPath = par("loggingWindowPath").stringValue();
+        syntaxHighlighting = par("syntaxHighlighting").boolValue();
+
+        if(syntaxHighlighting)
+        {
+            syntaxHighlightingExpression = par("syntaxHighlightingExpression").stringValue();
+
+            // adding a delimiter to the end
+            if(syntaxHighlightingExpression != "")
+                syntaxHighlightingExpression += " | ";
+
+            // adding our default syntax highlighting
+            syntaxHighlightingExpression += "text='ok' caseSensitive='false' fcolor='green' | ";
+            syntaxHighlightingExpression += "text='warning' caseSensitive='false' fcolor='orange' | ";
+            syntaxHighlightingExpression += "text='error' caseSensitive='false' fcolor='red'";
+        }
 
         // store the pointer to class object
         objPtr = this;
@@ -113,7 +128,7 @@ void vglog::GFLUSH(std::string tab, std::string pane)
     if(pane == "")
         throw omnetpp::cRuntimeError("pane name can't be empty!");
 
-    objPtr->sendToLogWindow(std::to_string(CMD_FLUSH) + "||" + tab + "||" + pane);
+    objPtr->sendToLogWindow(std::to_string(CMD_FLUSH) + objPtr->delimiter + tab + objPtr->delimiter + pane);
 }
 
 
@@ -126,7 +141,7 @@ void vglog::GFLUSHALL()
         std::vector<std::string> *panes = ii.second;
 
         for(auto &jj : *panes)
-            objPtr->sendToLogWindow(std::to_string(CMD_FLUSH) + "||" + tab + "||" + jj);
+            objPtr->sendToLogWindow(std::to_string(CMD_FLUSH) + objPtr->delimiter + tab + objPtr->delimiter + jj);
     }
 }
 
@@ -151,6 +166,9 @@ vglog& vglog::setGLog(std::string tab, std::string pane)
     {
         openLogWindow();
         connect_to_TCP_server();
+
+        // sending syntax highlighting
+        sendToLogWindow(std::to_string(CMD_SYNTAX_HIGHLIGHTING) + objPtr->delimiter + syntaxHighlightingExpression);
         initLogWindow = true;
     }
 
@@ -159,7 +177,7 @@ vglog& vglog::setGLog(std::string tab, std::string pane)
     if(it == allCategories.end())
     {
         // adding a new tab with pane
-        sendToLogWindow(std::to_string(CMD_ADD_TAB) + "||" + tab + "||" + pane);
+        sendToLogWindow(std::to_string(CMD_ADD_TAB) + objPtr->delimiter + tab + objPtr->delimiter + pane);
 
         // inserting the pane
         std::vector <std::string> *vec = new std::vector <std::string>;
@@ -178,7 +196,7 @@ vglog& vglog::setGLog(std::string tab, std::string pane)
     if(ii == panes->end())
     {
         // adding a new pane inside this tab
-        sendToLogWindow(std::to_string(CMD_ADD_SUB_TEXTVIEW) + "||" + tab + "||" + pane);
+        sendToLogWindow(std::to_string(CMD_ADD_SUB_TEXTVIEW) + objPtr->delimiter + tab + objPtr->delimiter + pane);
         panes->push_back(pane);
     }
 

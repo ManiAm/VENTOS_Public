@@ -32,6 +32,8 @@
 #include <streambuf>
 #include <vector>
 #include <gtkmm/main.h>
+#include <boost/algorithm/string.hpp>
+
 
 namespace VENTOS {
 
@@ -39,15 +41,32 @@ class debugStream : public std::streambuf
 {
 private:
     Gtk::TextView *m_TextView;
+    std::string syntaxHighlighting = "";
     std::vector<char> buffer_;
+
+    typedef struct tag_def
+    {
+        std::string text;
+        bool caseSensitive;
+        std::string fcolor;
+        std::string bcolor;
+        std::string size;
+
+        bool isBold;
+        bool isItalic;
+        bool isOblique;
+    } tag_def_t;
+
+    std::vector<tag_def_t> allTags;
 
 public:
 
-    explicit debugStream(Gtk::TextView *tw, std::size_t buff_sz = 512) : m_TextView(tw), buffer_(buff_sz + 1)
+    explicit debugStream(Gtk::TextView *tw, std::string sh, std::size_t buff_sz = 512) : m_TextView(tw), syntaxHighlighting(sh), buffer_(buff_sz + 1)
     {
         char *base = &buffer_.front();
         setp(base, base + buffer_.size() - 1); // -1 to make overflow() easier
 
+        parseTags();
         defineTags();
     }
 
@@ -102,34 +121,121 @@ protected:
 
 private:
 
+    void parseTags()
+    {
+        // tags are separated by |
+        std::vector<std::string> tags;
+        boost::split(tags, syntaxHighlighting, boost::is_any_of("|"));
+
+        // iterate over each tag
+        for(std::string tag : tags)
+        {
+            tag_def_t entry = {};
+
+            // remove leading and trailing spaces from the string
+            boost::trim(tag);
+
+            if(tag == "")
+                throw std::runtime_error("syntaxHighlightingExpression parameter is not properly formatted. Extra or missing '|' delimiter?");
+
+            // components of each tag are separated by space
+            std::vector<std::string> attributes;
+            boost::split(attributes, tag, boost::is_any_of("\t "));
+
+            // iterate over each attribute
+            for(std::string att : attributes)
+            {
+                // remove leading and trailing spaces from the string
+                boost::trim(att);
+
+                if(att == "")
+                    continue;
+
+                // attribute/value are separated by =
+                std::vector<std::string> value;
+                boost::split(value, att, boost::is_any_of("="));
+
+                if(value.size() != 2)
+                    throw std::runtime_error("attribute is not properly formatted in syntaxHighlightingExpression parameter");
+
+                std::string attName = value[0];
+                boost::to_lower(attName);
+
+                if(attName == "text")
+                    entry.text = extractString(value[1]);
+                else if(attName == "casesensitive")
+                {
+                    std::string val = extractString(value[1]);
+                    if(val == "true")
+                        entry.caseSensitive = true;
+                    else if(val == "false")
+                        entry.caseSensitive = false;
+                    else
+                        throw std::runtime_error("unknown value for caseSensitive attribute");
+                }
+                else if(attName == "fcolor")
+                    entry.fcolor = extractString(value[1]);
+                else if(attName == "bcolor")
+                    entry.bcolor = extractString(value[1]);
+                else if(attName == "size")
+                    entry.size = extractString(value[1]);
+                else if(attName == "style")
+                {
+                    // separating font styles
+                    std::vector<std::string> fstyles;
+                    boost::split(fstyles, extractString(value[1]), boost::is_any_of(","));
+
+                    for(std::string style : fstyles)
+                    {
+                        // remove leading and trailing spaces from the string
+                        boost::trim(style);
+
+                        if(style == "bold")
+                            entry.isBold = true;
+                        else if(style == "italic")
+                            entry.isItalic = true;
+                        else if(style == "oblique")
+                            entry.isOblique = true;
+                        else
+                            throw std::runtime_error("unknown style name");
+                    }
+                }
+                else
+                    throw std::runtime_error("unknown attribute in syntaxHighlightingExpression parameter");
+            }
+
+            allTags.push_back(entry);
+        }
+    }
+
     void defineTags()
     {
+        if(allTags.empty())
+            return;
+
+        // define tags in the text view
         auto textBuffer = m_TextView->get_buffer();
-
+        for(auto &tag : allTags)
         {
-            auto tag = textBuffer->create_tag("green_text");
-            tag->property_foreground() = "green";
-        }
+            auto textViewTag = textBuffer->create_tag(tag.text + "_tag");
 
-        {
-            auto tag = textBuffer->create_tag("orange_text");
-            tag->property_foreground() = "orange";
-        }
+            if(tag.fcolor != "")
+                textViewTag->property_foreground() = tag.fcolor;
 
-        {
-            auto tag = textBuffer->create_tag("red_text");
-            tag->property_foreground() = "red";
-        }
+            if(tag.bcolor != "")
+                textViewTag->property_background() = tag.bcolor;
 
-        {
-            auto tag = textBuffer->create_tag("red_text_bold");
-            tag->property_foreground() = "red";
-            tag->property_weight() = PANGO_WEIGHT_BOLD;
-        }
+            if(tag.size != "")
+                textViewTag->property_font() = tag.size;
 
-        {
-            auto tag = textBuffer->create_tag("blue_text");
-            tag->property_foreground() = "blue";
+            if(tag.isBold)
+                textViewTag->property_weight() = PANGO_WEIGHT_BOLD;
+
+            if(tag.isItalic)
+                textViewTag->property_style() = Pango::STYLE_ITALIC;
+
+            if(tag.isOblique)
+                textViewTag->property_style() = Pango::STYLE_OBLIQUE;
         }
     }
 
@@ -163,35 +269,23 @@ private:
         auto mark = textBuffer->get_mark("last_line");
         Gtk::TextIter limit = textBuffer->get_iter_at_mark(mark);
 
+        for(auto &tag : allTags)
         {
             Gtk::TextIter match_start;
             Gtk::TextIter match_end;
-            while( search_iter.backward_search("WARNING", Gtk::TEXT_SEARCH_CASE_INSENSITIVE, match_start, match_end, limit) )
+            while( search_iter.backward_search(tag.text, (tag.caseSensitive) ? Gtk::TEXT_SEARCH_TEXT_ONLY : Gtk::TEXT_SEARCH_CASE_INSENSITIVE, match_start, match_end, limit) )
             {
-                textBuffer->apply_tag_by_name("orange_text", match_start, match_end);
+                textBuffer->apply_tag_by_name(tag.text + "_tag", match_start, match_end);
                 search_iter = match_start;
             }
         }
+    }
 
-        {
-            Gtk::TextIter match_start;
-            Gtk::TextIter match_end;
-            while( search_iter.backward_search("ERROR", Gtk::TEXT_SEARCH_CASE_INSENSITIVE, match_start, match_end, limit) )
-            {
-                textBuffer->apply_tag_by_name("red_text", match_start, match_end);
-                search_iter = match_start;
-            }
-        }
-
-        {
-            Gtk::TextIter match_start;
-            Gtk::TextIter match_end;
-            while( search_iter.backward_search(">>>>", Gtk::TEXT_SEARCH_CASE_INSENSITIVE, match_start, match_end, limit) )
-            {
-                textBuffer->apply_tag_by_name("green_text", match_start, match_end);
-                search_iter = match_start;
-            }
-        }
+    const std::string extractString(std::string str)
+    {
+        unsigned first = str.find("'");
+        unsigned last = str.find_last_of("'");
+        return str.substr (first+1, last-first-1);
     }
 };
 
