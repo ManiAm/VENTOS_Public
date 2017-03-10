@@ -28,9 +28,6 @@
 #include <cmath>
 #include <algorithm>
 #include <iomanip>
-
-#undef ev
-#include "boost/filesystem.hpp"
 #include <boost/algorithm/string.hpp>
 
 #include "traci/TraCIStart.h"
@@ -87,61 +84,10 @@ void TraCI_Start::initialize(int stage)
             penetrationRate = par("penetrationRate").doubleValue();
             equilibrium_vehicle = par("equilibrium_vehicle").boolValue();
 
-            if(simStartDateTime == "")
-            {
-                // current date/time based on current system
-                // is show the number of sec since January 1,1970
-                time_t now = time(0);
-
-                tm *ltm = localtime(&now);
-
-                std::ostringstream dateTime;
-                dateTime << boost::format("%4d%02d%02d-%02d:%02d:%02d") %
-                        (1900 + ltm->tm_year) %
-                        (1 + ltm->tm_mon) %
-                        (ltm->tm_mday) %
-                        (ltm->tm_hour) %
-                        (ltm->tm_min) %
-                        (ltm->tm_sec);
-
-                simStartDateTime = dateTime.str();
-                simStartTime = std::chrono::high_resolution_clock::now();
-            }
-
-            record_sim_stat = par("record_sim_stat").boolValue();
-
             init_traci();
 
             // should be called after init_traci()
-            if(record_sim_stat)
-            {
-                std::string record_sim_list = par("record_sim_list").stringValue();
-                // make sure record_sim_list is not empty
-                if(record_sim_list == "")
-                    throw omnetpp::cRuntimeError("record_sim_list is empty");
-
-                // applications are separated by |
-                std::vector<std::string> records;
-                boost::split(records, record_sim_list, boost::is_any_of("|"));
-
-                // iterate over each application
-                for(std::string appl : records)
-                {
-                    if(appl == "")
-                        throw omnetpp::cRuntimeError("Invalid record_sim_list format");
-
-                    // remove leading and trailing spaces from the string
-                    boost::trim(appl);
-
-                    // convert to lower case
-                    boost::algorithm::to_lower(appl);
-
-                    record_sim_tokenize.push_back(appl);
-                }
-
-                // record simulation data right after TraCI establishment
-                record_Sim_data();
-            }
+            init_Sim_data();
 
             executeOneTimestepTrigger = new omnetpp::cMessage("step");
             scheduleAt(updateInterval, executeOneTimestepTrigger);
@@ -153,13 +99,6 @@ void TraCI_Start::initialize(int stage)
 void TraCI_Start::finish()
 {
     super::finish();
-
-    // record simulation data one last time before closing TraCI
-    if(!TraCIclosed && record_sim_stat)
-        record_Sim_data();
-
-    save_Sim_data_toFile();
-    save_Veh_data_toFile();
 
     // if the TraCI link was not closed due to error
     if(!TraCIclosed)
@@ -201,8 +140,7 @@ void TraCI_Start::handleMessage(omnetpp::cMessage *msg)
                 addPedestrian();
 
             // record simulation data after proceeding one time step
-            if(record_sim_stat)
-                record_Sim_data();
+            record_Sim_data();
         }
 
         // notify other modules to run one simulation TS
@@ -479,11 +417,7 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
                 std::string idstring; buf >> idstring;
                 // adding modules is handled on the fly when entering/leaving the ROI
 
-                auto it = departureArrival.find(idstring);
-                if(it != departureArrival.end())
-                    throw omnetpp::cRuntimeError("%s was added before!", idstring.c_str());
-                departureArrivalEntry_t entry = {omnetpp::simTime().dbl(), -1};
-                departureArrival[idstring] = entry;
+                recordDeparture(idstring);
 
                 if(equilibrium_vehicle)
                 {
@@ -531,10 +465,7 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
                 if(unEquippedHosts.find(idstring) != unEquippedHosts.end())
                     unEquippedHosts.erase(idstring);
 
-                auto it = departureArrival.find(idstring);
-                if(it == departureArrival.end())
-                    throw omnetpp::cRuntimeError("cannot find %s in the departureArrival map!", idstring.c_str());
-                it->second.arrival = omnetpp::simTime().dbl();
+                recordArrival(idstring);
 
                 // update vehicle status one last time
                 record_Veh_data(idstring, true);
@@ -622,7 +553,6 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
             for (uint32_t i = 0; i < count; ++i)
             {
                 std::string idstring; buf >> idstring;
-
 
                 cModule* mod = getManagedModule(idstring);
                 for (cModule::SubmoduleIterator iter(mod); !iter.end(); iter++)
@@ -892,32 +822,8 @@ void TraCI_Start::deleteManagedModule(std::string nodeId /*sumo id*/)
     if (nic)
         cc->unregisterNic(nic);
 
-    // remove mapping of SUMO id and OMNET++ id
-    auto i1 = SUMOid_OMNETid_mapping.find(nodeId);
-    if(i1 == SUMOid_OMNETid_mapping.end())
-        throw omnetpp::cRuntimeError("SUMO id %s does not exist in the network!", nodeId.c_str());
-    SUMOid_OMNETid_mapping.erase(i1);
-
-    // remove mapping of OMNET++ id and SUMO id
-    auto i2 = OMNETid_SUMOid_mapping.find(mod->getFullName());
-    if(i2 == OMNETid_SUMOid_mapping.end())
-        throw omnetpp::cRuntimeError("OMNET++ id %s does not exist in the network!", mod->getFullName());
-    OMNETid_SUMOid_mapping.erase(i2);
-
-    // remove mapping of SUMO id and IPv4 -- for emulated vehicle
-    auto i3 = SUMOid_ipv4_mapping.find(nodeId);
-    // if this vehicle is emulated
-    if(i3 != SUMOid_ipv4_mapping.end())
-    {
-        std::string ipv4 = i3->second;
-        SUMOid_ipv4_mapping.erase(i3);
-
-        // then remove mapping of IPv4 and OMNET id
-        auto i4 = ipv4_OMNETid_mapping.find(ipv4);
-        if(i4 == ipv4_OMNETid_mapping.end())
-            throw omnetpp::cRuntimeError("IP address '%s' does not exist in the map!", ipv4.c_str());
-        ipv4_OMNETid_mapping.erase(i4);
-    }
+    removeMapping(nodeId, mod->getFullName());
+    removeMapping_emulated(nodeId);
 
     hosts.erase(nodeId);
     mod->callFinish();
@@ -1019,26 +925,12 @@ omnetpp::cModule* TraCI_Start::addVehicle(std::string SUMOID, std::string type, 
     mod->getDisplayString().parse(displayString.c_str());
     mod->buildInside();
 
-    bool hasOBU_val = false;
-    std::string IPaddress_val = "";
-    auto ii = SUMOid_ipv4_mapping.find(SUMOID);
-    if(ii != SUMOid_ipv4_mapping.end())
-    {
-        hasOBU_val = true;
-        IPaddress_val = ii->second;
-
-        // save ipAddress <--> omnetId mapping
-        auto jj = ipv4_OMNETid_mapping.find(ii->second);
-        if(jj != ipv4_OMNETid_mapping.end())
-            throw omnetpp::cRuntimeError("IP address '%s' is not unique!", ii->second.c_str());
-        ipv4_OMNETid_mapping[ii->second] = mod->getFullName();
-    }
-
     mod->par("SUMOID") = SUMOID;
     mod->par("SUMOType") = vehicleGetTypeID(SUMOID);
     mod->par("vehicleClass") = vClass;
 
-    mod->par("hasOBU") = hasOBU_val;
+    std::string IPaddress_val = addMapping_emulated(SUMOID, mod->getFullName());
+    mod->par("hasOBU") = (IPaddress_val != "") ? true : false;
     mod->par("IPaddress") = IPaddress_val;
 
     // update initial position in obstacles
@@ -1072,51 +964,9 @@ omnetpp::cModule* TraCI_Start::addVehicle(std::string SUMOID, std::string type, 
         mm->changePosition();
     }
 
-    // save mapping of SUMO id and OMNET++ id
-    auto i1 = SUMOid_OMNETid_mapping.find(SUMOID);
-    if(i1 != SUMOid_OMNETid_mapping.end())
-        throw omnetpp::cRuntimeError("SUMO id %s already exists in the network!", SUMOID.c_str());
-    SUMOid_OMNETid_mapping[SUMOID] = mod->getFullName();
+    addMapping(SUMOID, mod->getFullName());
 
-    // save mapping of OMNET++ id and SUMO id
-    auto i2 = OMNETid_SUMOid_mapping.find(mod->getFullName());
-    if(i2 != OMNETid_SUMOid_mapping.end())
-        throw omnetpp::cRuntimeError("OMNET++ id %s already exists in the network!", mod->getFullName());
-    OMNETid_SUMOid_mapping[mod->getFullName()] = SUMOID;
-
-    auto it = record_status.find(SUMOID);
-    if(it == record_status.end())
-    {
-        bool active = mod->par("record_stat").boolValue();
-        std::string record_list = mod->par("record_list").stringValue();
-
-        // make sure record_list is not empty
-        if(record_list == "")
-            throw omnetpp::cRuntimeError("record_list is empty in vehicle '%s'", SUMOID.c_str());
-
-        // applications are separated by |
-        std::vector<std::string> records;
-        boost::split(records, record_list, boost::is_any_of("|"));
-
-        // iterate over each application
-        std::vector<std::string> record_tokenize;
-        for(std::string appl : records)
-        {
-            if(appl == "")
-                throw omnetpp::cRuntimeError("Invalid record_list format in vehicle '%s'", SUMOID.c_str());
-
-            // remove leading and trailing spaces from the string
-            boost::trim(appl);
-
-            // convert to lower case
-            boost::algorithm::to_lower(appl);
-
-            record_tokenize.push_back(appl);
-        }
-
-        veh_status_entry_t entry = {active, record_tokenize};
-        record_status[SUMOID] = entry;
-    }
+    init_Veh_data(SUMOID, mod);
 
     return mod;
 }
@@ -1139,461 +989,6 @@ omnetpp::cModule* TraCI_Start::addPedestrian()
     //        subscribedPedestrians.erase(*i);
 
     return NULL;
-}
-
-
-void TraCI_Start::record_Sim_data()
-{
-    sim_status_entry_t entry = {};
-
-    entry.timeStep = (omnetpp::simTime()-updateInterval).dbl();
-    entry.loaded = -1;
-    entry.departed = -1;
-    entry.arrived = -1;
-    entry.running = -1;
-    entry.waiting = -1;
-
-    for(std::string record : record_sim_tokenize)
-    {
-        if(record == "loaded")
-            entry.loaded = simulationGetLoadedVehiclesCount();
-        else if(record == "departed")
-            entry.departed = departedVehicleCount;
-        else if(record == "arrived")
-            entry.arrived = arrivedVehicleCount;
-        else if(record == "running")
-            entry.running = activeVehicleCount;
-        else if(record == "waiting")
-            entry.waiting = simulationGetMinExpectedNumber() - activeVehicleCount;
-        else
-            throw omnetpp::cRuntimeError("'%s' is not a valid record name", record.c_str());
-    }
-
-    sim_record_status.push_back(entry);
-}
-
-
-void TraCI_Start::save_Sim_data_toFile()
-{
-    if(sim_record_status.empty())
-        return;
-
-    int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
-
-    std::ostringstream fileName;
-    fileName << boost::format("%03d_simData.txt") % currentRun;
-
-    boost::filesystem::path filePath ("results");
-    filePath /= fileName.str();
-
-    FILE *filePtr = fopen (filePath.c_str(), "w");
-    if (!filePtr)
-        throw omnetpp::cRuntimeError("Cannot create file '%s'", filePath.c_str());
-
-    // write simulation parameters at the beginning of the file
-    {
-        // get the current config name
-        std::string configName = omnetpp::getEnvir()->getConfigEx()->getVariable("configname");
-
-        std::string iniFile = omnetpp::getEnvir()->getConfigEx()->getVariable("inifile");
-
-        // PID of the simulation process
-        std::string processid = omnetpp::getEnvir()->getConfigEx()->getVariable("processid");
-
-        // globally unique identifier for the run, produced by
-        // concatenating the configuration name, run number, date/time, etc.
-        std::string runID = omnetpp::getEnvir()->getConfigEx()->getVariable("runid");
-
-        // get number of total runs in this config
-        int totalRun = omnetpp::getEnvir()->getConfigEx()->getNumRunsInConfig(configName.c_str());
-
-        // get the current run number
-        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
-
-        // get all iteration variables
-        std::vector<std::string> iterVar = omnetpp::getEnvir()->getConfigEx()->unrollConfig(configName.c_str(), false);
-
-        // write to file
-        fprintf (filePtr, "configName      %s\n", configName.c_str());
-        fprintf (filePtr, "iniFile         %s\n", iniFile.c_str());
-        fprintf (filePtr, "processID       %s\n", processid.c_str());
-        fprintf (filePtr, "runID           %s\n", runID.c_str());
-        fprintf (filePtr, "totalRun        %d\n", totalRun);
-        fprintf (filePtr, "currentRun      %d\n", currentRun);
-        fprintf (filePtr, "currentConfig   %s\n", iterVar[currentRun].c_str());
-        fprintf (filePtr, "sim timeStep    %u ms\n", simulationGetTimeStep());
-        fprintf (filePtr, "startDateTime   %s\n", simulationGetStartTime().c_str());
-        fprintf (filePtr, "endDateTime     %s\n", simulationGetEndTime().c_str());
-        fprintf (filePtr, "duration        %s\n\n\n", simulationGetDuration().c_str());
-    }
-
-    // write column title
-    fprintf (filePtr, "%-15s","index");
-    fprintf (filePtr, "%-15s","timeStep");
-    for(std::string column : record_sim_tokenize)
-        fprintf (filePtr, "%-15s", column.c_str());
-    fprintf (filePtr, "\n\n");
-
-    double oldTime = -2;
-    int index = 0;
-
-    for(auto &y : sim_record_status)
-    {
-        if(oldTime != y.timeStep)
-        {
-            fprintf(filePtr, "\n");
-            oldTime = y.timeStep;
-            index++;
-        }
-
-        fprintf (filePtr, "%-15d", index);
-        fprintf (filePtr, "%-15.2f", y.timeStep );
-
-        for(std::string record : record_sim_tokenize)
-        {
-            if(record == "loaded")
-                fprintf (filePtr, "%-15ld", y.loaded);
-            else if(record == "departed")
-                fprintf (filePtr, "%-15ld", y.departed);
-            else if(record == "arrived")
-                fprintf (filePtr, "%-15ld", y.arrived);
-            else if(record == "running")
-                fprintf (filePtr, "%-15ld", y.running);
-            else if(record == "waiting")
-                fprintf (filePtr, "%-15ld", y.waiting);
-            else
-            {
-                fclose(filePtr);
-                throw omnetpp::cRuntimeError("'%s' is not a valid record name", record.c_str());
-            }
-        }
-
-        fprintf (filePtr, "\n");
-    }
-
-    fclose(filePtr);
-}
-
-
-// is called in each time step for each vehicle
-void TraCI_Start::record_Veh_data(std::string vID, bool arrived)
-{
-    auto it = record_status.find(vID);
-    if(it == record_status.end())
-        return;
-
-    if(!it->second.active)
-        return;
-
-    for(auto i = collected_veh_data.rbegin(); i != collected_veh_data.rend(); i++)
-    {
-        // looking for the last entry of vID
-        if(i->vehId == vID)
-        {
-            // if vehicle has arrived
-            if(arrived)
-            {
-                // then update the arrival/route duration
-                i->arrival = (omnetpp::simTime()-updateInterval).dbl();
-                i->routeDuration = i->arrival - i->departure;
-                return;
-            }
-            else
-            {
-                // make sure that the arrival time is -1
-                if(i->arrival == -1)
-                    break;
-
-                throw omnetpp::cRuntimeError("veh '%s' has already arrived!", vID.c_str());
-            }
-        }
-    }
-
-    veh_data_entry entry = {};
-
-    entry.timeStep = (omnetpp::simTime()-updateInterval).dbl();
-    entry.vehId = "n/a";
-    entry.vehType = "n/a";
-    entry.lane = "n/a";
-    entry.lanePos = -1;
-    entry.speed = -1;
-    entry.accel = std::numeric_limits<double>::infinity();
-    entry.departure = 0;
-    entry.arrival = -1;
-    entry.route = "";
-    entry.routeDuration = 0;
-    entry.drivingDistance = -1;
-    entry.CFMode = "n/a";
-    entry.timeGapSetting = -1;
-    entry.timeGap = -2;
-    entry.frontSpaceGap = -2;
-    entry.rearSpaceGap = -2;
-    entry.nextTLId = "n/a";
-    entry.nextTLLinkStat = '\0';
-
-    static int columnNumber = 0;
-    for(std::string record : it->second.record_list)
-    {
-        if(record == "vehid")
-            entry.vehId = vID;
-        else if(record == "vehtype")
-            entry.vehType = vehicleGetTypeID(vID);
-        else if(record == "lane")
-            entry.lane = vehicleGetLaneID(vID);
-        else if(record == "lanepos")
-            entry.lanePos = vehicleGetLanePosition(vID);
-        else if(record == "speed")
-            entry.speed = vehicleGetSpeed(vID);
-        else if(record == "accel")
-            entry.accel = vehicleGetCurrentAccel(vID);
-        else if(record == "departure")
-            entry.departure = vehicleGetDepartureTime(vID);
-        else if(record == "arrival")
-            entry.arrival = vehicleGetArrivalTime(vID);
-        else if(record == "route")
-        {
-            // convert vector of string to std::string
-            std::string route_edges = "' ";
-            for (auto &s : vehicleGetRoute(vID)) { route_edges = route_edges + s + " "; }
-            route_edges += "'";
-
-            entry.route = route_edges;
-        }
-        else if(record == "routeduration")
-        {
-            double departure = vehicleGetDepartureTime(vID);
-            if(departure != -1)
-                entry.routeDuration = (omnetpp::simTime() - departure - updateInterval).dbl();
-        }
-        else if(record == "drivingdistance")
-            entry.drivingDistance = vehicleGetDrivingDistance(vID);
-        else if(record == "cfmode")
-        {
-            CFMODES_t CFMode_Enum = vehicleGetCarFollowingMode(vID);
-            switch(CFMode_Enum)
-            {
-            case Mode_Undefined:
-                entry.CFMode = "Undefined";
-                break;
-            case Mode_NoData:
-                entry.CFMode = "NoData";
-                break;
-            case Mode_DataLoss:
-                entry.CFMode = "DataLoss";
-                break;
-            case Mode_SpeedControl:
-                entry.CFMode = "SpeedControl";
-                break;
-            case Mode_GapControl:
-                entry.CFMode = "GapControl";
-                break;
-            case Mode_EmergencyBrake:
-                entry.CFMode = "EmergencyBrake";
-                break;
-            case Mode_Stopped:
-                entry.CFMode = "Stopped";
-                break;
-            default:
-                throw omnetpp::cRuntimeError("Not a valid CFModel!");
-                break;
-            }
-        }
-        else if(record == "timegapsetting")
-            entry.timeGapSetting = vehicleGetTimeGap(vID);
-        else if(record == "timegap")
-        {
-            double speed = (entry.speed != -1) ? entry.speed : vehicleGetSpeed(vID);
-
-            auto leader = vehicleGetLeader(vID, 900);
-            double spaceGap = (leader.leaderID != "") ? leader.distance2Leader : -1;
-
-            // calculate timeGap (if leading is present)
-            if(leader.leaderID != "" && speed != 0)
-                entry.timeGap = spaceGap / speed;
-            else
-                entry.timeGap = -1;
-        }
-        else if(record == "frontspacegap")
-        {
-            auto leader = vehicleGetLeader(vID, 900);
-            entry.frontSpaceGap = (leader.leaderID != "") ? leader.distance2Leader : -1;
-        }
-        else if(record == "rearspacegap")
-        {
-
-        }
-        else if(record == "nexttlid")
-        {
-            std::vector<TL_info_t> res = vehicleGetNextTLS(vID);
-
-            if(!res.empty())
-                entry.nextTLId = res[0].TLS_id;
-            else
-                entry.nextTLId = "";
-        }
-        else if(record == "nexttllinkstat")
-        {
-            std::vector<TL_info_t> res = vehicleGetNextTLS(vID);
-
-            if(!res.empty())
-                entry.nextTLLinkStat = res[0].linkState;
-            else
-                entry.nextTLLinkStat = 'n';
-        }
-        else
-            throw omnetpp::cRuntimeError("'%s' is not a valid record name in veh '%s'", record.c_str(), vID.c_str());
-
-        auto it = allColumns.find(record);
-        if(it == allColumns.end())
-        {
-            allColumns[record] = columnNumber;
-            columnNumber++;
-        }
-    }
-
-    collected_veh_data.push_back(entry);
-}
-
-
-void TraCI_Start::save_Veh_data_toFile()
-{
-    if(collected_veh_data.empty())
-        return;
-
-    // file name for saving vehicles statistics
-    std::string veh_stat_file = par("veh_stat_file").stringValue();
-
-    boost::filesystem::path filePath ("results");
-
-    // no file name specified
-    if(veh_stat_file == "")
-    {
-        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
-
-        std::ostringstream fileName;
-        fileName << boost::format("%03d_vehicleData.txt") % currentRun;
-
-        filePath /= fileName.str();
-    }
-    else
-        filePath /= veh_stat_file;
-
-    FILE *filePtr = fopen (filePath.c_str(), "w");
-    if (!filePtr)
-        throw omnetpp::cRuntimeError("Cannot create file '%s'", filePath.c_str());
-
-    // write simulation parameters at the beginning of the file
-    {
-        // get the current config name
-        std::string configName = omnetpp::getEnvir()->getConfigEx()->getVariable("configname");
-
-        std::string iniFile = omnetpp::getEnvir()->getConfigEx()->getVariable("inifile");
-
-        // PID of the simulation process
-        std::string processid = omnetpp::getEnvir()->getConfigEx()->getVariable("processid");
-
-        // globally unique identifier for the run, produced by
-        // concatenating the configuration name, run number, date/time, etc.
-        std::string runID = omnetpp::getEnvir()->getConfigEx()->getVariable("runid");
-
-        // get number of total runs in this config
-        int totalRun = omnetpp::getEnvir()->getConfigEx()->getNumRunsInConfig(configName.c_str());
-
-        // get the current run number
-        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
-
-        // get all iteration variables
-        std::vector<std::string> iterVar = omnetpp::getEnvir()->getConfigEx()->unrollConfig(configName.c_str(), false);
-
-        // write to file
-        fprintf (filePtr, "configName      %s\n", configName.c_str());
-        fprintf (filePtr, "iniFile         %s\n", iniFile.c_str());
-        fprintf (filePtr, "processID       %s\n", processid.c_str());
-        fprintf (filePtr, "runID           %s\n", runID.c_str());
-        fprintf (filePtr, "totalRun        %d\n", totalRun);
-        fprintf (filePtr, "currentRun      %d\n", currentRun);
-        fprintf (filePtr, "currentConfig   %s\n", iterVar[currentRun].c_str());
-        fprintf (filePtr, "sim timeStep    %u ms\n", simulationGetTimeStep());
-        fprintf (filePtr, "startDateTime   %s\n", simulationGetStartTime().c_str());
-        fprintf (filePtr, "endDateTime     %s\n", simulationGetEndTime().c_str());
-        fprintf (filePtr, "duration        %s\n\n\n", simulationGetDuration().c_str());
-    }
-
-    std::string columns_sorted[allColumns.size()];
-    for(auto it : allColumns)
-        columns_sorted[it.second] = it.first;
-
-    // write column title
-    fprintf (filePtr, "%-10s","index");
-    fprintf (filePtr, "%-12s","timeStamp");
-    for(std::string column : columns_sorted)
-        fprintf (filePtr, "%-20s", column.c_str());
-    fprintf (filePtr, "\n\n");
-
-    double oldTime = -2;
-    int index = 0;
-
-    for(auto &y : collected_veh_data)
-    {
-        if(oldTime != y.timeStep)
-        {
-            fprintf(filePtr, "\n");
-            oldTime = y.timeStep;
-            index++;
-        }
-
-        fprintf (filePtr, "%-10d", index);
-        fprintf (filePtr, "%-12.2f", y.timeStep );
-
-        for(std::string record : columns_sorted)
-        {
-            if(record == "vehid")
-                fprintf (filePtr, "%-20s", y.vehId.c_str());
-            else if(record == "vehtype")
-                fprintf (filePtr, "%-20s", y.vehType.c_str());
-            else if(record == "lane")
-                fprintf (filePtr, "%-20s", y.lane.c_str());
-            else if(record == "lanepos")
-                fprintf (filePtr, "%-20.2f", y.lanePos);
-            else if(record == "speed")
-                fprintf (filePtr, "%-20.2f", y.speed);
-            else if(record == "accel")
-                fprintf (filePtr, "%-20.2f", y.accel);
-            else if(record == "departure")
-                fprintf (filePtr, "%-20.2f", y.departure);
-            else if(record == "arrival")
-                fprintf (filePtr, "%-20.2f", y.arrival);
-            else if(record == "route")
-                fprintf (filePtr, "%-20s", y.route.c_str());
-            else if(record == "routeduration")
-                fprintf (filePtr, "%-20.2f", y.routeDuration);
-            else if(record == "drivingdistance")
-                fprintf (filePtr, "%-20.2f", y.drivingDistance);
-            else if(record == "cfmode")
-                fprintf (filePtr, "%-20s", y.CFMode.c_str());
-            else if(record == "timegapsetting")
-                fprintf (filePtr, "%-20.2f", y.timeGapSetting);
-            else if(record == "timegap")
-                fprintf (filePtr, "%-20.2f", y.timeGap);
-            else if(record == "frontspacegap")
-                fprintf (filePtr, "%-20.2f", y.frontSpaceGap);
-            else if(record == "rearspacegap")
-                fprintf (filePtr, "%-20.2f", y.rearSpaceGap);
-            else if(record == "nexttlid")
-                fprintf (filePtr, "%-20s", y.nextTLId.c_str());
-            else if(record == "nexttllinkstat")
-                fprintf (filePtr, "%-20c", y.nextTLLinkStat);
-            else
-            {
-                fclose(filePtr);
-                throw omnetpp::cRuntimeError("'%s' is not a valid record name in veh '%s'", record.c_str(), y.vehId.c_str());
-            }
-        }
-
-        fprintf (filePtr, "\n");
-    }
-
-    fclose(filePtr);
 }
 
 }

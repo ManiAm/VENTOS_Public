@@ -54,6 +54,30 @@ void TraCI_Commands::initialize(int stage)
     {
         record_TraCI_activity = par("record_TraCI_activity").boolValue();
         margin = par("margin").longValue();
+
+        if(par("active").boolValue())
+        {
+            if(simStartDateTime == "")
+            {
+                // current date/time based on current system
+                // is show the number of sec since January 1,1970
+                time_t now = time(0);
+
+                tm *ltm = localtime(&now);
+
+                std::ostringstream dateTime;
+                dateTime << boost::format("%4d%02d%02d-%02d:%02d:%02d") %
+                        (1900 + ltm->tm_year) %
+                        (1 + ltm->tm_mon) %
+                        (ltm->tm_mday) %
+                        (ltm->tm_hour) %
+                        (ltm->tm_min) %
+                        (ltm->tm_sec);
+
+                simStartDateTime = dateTime.str();
+                simStartTime = std::chrono::high_resolution_clock::now();
+            }
+        }
     }
 }
 
@@ -122,6 +146,97 @@ std::pair<TraCIBuffer, uint32_t> TraCI_Commands::simulationTimeStep(uint32_t tar
     record_TraCI_activity_func("commandComplete", CMD_SIMSTEP2, 0xff, "simulationTimeStep");
 
     return std::make_pair(buf, count);
+}
+
+
+void TraCI_Commands::addMapping(std::string SUMOID, std::string OMNETID)
+{
+    // save mapping of SUMO id and OMNET++ id
+    auto i1 = SUMOid_OMNETid_mapping.find(SUMOID);
+    if(i1 != SUMOid_OMNETid_mapping.end())
+        throw omnetpp::cRuntimeError("SUMO id %s already exists in the network!", SUMOID.c_str());
+    SUMOid_OMNETid_mapping[SUMOID] = OMNETID;
+
+    // save mapping of OMNET++ id and SUMO id
+    auto i2 = OMNETid_SUMOid_mapping.find(OMNETID);
+    if(i2 != OMNETid_SUMOid_mapping.end())
+        throw omnetpp::cRuntimeError("OMNET++ id %s already exists in the network!", OMNETID);
+    OMNETid_SUMOid_mapping[OMNETID] = SUMOID;
+}
+
+
+void TraCI_Commands::removeMapping(std::string SUMOID, std::string OMNETID)
+{
+    // remove mapping of SUMO id and OMNET++ id
+    auto i1 = SUMOid_OMNETid_mapping.find(SUMOID);
+    if(i1 == SUMOid_OMNETid_mapping.end())
+        throw omnetpp::cRuntimeError("SUMO id %s does not exist in the network!", SUMOID.c_str());
+    SUMOid_OMNETid_mapping.erase(i1);
+
+    // remove mapping of OMNET++ id and SUMO id
+    auto i2 = OMNETid_SUMOid_mapping.find(OMNETID);
+    if(i2 == OMNETid_SUMOid_mapping.end())
+        throw omnetpp::cRuntimeError("OMNET++ id %s does not exist in the network!", OMNETID);
+    OMNETid_SUMOid_mapping.erase(i2);
+}
+
+
+std::string TraCI_Commands::addMapping_emulated(std::string SUMOID, std::string OMNETID)
+{
+    std::string IPaddress_val = "";
+    auto ii = SUMOid_ipv4_mapping.find(SUMOID);
+    if(ii != SUMOid_ipv4_mapping.end())
+    {
+        IPaddress_val = ii->second;
+
+        // save ipAddress <--> omnetId mapping
+        auto jj = ipv4_OMNETid_mapping.find(ii->second);
+        if(jj != ipv4_OMNETid_mapping.end())
+            throw omnetpp::cRuntimeError("IP address '%s' is not unique!", ii->second.c_str());
+        ipv4_OMNETid_mapping[ii->second] = OMNETID;
+    }
+
+    return IPaddress_val;
+}
+
+
+void TraCI_Commands::removeMapping_emulated(std::string SUMOID)
+{
+    // remove mapping of SUMO id and IPv4 -- for emulated vehicle
+    auto i3 = SUMOid_ipv4_mapping.find(SUMOID);
+    // if this vehicle is emulated
+    if(i3 != SUMOid_ipv4_mapping.end())
+    {
+        std::string ipv4 = i3->second;
+        SUMOid_ipv4_mapping.erase(i3);
+
+        // then remove mapping of IPv4 and OMNET id
+        auto i4 = ipv4_OMNETid_mapping.find(ipv4);
+        if(i4 == ipv4_OMNETid_mapping.end())
+            throw omnetpp::cRuntimeError("IP address '%s' does not exist in the map!", ipv4.c_str());
+        ipv4_OMNETid_mapping.erase(i4);
+    }
+}
+
+
+void TraCI_Commands::recordDeparture(std::string SUMOID)
+{
+    auto it = departureArrival.find(SUMOID);
+    if(it != departureArrival.end())
+        throw omnetpp::cRuntimeError("%s was added before!", SUMOID.c_str());
+
+    departureArrivalEntry_t entry = {omnetpp::simTime().dbl(), -1};
+    departureArrival[SUMOID] = entry;
+}
+
+
+void TraCI_Commands::recordArrival(std::string SUMOID)
+{
+    auto it = departureArrival.find(SUMOID);
+    if(it == departureArrival.end())
+        throw omnetpp::cRuntimeError("cannot find %s in the departureArrival map!", SUMOID.c_str());
+
+    it->second.arrival = omnetpp::simTime().dbl();
 }
 
 

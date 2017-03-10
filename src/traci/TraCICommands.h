@@ -140,12 +140,6 @@ typedef enum VehicleSignal {
     VEH_SIGNAL_EMERGENCY_YELLOW = 8192
 } VehicleSignal_t;
 
-typedef struct departureArrivalEntry
-{
-    double departure;
-    double arrival;
-} departureArrivalEntry_t;
-
 typedef struct colorVal
 {
     uint8_t red;
@@ -163,8 +157,6 @@ public:
     std::vector<std::string> removed_vehicles;
 
 protected:
-    typedef std::chrono::high_resolution_clock::time_point Htime_t;
-
     double updateInterval = -1;
     TraCIConnection* connection = NULL;
 
@@ -173,10 +165,12 @@ protected:
     TraCICoord netbounds2;
     int margin;
 
-    // record the departure and arrival time of each vehicle
-    std::map<std::string /*SUMOID*/, departureArrivalEntry_t> departureArrival;
-
     bool TraCIclosed = false;
+
+private:
+    typedef omnetpp::cSimpleModule super;
+
+    typedef std::chrono::high_resolution_clock::time_point Htime_t;
 
     // start/end/duration of simulation
     std::string simStartDateTime = "";
@@ -184,16 +178,14 @@ protected:
     Htime_t simStartTime;
     Htime_t simEndTime;
 
-    // storing the mapping between vehicle ids and the corresponding SUMO ids
-    std::map<std::string /*veh SUMO id*/, std::string /*veh OMNET id*/> SUMOid_OMNETid_mapping;
-    std::map<std::string /*veh OMNET id*/, std::string /*veh SUMO id*/> OMNETid_SUMOid_mapping;
+    typedef struct departureArrivalEntry
+    {
+        double departure;
+        double arrival;
+    } departureArrivalEntry_t;
 
-    // storing the mapping between emulated vehicle ids and the corresponding HIL board ipv4 address
-    std::map<std::string /*veh SUMO id*/, std::string /*ip address*/> SUMOid_ipv4_mapping;
-    std::map<std::string /*ip address*/, std::string /*veh OMNET++ id*/> ipv4_OMNETid_mapping;
-
-private:
-    typedef omnetpp::cSimpleModule super;
+    // record the departure and arrival time of each vehicle
+    std::map<std::string /*SUMOID*/, departureArrivalEntry_t> departureArrival;
 
     // logging TraCI command exchange
     typedef struct TraCIcommandEntry
@@ -208,6 +200,14 @@ private:
 
     bool record_TraCI_activity;
     std::vector<TraCIcommandEntry_t> exchangedTraCIcommands;
+
+    // storing the mapping between vehicle ids and the corresponding SUMO ids
+    std::map<std::string /*veh SUMO id*/, std::string /*veh OMNET id*/> SUMOid_OMNETid_mapping;
+    std::map<std::string /*veh OMNET id*/, std::string /*veh SUMO id*/> OMNETid_SUMOid_mapping;
+
+    // storing the mapping between emulated vehicle ids and the corresponding HIL board ipv4 address
+    std::map<std::string /*veh SUMO id*/, std::string /*ip address*/> SUMOid_ipv4_mapping;
+    std::map<std::string /*ip address*/, std::string /*veh OMNET++ id*/> ipv4_OMNETid_mapping;
 
 public:
     virtual ~TraCI_Commands();
@@ -534,6 +534,15 @@ protected:
     std::pair<uint32_t, std::string> getVersion();
     void close_TraCI_connection();
     std::pair<TraCIBuffer, uint32_t> simulationTimeStep(uint32_t targetTime);
+
+    void addMapping(std::string SUMOID, std::string OMNETID);
+    void removeMapping(std::string SUMOID, std::string OMNETID);
+
+    std::string addMapping_emulated(std::string SUMOID, std::string OMNETID);
+    void removeMapping_emulated(std::string SUMOID);
+
+    void recordDeparture(std::string SUMOID);
+    void recordArrival(std::string SUMOID);
 
 private:
     // ################################################################

@@ -32,14 +32,14 @@
 
 #include "global/BaseWorldUtility.h"
 #include "MIXIM_veins/connectionManager/ConnectionManager.h"
-#include "traci/TraCICommands.h"
+#include "traci/TraCIRecordStat.h"
 
 namespace VENTOS {
 
-class TraCI_Start :  public TraCI_Commands
+class TraCI_Start :  public TraCI_RecordStat
 {
 private:
-    typedef TraCI_Commands super;
+    typedef TraCI_RecordStat super;
 
     // NED
     bool active;  // run SUMO and establish TraCI?
@@ -51,13 +51,6 @@ private:
     BaseWorldUtility* world = NULL;
     ConnectionManager* cc = NULL;
     cModule *addNode_module = NULL;
-
-    uint32_t departedVehicleCount = 0; // accumulated number of departed vehicles
-    uint32_t arrivedVehicleCount = 0;  // accumulated number of arrived vehicles
-
-    uint32_t activeVehicleCount = 0;  // number of active vehicles (be it parking or driving) at current time step
-    uint32_t parkingVehicleCount = 0; // number of parking vehicles at current time step
-    uint32_t drivingVehicleCount = 0; // number of driving vehicles at current time step
 
     std::set<std::string> subscribedVehicles;    // all vehicles we have already subscribed to
     std::set<std::string> subscribedPedestrians; // all pedestrians we have already subscribed to
@@ -86,54 +79,6 @@ private:
 
     bool equilibrium_vehicle;
     std::map<std::string /*SUMO id*/, departedNodes> departedVehicles;
-
-    typedef struct sim_status_entry
-    {
-        double timeStep;
-        long int loaded;
-        long int departed;
-        long int arrived;
-        long int running;
-        long int waiting;
-    } sim_status_entry_t;
-
-    bool record_sim_stat;
-    std::vector<std::string> record_sim_tokenize;
-    std::vector<sim_status_entry_t> sim_record_status;
-
-    typedef struct veh_status_entry
-    {
-        bool active;  // should we record statistics for this vehicle?
-        std::vector<std::string> record_list;  // type of data we need to record for this vehicle
-    } veh_status_entry_t;
-
-    std::map<std::string /*SUMO id*/, veh_status_entry_t> record_status;
-
-    typedef struct veh_data_entry
-    {
-        double timeStep;
-        std::string vehId;
-        std::string vehType;
-        std::string lane;
-        double lanePos;
-        double speed;
-        double accel;
-        double departure;
-        double arrival;
-        std::string route;
-        double routeDuration;
-        double drivingDistance;
-        std::string CFMode;
-        double timeGapSetting;
-        double timeGap;
-        double frontSpaceGap;
-        double rearSpaceGap;
-        std::string nextTLId;  // TLid that controls this vehicle. Empty string means the vehicle is not controlled by any TLid
-        char nextTLLinkStat;   // status of the TL ahead (character 'n' means no TL ahead)
-    } veh_data_entry_t;
-
-    std::vector<veh_data_entry_t> collected_veh_data;
-    std::map<std::string, int /*order*/> allColumns;
 
 public:
     TraCI_Start();
@@ -168,12 +113,6 @@ private:
     // returns whether a given position lies within the simulation's region of interest.
     // Modules are destroyed and re-created as managed vehicles leave and re-enter the ROI
     bool isInRegionOfInterest(const TraCICoord& position, std::string road_id, double speed, double angle);
-
-    void record_Sim_data();
-    void save_Sim_data_toFile();
-
-    void record_Veh_data(std::string vID, bool arrived = false);
-    void save_Veh_data_toFile();
 };
 
 }
