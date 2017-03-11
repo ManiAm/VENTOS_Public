@@ -80,14 +80,24 @@ void TraCI_Start::initialize(int stage)
             addNode_module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("addNode");
             ASSERT(addNode_module);
 
+            // get a pointer to the Statistics module
+            module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("statistics");
+            STAT = static_cast<VENTOS::Statistics*>(module);
+            ASSERT(STAT);
+
             autoShutdown = par("autoShutdown");
             penetrationRate = par("penetrationRate").doubleValue();
             equilibrium_vehicle = par("equilibrium_vehicle").boolValue();
 
             init_traci();
 
-            // should be called after init_traci()
-            init_Sim_data();
+            init_obstacles();
+
+            // should be called after 'init_traci'
+            init_roi();
+
+            // should be called after 'init_traci'
+            STAT->init_Sim_data();
 
             executeOneTimestepTrigger = new omnetpp::cMessage("step");
             scheduleAt(updateInterval, executeOneTimestepTrigger);
@@ -103,6 +113,9 @@ void TraCI_Start::finish()
     // if the TraCI link was not closed due to error
     if(!TraCIclosed)
     {
+        // record simulation data one last time before closing TraCI
+        STAT->record_Sim_data();
+
         // close TraCI interface with SUMO
         if (connection)
             close_TraCI_connection();
@@ -114,6 +127,7 @@ void TraCI_Start::finish()
     cancelAndDelete(executeOneTimestepTrigger);
 
     delete connection;
+    connection = NULL;
 }
 
 
@@ -140,7 +154,7 @@ void TraCI_Start::handleMessage(omnetpp::cMessage *msg)
                 addPedestrian();
 
             // record simulation data after proceeding one time step
-            record_Sim_data();
+            STAT->record_Sim_data();
         }
 
         // notify other modules to run one simulation TS
@@ -236,6 +250,15 @@ void TraCI_Start::init_traci()
         ASSERT(buf.eof());
     }
 
+    LOG_INFO << "    Initializing modules with TraCI support ... \n\n" << std::flush;
+
+    omnetpp::simsignal_t Signal_initialize_withTraCI = registerSignal("initialize_withTraCI");
+    this->emit(Signal_initialize_withTraCI, 1);
+}
+
+
+void TraCI_Start::init_obstacles()
+{
     Veins::ObstacleControl* obstacles = Veins::ObstacleControlAccess().getIfExists();
     if (obstacles)
     {
@@ -259,14 +282,6 @@ void TraCI_Start::init_traci()
             obstacles->addFromTypeAndShape(id, typeId, shape);
         }
     }
-
-    LOG_INFO << "    Initializing modules with TraCI support ... \n\n" << std::flush;
-
-    omnetpp::simsignal_t Signal_initialize_withTraCI = registerSignal("initialize_withTraCI");
-    this->emit(Signal_initialize_withTraCI, 1);
-
-    // should be called after sending the 'initialize_withTraCI' signal
-    init_roi();
 }
 
 
@@ -439,9 +454,9 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
                 }
             }
 
-            departedVehicleCount += count;
-            activeVehicleCount += count;
-            drivingVehicleCount += count;
+            STAT->departedVehicleCount += count;
+            STAT->activeVehicleCount += count;
+            STAT->drivingVehicleCount += count;
         }
         else if (variable1_resp == VAR_ARRIVED_VEHICLES_IDS)
         {
@@ -468,7 +483,7 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
                 recordArrival(idstring);
 
                 // update vehicle status one last time
-                record_Veh_data(idstring, true);
+                STAT->record_Veh_data(idstring, true);
 
                 if(equilibrium_vehicle)
                 {
@@ -490,9 +505,9 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
                 if (mod) deleteManagedModule(idstring);
             }
 
-            arrivedVehicleCount += count;
-            activeVehicleCount -= count;
-            drivingVehicleCount -= count;
+            STAT->arrivedVehicleCount += count;
+            STAT->activeVehicleCount -= count;
+            STAT->drivingVehicleCount -= count;
 
             // should we stop simulation?
             if(autoShutdown)
@@ -528,8 +543,8 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
                     unEquippedHosts.erase(idstring);
             }
 
-            activeVehicleCount -= count;
-            drivingVehicleCount -= count;
+            STAT->activeVehicleCount -= count;
+            STAT->drivingVehicleCount -= count;
         }
         else if (variable1_resp == VAR_TELEPORT_ENDING_VEHICLES_IDS)
         {
@@ -542,8 +557,8 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
                 // adding modules is handled on the fly when entering/leaving the ROI
             }
 
-            activeVehicleCount += count;
-            drivingVehicleCount += count;
+            STAT->activeVehicleCount += count;
+            STAT->drivingVehicleCount += count;
         }
         else if (variable1_resp == VAR_PARKING_STARTING_VEHICLES_IDS)
         {
@@ -564,8 +579,8 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
                 }
             }
 
-            parkingVehicleCount += count;
-            drivingVehicleCount -= count;
+            STAT->parkingVehicleCount += count;
+            STAT->drivingVehicleCount -= count;
         }
         else if (variable1_resp == VAR_PARKING_ENDING_VEHICLES_IDS)
         {
@@ -586,8 +601,8 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
                 }
             }
 
-            parkingVehicleCount -= count;
-            drivingVehicleCount += count;
+            STAT->parkingVehicleCount -= count;
+            STAT->drivingVehicleCount += count;
         }
         else
             throw omnetpp::cRuntimeError("Received unhandled sim subscription result");
@@ -631,7 +646,7 @@ void TraCI_Start::processVehicleSubscription(std::string objectId, TraCIBuffer& 
             ASSERT(varType == TYPE_STRINGLIST);
             uint32_t count; buf >> count;  // count: number of active vehicles
 
-            if(count > activeVehicleCount)
+            if(count > STAT->activeVehicleCount)
                 throw omnetpp::cRuntimeError("SUMO is reporting a higher vehicle count.");
 
             std::set<std::string> drivingVehicles;
@@ -668,7 +683,7 @@ void TraCI_Start::processVehicleSubscription(std::string objectId, TraCIBuffer& 
                 ASSERT(buf.eof());
 
                 // vehicle removal (manual or due to an accident)
-                if(count < activeVehicleCount)
+                if(count < STAT->activeVehicleCount)
                 {
                     // check if this object has been deleted already
                     cModule* mod = getManagedModule(*i);
@@ -677,8 +692,8 @@ void TraCI_Start::processVehicleSubscription(std::string objectId, TraCIBuffer& 
                     if(unEquippedHosts.find(*i) != unEquippedHosts.end())
                         unEquippedHosts.erase(*i);
 
-                    activeVehicleCount--;
-                    drivingVehicleCount--;
+                    STAT->activeVehicleCount--;
+                    STAT->drivingVehicleCount--;
                 }
             }
         }
@@ -772,7 +787,7 @@ void TraCI_Start::processVehicleSubscription(std::string objectId, TraCIBuffer& 
     }
 
     // collecting data for this vehicle in this timeStep
-    record_Veh_data(objectId);
+    STAT->record_Veh_data(objectId);
 }
 
 
@@ -966,7 +981,7 @@ omnetpp::cModule* TraCI_Start::addVehicle(std::string SUMOID, std::string type, 
 
     addMapping(SUMOID, mod->getFullName());
 
-    init_Veh_data(SUMOID, mod);
+    STAT->init_Veh_data(SUMOID, mod);
 
     return mod;
 }

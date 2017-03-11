@@ -113,6 +113,13 @@ public:
     std::map<std::string /*vehId*/, PHY_stat_t> global_PHY_stat;
     std::map<std::pair<long int /*msg id*/, long int /*nicId of receiver*/>, msgTxRxStat_t> global_frameTxRx_stat;
 
+    uint32_t departedVehicleCount = 0; // accumulated number of departed vehicles
+    uint32_t arrivedVehicleCount = 0;  // accumulated number of arrived vehicles
+
+    uint32_t activeVehicleCount = 0;  // number of active vehicles (be it parking or driving) at current time step
+    uint32_t parkingVehicleCount = 0; // number of parking vehicles at current time step
+    uint32_t drivingVehicleCount = 0; // number of driving vehicles at current time step
+
 protected:
     // NED variables
     TraCI_Commands *TraCI;
@@ -120,12 +127,99 @@ protected:
     // class variables (signals)
     omnetpp::simsignal_t Signal_initialize_withTraCI;
 
+private:
+    double updateInterval = 0;
+
+    typedef struct sim_status_entry
+    {
+        double timeStep;
+        long int loaded;
+        long int departed;
+        long int arrived;
+        long int running;
+        long int waiting;
+    } sim_status_entry_t;
+
+    bool record_sim_stat;
+    std::vector<std::string> record_sim_tokenize;
+    std::vector<sim_status_entry_t> sim_record_status;
+
+    typedef struct veh_record_list
+    {
+        bool active;  // should we record statistics for this vehicle?
+        std::vector<std::string> record_list;  // type of data we need to record for this vehicle
+    } veh_record_list_t;
+
+    std::map<std::string /*SUMO id*/, veh_record_list_t> record_status;
+
+    typedef struct veh_data_entry
+    {
+        double timeStep;
+        std::string vehId;
+        std::string vehType;
+        std::string lane;
+        double lanePos;
+        double speed;
+        double accel;
+        double departure;
+        double arrival;
+        std::string route;
+        double routeDuration;
+        double drivingDistance;
+        std::string CFMode;
+        double timeGapSetting;
+        double timeGap;
+        double frontSpaceGap;
+        double rearSpaceGap;
+        std::string nextTLId;  // TLid that controls this vehicle. Empty string means the vehicle is not controlled by any TLid
+        char nextTLLinkStat;   // status of the TL ahead (character 'n' means no TL ahead)
+    } veh_data_entry_t;
+
+    std::vector<veh_data_entry_t> collected_veh_data;
+    std::map<std::string, int /*order*/> veh_data_columns;
+
+    typedef struct veh_emission_list
+    {
+        bool active;  // should we record emission for this vehicle?
+        std::vector<std::string> emission_list;  // type of emission we need to record for this vehicle
+    } veh_emission_list_t;
+
+    std::map<std::string /*SUMO id*/, veh_emission_list_t> record_emission;
+
+    typedef struct veh_emission_entry
+    {
+        double timeStep;
+        std::string vehId;
+        std::string emissionClass;
+        double CO2;
+        double CO;
+        double HC;
+        double PMx;
+        double NOx;
+        double noise;
+    } veh_emission_entry_t;
+
+    std::vector<veh_emission_entry_t> collected_veh_emission;
+    std::map<std::string, int /*order*/> veh_emission_columns;
+
 public:
     virtual ~Statistics();
     virtual void finish();
     virtual void initialize(int);
     virtual void handleMessage(omnetpp::cMessage *);
     virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, long, cObject* details);
+
+    void init_Sim_data();
+    void record_Sim_data();
+    void save_Sim_data_toFile();
+
+    void init_Veh_data(std::string SUMOID, omnetpp::cModule *mod);
+    void record_Veh_data(std::string vID, bool arrived = false);
+    void save_Veh_data_toFile();
+
+    void init_Veh_emission(std::string SUMOID, omnetpp::cModule *mod);
+    void record_Veh_emission(std::string vID, bool arrived = false);
+    void save_Veh_emission_toFile();
 
 protected:
     void initialize_withTraCI();

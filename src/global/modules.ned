@@ -31,6 +31,10 @@ simple Statistics like IBaseStatistics
 {
     parameters:
         @class(VENTOS::Statistics);
+        
+        string veh_stat_file = default("");
+        bool record_sim_stat = default(false);
+        string record_sim_list = default("inserted");
 }
 
 

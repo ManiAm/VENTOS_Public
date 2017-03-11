@@ -32,14 +32,16 @@
 
 #include "global/BaseWorldUtility.h"
 #include "MIXIM_veins/connectionManager/ConnectionManager.h"
-#include "traci/TraCIRecordStat.h"
+#include "traci/TraCICommands.h"
+#include "global/Statistics.h"
+
 
 namespace VENTOS {
 
-class TraCI_Start :  public TraCI_RecordStat
+class TraCI_Start :  public TraCI_Commands
 {
 private:
-    typedef TraCI_RecordStat super;
+    typedef TraCI_Commands super;
 
     // NED
     bool active;  // run SUMO and establish TraCI?
@@ -51,6 +53,7 @@ private:
     BaseWorldUtility* world = NULL;
     ConnectionManager* cc = NULL;
     cModule *addNode_module = NULL;
+    Statistics* STAT = NULL;
 
     std::set<std::string> subscribedVehicles;    // all vehicles we have already subscribed to
     std::set<std::string> subscribedPedestrians; // all pedestrians we have already subscribed to
@@ -78,7 +81,7 @@ private:
     } departedNodes_t;
 
     bool equilibrium_vehicle;
-    std::map<std::string /*SUMO id*/, departedNodes> departedVehicles;
+    std::map<std::string /*SUMO id*/, departedNodes_t> departedVehicles;
 
 public:
     TraCI_Start();
@@ -94,6 +97,8 @@ public:
 private:
     // initialize TraCI connection
     void init_traci();
+    // initialize obstacles for PHY layer emulation
+    void init_obstacles();
     // initialize 'region of interest'
     void init_roi();
 
