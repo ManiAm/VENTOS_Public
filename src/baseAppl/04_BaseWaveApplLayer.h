@@ -62,7 +62,7 @@ protected:
 
     TraCI_Commands* TraCI;
     BaseMobility* mobility;
-    VENTOS::Statistics* STAT;
+    Statistics* STAT;
     Veins::Mac1609_4* mac;
 
     /* BSM (beacon) settings */
