@@ -12,7 +12,9 @@ module vehicle
         
         bool record_stat = default(false);
         string record_list = default("vehId | lane | lanePos | speed");
+        
         bool record_emission = default(false);
+        string emission_list = default("vehId | CO2");
         
         string SUMOID = default("");
         string SUMOType = default("");

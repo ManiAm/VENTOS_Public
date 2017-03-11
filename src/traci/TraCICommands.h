@@ -269,6 +269,14 @@ public:
     std::string vehicleGetClass(std::string);
     leader_t vehicleGetLeader(std::string, double);
     std::vector<TL_info_t> vehicleGetNextTLS(std::string);
+    double vehicleGetCO2Emission(std::string);
+    double vehicleGetCOEmission(std::string);
+    double vehicleGetHCEmission(std::string);
+    double vehicleGetPMxEmission(std::string);
+    double vehicleGetNOxEmission(std::string);
+    double vehicleGetNoiseEmission(std::string);
+    double vehicleGetFuelConsumption(std::string);
+    std::string vehicleGetEmissionClass(std::string);
     double vehicleGetCurrentAccel(std::string);          // new command [returns the current acceleration of the vehicle]
     CFMODES_t vehicleGetCarFollowingMode(std::string);   // new command [returns the current ACC/CACC car following mode]
     int vehicleGetControllerType(std::string);           // new command [returns the car-following model type -- ACC/CACC]

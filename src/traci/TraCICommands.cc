@@ -996,6 +996,94 @@ std::vector<TL_info_t> TraCI_Commands::vehicleGetNextTLS(std::string nodeId)
 }
 
 
+double TraCI_Commands::vehicleGetCO2Emission(std::string nodeId)
+{
+    record_TraCI_activity_func("commandStart", CMD_GET_VEHICLE_VARIABLE, VAR_CO2EMISSION, "vehicleGetCO2Emission");
+
+    double result = genericGetDouble(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_CO2EMISSION, RESPONSE_GET_VEHICLE_VARIABLE);
+
+    record_TraCI_activity_func("commandComplete", CMD_GET_VEHICLE_VARIABLE, VAR_CO2EMISSION, "vehicleGetCO2Emission");
+    return result;
+}
+
+
+double TraCI_Commands::vehicleGetCOEmission(std::string nodeId)
+{
+    record_TraCI_activity_func("commandStart", CMD_GET_VEHICLE_VARIABLE, VAR_COEMISSION, "vehicleGetCOEmission");
+
+    double result = genericGetDouble(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_COEMISSION, RESPONSE_GET_VEHICLE_VARIABLE);
+
+    record_TraCI_activity_func("commandComplete", CMD_GET_VEHICLE_VARIABLE, VAR_COEMISSION, "vehicleGetCOEmission");
+    return result;
+}
+
+
+double TraCI_Commands::vehicleGetHCEmission(std::string nodeId)
+{
+    record_TraCI_activity_func("commandStart", CMD_GET_VEHICLE_VARIABLE, VAR_HCEMISSION, "vehicleGetHCEmission");
+
+    double result = genericGetDouble(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_HCEMISSION, RESPONSE_GET_VEHICLE_VARIABLE);
+
+    record_TraCI_activity_func("commandComplete", CMD_GET_VEHICLE_VARIABLE, VAR_HCEMISSION, "vehicleGetHCEmission");
+    return result;
+}
+
+
+double TraCI_Commands::vehicleGetPMxEmission(std::string nodeId)
+{
+    record_TraCI_activity_func("commandStart", CMD_GET_VEHICLE_VARIABLE, VAR_PMXEMISSION, "vehicleGetPMxEmission");
+
+    double result = genericGetDouble(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_PMXEMISSION, RESPONSE_GET_VEHICLE_VARIABLE);
+
+    record_TraCI_activity_func("commandComplete", CMD_GET_VEHICLE_VARIABLE, VAR_PMXEMISSION, "vehicleGetPMxEmission");
+    return result;
+}
+
+
+double TraCI_Commands::vehicleGetNOxEmission(std::string nodeId)
+{
+    record_TraCI_activity_func("commandStart", CMD_GET_VEHICLE_VARIABLE, VAR_NOXEMISSION, "vehicleGetNOxEmission");
+
+    double result = genericGetDouble(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_NOXEMISSION, RESPONSE_GET_VEHICLE_VARIABLE);
+
+    record_TraCI_activity_func("commandComplete", CMD_GET_VEHICLE_VARIABLE, VAR_NOXEMISSION, "vehicleGetNOxEmission");
+    return result;
+}
+
+
+double TraCI_Commands::vehicleGetNoiseEmission(std::string nodeId)
+{
+    record_TraCI_activity_func("commandStart", CMD_GET_VEHICLE_VARIABLE, VAR_NOISEEMISSION, "vehicleGetNoiseEmission");
+
+    double result = genericGetDouble(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_NOISEEMISSION, RESPONSE_GET_VEHICLE_VARIABLE);
+
+    record_TraCI_activity_func("commandComplete", CMD_GET_VEHICLE_VARIABLE, VAR_NOISEEMISSION, "vehicleGetNoiseEmission");
+    return result;
+}
+
+
+double TraCI_Commands::vehicleGetFuelConsumption(std::string nodeId)
+{
+    record_TraCI_activity_func("commandStart", CMD_GET_VEHICLE_VARIABLE, VAR_FUELCONSUMPTION, "vehicleGetFuelConsumption");
+
+    double result = genericGetDouble(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_FUELCONSUMPTION, RESPONSE_GET_VEHICLE_VARIABLE);
+
+    record_TraCI_activity_func("commandComplete", CMD_GET_VEHICLE_VARIABLE, VAR_FUELCONSUMPTION, "vehicleGetFuelConsumption");
+    return result;
+}
+
+
+std::string TraCI_Commands::vehicleGetEmissionClass(std::string nodeId)
+{
+    record_TraCI_activity_func("commandStart", CMD_GET_VEHICLE_VARIABLE, VAR_EMISSIONCLASS, "vehicleGetEmissionClass");
+
+    std::string result = genericGetString(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_EMISSIONCLASS, RESPONSE_GET_VEHICLE_VARIABLE);
+
+    record_TraCI_activity_func("commandComplete", CMD_GET_VEHICLE_VARIABLE, VAR_EMISSIONCLASS, "vehicleGetEmissionClass");
+    return result;
+}
+
+
 double TraCI_Commands::vehicleGetCurrentAccel(std::string nodeId)
 {
     record_TraCI_activity_func("commandStart", CMD_GET_VEHICLE_VARIABLE, 0x74, "vehicleGetCurrentAccel");
