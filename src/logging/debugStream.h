@@ -170,7 +170,7 @@ private:
 
     void printOutput(std::ostringstream & sink_)
     {
-        std::cout << sink_.str();
+        std::cout << sink_.str() << std::flush;
 
         if(save2file)
             buffer_file += sink_.str();
