@@ -472,7 +472,7 @@ void TraCIConnection::terminateSimulation(std::string err)
     ASSERT(TraCI);
 
     // end the simulation
-    TraCI->terminate_simulation(true /*TraCIclosed?*/);
+    TraCI->simulationTerminate(true /*TraCIclosed?*/);
 }
 
 

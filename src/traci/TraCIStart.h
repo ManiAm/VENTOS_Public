@@ -59,7 +59,6 @@ private:
     std::set<std::string> subscribedPedestrians; // all pedestrians we have already subscribed to
     std::vector<std::string> allPedestrians;
 
-    std::map<std::string, cModule*> hosts;  // vector of all hosts managed by us
     std::set<std::string> unEquippedHosts;
     size_t nextNodeVectorIndex = 0;   // next OMNeT++ module vector index to use
 

@@ -96,9 +96,6 @@ void TraCI_Start::initialize(int stage)
             // should be called after 'init_traci'
             init_roi();
 
-            // should be called after 'init_traci'
-            STAT->init_Sim_data();
-
             executeOneTimestepTrigger = new omnetpp::cMessage("step");
             scheduleAt(updateInterval, executeOneTimestepTrigger);
         }
@@ -113,9 +110,6 @@ void TraCI_Start::finish()
     // if the TraCI link was not closed due to error
     if(!TraCIclosed)
     {
-        // record simulation data one last time before closing TraCI
-        STAT->record_Sim_data();
-
         // close TraCI interface with SUMO
         if (connection)
             close_TraCI_connection();
@@ -148,13 +142,10 @@ void TraCI_Start::handleMessage(omnetpp::cMessage *msg)
                 processSubcriptionResult(output.first);
 
             // todo: should get pedestrians using subscription
-            allPedestrians.clear();
-            allPedestrians = personGetIDList();
-            if(!allPedestrians.empty())
-                addPedestrian();
-
-            // record simulation data after proceeding one time step
-            STAT->record_Sim_data();
+            //            allPedestrians.clear();
+            //            allPedestrians = personGetIDList();
+            //            if(!allPedestrians.empty())
+            //                addPedestrian();
         }
 
         // notify other modules to run one simulation TS
@@ -163,7 +154,7 @@ void TraCI_Start::handleMessage(omnetpp::cMessage *msg)
 
         // we reached max simtime and should terminate OMNET++ simulation
         if(terminate != -1 && omnetpp::simTime().dbl() >= terminate)
-            terminate_simulation();
+            simulationTerminate();
 
         scheduleAt(omnetpp::simTime() + updateInterval, executeOneTimestepTrigger);
     }
@@ -213,6 +204,8 @@ void TraCI_Start::init_traci()
     if (apiVersionS != 14)
         throw omnetpp::cRuntimeError("Unsupported TraCI server API version!");
 
+    TraCIclosed = false;
+
     updateInterval = (double)simulationGetTimeStep() / 1000.;
     if(updateInterval <= 0)
         throw omnetpp::cRuntimeError("step-length value should be >0");
@@ -225,8 +218,12 @@ void TraCI_Start::init_traci()
     netbounds1 = TraCICoord(boundaries.x1, boundaries.y1);
     netbounds2 = TraCICoord(boundaries.x2, boundaries.y2);
 
-    if ((traci2omnetCoord(netbounds2).x > world->getPgs()->x) || (traci2omnetCoord(netbounds1).y > world->getPgs()->y))
-        LOG_WARNING << boost::format("  WARNING: Playground size (%1%,%2%) might be too small for vehicle at network bounds (%3%,%4%) \n") % world->getPgs()->x % world->getPgs()->y % traci2omnetCoord(netbounds2).x % traci2omnetCoord(netbounds1).y;
+    if ((convertCoord_traci2omnet(netbounds2).x > world->getPgs()->x) || (convertCoord_traci2omnet(netbounds1).y > world->getPgs()->y))
+        LOG_WARNING << boost::format("  WARNING: Playground size (%1%,%2%) might be too small for vehicle at network bounds (%3%,%4%) \n") %
+        world->getPgs()->x %
+        world->getPgs()->y %
+        convertCoord_traci2omnet(netbounds2).x %
+        convertCoord_traci2omnet(netbounds1).y;
 
     {
         // subscribe to a bunch of stuff in simulation
@@ -277,7 +274,7 @@ void TraCI_Start::init_obstacles()
             // convert to OMNET++ coordinates
             std::vector<Coord> shape;
             for(auto &point : coords)
-                shape.push_back(traci2omnetCoord(point));
+                shape.push_back(convertCoord_traci2omnet(point));
 
             obstacles->addFromTypeAndShape(id, typeId, shape);
         }
@@ -339,7 +336,7 @@ void TraCI_Start::init_roi()
             module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("RSU", i)->getSubmodule("mobility");
 
             Coord center (module->par("x").doubleValue(), module->par("y").doubleValue());
-            TraCICoord center_SUMO = omnet2traciCoord(center);
+            TraCICoord center_SUMO = convertCoord_omnet2traci(center);
 
             double squSize = par("roiSquareSizeRSU").doubleValue();
 
@@ -434,6 +431,10 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
 
                 recordDeparture(idstring);
 
+                // signal to those interested that this vehicle has departed
+                omnetpp::simsignal_t Signal_departed = registerSignal("departed");
+                this->emit(Signal_departed, idstring.c_str());
+
                 if(equilibrium_vehicle)
                 {
                     // saving information for later use
@@ -482,8 +483,9 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
 
                 recordArrival(idstring);
 
-                // update vehicle status one last time
-                STAT->record_Veh_data(idstring, true);
+                // signal to those interested that this vehicle has arrived
+                omnetpp::simsignal_t Signal_arrived = registerSignal("arrived");
+                this->emit(Signal_arrived, idstring.c_str());
 
                 if(equilibrium_vehicle)
                 {
@@ -515,14 +517,17 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
                 // terminate only if equilibrium_vehicle is off
                 if(!equilibrium_vehicle)
                 {
-                    // get number of vehicles and bikes
-                    int count1 = simulationGetMinExpectedNumber();
-                    // get number of pedestrians
-                    int count2 = personGetIDCount();
+                    if(count > 0)
+                    {
+                        // get number of vehicles and bikes
+                        int count1 = simulationGetMinExpectedNumber();
+                        // get number of pedestrians
+                        int count2 = personGetIDCount();
 
-                    // terminate if all departed vehicles have arrived
-                    if (count > 0 && count1 + count2 == 0)
-                        terminate_simulation();
+                        // terminate if all departed vehicles have arrived
+                        if (count1 + count2 == 0)
+                            simulationTerminate();
+                    }
                 }
             }
         }
@@ -743,11 +748,11 @@ void TraCI_Start::processVehicleSubscription(std::string objectId, TraCIBuffer& 
     // make sure we got updates for all attributes
     if (numRead != 5) return;
 
-    Coord p = traci2omnetCoord(TraCICoord(px, py));
+    Coord p = convertCoord_traci2omnet(TraCICoord(px, py));
     if ((p.x < 0) || (p.y < 0))
         throw omnetpp::cRuntimeError("received bad node position (%.2f, %.2f), translated to (%.2f, %.2f)", px, py, p.x, p.y);
 
-    double angle = traci2omnetAngle(angle_traci);
+    double angle = convertAngle_traci2omnet(angle_traci);
 
     cModule* mod = getManagedModule(objectId);
 
@@ -785,9 +790,6 @@ void TraCI_Start::processVehicleSubscription(std::string objectId, TraCIBuffer& 
                 mm->nextPosition(p, edge, speed, angle);
         }
     }
-
-    // collecting data for this vehicle in this timeStep
-    STAT->record_Veh_data(objectId);
 }
 
 
@@ -843,6 +845,10 @@ void TraCI_Start::deleteManagedModule(std::string nodeId /*sumo id*/)
     hosts.erase(nodeId);
     mod->callFinish();
     mod->deleteModule();
+
+    // signal to those interested that a module is deleted
+    omnetpp::simsignal_t Signal_module_deleted = registerSignal("module_deleted");
+    this->emit(Signal_module_deleted, nodeId.c_str());
 }
 
 
@@ -871,10 +877,12 @@ void TraCI_Start::addModule(std::string nodeId /*sumo id*/, const Coord& positio
 
     std::string vClass = vehicleGetClass(nodeId);
 
+    omnetpp::cModule *addedModule = NULL;
+
     // reserved for obstacles
     if(vClass == "custom1")
     {
-        addVehicle(nodeId,
+        addedModule = addVehicle(nodeId,
                 addNode_module->par("obstacle_ModuleType").stringValue(),
                 addNode_module->par("obstacle_ModuleName").stdstringValue(),
                 addNode_module->par("obstacle_ModuleDisplayString").stdstringValue(),
@@ -887,7 +895,7 @@ void TraCI_Start::addModule(std::string nodeId /*sumo id*/, const Coord& positio
     // all motor vehicles
     else if(vClass == "passenger" || vClass == "private" || vClass == "emergency" || vClass == "bus" || vClass == "truck")
     {
-        addVehicle(nodeId,
+        addedModule = addVehicle(nodeId,
                 addNode_module->par("vehicle_ModuleType").stdstringValue(),
                 addNode_module->par("vehicle_ModuleName").stdstringValue(),
                 addNode_module->par("vehicle_ModuleDisplayString").stdstringValue(),
@@ -899,7 +907,7 @@ void TraCI_Start::addModule(std::string nodeId /*sumo id*/, const Coord& positio
     }
     else if(vClass == "bicycle")
     {
-        addVehicle(nodeId,
+        addedModule = addVehicle(nodeId,
                 addNode_module->par("bike_ModuleType").stringValue(),
                 addNode_module->par("bike_ModuleName").stringValue(),
                 addNode_module->par("bike_ModuleDisplayString").stringValue(),
@@ -920,6 +928,10 @@ void TraCI_Start::addModule(std::string nodeId /*sumo id*/, const Coord& positio
     }
     else
         throw omnetpp::cRuntimeError("Unknown vClass '%s' for vehicle '%s'", vClass.c_str(), nodeId.c_str());
+
+    // signal to those interested that a new module is interested
+    omnetpp::simsignal_t Signal_module_added = registerSignal("module_added");
+    this->emit(Signal_module_added, addedModule);
 }
 
 
@@ -980,8 +992,6 @@ omnetpp::cModule* TraCI_Start::addVehicle(std::string SUMOID, std::string type, 
     }
 
     addMapping(SUMOID, mod->getFullName());
-
-    STAT->init_Veh_data(SUMOID, mod);
 
     return mod;
 }

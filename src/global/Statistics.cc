@@ -61,6 +61,21 @@ void Statistics::initialize(int stage)
         Signal_initialize_withTraCI = registerSignal("initialize_withTraCI");
         omnetpp::getSimulation()->getSystemModule()->subscribe("initialize_withTraCI", this);
 
+        Signal_executeEachTS = registerSignal("executeEachTS");
+        omnetpp::getSimulation()->getSystemModule()->subscribe("executeEachTS", this);
+
+        Signal_module_added = registerSignal("module_added");
+        omnetpp::getSimulation()->getSystemModule()->subscribe("module_added", this);
+
+        Signal_module_deleted = registerSignal("module_deleted");
+        omnetpp::getSimulation()->getSystemModule()->subscribe("module_deleted", this);
+
+        Signal_departed = registerSignal("departed");
+        omnetpp::getSimulation()->getSystemModule()->subscribe("departed", this);
+
+        Signal_arrived = registerSignal("arrived");
+        omnetpp::getSimulation()->getSystemModule()->subscribe("arrived", this);
+
         record_sim_stat = par("record_sim_stat").boolValue();
     }
 }
@@ -76,6 +91,10 @@ void Statistics::finish()
     save_MAC_stat_toFile();
     save_PHY_stat_toFile();
     save_FrameTxRx_stat_toFile();
+
+    // record simulation data one last time before closing TraCI
+    if(!TraCI->TraCIclosed)
+        record_Sim_data();
 
     save_Sim_data_toFile();
     save_Veh_data_toFile();
@@ -97,20 +116,55 @@ void Statistics::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t
 
     if(signalID == Signal_initialize_withTraCI)
     {
-        Statistics::initialize_withTraCI();
+        updateInterval = (double)TraCI->simulationGetTimeStep() / 1000.;
+
+        init_Sim_data();
+    }
+    else if(signalID == Signal_executeEachTS)
+    {
+        // record simulation data after proceeding one time step
+        record_Sim_data();
+
+        // collecting data for this vehicle in this timeStep
+        for(auto &module : TraCI->simulationGetManagedModules())
+            record_Veh_data(module.first);
     }
 }
 
 
-void Statistics::initialize_withTraCI()
+void Statistics::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t signalID, const char *SUMOID, cObject* details)
 {
-    updateInterval = (double)TraCI->simulationGetTimeStep() / 1000.;
+    Enter_Method_Silent();
+
+    if(signalID == Signal_arrived)
+    {
+        // update vehicle status one last time
+        record_Veh_data(SUMOID, true);
+    }
 }
 
 
-void Statistics::executeEachTimestep()
+void Statistics::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t signalID, cObject *obj, cObject *details)
 {
+    Enter_Method_Silent();
 
+    // note that this signal can be emitted more than once for a vehicle when
+    // ROI (region of interest) is defined
+    if(signalID == Signal_module_added)
+    {
+        omnetpp::cModule *m = static_cast<omnetpp::cModule *>(obj);
+        ASSERT(m);
+
+        if(m->par("record_stat").boolValue())
+        {
+            std::string vClass = m->par("vehicleClass");
+
+            if(vClass == "pedestrian")
+                init_Ped_data(m->par("SUMOID").stringValue(), m);
+            else if(vClass != "custom1")
+                init_Veh_data(m->par("SUMOID").stringValue(), m);
+        }
+    }
 }
 
 
@@ -822,9 +876,9 @@ void Statistics::init_Veh_data(std::string SUMOID, omnetpp::cModule *mod)
 
 
 // is called in each time step for each vehicle
-void Statistics::record_Veh_data(std::string vID, bool arrived)
+void Statistics::record_Veh_data(std::string SUMOID, bool arrived)
 {
-    auto it = record_status.find(vID);
+    auto it = record_status.find(SUMOID);
     if(it == record_status.end())
         return;
 
@@ -833,8 +887,8 @@ void Statistics::record_Veh_data(std::string vID, bool arrived)
 
     for(auto i = collected_veh_data.rbegin(); i != collected_veh_data.rend(); i++)
     {
-        // looking for the last entry of vID
-        if(i->vehId == vID)
+        // looking for the last entry of SUMOID
+        if(i->vehId == SUMOID)
         {
             // if vehicle has arrived
             if(arrived)
@@ -850,7 +904,7 @@ void Statistics::record_Veh_data(std::string vID, bool arrived)
                 if(i->arrival == -1)
                     break;
 
-                throw omnetpp::cRuntimeError("veh '%s' has already arrived!", vID.c_str());
+                throw omnetpp::cRuntimeError("veh '%s' has already arrived!", SUMOID.c_str());
             }
         }
     }
@@ -858,64 +912,64 @@ void Statistics::record_Veh_data(std::string vID, bool arrived)
     veh_data_entry entry = {};
 
     entry.timeStep = (omnetpp::simTime()-updateInterval).dbl();
-    entry.vehId = "n/a";
-    entry.vehType = "n/a";
-    entry.lane = "n/a";
+    entry.vehId = "-";
+    entry.vehType = "-";
+    entry.lane = "-";
     entry.lanePos = -1;
     entry.speed = -1;
     entry.accel = std::numeric_limits<double>::infinity();
     entry.departure = 0;
     entry.arrival = -1;
-    entry.route = "";
+    entry.route = "-";
     entry.routeDuration = 0;
     entry.drivingDistance = -1;
-    entry.CFMode = "n/a";
+    entry.CFMode = "-";
     entry.timeGapSetting = -1;
     entry.timeGap = -2;
     entry.frontSpaceGap = -2;
     entry.rearSpaceGap = -2;
-    entry.nextTLId = "n/a";
-    entry.nextTLLinkStat = '\0';
+    entry.nextTLId = "-";
+    entry.nextTLLinkStat = '-';
 
     static int columnNumber = 0;
     for(std::string record : it->second.record_list)
     {
         if(record == "vehid")
-            entry.vehId = vID;
+            entry.vehId = SUMOID;
         else if(record == "vehtype")
-            entry.vehType = TraCI->vehicleGetTypeID(vID);
+            entry.vehType = TraCI->vehicleGetTypeID(SUMOID);
         else if(record == "lane")
-            entry.lane = TraCI->vehicleGetLaneID(vID);
+            entry.lane = TraCI->vehicleGetLaneID(SUMOID);
         else if(record == "lanepos")
-            entry.lanePos = TraCI->vehicleGetLanePosition(vID);
+            entry.lanePos = TraCI->vehicleGetLanePosition(SUMOID);
         else if(record == "speed")
-            entry.speed = TraCI->vehicleGetSpeed(vID);
+            entry.speed = TraCI->vehicleGetSpeed(SUMOID);
         else if(record == "accel")
-            entry.accel = TraCI->vehicleGetCurrentAccel(vID);
+            entry.accel = TraCI->vehicleGetCurrentAccel(SUMOID);
         else if(record == "departure")
-            entry.departure = TraCI->vehicleGetDepartureTime(vID);
+            entry.departure = TraCI->vehicleGetDepartureTime(SUMOID);
         else if(record == "arrival")
-            entry.arrival = TraCI->vehicleGetArrivalTime(vID);
+            entry.arrival = TraCI->vehicleGetArrivalTime(SUMOID);
         else if(record == "route")
         {
             // convert vector of string to std::string
             std::string route_edges = "' ";
-            for (auto &s : TraCI->vehicleGetRoute(vID)) { route_edges = route_edges + s + " "; }
+            for (auto &s : TraCI->vehicleGetRoute(SUMOID)) { route_edges = route_edges + s + " "; }
             route_edges += "'";
 
             entry.route = route_edges;
         }
         else if(record == "routeduration")
         {
-            double departure = TraCI->vehicleGetDepartureTime(vID);
+            double departure = TraCI->vehicleGetDepartureTime(SUMOID);
             if(departure != -1)
                 entry.routeDuration = (omnetpp::simTime()-departure-updateInterval).dbl();
         }
         else if(record == "drivingdistance")
-            entry.drivingDistance = TraCI->vehicleGetDrivingDistance(vID);
+            entry.drivingDistance = TraCI->vehicleGetDrivingDistance(SUMOID);
         else if(record == "cfmode")
         {
-            CFMODES_t CFMode_Enum = TraCI->vehicleGetCarFollowingMode(vID);
+            CFMODES_t CFMode_Enum = TraCI->vehicleGetCarFollowingMode(SUMOID);
             switch(CFMode_Enum)
             {
             case Mode_Undefined:
@@ -945,12 +999,12 @@ void Statistics::record_Veh_data(std::string vID, bool arrived)
             }
         }
         else if(record == "timegapsetting")
-            entry.timeGapSetting = TraCI->vehicleGetTimeGap(vID);
+            entry.timeGapSetting = TraCI->vehicleGetTimeGap(SUMOID);
         else if(record == "timegap")
         {
-            double speed = (entry.speed != -1) ? entry.speed : TraCI->vehicleGetSpeed(vID);
+            double speed = (entry.speed != -1) ? entry.speed : TraCI->vehicleGetSpeed(SUMOID);
 
-            auto leader = TraCI->vehicleGetLeader(vID, 900);
+            auto leader = TraCI->vehicleGetLeader(SUMOID, 900);
             double spaceGap = (leader.leaderID != "") ? leader.distance2Leader : -1;
 
             // calculate timeGap (if leading is present)
@@ -961,7 +1015,7 @@ void Statistics::record_Veh_data(std::string vID, bool arrived)
         }
         else if(record == "frontspacegap")
         {
-            auto leader = TraCI->vehicleGetLeader(vID, 900);
+            auto leader = TraCI->vehicleGetLeader(SUMOID, 900);
             entry.frontSpaceGap = (leader.leaderID != "") ? leader.distance2Leader : -1;
         }
         else if(record == "rearspacegap")
@@ -970,7 +1024,7 @@ void Statistics::record_Veh_data(std::string vID, bool arrived)
         }
         else if(record == "nexttlid")
         {
-            std::vector<TL_info_t> res = TraCI->vehicleGetNextTLS(vID);
+            std::vector<TL_info_t> res = TraCI->vehicleGetNextTLS(SUMOID);
 
             if(!res.empty())
                 entry.nextTLId = res[0].TLS_id;
@@ -979,15 +1033,15 @@ void Statistics::record_Veh_data(std::string vID, bool arrived)
         }
         else if(record == "nexttllinkstat")
         {
-            std::vector<TL_info_t> res = TraCI->vehicleGetNextTLS(vID);
+            std::vector<TL_info_t> res = TraCI->vehicleGetNextTLS(SUMOID);
 
             if(!res.empty())
                 entry.nextTLLinkStat = res[0].linkState;
             else
-                entry.nextTLLinkStat = 'n';
+                entry.nextTLLinkStat = ' ';
         }
         else
-            throw omnetpp::cRuntimeError("'%s' is not a valid record name in veh '%s'", record.c_str(), vID.c_str());
+            throw omnetpp::cRuntimeError("'%s' is not a valid record name in veh '%s'", record.c_str(), SUMOID.c_str());
 
         auto it = veh_data_columns.find(record);
         if(it == veh_data_columns.end())
@@ -1143,13 +1197,25 @@ void Statistics::save_Veh_data_toFile()
 }
 
 
+void Statistics::init_Ped_data(std::string SUMOID, omnetpp::cModule *mod)
+{
+
+}
+
+
+void Statistics::record_Ped_data(std::string SUMOID, bool arrived)
+{
+
+}
+
+
 void Statistics::init_Veh_emission(std::string SUMOID, omnetpp::cModule *mod)
 {
 
 }
 
 
-void Statistics::record_Veh_emission(std::string vID, bool arrived)
+void Statistics::record_Veh_emission(std::string SUMOID, bool arrived)
 {
 
 }

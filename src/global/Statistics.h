@@ -120,14 +120,18 @@ public:
     uint32_t parkingVehicleCount = 0; // number of parking vehicles at current time step
     uint32_t drivingVehicleCount = 0; // number of driving vehicles at current time step
 
-protected:
+private:
     // NED variables
     TraCI_Commands *TraCI;
 
     // class variables (signals)
     omnetpp::simsignal_t Signal_initialize_withTraCI;
+    omnetpp::simsignal_t Signal_executeEachTS;
+    omnetpp::simsignal_t Signal_module_added;
+    omnetpp::simsignal_t Signal_module_deleted;
+    omnetpp::simsignal_t Signal_departed;
+    omnetpp::simsignal_t Signal_arrived;
 
-private:
     double updateInterval = 0;
 
     typedef struct sim_status_entry
@@ -207,23 +211,9 @@ public:
     virtual void finish();
     virtual void initialize(int);
     virtual void handleMessage(omnetpp::cMessage *);
-    virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, long, cObject* details);
-
-    void init_Sim_data();
-    void record_Sim_data();
-    void save_Sim_data_toFile();
-
-    void init_Veh_data(std::string SUMOID, omnetpp::cModule *mod);
-    void record_Veh_data(std::string vID, bool arrived = false);
-    void save_Veh_data_toFile();
-
-    void init_Veh_emission(std::string SUMOID, omnetpp::cModule *mod);
-    void record_Veh_emission(std::string vID, bool arrived = false);
-    void save_Veh_emission_toFile();
-
-protected:
-    void initialize_withTraCI();
-    void executeEachTimestep();
+    virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, long, cObject *);
+    virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, const char *, cObject *);
+    virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, cObject *, cObject *);
 
 private:
     void save_plnManage_toFile();
@@ -234,6 +224,21 @@ private:
     void save_MAC_stat_toFile();
     void save_PHY_stat_toFile();
     void save_FrameTxRx_stat_toFile();
+
+    void init_Sim_data();
+    void record_Sim_data();
+    void save_Sim_data_toFile();
+
+    void init_Veh_data(std::string SUMOID, omnetpp::cModule *mod);
+    void record_Veh_data(std::string vID, bool arrived = false);
+    void save_Veh_data_toFile();
+
+    void init_Ped_data(std::string SUMOID, omnetpp::cModule *mod);
+    void record_Ped_data(std::string vID, bool arrived = false);
+
+    void init_Veh_emission(std::string SUMOID, omnetpp::cModule *mod);
+    void record_Veh_emission(std::string vID, bool arrived = false);
+    void save_Veh_emission_toFile();
 };
 
 }

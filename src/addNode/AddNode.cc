@@ -317,7 +317,7 @@ void AddNode::addAdversary()
         mod->getDisplayString().parse(par("adversary_ModuleDisplayString"));
         mod->buildInside();
 
-        Coord co = TraCI->traci2omnetCoord(entry.second.pos);
+        Coord co = TraCI->convertCoord_traci2omnet(entry.second.pos);
 
         mod->getSubmodule("mobility")->par("x") = co.x;
         mod->getSubmodule("mobility")->par("y") = co.y;
@@ -434,7 +434,7 @@ void AddNode::addRSU()
         mod->getDisplayString().parse(par("RSU_ModuleDisplayString"));
         mod->buildInside();
 
-        Coord co = TraCI->traci2omnetCoord(entry.second.pos);
+        Coord co = TraCI->convertCoord_traci2omnet(entry.second.pos);
 
         mod->getSubmodule("mobility")->par("x") = co.x;
         mod->getSubmodule("mobility")->par("y") = co.y;
@@ -1619,7 +1619,7 @@ void AddNode::addCA()
         mod->getDisplayString().parse(par("adversary_ModuleDisplayString"));
         mod->buildInside();
 
-        Coord co = TraCI->traci2omnetCoord(entry.second.pos);
+        Coord co = TraCI->convertCoord_traci2omnet(entry.second.pos);
 
         mod->getSubmodule("mobility")->par("x") = co.x;
         mod->getSubmodule("mobility")->par("y") = co.y;

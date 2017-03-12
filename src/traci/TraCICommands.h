@@ -156,6 +156,8 @@ public:
     // this is necessary to circumvent the SUMO bug in getting the loaded vehicles list after vehicleRemove
     std::vector<std::string> removed_vehicles;
 
+    bool TraCIclosed = true;
+
 protected:
     double updateInterval = -1;
     TraCIConnection* connection = NULL;
@@ -165,7 +167,7 @@ protected:
     TraCICoord netbounds2;
     int margin;
 
-    bool TraCIclosed = false;
+    std::map<std::string /*SUMOID*/, cModule*> hosts;  // vector of all hosts managed by us
 
 private:
     typedef omnetpp::cSimpleModule super;
@@ -236,6 +238,11 @@ public:
     std::vector<std::string> simulationGetLoadedVehiclesIDList();
     simBoundary_t simulationGetNetBoundary();
     uint32_t simulationGetTimeStep();
+
+    std::string simulationGetStartTime();    // new command [returns the simulation start time]
+    std::string simulationGetEndTime();      // new command [returns the simulation stop time]
+    std::string simulationGetDuration();     // new command [returns the duration of the simulation]
+    void simulationTerminate(bool TraCIclosed = false);  // new command [terminate the simulation]
 
     // ################################################################
     //                            vehicle
@@ -498,14 +505,14 @@ public:
     //                      SUMO-OMNET conversion
     // ################################################################
 
-    std::string traci2omnetId(std::string SUMOid) const;   // convert SUMO id to OMNET++ id
-    std::string omnet2traciId(std::string omnetid) const;  // convert OMNET++ id to SUMO id
+    std::string convertId_traci2omnet(std::string SUMOid) const;   // convert SUMO id to OMNET++ id
+    std::string convertId_omnet2traci(std::string omnetid) const;  // convert OMNET++ id to SUMO id
 
-    Coord traci2omnetCoord(TraCICoord coord) const;  // convert TraCI coordinates to OMNeT++ coordinates
-    TraCICoord omnet2traciCoord(Coord coord) const;  // convert OMNeT++ coordinates to TraCI coordinates
+    Coord convertCoord_traci2omnet(TraCICoord coord) const;  // convert TraCI coordinates to OMNeT++ coordinates
+    TraCICoord convertCoord_omnet2traci(Coord coord) const;  // convert OMNeT++ coordinates to TraCI coordinates
 
-    double traci2omnetAngle(double angle) const;  // convert TraCI angle to OMNeT++ angle (in rad)
-    double omnet2traciAngle(double angle) const;  // convert OMNeT++ angle (in rad) to TraCI angle
+    double convertAngle_traci2omnet(double angle) const;  // convert TraCI angle to OMNeT++ angle (in rad)
+    double convertAngle_omnet2traci(double angle) const;  // convert OMNeT++ angle (in rad) to TraCI angle
 
     // ################################################################
     //                    Hardware in the loop (HIL)
@@ -523,19 +530,9 @@ public:
     std::string getFullPath_SUMOConfig();
     std::string getDir_SUMOConfig();
 
-    // ################################################################
-    //                             Other
-    // ################################################################
-
-    void terminate_simulation(bool TraCIclosed = false);
-    std::string simulationGetStartTime();
-    std::string simulationGetEndTime();
-    std::string simulationGetDuration();
+    std::map<std::string, omnetpp::cModule*> simulationGetManagedModules();
 
 protected:
-    // ################################################################
-    //                      simulation control
-    // ################################################################
 
     // these methods are not meant to be exposed to the user!
 
