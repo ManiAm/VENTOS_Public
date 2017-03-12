@@ -38,10 +38,6 @@ network Network
             parameters:
                 @display("p=245,48;i=abstract/multicast");
         }
-        TraCI: TraCIStart {
-            parameters:
-                @display("p=48,135");
-        }
         vLogging: vglog {
             parameters:
                 @display("p=48,48;i=old/floppy2");
@@ -97,6 +93,12 @@ network Network
         tutorial: tutorial {
             parameters:
                 @display("p=337,299;i=old/ring");
+        }
+        // TraCI is the last module so that its finish method
+        // is called after all other modules
+        TraCI: TraCIStart {
+            parameters:
+                @display("p=48,135");
         }
 
     connections allowunconnected:
