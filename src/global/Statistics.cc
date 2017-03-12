@@ -98,6 +98,7 @@ void Statistics::finish()
 
     save_Sim_data_toFile();
     save_Veh_data_toFile();
+    save_Veh_emission_toFile();
 
     // unsubscribe
     omnetpp::getSimulation()->getSystemModule()->unsubscribe("initialize_withTraCI", this);
@@ -127,7 +128,10 @@ void Statistics::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t
 
         // collecting data for this vehicle in this timeStep
         for(auto &module : TraCI->simulationGetManagedModules())
+        {
             record_Veh_data(module.first);
+            record_Veh_emission(module.first);
+        }
     }
 }
 
@@ -163,6 +167,14 @@ void Statistics::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t
                 init_Ped_data(m->par("SUMOID").stringValue(), m);
             else if(vClass != "custom1")
                 init_Veh_data(m->par("SUMOID").stringValue(), m);
+        }
+
+        if(m->par("record_emission").boolValue())
+        {
+            std::string vClass = m->par("vehicleClass");
+
+            if(vClass != "pedestrian" && vClass != "custom1")
+                init_Veh_emission(m->par("SUMOID").stringValue(), m);
         }
     }
 }
@@ -1060,23 +1072,13 @@ void Statistics::save_Veh_data_toFile()
     if(collected_veh_data.empty())
         return;
 
-    // file name for saving vehicles statistics
-    std::string veh_stat_file = par("veh_stat_file").stringValue();
+    int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
+
+    std::ostringstream fileName;
+    fileName << boost::format("%03d_vehicleData.txt") % currentRun;
 
     boost::filesystem::path filePath ("results");
-
-    // no file name specified
-    if(veh_stat_file == "")
-    {
-        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
-
-        std::ostringstream fileName;
-        fileName << boost::format("%03d_vehicleData.txt") % currentRun;
-
-        filePath /= fileName.str();
-    }
-    else
-        filePath /= veh_stat_file;
+    filePath /= fileName.str();
 
     FILE *filePtr = fopen (filePath.c_str(), "w");
     if (!filePtr)
@@ -1211,19 +1213,211 @@ void Statistics::record_Ped_data(std::string SUMOID, bool arrived)
 
 void Statistics::init_Veh_emission(std::string SUMOID, omnetpp::cModule *mod)
 {
+    auto it = record_emission.find(SUMOID);
+    if(it == record_emission.end())
+    {
+        bool active = mod->par("record_emission").boolValue();
+        std::string emission_list = mod->par("emission_list").stringValue();
 
+        // make sure emission_list is not empty
+        if(emission_list == "")
+            throw omnetpp::cRuntimeError("emission_list is empty in vehicle '%s'", SUMOID.c_str());
+
+        // applications are separated by |
+        std::vector<std::string> records;
+        boost::split(records, emission_list, boost::is_any_of("|"));
+
+        // iterate over each application
+        std::vector<std::string> emission_list_tokenize;
+        for(std::string appl : records)
+        {
+            if(appl == "")
+                throw omnetpp::cRuntimeError("Invalid emission_list format in vehicle '%s'", SUMOID.c_str());
+
+            // remove leading and trailing spaces from the string
+            boost::trim(appl);
+
+            // convert to lower case
+            boost::algorithm::to_lower(appl);
+
+            emission_list_tokenize.push_back(appl);
+        }
+
+        veh_emission_list_t entry = {active, emission_list_tokenize};
+        record_emission[SUMOID] = entry;
+    }
 }
 
 
-void Statistics::record_Veh_emission(std::string SUMOID, bool arrived)
+void Statistics::record_Veh_emission(std::string SUMOID)
 {
+    auto it = record_emission.find(SUMOID);
+    if(it == record_emission.end())
+        return;
 
+    if(!it->second.active)
+        return;
+
+    veh_emission_entry_t entry = {};
+
+    entry.timeStep = (omnetpp::simTime()-updateInterval).dbl();
+    entry.vehId = "-";
+    entry.emissionClass = "-";
+    entry.CO2 = -1;
+    entry.CO = -1;
+    entry.HC = -1;
+    entry.PMx = -1;
+    entry.NOx = -1;
+    entry.fuel = -1;
+    entry.noise = -1;
+
+    static int columnNumber = 0;
+    for(std::string record : it->second.emission_list)
+    {
+        if(record == "vehid")
+            entry.vehId = SUMOID;
+        else if(record == "emissionclass")
+            entry.emissionClass = TraCI->vehicleGetEmissionClass(SUMOID);
+        else if(record == "co2")
+            entry.CO2 = TraCI->vehicleGetCO2Emission(SUMOID);
+        else if(record == "co")
+            entry.CO = TraCI->vehicleGetCOEmission(SUMOID);
+        else if(record == "hc")
+            entry.HC = TraCI->vehicleGetHCEmission(SUMOID);
+        else if(record == "pmx")
+            entry.PMx = TraCI->vehicleGetPMxEmission(SUMOID);
+        else if(record == "nox")
+            entry.NOx = TraCI->vehicleGetNOxEmission(SUMOID);
+        else if(record == "fuel")
+            entry.fuel = TraCI->vehicleGetFuelConsumption(SUMOID);
+        else if(record == "noise")
+            entry.noise = TraCI->vehicleGetNoiseEmission(SUMOID);
+        else
+            throw omnetpp::cRuntimeError("'%s' is not a valid record name in veh '%s'", record.c_str(), SUMOID.c_str());
+
+        auto it = veh_emission_columns.find(record);
+        if(it == veh_emission_columns.end())
+        {
+            veh_emission_columns[record] = columnNumber;
+            columnNumber++;
+        }
+    }
+
+    collected_veh_emission.push_back(entry);
 }
 
 
 void Statistics::save_Veh_emission_toFile()
 {
+    if(collected_veh_emission.empty())
+        return;
 
+    int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
+
+    std::ostringstream fileName;
+    fileName << boost::format("%03d_vehicleEmission.txt") % currentRun;
+
+    boost::filesystem::path filePath ("results");
+    filePath /= fileName.str();
+
+    FILE *filePtr = fopen (filePath.c_str(), "w");
+    if (!filePtr)
+        throw omnetpp::cRuntimeError("Cannot create file '%s'", filePath.c_str());
+
+    // write simulation parameters at the beginning of the file
+    {
+        // get the current config name
+        std::string configName = omnetpp::getEnvir()->getConfigEx()->getVariable("configname");
+
+        std::string iniFile = omnetpp::getEnvir()->getConfigEx()->getVariable("inifile");
+
+        // PID of the simulation process
+        std::string processid = omnetpp::getEnvir()->getConfigEx()->getVariable("processid");
+
+        // globally unique identifier for the run, produced by
+        // concatenating the configuration name, run number, date/time, etc.
+        std::string runID = omnetpp::getEnvir()->getConfigEx()->getVariable("runid");
+
+        // get number of total runs in this config
+        int totalRun = omnetpp::getEnvir()->getConfigEx()->getNumRunsInConfig(configName.c_str());
+
+        // get the current run number
+        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
+
+        // get all iteration variables
+        std::vector<std::string> iterVar = omnetpp::getEnvir()->getConfigEx()->unrollConfig(configName.c_str(), false);
+
+        // write to file
+        fprintf (filePtr, "configName      %s\n", configName.c_str());
+        fprintf (filePtr, "iniFile         %s\n", iniFile.c_str());
+        fprintf (filePtr, "processID       %s\n", processid.c_str());
+        fprintf (filePtr, "runID           %s\n", runID.c_str());
+        fprintf (filePtr, "totalRun        %d\n", totalRun);
+        fprintf (filePtr, "currentRun      %d\n", currentRun);
+        fprintf (filePtr, "currentConfig   %s\n", iterVar[currentRun].c_str());
+        fprintf (filePtr, "sim timeStep    %u ms\n", TraCI->simulationGetTimeStep());
+        fprintf (filePtr, "startDateTime   %s\n", TraCI->simulationGetStartTime().c_str());
+        fprintf (filePtr, "endDateTime     %s\n", TraCI->simulationGetEndTime().c_str());
+        fprintf (filePtr, "duration        %s\n\n\n", TraCI->simulationGetDuration().c_str());
+    }
+
+    std::string columns_sorted[veh_emission_columns.size()];
+    for(auto it : veh_emission_columns)
+        columns_sorted[it.second] = it.first;
+
+    // write column title
+    fprintf (filePtr, "%-10s","index");
+    fprintf (filePtr, "%-12s","timeStamp");
+    for(std::string column : columns_sorted)
+        fprintf (filePtr, "%-20s", column.c_str());
+    fprintf (filePtr, "\n\n");
+
+    double oldTime = -2;
+    int index = 0;
+
+    for(auto &y : collected_veh_emission)
+    {
+        if(oldTime != y.timeStep)
+        {
+            fprintf(filePtr, "\n");
+            oldTime = y.timeStep;
+            index++;
+        }
+
+        fprintf (filePtr, "%-10d", index);
+        fprintf (filePtr, "%-12.2f", y.timeStep );
+
+        for(std::string record : columns_sorted)
+        {
+            if(record == "vehid")
+                fprintf (filePtr, "%-20s", y.vehId.c_str());
+            else if(record == "emissionclass")
+                fprintf (filePtr, "%-20s", y.emissionClass.c_str());
+            else if(record == "co2")
+                fprintf (filePtr, "%-20.2f", y.CO2);
+            else if(record == "co")
+                fprintf (filePtr, "%-20.2f", y.CO);
+            else if(record == "hc")
+                fprintf (filePtr, "%-20.2f", y.HC);
+            else if(record == "pmx")
+                fprintf (filePtr, "%-20.2f", y.PMx);
+            else if(record == "nox")
+                fprintf (filePtr, "%-20.2f", y.NOx);
+            else if(record == "fuel")
+                fprintf (filePtr, "%-20.2f", y.fuel);
+            else if(record == "noise")
+                fprintf (filePtr, "%-20.2f", y.noise);
+            else
+            {
+                fclose(filePtr);
+                throw omnetpp::cRuntimeError("'%s' is not a valid record name in veh '%s'", record.c_str(), y.vehId.c_str());
+            }
+        }
+
+        fprintf (filePtr, "\n");
+    }
+
+    fclose(filePtr);
 }
 
 }

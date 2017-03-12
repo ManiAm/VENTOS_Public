@@ -200,6 +200,7 @@ private:
         double HC;
         double PMx;
         double NOx;
+        double fuel;
         double noise;
     } veh_emission_entry_t;
 
@@ -237,7 +238,7 @@ private:
     void record_Ped_data(std::string vID, bool arrived = false);
 
     void init_Veh_emission(std::string SUMOID, omnetpp::cModule *mod);
-    void record_Veh_emission(std::string vID, bool arrived = false);
+    void record_Veh_emission(std::string vID);
     void save_Veh_emission_toFile();
 };
 
