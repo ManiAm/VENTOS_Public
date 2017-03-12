@@ -55,7 +55,7 @@ void ApplRSUBeacon::initialize(int stage)
         myTLid = getParentModule()->par("myTLid").stringValue();
 
         Coord rsu_pos_omnet = Coord(this->getParentModule()->getSubmodule("mobility")->par("x").doubleValue(), this->getParentModule()->getSubmodule("mobility")->par("y").doubleValue());
-        rsu_pos = TraCI->omnet2traciCoord(rsu_pos_omnet);
+        rsu_pos = TraCI->convertCoord_omnet2traci(rsu_pos_omnet);
     }
 }
 
