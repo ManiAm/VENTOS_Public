@@ -7,6 +7,7 @@
 #include "Decider.h"
 #include "BaseWorldUtility.h"
 #include "BaseConnectionManager.h"
+#include "DeciderResult80211.h"
 
 //introduce BasePhyLayer as module to OMNet
 Define_Module(BasePhyLayer);
@@ -16,6 +17,7 @@ Coord NoMobiltyPos = Coord::ZERO;
 BasePhyLayer::BasePhyLayer()
 {
     this->protocolId = GENERIC;
+    this->emulationActive = false;
     this->thermalNoise = 0;
     this->radio = 0;
     this->decider = 0;
@@ -40,6 +42,8 @@ void BasePhyLayer::initialize(int stage)
         upperLayerOut = findGate("upperLayerOut");
         upperControlOut = findGate("upperControlOut");
         upperControlIn = findGate("upperControlIn");
+
+        emulationActive = par("emulationActive").boolValue();
 
         if(par("useThermalNoise").boolValue())
         {
@@ -325,27 +329,43 @@ void BasePhyLayer::handleAirFrameStartReceive(AirFrame* frame)
         s.setPropagationDelay(delay);
     }
 
+    // sendingStart + propagationDelay
     assert(frame->getSignal().getReceptionStart() == omnetpp::simTime());
 
-    frame->getSignal().setReceptionSenderInfo(frame);
-    filterSignal(frame);
-
-    if(decider && isKnownProtocolId(frame->getProtocolId()))
+    if(emulationActive)
     {
-        frame->setState(RECEIVING);
+        frame->getSignal().setReceptionSenderInfo(frame);
+        filterSignal(frame);
 
-        //pass the AirFrame the first time to the Decider
-        handleAirFrameReceiving(frame);
+        if(decider && isKnownProtocolId(frame->getProtocolId()))
+        {
+            frame->setState(RECEIVING);
+
+            //pass the AirFrame the first time to the Decider
+            handleAirFrameReceiving(frame);
+        }
+        //if no decider is defined we will schedule the message directly to its end
+        else
+        {
+            Signal& signal = frame->getSignal();
+
+            omnetpp::simtime_t signalEndTime = signal.getReceptionStart() + frame->getDuration();
+            frame->setState(END_RECEIVE);
+
+            scheduleAt(signalEndTime, frame);
+        }
     }
-    //if no decider is defined we will schedule the message directly to its end
     else
     {
-        Signal& signal = frame->getSignal();
-
-        omnetpp::simtime_t signalEndTime = signal.getReceptionStart() + frame->getDuration();
+        // set frame state to 'END_RECEIVE'
         frame->setState(END_RECEIVE);
 
+        // schedule the message directly to its end
+        Signal& signal = frame->getSignal();
+        omnetpp::simtime_t signalEndTime = signal.getReceptionStart() + frame->getDuration();
         scheduleAt(signalEndTime, frame);
+
+        return;
     }
 }
 
@@ -385,6 +405,13 @@ void BasePhyLayer::handleAirFrameReceiving(AirFrame* frame)
 
 void BasePhyLayer::handleAirFrameEndReceive(AirFrame* frame)
 {
+    if(!emulationActive)
+    {
+        // emulation is not active, sending the frame up to the MAC
+        DeciderResult *result = new DeciderResult80211(false, 0, 0, 0);
+        sendUp(frame, result);
+    }
+
     coreEV << "End of Airframe with ID " << frame->getId() << "." << std::endl;
 
     omnetpp::simtime_t earliestInfoPoint = channelInfo.removeAirFrame(frame);

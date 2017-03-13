@@ -88,6 +88,8 @@ protected:
         return 10;
     }
 
+    bool emulationActive;
+
     /** @brief Defines the strength of the thermal noise.*/
     ConstantSimpleConstMapping* thermalNoise;
 

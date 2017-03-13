@@ -75,6 +75,8 @@ simple BasePhyLayer like IWirelessPhy
         bool recordStats = default(false); //enable/disable tracking of statistics (eg. cOutvectors)
         int headerLength = default(0) @unit(bit); //defines the length of the phy header (/preamble)
         
+        bool emulationActive = default(false);
+                
         bool usePropagationDelay = default(true);		//Should transmission delay be simulated?
         double thermalNoise = default(-110dBm) @unit(dBm);	//the strength of the thermal noise [dBm]
         bool useThermalNoise = default(true);			//should thermal noise be considered?
