@@ -46,8 +46,8 @@ private:
     // NED
     bool active;  // run SUMO and establish TraCI?
     bool debug;
-    double terminate;  // simulation end time (in seconds)
-    bool autoShutdown;  // terminate simulation as soon as no more vehicles are in the simulation
+    double terminateTime;
+    bool autoTerminate;
     double penetrationRate;
 
     BaseWorldUtility* world = NULL;

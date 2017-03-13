@@ -83,24 +83,16 @@ TraCIConnection::~TraCIConnection()
 }
 
 
-int TraCIConnection::startSUMO(std::string SUMOapplication, std::string SUMOconfig, std::string switches, int seed, bool runSUMO)
+int TraCIConnection::startSUMO(std::string SUMOapplication, std::string SUMOconfig, std::string SUMOcommandLine, bool runSUMO)
 {
     int port = TraCIConnection::getFreeEphemeralPort();
-
-    // auto-set seed, if requested
-    if (seed == -1)
-    {
-        const char* seed_s = omnetpp::getEnvir()->getConfigEx()->getVariable(CFGVAR_RUNNUMBER);
-        seed = atoi(seed_s);
-    }
 
     // assemble commandLine
     std::ostringstream commandLine;
     commandLine << SUMOapplication
             << " --remote-port " << port
-            << " --seed " << seed
             << " --configuration-file " << SUMOconfig
-            << switches;
+            << (" " + SUMOcommandLine);
 
     if(!runSUMO)
     {
@@ -114,8 +106,8 @@ int TraCIConnection::startSUMO(std::string SUMOapplication, std::string SUMOconf
     LOG_INFO << "\n>>> Starting SUMO process ... \n";
     LOG_INFO << boost::format("    Executable file: %1% \n") % SUMOapplication;
     LOG_INFO << boost::format("    Config file: %1% \n") % SUMOconfig;
-    LOG_INFO << boost::format("    Switches: %1% \n") % switches;
-    LOG_INFO << boost::format("    TraCI server: port= %1%, seed= %2% \n") % port % seed;
+    LOG_INFO << boost::format("    Switches: %1% \n") % SUMOcommandLine;
+    LOG_INFO << boost::format("    TraCI server is listening on port %1% \n") % port;
     LOG_FLUSH;
 
 #if defined(_WIN32) || defined(__WIN32__) || defined(WIN32) || defined(__CYGWIN__) || defined(_WIN64)

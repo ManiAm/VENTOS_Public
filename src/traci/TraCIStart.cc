@@ -57,7 +57,7 @@ void TraCI_Start::initialize(int stage)
     {
         active = par("active").boolValue();
         debug = par("debug");
-        terminate = par("terminate").doubleValue();
+        terminateTime = par("terminateTime").doubleValue();
 
         // no need to bring up SUMO
         if(!active)
@@ -85,7 +85,7 @@ void TraCI_Start::initialize(int stage)
             STAT = static_cast<VENTOS::Statistics*>(module);
             ASSERT(STAT);
 
-            autoShutdown = par("autoShutdown");
+            autoTerminate = par("autoTerminate");
             penetrationRate = par("penetrationRate").doubleValue();
             equilibrium_vehicle = par("equilibrium_vehicle").boolValue();
 
@@ -153,7 +153,7 @@ void TraCI_Start::handleMessage(omnetpp::cMessage *msg)
         this->emit(Signal_executeEachTS, 0);
 
         // we reached max simtime and should terminate OMNET++ simulation
-        if(terminate != -1 && omnetpp::simTime().dbl() >= terminate)
+        if(terminateTime != -1 && omnetpp::simTime().dbl() >= terminateTime)
             simulationTerminate();
 
         scheduleAt(omnetpp::simTime() + updateInterval, executeOneTimestepTrigger);
@@ -165,21 +165,6 @@ void TraCI_Start::handleMessage(omnetpp::cMessage *msg)
 
 void TraCI_Start::init_traci()
 {
-    std::string switches = "";
-
-    if(par("quitOnEnd").boolValue())
-        switches = switches + " --quit-on-end";
-
-    if(par("startAfterLoading").boolValue())
-        switches = switches + " --start";
-
-    if(par("CMDstepLog").boolValue())
-        switches = switches + " --no-step-log";
-
-    int seed = par("seed").longValue();
-
-    bool runSUMO = par("runSUMO").boolValue();
-
     std::string appl = par("SUMOapplication").stringValue();
     if(appl != "sumo" && appl != "sumoD" && appl != "sumo-gui" && appl != "sumo-guiD")
         throw omnetpp::cRuntimeError("SUMOapplication parameter is not set correctly!: %s", appl.c_str());
@@ -188,8 +173,11 @@ void TraCI_Start::init_traci()
     if(!omnetpp::cSimulation::getActiveEnvir()->isGUI())
         appl = "sumo";
 
+    std::string SUMOcommandLine = par("SUMOcommandLine").stringValue();
+    bool runSUMO = par("runSUMO").boolValue();
+
     // start 'SUMO TraCI server' first
-    int port = TraCIConnection::startSUMO(getFullPath_SUMOExe(appl), getFullPath_SUMOConfig(), switches, seed, runSUMO);
+    int port = TraCIConnection::startSUMO(getFullPath_SUMOExe(appl), getFullPath_SUMOConfig(), SUMOcommandLine, runSUMO);
 
     // then connect to the 'SUMO TraCI server'
     connection = TraCIConnection::connect("localhost", port, runSUMO);
@@ -512,7 +500,7 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
             STAT->drivingVehicleCount -= count;
 
             // should we stop simulation?
-            if(autoShutdown)
+            if(autoTerminate)
             {
                 // terminate only if equilibrium_vehicle is off
                 if(!equilibrium_vehicle)

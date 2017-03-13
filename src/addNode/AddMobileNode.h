@@ -41,7 +41,7 @@ private:
     TraCI_Commands *TraCI;
     int mode;
     int submode;
-    double terminate;
+    double terminateTime;
 
     // class variables
     omnetpp::simsignal_t Signal_initialize_withTraCI;

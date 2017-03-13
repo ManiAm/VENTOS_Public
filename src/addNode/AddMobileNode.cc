@@ -56,10 +56,10 @@ void AddMobileNode::initialize(int stage)
         TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
 
-        terminate = TraCI->par("terminate").doubleValue();
+        terminateTime = TraCI->par("terminateTime").doubleValue();
         // if user specifies no termination time, set it to a big value
-        if(terminate == -1)
-            terminate = 10000;
+        if(terminateTime == -1)
+            terminateTime = 10000;
 
         Signal_initialize_withTraCI = registerSignal("initialize_withTraCI");
         omnetpp::getSimulation()->getSystemModule()->subscribe("initialize_withTraCI", this);
@@ -333,7 +333,7 @@ void AddMobileNode::Scenario12()
     int vehInsertMain2 = 0;  // number of vehicles that should be inserted from N and S in each second
     double vehClass = 0;
 
-    for(int depart = 0; depart < terminate; ++depart)
+    for(int depart = 0; depart < terminateTime; ++depart)
     {
         vehInsertMain = distribution1(generator);
 

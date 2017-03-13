@@ -64,7 +64,7 @@ void AddNode::initialize(int stage)
         TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
 
-        terminate = module->par("terminate").doubleValue();
+        terminateTime = module->par("terminateTime").doubleValue();
 
         Signal_initialize_withTraCI = registerSignal("initialize_withTraCI");
         omnetpp::getSimulation()->getSystemModule()->subscribe("initialize_withTraCI", this);
@@ -621,8 +621,8 @@ void AddNode::addObstacle()
             if(duration <= 0)
                 throw omnetpp::cRuntimeError("'duration' value (%f) should be positive in element '%s'", duration, obstacle_tag.c_str());
 
-            if(terminate != -1 && duration > terminate)
-                throw omnetpp::cRuntimeError("'duration' value (%f) cannot be bigger than the simulation time (%f) in element '%s'", duration, terminate, obstacle_tag.c_str());
+            if(terminateTime != -1 && duration > terminateTime)
+                throw omnetpp::cRuntimeError("'duration' value (%f) cannot be bigger than the simulation time (%f) in element '%s'", duration, terminateTime, obstacle_tag.c_str());
 
             omnetpp::cMessage* evt = new omnetpp::cMessage(vehID.c_str(), TYPE_TIMER_OBSTACLE);
             scheduleAt(omnetpp::simTime() + 2*updateInterval + begin + duration, evt);
@@ -994,15 +994,15 @@ void AddNode::addVehicleFlow()
     {
         if(entry.second.end == -1)
         {
-            if(terminate != -1)
-                entry.second.end = terminate;
+            if(terminateTime != -1)
+                entry.second.end = terminateTime;
             else
                 entry.second.end = std::numeric_limits<int32_t>::max();
         }
         else
         {
-            if(terminate != -1)
-                entry.second.end = std::min(entry.second.end, terminate);
+            if(terminateTime != -1)
+                entry.second.end = std::min(entry.second.end, terminateTime);
         }
 
         if(entry.second.end <= entry.second.begin)
@@ -1356,15 +1356,15 @@ void AddNode::addVehicleMultiFlow()
     {
         if(entry.second.end == -1)
         {
-            if(terminate != -1)
-                entry.second.end = terminate;
+            if(terminateTime != -1)
+                entry.second.end = terminateTime;
             else
                 entry.second.end = std::numeric_limits<int32_t>::max();
         }
         else
         {
-            if(terminate != -1)
-                entry.second.end = std::min(entry.second.end, terminate);
+            if(terminateTime != -1)
+                entry.second.end = std::min(entry.second.end, terminateTime);
         }
 
         if(entry.second.end <= entry.second.begin)

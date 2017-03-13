@@ -46,7 +46,7 @@ private:
     TraCI_Commands *TraCI;
     omnetpp::simsignal_t Signal_initialize_withTraCI;
 
-    double terminate = 0;
+    double terminateTime = 0;
     double updateInterval = -1;
     double SUMO_timeStep = 0;
     int routeCalculation = 0;

@@ -14,25 +14,20 @@ simple TraCIStart
         @signal[executeEachTS]();
         
         bool active = default(false);
-        bool runSUMO = default(true);
-        bool debug = default(false);  // emit debug messages?
-        
         string SUMOapplication = default("sumo-guiD");   // sumoD: command-line interface    sumo-guiD: graphical interface
         string SUMOconfig = default("");     // relative path to the SUMO configure file
+        string SUMOcommandLine = default("--start --no-step-log --seed 0");
         
-        // SUMO switches
-        bool quitOnEnd = default(false);         // sumo-gui is closed when the simulation stops
-        bool startAfterLoading = default(true);  // SUMO simulation starts right after loading
-        bool CMDstepLog = default(true);         // simulation log is printed at the end of each step
-        int seed = default(0);  // seed for random generation (-1: current run number)
+        bool record_TraCI_activity = default(false);   // logging all exchanged TraCI commands
         
-        double terminate = default(-1s) @unit(s);   // maximum simulation time. -1 means simulate forever!
-        bool autoShutdown = default(true);          // Shutdown module as soon as no more vehicles are in the simulation        
-        bool equilibrium_vehicle = default(false);  // arrived vehicles are re-inserted again
+        double terminateTime = default(-1s) @unit(s); // maximum simulation time. -1 means simulate forever!
+        bool autoTerminate = default(true);           // terminate simulation as soon as no more vehicles are in the simulation        
+        bool equilibrium_vehicle = default(false);    // arrived vehicles are re-inserted
         
-        bool record_TraCI_activity = default(false);     // logging all exchanged TraCI commands
+        bool runSUMO = default(true);
+        bool debug = default(false);  // emit debug messages?       
         
-        int margin = default(25);   // margin to add to all received vehicle positions
+        int margin = default(25);  // margin to add to all received vehicle positions
         
         double penetrationRate = default(1);   // the probability of a vehicle being DSRC-enabled
         
