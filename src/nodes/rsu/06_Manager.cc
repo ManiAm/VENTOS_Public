@@ -41,15 +41,12 @@ void ApplRSUManager::initialize(int stage)
 {
     super::initialize(stage);
 
-	if (stage==0)
-	{
+    if (stage==0)
+    {
         // register signal
         Signal_executeEachTS = registerSignal("executeEachTS");
         omnetpp::getSimulation()->getSystemModule()->subscribe("executeEachTS", this);
-
-        Signal_beaconSignaling = registerSignal("beaconSignaling");
-        omnetpp::getSimulation()->getSystemModule()->subscribe("beaconSignaling", this);
-	}
+    }
 }
 
 
@@ -78,18 +75,7 @@ void ApplRSUManager::receiveSignal(omnetpp::cComponent *source, omnetpp::simsign
 {
     Enter_Method_Silent();
 
-    if(signalID == Signal_beaconSignaling)
-    {
-        omnetpp::cMessage* msg = static_cast<omnetpp::cMessage *>(obj);
-        if (msg == NULL) return;
-
-        // treat this as a normal msg
-        // calling ApplRSU_04_Manager::handleLowerMsg
-        handleLowerMsg(msg);
-    }
-    // pass it up, if we do not know how to handle the signal
-    else
-        super::receiveSignal(source, signalID, obj, details);
+    super::receiveSignal(source, signalID, obj, details);
 }
 
 

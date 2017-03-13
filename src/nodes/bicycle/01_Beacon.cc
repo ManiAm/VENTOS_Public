@@ -43,7 +43,7 @@ void ApplBikeBeacon::initialize(int stage)
 
     if (stage == 0)
     {
-        signalBeaconing = par("signalBeaconing").boolValue();
+
     }
 }
 
@@ -64,16 +64,8 @@ void ApplBikeBeacon::sendBeacon()
 {
     BeaconBicycle* beaconMsg = generateBeacon();
 
-    // send the beacon as a signal. Any module registered to this signal can
-    // receive a copy of the beacon (for now, only RSUs are registered)
-    if(signalBeaconing)
-    {
-        omnetpp::simsignal_t Signal_beaconSignaling = registerSignal("beaconSignaling");
-        this->getParentModule()->emit(Signal_beaconSignaling, beaconMsg);
-    }
     // broadcast the beacon wirelessly using IEEE 802.11p
-    else
-        send(beaconMsg, lowerLayerOut);
+    send(beaconMsg, lowerLayerOut);
 }
 
 

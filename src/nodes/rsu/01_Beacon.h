@@ -37,7 +37,6 @@ class ApplRSUBeacon : public BaseWaveApplLayer
 {
 protected:
     cModule* TLptr;
-    bool signalBeaconing;
 
     std::string myTLid;
     TraCICoord rsu_pos;

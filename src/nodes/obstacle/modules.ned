@@ -52,9 +52,6 @@ simple ApplObstacleBeacon extends BaseWaveApplLayer
     parameters:
         @class(VENTOS::ApplObstacleBeacon);
         @display("i=block/app2");
-        
-        bool signalBeaconing = default(false); // vehicles send beacons using signals rather than wireless broadcast. Any module
-                                               // registered to signalBeaconing signal will receive the beacon 
 }
 
 

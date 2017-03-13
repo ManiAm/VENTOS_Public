@@ -54,9 +54,6 @@ simple ApplRSUBeacon extends BaseWaveApplLayer
 {
     parameters:
         @class(VENTOS::ApplRSUBeacon);
-        
-        bool signalBeaconing = default(false); // vehicles send beacons using signals rather than wireless broadcast. Any module
-                                               // registered to signalBeaconing signal will receive the beacon
 }
 
 

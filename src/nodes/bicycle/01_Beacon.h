@@ -37,7 +37,6 @@ class ApplBikeBeacon : public BaseWaveApplLayer
 {
 private:
     typedef BaseWaveApplLayer super;
-    bool signalBeaconing;
 
 public:
     ~ApplBikeBeacon();

@@ -41,7 +41,6 @@ private:
     typedef BaseWaveApplLayer super;
 
 protected:
-    bool signalBeaconing;
     double sonarDist;
 
     std::string plnID = "";

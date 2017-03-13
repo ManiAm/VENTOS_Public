@@ -50,8 +50,6 @@ void ApplRSUBeacon::initialize(int stage)
         TLControlMode = TLptr->par("TLControlMode").longValue();
         minGreenTime = TLptr->par("minGreenTime").doubleValue();
 
-        signalBeaconing = par("signalBeaconing").boolValue();
-
         myTLid = getParentModule()->par("myTLid").stringValue();
 
         Coord rsu_pos_omnet = Coord(this->getParentModule()->getSubmodule("mobility")->par("x").doubleValue(), this->getParentModule()->getSubmodule("mobility")->par("y").doubleValue());
@@ -82,16 +80,8 @@ void ApplRSUBeacon::sendBeacon()
 {
     BeaconRSU* beaconMsg = generateBeacon();
 
-    // send the beacon as a signal. Any module registered to this signal can
-    // receive a copy of the beacon (for now, only RSUs are registered)
-    if(signalBeaconing)
-    {
-        omnetpp::simsignal_t Signal_beaconSignaling = registerSignal("beaconSignaling");
-        this->getParentModule()->emit(Signal_beaconSignaling, beaconMsg);
-    }
     // broadcast the beacon wirelessly using IEEE 802.11p
-    else
-        send(beaconMsg, lowerLayerOut);
+    send(beaconMsg, lowerLayerOut);
 }
 
 

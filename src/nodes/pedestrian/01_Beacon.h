@@ -37,7 +37,6 @@ class ApplPedBeacon : public BaseWaveApplLayer
 {
 private:
     typedef BaseWaveApplLayer super;
-    bool signalBeaconing;
 
 public:
     ~ApplPedBeacon();
