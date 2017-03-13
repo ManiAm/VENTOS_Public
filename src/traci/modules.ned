@@ -1,7 +1,4 @@
 
-// Copyright (C) 2006-2012 Christoph Sommer <christoph.sommer@uibk.ac.at>
-// Second author: Mani Amoozadeh <maniam@ucdavis.edu>
-
 package VENTOS.src.traci;
 
 simple TraCIStart

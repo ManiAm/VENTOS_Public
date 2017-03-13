@@ -823,9 +823,12 @@ void TraCI_Start::deleteManagedModule(std::string nodeId /*sumo id*/)
     if (!mod)
         throw omnetpp::cRuntimeError("no vehicle with Id \"%s\" found", nodeId.c_str());
 
-    cModule* nic = mod->getSubmodule("nic");
-    if (nic)
-        cc->unregisterNic(nic);
+    if(mod->par("DSRCenabled"))
+    {
+        cModule* nic = mod->getSubmodule("nic");
+        if (nic)
+            cc->unregisterNic(nic);
+    }
 
     removeMapping(nodeId, mod->getFullName());
     removeMapping_emulated(nodeId);

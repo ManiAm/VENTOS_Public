@@ -57,7 +57,8 @@ void ChannelAccess::initialize(int stage)
     {
         coreDebug = hasPar("coreDebug") ? par("coreDebug").boolValue() : false;
 
-        findHost()->subscribe(mobilityStateChangedSignal, this);
+        if(this->getParentModule()->getParentModule()->par("DSRCenabled"))
+            findHost()->subscribe(mobilityStateChangedSignal, this);
 
         cModule* nic = getParentModule();
         cc = getConnectionManager(nic);
@@ -111,6 +112,8 @@ void ChannelAccess::sendToChannel(omnetpp::cPacket *msg)
         // use Andras stuff
         if( i != gateList.end() )
         {
+            omnetpp::simtime_t_cref frameDuration = (dynamic_cast<AirFrame*> (msg))->getDuration();
+
             for(; i != --gateList.end(); ++i)
             {
                 // calculate propagation delay to this receiving nic
@@ -126,7 +129,7 @@ void ChannelAccess::sendToChannel(omnetpp::cPacket *msg)
                     if(record_frameTxRx)
                         recordFrameTx(msg_dup, i->second, prop);
 
-                    sendDirect(static_cast<omnetpp::cPacket*>(msg_dup), prop.propagationDelay, msg->getDuration(), i->second->getOwnerModule(), g);
+                    sendDirect(static_cast<omnetpp::cPacket*>(msg_dup), prop.propagationDelay, frameDuration, i->second->getOwnerModule(), g);
                 }
             }
 
@@ -143,13 +146,13 @@ void ChannelAccess::sendToChannel(omnetpp::cPacket *msg)
                 if(record_frameTxRx)
                     recordFrameTx(msg_dup, i->second, prop);
 
-                sendDirect(static_cast<omnetpp::cPacket*>(msg_dup), prop.propagationDelay, msg->getDuration(), i->second->getOwnerModule(), g);
+                sendDirect(static_cast<omnetpp::cPacket*>(msg_dup), prop.propagationDelay, frameDuration, i->second->getOwnerModule(), g);
             }
 
             if(record_frameTxRx)
                 recordFrameTx(msg, i->second, prop);
 
-            sendDirect(msg, prop.propagationDelay, msg->getDuration(), i->second->getOwnerModule(), radioEnd);
+            sendDirect(msg, prop.propagationDelay, frameDuration, i->second->getOwnerModule(), radioEnd);
         }
         else
         {
