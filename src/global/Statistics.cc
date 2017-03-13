@@ -159,7 +159,7 @@ void Statistics::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t
         omnetpp::cModule *m = static_cast<omnetpp::cModule *>(obj);
         ASSERT(m);
 
-        if(m->par("record_stat").boolValue())
+        if(m->hasPar("record_stat") && m->par("record_stat").boolValue())
         {
             std::string vClass = m->par("vehicleClass");
 
@@ -169,7 +169,7 @@ void Statistics::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t
                 init_Veh_data(m->par("SUMOID").stringValue(), m);
         }
 
-        if(m->par("record_emission").boolValue())
+        if(m->hasPar("record_emission") && m->par("record_emission").boolValue())
         {
             std::string vClass = m->par("vehicleClass");
 
