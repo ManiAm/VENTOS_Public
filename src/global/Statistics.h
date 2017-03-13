@@ -79,25 +79,26 @@ typedef struct PHY_stat
 {
     double last_stat_time;
 
-    long statsSentFrames;
-    long statsReceivedFrames;
-    long statsBiteErrorLostFrames;
-    long statsCollisionLostFrames;
-    long statsTXRXLostFrames;
+    long NumSentFrames;
+    long NumReceivedFrames;
+    long NumLostFrames_BiteError;
+    long NumLostFrames_Collision;
+    long NumLostFrames_TXRX;
 } PHY_stat_t;
 
 typedef struct msgTxRxStat
 {
-    std::string msgName;
-    std::string senderNode;
-    std::string receiverNode;
-    int frameSize;
-    double sentAt;
-    double TxSpeed;
-    double TxTime;
-    double propagationDelay;
-    double receivedAt;
-    std::string receivedStatus;
+    std::string MsgName;
+    std::string SenderNode;
+    std::string ReceiverNode;
+    double SentAt;
+    int FrameSize;
+    double TransmissionSpeed;
+    double TransmissionTime;
+    double DistanceToReceiver;
+    double PropagationDelay;
+    double ReceivedAt;
+    std::string FrameRxStatus;
 } msgTxRxStat_t;
 
 

@@ -565,22 +565,22 @@ void Statistics::save_PHY_stat_toFile()
     // write header
     fprintf (filePtr, "%-20s","vehicleName");
     fprintf (filePtr, "%-20s","lastStatTime");
-    fprintf (filePtr, "%-15s","SentFrames");
-    fprintf (filePtr, "%-20s","ReceivedFrames");
-    fprintf (filePtr, "%-20s","BiteErrorLostFrames");
-    fprintf (filePtr, "%-20s","CollisionLostFrames");
-    fprintf (filePtr, "%-20s\n\n","TXRXLostFrames");
+    fprintf (filePtr, "%-15s","NumSentFrames");
+    fprintf (filePtr, "%-20s","NumReceivedFrames");
+    fprintf (filePtr, "%-25s","NumLostFrames_BiteError");
+    fprintf (filePtr, "%-25s","NumLostFrames_Collision");
+    fprintf (filePtr, "%-25s\n\n","NumLostFrames_TXRX");
 
     // write body
     for(auto &y : global_PHY_stat)
     {
         fprintf (filePtr, "%-20s", y.first.c_str());
         fprintf (filePtr, "%-20.8f", y.second.last_stat_time);
-        fprintf (filePtr, "%-15ld", y.second.statsSentFrames);
-        fprintf (filePtr, "%-20ld", y.second.statsReceivedFrames);
-        fprintf (filePtr, "%-20ld", y.second.statsBiteErrorLostFrames);
-        fprintf (filePtr, "%-20ld", y.second.statsCollisionLostFrames);
-        fprintf (filePtr, "%-20ld\n", y.second.statsTXRXLostFrames);
+        fprintf (filePtr, "%-15ld", y.second.NumSentFrames);
+        fprintf (filePtr, "%-20ld", y.second.NumReceivedFrames);
+        fprintf (filePtr, "%-25ld", y.second.NumLostFrames_BiteError);
+        fprintf (filePtr, "%-25ld", y.second.NumLostFrames_Collision);
+        fprintf (filePtr, "%-25ld\n", y.second.NumLostFrames_TXRX);
     }
 
     fclose(filePtr);
@@ -642,37 +642,46 @@ void Statistics::save_FrameTxRx_stat_toFile()
     }
 
     // write header
-    fprintf (filePtr, "%-20s","msgId");
-    fprintf (filePtr, "%-20s","msgName");
-    fprintf (filePtr, "%-20s","senderNode");
-    fprintf (filePtr, "%-20s","receiverNode");
-    fprintf (filePtr, "%-20s","receiverGateId");
-    fprintf (filePtr, "%-20s","frameSize(bytes)");
-    fprintf (filePtr, "%-20s","sentAt(s)");
-    fprintf (filePtr, "%-20s","txSpeed(Mbps)");
-    fprintf (filePtr, "%-20s","txTime(ms)");
-    fprintf (filePtr, "%-22s","propagationDelay(ms)");
-    fprintf (filePtr, "%-20s","receivedAt(s)");
-    fprintf (filePtr, "%-20s\n\n","rxStatus");
+    fprintf (filePtr, "%-20s","MsgId");
+    fprintf (filePtr, "%-20s","MsgName");
+    fprintf (filePtr, "%-20s","SenderNode");
+    fprintf (filePtr, "%-20s","ReceiverNode");
+    fprintf (filePtr, "%-20s","ReceiverGateId");
+    fprintf (filePtr, "%-20s","SentAt");
+    fprintf (filePtr, "%-20s","FrameSize");
+    fprintf (filePtr, "%-20s","TransmissionSpeed");
+    fprintf (filePtr, "%-20s","TransmissionTime");
+    fprintf (filePtr, "%-20s","DistanceToReceiver");
+    fprintf (filePtr, "%-22s","PropagationDelay");
+    fprintf (filePtr, "%-20s","ReceivedAt");
+    fprintf (filePtr, "%-20s\n\n","FrameRxStatus");
 
     // write body
+    std::string oldSender = "";
     for(auto &y : global_frameTxRx_stat)
     {
+        if(oldSender != y.second.SenderNode)
+        {
+            fprintf(filePtr, "\n");
+            oldSender = y.second.SenderNode;
+        }
+
         long int msgId = y.first.first;
         long int nic = y.first.second;
 
         fprintf (filePtr, "%-20ld", msgId);
-        fprintf (filePtr, "%-20s", y.second.msgName.c_str());
-        fprintf (filePtr, "%-20s", y.second.senderNode.c_str());
-        fprintf (filePtr, "%-20s", y.second.receiverNode.c_str());
+        fprintf (filePtr, "%-20s", y.second.MsgName.c_str());
+        fprintf (filePtr, "%-20s", y.second.SenderNode.c_str());
+        fprintf (filePtr, "%-20s", y.second.ReceiverNode.c_str());
         fprintf (filePtr, "%-20ld", nic);
-        fprintf (filePtr, "%-20d", y.second.frameSize);
-        fprintf (filePtr, "%-20.8f", y.second.sentAt);
-        fprintf (filePtr, "%-20.2f", y.second.TxSpeed);
-        fprintf (filePtr, "%-20.8f", y.second.TxTime);
-        fprintf (filePtr, "%-22.13f", y.second.propagationDelay);
-        fprintf (filePtr, "%-20.8f", y.second.receivedAt);
-        fprintf (filePtr, "%-20s\n", y.second.receivedStatus.c_str());
+        fprintf (filePtr, "%-20.8f", y.second.SentAt);
+        fprintf (filePtr, "%-20d", y.second.FrameSize);
+        fprintf (filePtr, "%-20.2f", y.second.TransmissionSpeed);
+        fprintf (filePtr, "%-20.8f", y.second.TransmissionTime);
+        fprintf (filePtr, "%-20.8f", y.second.DistanceToReceiver);
+        fprintf (filePtr, "%-22.13f", y.second.PropagationDelay);
+        fprintf (filePtr, "%-20.8f", y.second.ReceivedAt);
+        fprintf (filePtr, "%-20s\n", y.second.FrameRxStatus.c_str());
     }
 
     fclose(filePtr);

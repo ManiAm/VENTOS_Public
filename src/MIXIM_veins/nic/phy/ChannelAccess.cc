@@ -111,37 +111,45 @@ void ChannelAccess::sendToChannel(omnetpp::cPacket *msg)
         // use Andras stuff
         if( i != gateList.end() )
         {
-            omnetpp::simtime_t delay = SIMTIME_ZERO;
-
             for(; i != --gateList.end(); ++i)
             {
                 // calculate propagation delay to this receiving nic
-                delay = calculatePropagationDelay(i->first);
+                auto prop = calculatePropagationDelay(i->first);
 
                 int radioStart = i->second->getId();
                 int radioEnd = radioStart + i->second->size();
                 for (int g = radioStart; g != radioEnd; ++g)
                 {
+                    // in each iteration, we need to duplicate the msg before sending
                     omnetpp::cPacket *msg_dup = msg->dup();
-                    if(record_frameTxRx) recordFrameTx(msg_dup, i->second, delay);
-                    sendDirect(static_cast<omnetpp::cPacket*>(msg_dup), delay, msg->getDuration(), i->second->getOwnerModule(), g);
+
+                    if(record_frameTxRx)
+                        recordFrameTx(msg_dup, i->second, prop);
+
+                    sendDirect(static_cast<omnetpp::cPacket*>(msg_dup), prop.propagationDelay, msg->getDuration(), i->second->getOwnerModule(), g);
                 }
             }
 
             // calculate Propagation delay to this receiving nic
-            delay = calculatePropagationDelay(i->first);
+            auto prop = calculatePropagationDelay(i->first);
 
             int radioStart = i->second->getId();
             int radioEnd = radioStart + i->second->size();
             for (int g = radioStart; g != --radioEnd; ++g)
             {
+                // in each iteration, we need to duplicate the msg before sending
                 omnetpp::cPacket *msg_dup = msg->dup();
-                if(record_frameTxRx) recordFrameTx(msg_dup, i->second, delay);
-                sendDirect(static_cast<omnetpp::cPacket*>(msg_dup), delay, msg->getDuration(), i->second->getOwnerModule(), g);
+
+                if(record_frameTxRx)
+                    recordFrameTx(msg_dup, i->second, prop);
+
+                sendDirect(static_cast<omnetpp::cPacket*>(msg_dup), prop.propagationDelay, msg->getDuration(), i->second->getOwnerModule(), g);
             }
 
-            if(record_frameTxRx) recordFrameTx(msg, i->second, delay);
-            sendDirect(msg, delay, msg->getDuration(), i->second->getOwnerModule(), radioEnd);
+            if(record_frameTxRx)
+                recordFrameTx(msg, i->second, prop);
+
+            sendDirect(msg, prop.propagationDelay, msg->getDuration(), i->second->getOwnerModule(), radioEnd);
         }
         else
         {
@@ -155,20 +163,18 @@ void ChannelAccess::sendToChannel(omnetpp::cPacket *msg)
         coreEV << "sendToChannel: sending to gates \n";
         if( i != gateList.end() )
         {
-            omnetpp::simtime_t delay = SIMTIME_ZERO;
-
             for(; i != --gateList.end(); ++i)
             {
                 // calculate Propagation delay to this receiving nic
-                delay = calculatePropagationDelay(i->first);
+                auto prop = calculatePropagationDelay(i->first);
 
-                sendDelayed( static_cast<omnetpp::cPacket*>(msg->dup()), delay, i->second );
+                sendDelayed( static_cast<omnetpp::cPacket*>(msg->dup()), prop.propagationDelay, i->second );
             }
 
             // calculate Propagation delay to this receiving nic
-            delay = calculatePropagationDelay(i->first);
+            auto prop = calculatePropagationDelay(i->first);
 
-            sendDelayed( msg, delay, i->second );
+            sendDelayed( msg, prop.propagationDelay, i->second );
         }
         else
         {
@@ -179,10 +185,10 @@ void ChannelAccess::sendToChannel(omnetpp::cPacket *msg)
 }
 
 
-omnetpp::simtime_t ChannelAccess::calculatePropagationDelay(const NicEntry* nic)
+ChannelAccess::prop_t ChannelAccess::calculatePropagationDelay(const NicEntry* nic)
 {
     if(!usePropagationDelay)
-        return 0;
+        return prop_t {};
 
     ChannelAccess *const senderModule   = this;
     ChannelAccess *const receiverModule = nic->chAccess;
@@ -195,13 +201,19 @@ omnetpp::simtime_t ChannelAccess::calculatePropagationDelay(const NicEntry* nic)
     Coord receiverPos = receiverModule->getMobilityModule()->getCurrentPosition();
 
     // this time-point is used to calculate the distance between sending and receiving host
-    return receiverPos.distance(sendersPos) / BaseWorldUtility::speedOfLight();
+    double dist = receiverPos.distance(sendersPos);
+
+    omnetpp::simtime_t propagationDelay = dist / BaseWorldUtility::speedOfLight();
+
+    prop_t entry = {propagationDelay, dist};
+
+    return entry;
 }
 
 
-void ChannelAccess::recordFrameTx(omnetpp::cPacket *msg /*AirFrame11p*/, omnetpp::cGate *gate, omnetpp::simtime_t propDelay)
+void ChannelAccess::recordFrameTx(omnetpp::cPacket *msg /*AirFrame11p*/, omnetpp::cGate *gate, prop_t propDelay)
 {
-    // only SendDirect is supported
+    // only SendDirect is supported (for now!)
     ASSERT(useSendDirect);
 
     long int frameId = msg->getId();  // unique message id assigned by OMNET++
@@ -219,14 +231,15 @@ void ChannelAccess::recordFrameTx(omnetpp::cPacket *msg /*AirFrame11p*/, omnetpp
 
         VENTOS::msgTxRxStat_t entry = {};
 
-        entry.msgName = msg->getFullName();
-        entry.senderNode = this->getParentModule()->getParentModule()->getFullName();
-        entry.receiverNode = gate->getOwnerModule()->getFullName();
-        entry.frameSize = msg->getBitLength();
-        entry.sentAt = omnetpp::simTime().dbl();
-        entry.TxSpeed = 6; //signal.getBitrate();
-        entry.TxTime = signal.getDuration().dbl();
-        entry.propagationDelay = propDelay.dbl();
+        entry.MsgName = msg->getFullName();
+        entry.SenderNode = this->getParentModule()->getParentModule()->getFullName();
+        entry.ReceiverNode = gate->getOwnerModule()->getFullName();
+        entry.SentAt = omnetpp::simTime().dbl();
+        entry.FrameSize = msg->getBitLength();
+        entry.TransmissionSpeed = 6; //signal.getBitrate();
+        entry.TransmissionTime = signal.getDuration().dbl();
+        entry.DistanceToReceiver = propDelay.distance;
+        entry.PropagationDelay = propDelay.propagationDelay.dbl();
 
         STAT->global_frameTxRx_stat.insert(std::make_pair(std::make_pair(frameId, nicId), entry));
     }

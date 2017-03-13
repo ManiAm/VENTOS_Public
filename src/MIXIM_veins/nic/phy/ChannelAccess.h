@@ -86,14 +86,20 @@ protected:
 
 private:
 
-	void recordFrameTx(omnetpp::cPacket *msg, omnetpp::cGate *gate, omnetpp::simtime_t propDelay);
+    typedef struct prop
+    {
+        omnetpp::simtime_t propagationDelay;
+        double distance;
+    } prop_t;
+
+	void recordFrameTx(omnetpp::cPacket *msg, omnetpp::cGate *gate, prop_t propDelay);
 
 protected:
 
 	/**
 	 * @brief Calculates the propagation delay to the passed receiving nic.
 	 */
-	omnetpp::simtime_t calculatePropagationDelay(const NicEntry* nic);
+	prop_t calculatePropagationDelay(const NicEntry* nic);
 
 	/** @brief Sends a message to all nics connected to this one.
 	 *

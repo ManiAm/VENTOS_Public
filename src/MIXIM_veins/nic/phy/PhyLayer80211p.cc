@@ -497,7 +497,7 @@ void PhyLayer80211p::handleUpperMessage(omnetpp::cMessage* msg)
 {
     BasePhyLayer::handleUpperMessage(msg);
 
-    statsSentFrames++;
+    NumSentFrames++;
 
     if(record_stat)
         record_PHY_stat_func();
@@ -538,21 +538,21 @@ void PhyLayer80211p::sendControlMsgToMac(VENTOS::PhyToMacReport* msg)
 
     if (msg->getKind() == Decider80211p::BITERROR)
     {
-        statsBiteErrorLostFrames++;
+        NumLostFrames_BiteError++;
 
         if(record_stat) record_PHY_stat_func();
         if(record_frameTxRx) record_frameTxRx_stat_func(msg, "BITERROR");
     }
     else if(msg->getKind() == Decider80211p::COLLISION)
     {
-        statsCollisionLostFrames++;
+        NumLostFrames_Collision++;
 
         if(record_stat) record_PHY_stat_func();
         if(record_frameTxRx) record_frameTxRx_stat_func(msg, "COLLISION");
     }
     else if(msg->getKind() == Decider80211p::RECWHILESEND)
     {
-        statsTXRXLostFrames++;
+        NumLostFrames_TXRX++;
 
         if(record_stat) record_PHY_stat_func();
         if(record_frameTxRx) record_frameTxRx_stat_func(msg, "RECWHILESEND");
@@ -572,11 +572,11 @@ void PhyLayer80211p::sendUp(AirFrame* frame, DeciderResult* result)
         if(it == STAT->global_frameTxRx_stat.end())
             throw omnetpp::cRuntimeError("received frame '%d' has never been transmitted!", frameId);
 
-        it->second.receivedAt = omnetpp::simTime().dbl();
-        it->second.receivedStatus = "healthy";
+        it->second.ReceivedAt = omnetpp::simTime().dbl();
+        it->second.FrameRxStatus = "HEALTHY";
     }
 
-    statsReceivedFrames++;
+    NumReceivedFrames++;
 
     if(record_stat)
         record_PHY_stat_func();
@@ -590,11 +590,11 @@ void PhyLayer80211p::record_PHY_stat_func()
     VENTOS::PHY_stat_t entry = {};
 
     entry.last_stat_time = omnetpp::simTime().dbl();
-    entry.statsBiteErrorLostFrames = statsBiteErrorLostFrames;
-    entry.statsCollisionLostFrames = statsCollisionLostFrames;
-    entry.statsReceivedFrames = statsReceivedFrames;
-    entry.statsSentFrames = statsSentFrames;
-    entry.statsTXRXLostFrames = statsTXRXLostFrames;
+    entry.NumSentFrames = NumSentFrames;
+    entry.NumReceivedFrames = NumReceivedFrames;
+    entry.NumLostFrames_BiteError = NumLostFrames_BiteError;
+    entry.NumLostFrames_Collision = NumLostFrames_Collision;
+    entry.NumLostFrames_TXRX = NumLostFrames_TXRX;
 
     auto it = STAT->global_PHY_stat.find(myId);
     if(it == STAT->global_PHY_stat.end())
@@ -616,8 +616,8 @@ void PhyLayer80211p::record_frameTxRx_stat_func(VENTOS::PhyToMacReport* msg, std
     if(it == STAT->global_frameTxRx_stat.end())
         throw omnetpp::cRuntimeError("received frame '%d' has never been transmitted!", frameId);
 
-    it->second.receivedAt = omnetpp::simTime().dbl();
-    it->second.receivedStatus = report;
+    it->second.ReceivedAt = omnetpp::simTime().dbl();
+    it->second.FrameRxStatus = report;
 }
 
 }

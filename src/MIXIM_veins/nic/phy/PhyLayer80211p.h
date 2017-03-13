@@ -58,11 +58,11 @@ private:
 
     VENTOS::Statistics* STAT;
 
-    long statsSentFrames = 0;
-    long statsReceivedFrames = 0;
-    long statsBiteErrorLostFrames = 0;  // A frame was not received due to bit-errors
-    long statsCollisionLostFrames = 0;  // A frame was not received due to collision
-    long statsTXRXLostFrames = 0;       // A frame was not received because we were sending while receiving
+    long NumSentFrames = 0;
+    long NumReceivedFrames = 0;
+    long NumLostFrames_BiteError = 0;  // A frame was not received due to bit-errors
+    long NumLostFrames_Collision = 0;  // A frame was not received due to collision
+    long NumLostFrames_TXRX = 0;       // A frame was not received because we were sending while receiving
 
     bool record_stat;
     bool record_frameTxRx;
