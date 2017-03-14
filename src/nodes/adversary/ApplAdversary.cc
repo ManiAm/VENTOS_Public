@@ -80,6 +80,13 @@ void ApplAdversary::handleSelfMsg(omnetpp::cMessage* msg)
 
 void ApplAdversary::handleLowerMsg(omnetpp::cMessage* msg)
 {
+    // Only DSRC-enabled adversary accept this msg
+    if(!DSRCenabled)
+    {
+        delete msg;
+        return;
+    }
+
     super::handleLowerMsg(msg);
 
     // Attack time has not arrived yet!

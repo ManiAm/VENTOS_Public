@@ -62,6 +62,13 @@ void ApplPedManager::handleSelfMsg(omnetpp::cMessage* msg)
 
 void ApplPedManager::handleLowerMsg(omnetpp::cMessage* msg)
 {
+    // Only DSRC-enabled pedestrians accept this msg
+    if(!DSRCenabled)
+    {
+        delete msg;
+        return;
+    }
+
     if (msg->getKind() == TYPE_BEACON_VEHICLE)
     {
         BeaconVehicle* wsm = dynamic_cast<BeaconVehicle*>(msg);

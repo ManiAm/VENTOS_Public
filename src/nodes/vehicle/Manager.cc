@@ -105,7 +105,7 @@ void ApplVManager::handleSelfMsg(omnetpp::cMessage* msg)
 void ApplVManager::handleLowerMsg(omnetpp::cMessage* msg)
 {
     // Only DSRC-enabled vehicles accept this msg
-    if( !DSRCenabled )
+    if(!DSRCenabled)
     {
         delete msg;
         return;

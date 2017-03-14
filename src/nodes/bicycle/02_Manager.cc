@@ -62,6 +62,13 @@ void ApplBikeManager::handleSelfMsg(omnetpp::cMessage* msg)
 
 void ApplBikeManager::handleLowerMsg(omnetpp::cMessage* msg)
 {
+    // Only DSRC-enabled bikes accept this msg
+    if(!DSRCenabled)
+    {
+        delete msg;
+        return;
+    }
+
     if (msg->getKind() == TYPE_BEACON_VEHICLE)
     {
         BeaconVehicle* wsm = dynamic_cast<BeaconVehicle*>(msg);
