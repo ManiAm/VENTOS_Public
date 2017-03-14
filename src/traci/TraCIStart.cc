@@ -77,16 +77,16 @@ void TraCI_Start::initialize(int stage)
             ASSERT(cc);
 
             // get a pointer to the AddNode module
-            addNode_module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("addNode");
-            ASSERT(addNode_module);
+            module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("addNode");
+            ADDNODE = static_cast<AddNode*>(module);
+            ASSERT(ADDNODE);
 
             // get a pointer to the Statistics module
             module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("statistics");
-            STAT = static_cast<VENTOS::Statistics*>(module);
+            STAT = static_cast<Statistics*>(module);
             ASSERT(STAT);
 
             autoTerminate = par("autoTerminate");
-            penetrationRate = par("penetrationRate").doubleValue();
             equilibrium_vehicle = par("equilibrium_vehicle").boolValue();
 
             init_traci();
@@ -174,13 +174,13 @@ void TraCI_Start::init_traci()
         appl = "sumo";
 
     std::string SUMOcommandLine = par("SUMOcommandLine").stringValue();
-    bool runSUMO = par("runSUMO").boolValue();
+    bool forkSUMO = par("forkSUMO").boolValue();
 
     // start 'SUMO TraCI server' first
-    int port = TraCIConnection::startSUMO(getFullPath_SUMOExe(appl), getFullPath_SUMOConfig(), SUMOcommandLine, runSUMO);
+    int port = TraCIConnection::startSUMO(getFullPath_SUMOExe(appl), getFullPath_SUMOConfig(), SUMOcommandLine, forkSUMO);
 
     // then connect to the 'SUMO TraCI server'
-    connection = TraCIConnection::connect("localhost", port, runSUMO);
+    connection = TraCIConnection::connect("localhost", port, forkSUMO);
 
     // get the version of SUMO TraCI API
     std::pair<uint32_t, std::string> versionS = getVersion();
@@ -466,9 +466,6 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
                     ASSERT(buf.eof());
                 }
 
-                if(unEquippedHosts.find(idstring) != unEquippedHosts.end())
-                    unEquippedHosts.erase(idstring);
-
                 recordArrival(idstring);
 
                 // signal to those interested that this vehicle has arrived
@@ -531,9 +528,6 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
                 // check if this object has been deleted already (e.g. because it was outside the ROI)
                 cModule* mod = getManagedModule(idstring);
                 if (mod) deleteManagedModule(idstring);
-
-                if(unEquippedHosts.find(idstring) != unEquippedHosts.end())
-                    unEquippedHosts.erase(idstring);
             }
 
             STAT->activeVehicleCount -= count;
@@ -682,9 +676,6 @@ void TraCI_Start::processVehicleSubscription(std::string objectId, TraCIBuffer& 
                     cModule* mod = getManagedModule(*i);
                     if (mod) deleteManagedModule(*i);
 
-                    if(unEquippedHosts.find(*i) != unEquippedHosts.end())
-                        unEquippedHosts.erase(*i);
-
                     STAT->activeVehicleCount--;
                     STAT->drivingVehicleCount--;
                 }
@@ -751,15 +742,9 @@ void TraCI_Start::processVehicleSubscription(std::string objectId, TraCIBuffer& 
         // vehicle leaving the region of interest
         if (mod)
             deleteManagedModule(objectId);
-        // vehicle (un-equipped) leaving the region of interest
-        else if(unEquippedHosts.find(objectId) != unEquippedHosts.end())
-            unEquippedHosts.erase(objectId);
 
         return;
     }
-
-    if (isModuleUnequipped(objectId))
-        return;
 
     // no such module - need to create
     if (!mod)
@@ -843,28 +828,10 @@ void TraCI_Start::deleteManagedModule(std::string nodeId /*sumo id*/)
 }
 
 
-bool TraCI_Start::isModuleUnequipped(std::string nodeId)
-{
-    if (unEquippedHosts.find(nodeId) == unEquippedHosts.end())
-        return false;
-
-    return true;
-}
-
-
 void TraCI_Start::addModule(std::string nodeId /*sumo id*/, const Coord& position /*omnet coordinates*/, std::string road_id, double speed, double angle)
 {
     if (hosts.find(nodeId) != hosts.end())
         throw omnetpp::cRuntimeError("tried adding duplicate module");
-
-    double option1 = hosts.size() / (hosts.size() + unEquippedHosts.size() + 1.0);
-    double option2 = (hosts.size() + 1) / (hosts.size() + unEquippedHosts.size() + 1.0);
-
-    if (fabs(option1 - penetrationRate) < fabs(option2 - penetrationRate))
-    {
-        unEquippedHosts.insert(nodeId);
-        return;
-    }
 
     std::string vClass = vehicleGetClass(nodeId);
 
@@ -874,9 +841,9 @@ void TraCI_Start::addModule(std::string nodeId /*sumo id*/, const Coord& positio
     if(vClass == "custom1")
     {
         addedModule = addVehicle(nodeId,
-                addNode_module->par("obstacle_ModuleType").stringValue(),
-                addNode_module->par("obstacle_ModuleName").stdstringValue(),
-                addNode_module->par("obstacle_ModuleDisplayString").stdstringValue(),
+                ADDNODE->par("obstacle_ModuleType").stringValue(),
+                ADDNODE->par("obstacle_ModuleName").stdstringValue(),
+                ADDNODE->par("obstacle_ModuleDisplayString").stdstringValue(),
                 vClass,
                 position,
                 road_id,
@@ -887,9 +854,9 @@ void TraCI_Start::addModule(std::string nodeId /*sumo id*/, const Coord& positio
     else if(vClass == "passenger" || vClass == "private" || vClass == "emergency" || vClass == "bus" || vClass == "truck")
     {
         addedModule = addVehicle(nodeId,
-                addNode_module->par("vehicle_ModuleType").stdstringValue(),
-                addNode_module->par("vehicle_ModuleName").stdstringValue(),
-                addNode_module->par("vehicle_ModuleDisplayString").stdstringValue(),
+                ADDNODE->par("vehicle_ModuleType").stdstringValue(),
+                ADDNODE->par("vehicle_ModuleName").stdstringValue(),
+                ADDNODE->par("vehicle_ModuleDisplayString").stdstringValue(),
                 vClass,
                 position,
                 road_id,
@@ -899,9 +866,9 @@ void TraCI_Start::addModule(std::string nodeId /*sumo id*/, const Coord& positio
     else if(vClass == "bicycle")
     {
         addedModule = addVehicle(nodeId,
-                addNode_module->par("bike_ModuleType").stringValue(),
-                addNode_module->par("bike_ModuleName").stringValue(),
-                addNode_module->par("bike_ModuleDisplayString").stringValue(),
+                ADDNODE->par("bike_ModuleType").stringValue(),
+                ADDNODE->par("bike_ModuleName").stringValue(),
+                ADDNODE->par("bike_ModuleDisplayString").stringValue(),
                 vClass,
                 position,
                 road_id,
@@ -913,9 +880,9 @@ void TraCI_Start::addModule(std::string nodeId /*sumo id*/, const Coord& positio
     {
         // calling addPedestrian() method?
 
-        //addNode_module->par("ped_ModuleType").stringValue();
-        //addNode_module->par("ped_ModuleName").stringValue();
-        //addNode_module->par("ped_ModuleDisplayString").stringValue();
+        //ADDNODE->par("ped_ModuleType").stringValue();
+        //ADDNODE->par("ped_ModuleName").stringValue();
+        //ADDNODE->par("ped_ModuleDisplayString").stringValue();
     }
     else
         throw omnetpp::cRuntimeError("Unknown vClass '%s' for vehicle '%s'", vClass.c_str(), nodeId.c_str());
@@ -956,6 +923,26 @@ omnetpp::cModule* TraCI_Start::addVehicle(std::string SUMOID, std::string type, 
     {
         mod->getSubmodule("mobility")->par("x") = position.x;
         mod->getSubmodule("mobility")->par("y") = position.y;
+    }
+
+    // get the DSRC status of all vehicles inserted by the AddNode module
+    auto VehsDSRCStatus = ADDNODE->getVehsDSRCAttributeStatus();
+    // look for this vehicle
+    auto it = std::find_if(VehsDSRCStatus.begin(), VehsDSRCStatus.end(), [SUMOID](DSRC_val_t const& n)
+            {return (n.SUMOID == SUMOID);});
+    // if the vehicle exists
+    if(it != VehsDSRCStatus.end())
+    {
+        if(it->DSRC_attribute_status == 0)
+            mod->par("DSRCenabled") = false;
+        else if(it->DSRC_attribute_status == 1)
+            mod->par("DSRCenabled") = true;
+        if(it->DSRC_attribute_status == -1)
+        {
+            // 'DSRCprob' attribute is not set for this vehicle.
+            // So we do not touch the 'DSRCenabled' parameter!
+            // The configuration file determines the value of 'DSRCenabled'
+        }
     }
 
     mod->scheduleStart(omnetpp::simTime() + updateInterval);

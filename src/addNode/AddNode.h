@@ -28,6 +28,10 @@
 #ifndef AddNode_H_
 #define AddNode_H_
 
+#include <rapidxml.hpp>
+#include <rapidxml_utils.hpp>
+#include <rapidxml_print.hpp>
+
 #include "traci/TraCICommands.h"
 #include "baseAppl/03_BaseApplLayer.h"
 
@@ -38,10 +42,20 @@
 
 namespace VENTOS {
 
+typedef struct DSRC_val
+{
+    std::string SUMOID;
+    int DSRC_attribute_status; // -1: not defined, 0: without DSRC, 1: with DSRC
+
+}DSRC_val_t;
+
 class AddNode : public BaseApplLayer
 {
 private:
     typedef BaseApplLayer super;
+
+    // list of all vehicles with attribute 'DSRCprob'
+    std::vector<DSRC_val_t> vehs_DSRC_attribute_status;
 
     TraCI_Commands *TraCI;
     omnetpp::simsignal_t Signal_initialize_withTraCI;
@@ -124,6 +138,7 @@ private:
         int laneChangeMode;
         std::string status_str;
         double duration;
+        double DSRCprob;
     } vehicleEntry_t;
 
     std::map<std::string, vehicleEntry_t> allVehicle;
@@ -150,11 +165,12 @@ private:
         double period;
         double lambda;
         double probability;
+        double DSRCprob;
     } vehicleFlowEntry_t;
 
     std::map<std::string, vehicleFlowEntry_t> allVehicleFlow;
 
-    // does not have 'from', 'to', 'via'
+    // vehicleMultiFlow does not have 'from', 'to', 'via'
     typedef struct vehicleMultiFlowEntry : vehicleFlowEntry
     {
         std::vector<std::string> routeID_str_tokenize;
@@ -187,6 +203,8 @@ public:
     virtual void handleMessage(omnetpp::cMessage *msg);
     virtual void finish();
     virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, long, cObject* details);
+
+    std::vector<DSRC_val_t> getVehsDSRCAttributeStatus();
 
 private:
     void readInsertion(std::string);

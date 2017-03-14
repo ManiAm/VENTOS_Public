@@ -31,10 +31,6 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include <rapidxml.hpp>
-#include <rapidxml_utils.hpp>
-#include <rapidxml_print.hpp>
-
 #include "addNode/AddNode.h"
 #include "MIXIM_veins/connectionManager/ConnectionManager.h"
 #include "logging/VENTOS_logging.h"
@@ -165,6 +161,12 @@ void AddNode::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t si
 
         readInsertion(addNodePath.string());
     }
+}
+
+
+std::vector<DSRC_val_t> AddNode::getVehsDSRCAttributeStatus()
+{
+    return this->vehs_DSRC_attribute_status;
 }
 
 
@@ -640,7 +642,7 @@ void AddNode::parseVehicle(rapidxml::xml_node<> *pNode)
             continue;
 
         std::vector<std::string> validAttr = {"id", "type", "route", "from", "to", "via", "color",
-                "depart", "departLane", "departPos", "departSpeed", "laneChangeMode", "status", "duration"};
+                "depart", "departLane", "departPos", "departSpeed", "laneChangeMode", "status", "duration", "DSRCprob"};
         validityCheck(cNode, validAttr);
 
         std::string id_str = getAttrValue_string(cNode, "id");
@@ -657,6 +659,7 @@ void AddNode::parseVehicle(rapidxml::xml_node<> *pNode)
         int laneChangeMode = getAttrValue_int(cNode, "laneChangeMode", false, LANECHANGEMODE_DEFAULT);
         std::string status_str = getAttrValue_string(cNode, "status", false, "");
         double duration = getAttrValue_double(cNode, "duration", false, -1);
+        double DSRCprob = getAttrValue_double(cNode, "DSRCprob", false, -1);
 
         if( !cNode->first_attribute("route") && !cNode->first_attribute("from") && !cNode->first_attribute("to") )
             throw omnetpp::cRuntimeError("either 'route' or 'from/to' attributes should be defined in element '%s'", vehicle_tag.c_str());
@@ -679,6 +682,9 @@ void AddNode::parseVehicle(rapidxml::xml_node<> *pNode)
         if(cNode->first_attribute("duration") && !cNode->first_attribute("status"))
             throw omnetpp::cRuntimeError("attribute 'status' is required when 'duration' is present in element '%s'", vehicle_tag.c_str());
 
+        if(DSRCprob != -1 && (DSRCprob < 0 || DSRCprob > 1))
+            throw omnetpp::cRuntimeError("attribute 'DSRCprob' is not valid in element '%s'", vehicle_tag.c_str());
+
         auto it = allVehicle.find(id_str);
         if(it == allVehicle.end())
         {
@@ -698,6 +704,7 @@ void AddNode::parseVehicle(rapidxml::xml_node<> *pNode)
             entry.laneChangeMode = laneChangeMode;
             entry.status_str = status_str;
             entry.duration = duration;
+            entry.DSRCprob = DSRCprob;
 
             allVehicle.insert(std::make_pair(id_str, entry));
         }
@@ -715,6 +722,15 @@ void AddNode::addVehicle()
     unsigned int num = allVehicle.size();
 
     LOG_DEBUG << boost::format("\n>>> AddNode is adding %1% vehicle modules ... \n") % num << std::flush;
+
+    const char* seed_s = omnetpp::getEnvir()->getConfigEx()->getVariable(CFGVAR_RUNNUMBER);
+    int seed = atoi(seed_s);
+
+    // mersenne twister engine -- choose a fix seed to make tests reproducible
+    std::mt19937 generator(seed);
+
+    // generating a random floating point number uniformly in [1,0)
+    std::uniform_real_distribution<> DSRC_Dist(0,1);
 
     for(auto &entry : allVehicle)
     {
@@ -778,6 +794,26 @@ void AddNode::addVehicle()
         // and change its color
         RGB newColor = Color::colorNameToRGB(entry.second.color_str);
         TraCI->vehicleSetColor(vehID, newColor);
+
+        if(entry.second.DSRCprob != -1)
+        {
+            double rnd_type = DSRC_Dist(generator);
+            if(rnd_type >= 0 && rnd_type < entry.second.DSRCprob)
+            {
+                DSRC_val_t entry = {vehID, 1};
+                vehs_DSRC_attribute_status.push_back(entry);
+            }
+            else
+            {
+                DSRC_val_t entry = {vehID, 0};
+                vehs_DSRC_attribute_status.push_back(entry);
+            }
+        }
+        else
+        {
+            DSRC_val_t entry = {vehID, -1};
+            vehs_DSRC_attribute_status.push_back(entry);
+        }
     }
 }
 
@@ -850,7 +886,7 @@ void AddNode::parseVehicleFlow(rapidxml::xml_node<> *pNode)
 
         std::vector<std::string> validAttr = {"id", "type", "typeDist", "color", "route", "from", "to", "via", "departLane",
                 "departPos", "departSpeed", "laneChangeMode", "number", "begin", "end", "distribution",
-                "period", "lambda", "seed", "probability"};
+                "period", "lambda", "seed", "probability", "DSRCprob"};
         validityCheck(cNode, validAttr);
 
         std::string id_str = getAttrValue_string(cNode, "id");
@@ -873,6 +909,7 @@ void AddNode::parseVehicleFlow(rapidxml::xml_node<> *pNode)
         double period = getAttrValue_double(cNode, "period", false, -1);
         double lambda = getAttrValue_double(cNode, "lambda", false, -1);
         double probability = getAttrValue_double(cNode, "probability", false, -1);
+        double DSRCprob = getAttrValue_double(cNode, "DSRCprob", false, -1);
 
         // we have multiple types
         if(type_str_tokenize.size() > 1)
@@ -946,6 +983,9 @@ void AddNode::parseVehicleFlow(rapidxml::xml_node<> *pNode)
         if(distribution_str == "uniform" && !cNode->first_attribute("probability"))
             throw omnetpp::cRuntimeError("attribute 'probability' is not found in element '%s'", vehicle_flow_tag.c_str());
 
+        if(DSRCprob != -1 && (DSRCprob < 0 || DSRCprob > 1))
+            throw omnetpp::cRuntimeError("attribute 'DSRCprob' is not valid in element '%s'", vehicle_flow_tag.c_str());
+
         auto it = allVehicleFlow.find(id_str);
         if(it == allVehicleFlow.end())
         {
@@ -971,6 +1011,7 @@ void AddNode::parseVehicleFlow(rapidxml::xml_node<> *pNode)
             entry.period = period;
             entry.lambda = lambda;
             entry.probability = probability;
+            entry.DSRCprob = DSRCprob;
 
             allVehicleFlow.insert(std::make_pair(id_str, entry));
         }
@@ -1011,8 +1052,12 @@ void AddNode::addVehicleFlow()
         // each flow has its own seed/generator
         // mersenne twister engine -- choose a fix seed to make tests reproducible
         std::mt19937 generator(entry.second.seed);
+
         // generating a random floating point number uniformly in [1,0)
         std::uniform_real_distribution<> vehTypeDist(0,1);
+
+        // generating a random floating point number uniformly in [1,0)
+        std::uniform_real_distribution<> DSRC_Dist(0,1);
 
         int maxVehNum = (entry.second.number != -1) ? entry.second.number : std::numeric_limits<int>::max();
 
@@ -1065,6 +1110,26 @@ void AddNode::addVehicleFlow()
                     TraCI->vehicleSetLaneChangeMode(vehID, entry.second.laneChangeMode);
 
                 depart += entry.second.period;
+
+                if(entry.second.DSRCprob != -1)
+                {
+                    double rnd_type = DSRC_Dist(generator);
+                    if(rnd_type >= 0 && rnd_type < entry.second.DSRCprob)
+                    {
+                        DSRC_val_t entry = {vehID, 1};
+                        vehs_DSRC_attribute_status.push_back(entry);
+                    }
+                    else
+                    {
+                        DSRC_val_t entry = {vehID, 0};
+                        vehs_DSRC_attribute_status.push_back(entry);
+                    }
+                }
+                else
+                {
+                    DSRC_val_t entry = {vehID, -1};
+                    vehs_DSRC_attribute_status.push_back(entry);
+                }
             }
         }
         else if(entry.second.distribution_str == "poisson")
@@ -1105,6 +1170,26 @@ void AddNode::addVehicleFlow()
                     // change lane change mode
                     if(entry.second.laneChangeMode != LANECHANGEMODE_DEFAULT)
                         TraCI->vehicleSetLaneChangeMode(vehID, entry.second.laneChangeMode);
+
+                    if(entry.second.DSRCprob != -1)
+                    {
+                        double rnd_type = DSRC_Dist(generator);
+                        if(rnd_type >= 0 && rnd_type < entry.second.DSRCprob)
+                        {
+                            DSRC_val_t entry = {vehID, 1};
+                            vehs_DSRC_attribute_status.push_back(entry);
+                        }
+                        else
+                        {
+                            DSRC_val_t entry = {vehID, 0};
+                            vehs_DSRC_attribute_status.push_back(entry);
+                        }
+                    }
+                    else
+                    {
+                        DSRC_val_t entry = {vehID, -1};
+                        vehs_DSRC_attribute_status.push_back(entry);
+                    }
 
                     vehCount++;
 
@@ -1151,6 +1236,26 @@ void AddNode::addVehicleFlow()
                     // change lane change mode
                     if(entry.second.laneChangeMode != LANECHANGEMODE_DEFAULT)
                         TraCI->vehicleSetLaneChangeMode(vehID, entry.second.laneChangeMode);
+
+                    if(entry.second.DSRCprob != -1)
+                    {
+                        double rnd_type = DSRC_Dist(generator);
+                        if(rnd_type >= 0 && rnd_type < entry.second.DSRCprob)
+                        {
+                            DSRC_val_t entry = {vehID, 1};
+                            vehs_DSRC_attribute_status.push_back(entry);
+                        }
+                        else
+                        {
+                            DSRC_val_t entry = {vehID, 0};
+                            vehs_DSRC_attribute_status.push_back(entry);
+                        }
+                    }
+                    else
+                    {
+                        DSRC_val_t entry = {vehID, -1};
+                        vehs_DSRC_attribute_status.push_back(entry);
+                    }
 
                     vehCount++;
 
@@ -1201,7 +1306,7 @@ void AddNode::parseVehicleMultiFlow(rapidxml::xml_node<> *pNode)
 
         std::vector<std::string> validAttr = {"id", "type", "typeDist", "route", "routeDist", "color", "departLane",
                 "departPos", "departSpeed", "laneChangeMode", "begin", "number", "end", "distribution",
-                "period", "lambda", "seed", "probability"};
+                "period", "lambda", "seed", "probability", "DSRCprob"};
         validityCheck(cNode, validAttr);
 
         std::string id_str = getAttrValue_string(cNode, "id");
@@ -1224,6 +1329,7 @@ void AddNode::parseVehicleMultiFlow(rapidxml::xml_node<> *pNode)
         double period = getAttrValue_double(cNode, "period", false, -1);
         double lambda = getAttrValue_double(cNode, "lambda", false, -1);
         double probability = getAttrValue_double(cNode, "probability", false, -1);
+        double DSRCprob = getAttrValue_double(cNode, "DSRCprob", false, -1);
 
         // we have multiple types
         if(type_str_tokenize.size() > 1)
@@ -1310,6 +1416,9 @@ void AddNode::parseVehicleMultiFlow(rapidxml::xml_node<> *pNode)
         if(distribution_str == "uniform" && !cNode->first_attribute("probability"))
             throw omnetpp::cRuntimeError("attribute 'probability' is not found in element '%s'", vehicle_multiFlow_tag.c_str());
 
+        if(DSRCprob != -1 && (DSRCprob < 0 || DSRCprob > 1))
+            throw omnetpp::cRuntimeError("attribute 'DSRCprob' is not valid in element '%s'", vehicle_multiFlow_tag.c_str());
+
         auto it = allVehicleMultiFlow.find(id_str);
         if(it == allVehicleMultiFlow.end())
         {
@@ -1333,6 +1442,7 @@ void AddNode::parseVehicleMultiFlow(rapidxml::xml_node<> *pNode)
             entry.period = period;
             entry.lambda = lambda;
             entry.probability = probability;
+            entry.DSRCprob = DSRCprob;
 
             allVehicleMultiFlow.insert(std::make_pair(id_str, entry));
         }
@@ -1373,10 +1483,15 @@ void AddNode::addVehicleMultiFlow()
         // each flow has its own seed/generator
         // mersenne twister engine -- choose a fix seed to make tests reproducible
         std::mt19937 generator(entry.second.seed);
+
         // generating a random floating point number uniformly in [1,0)
         std::uniform_real_distribution<> vehTypeDist(0,1);
+
         // generating a random floating point number uniformly in [1,0)
         std::uniform_real_distribution<> vehRouteDist(0,1);
+
+        // generating a random floating point number uniformly in [1,0)
+        std::uniform_real_distribution<> DSRC_Dist(0,1);
 
         int maxVehNum = (entry.second.number != -1) ? entry.second.number : std::numeric_limits<int>::max();
 
@@ -1418,6 +1533,26 @@ void AddNode::addVehicleMultiFlow()
                     TraCI->vehicleSetLaneChangeMode(vehID, entry.second.laneChangeMode);
 
                 depart += entry.second.period;
+
+                if(entry.second.DSRCprob != -1)
+                {
+                    double rnd_type = DSRC_Dist(generator);
+                    if(rnd_type >= 0 && rnd_type < entry.second.DSRCprob)
+                    {
+                        DSRC_val_t entry = {vehID, 1};
+                        vehs_DSRC_attribute_status.push_back(entry);
+                    }
+                    else
+                    {
+                        DSRC_val_t entry = {vehID, 0};
+                        vehs_DSRC_attribute_status.push_back(entry);
+                    }
+                }
+                else
+                {
+                    DSRC_val_t entry = {vehID, -1};
+                    vehs_DSRC_attribute_status.push_back(entry);
+                }
             }
         }
         else if(entry.second.distribution_str == "poisson")
@@ -1465,6 +1600,26 @@ void AddNode::addVehicleMultiFlow()
                     // change lane change mode
                     if(entry.second.laneChangeMode != LANECHANGEMODE_DEFAULT)
                         TraCI->vehicleSetLaneChangeMode(vehID, entry.second.laneChangeMode);
+
+                    if(entry.second.DSRCprob != -1)
+                    {
+                        double rnd_type = DSRC_Dist(generator);
+                        if(rnd_type >= 0 && rnd_type < entry.second.DSRCprob)
+                        {
+                            DSRC_val_t entry = {vehID, 1};
+                            vehs_DSRC_attribute_status.push_back(entry);
+                        }
+                        else
+                        {
+                            DSRC_val_t entry = {vehID, 0};
+                            vehs_DSRC_attribute_status.push_back(entry);
+                        }
+                    }
+                    else
+                    {
+                        DSRC_val_t entry = {vehID, -1};
+                        vehs_DSRC_attribute_status.push_back(entry);
+                    }
 
                     vehCount++;
 
@@ -1518,6 +1673,26 @@ void AddNode::addVehicleMultiFlow()
                     // change lane change mode
                     if(entry.second.laneChangeMode != LANECHANGEMODE_DEFAULT)
                         TraCI->vehicleSetLaneChangeMode(vehID, entry.second.laneChangeMode);
+
+                    if(entry.second.DSRCprob != -1)
+                    {
+                        double rnd_type = DSRC_Dist(generator);
+                        if(rnd_type >= 0 && rnd_type < entry.second.DSRCprob)
+                        {
+                            DSRC_val_t entry = {vehID, 1};
+                            vehs_DSRC_attribute_status.push_back(entry);
+                        }
+                        else
+                        {
+                            DSRC_val_t entry = {vehID, 0};
+                            vehs_DSRC_attribute_status.push_back(entry);
+                        }
+                    }
+                    else
+                    {
+                        DSRC_val_t entry = {vehID, -1};
+                        vehs_DSRC_attribute_status.push_back(entry);
+                    }
 
                     vehCount++;
 

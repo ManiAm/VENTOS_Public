@@ -34,6 +34,7 @@
 #include "MIXIM_veins/connectionManager/ConnectionManager.h"
 #include "traci/TraCICommands.h"
 #include "global/Statistics.h"
+#include "addNode/AddNode.h"
 
 
 namespace VENTOS {
@@ -48,18 +49,16 @@ private:
     bool debug;
     double terminateTime;
     bool autoTerminate;
-    double penetrationRate;
 
     BaseWorldUtility* world = NULL;
     ConnectionManager* cc = NULL;
-    cModule *addNode_module = NULL;
+    AddNode *ADDNODE = NULL;
     Statistics* STAT = NULL;
 
     std::set<std::string> subscribedVehicles;    // all vehicles we have already subscribed to
     std::set<std::string> subscribedPedestrians; // all pedestrians we have already subscribed to
     std::vector<std::string> allPedestrians;
 
-    std::set<std::string> unEquippedHosts;
     size_t nextNodeVectorIndex = 0;   // next OMNeT++ module vector index to use
 
     omnetpp::cMessage* executeOneTimestepTrigger = NULL; // self-message scheduled for when to next call executeOneTimestep
@@ -112,8 +111,7 @@ private:
 
     // returns a pointer to the managed module named moduleName, or 0 if no module can be found
     cModule* getManagedModule(std::string nodeId);
-    // returns true if this vehicle is un-equipped
-    bool isModuleUnequipped(std::string nodeId);
+
     // returns whether a given position lies within the simulation's region of interest.
     // Modules are destroyed and re-created as managed vehicles leave and re-enter the ROI
     bool isInRegionOfInterest(const TraCICoord& position, std::string road_id, double speed, double angle);
