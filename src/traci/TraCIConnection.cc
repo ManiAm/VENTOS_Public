@@ -83,21 +83,28 @@ TraCIConnection::~TraCIConnection()
 }
 
 
-int TraCIConnection::startSUMO(std::string SUMOapplication, std::string SUMOconfig, std::string SUMOcommandLine, bool runSUMO)
+int TraCIConnection::startSUMO(std::string SUMOapplication, std::string SUMOconfig, std::string SUMOcommandLine, bool forkSUMO)
 {
-    int port = TraCIConnection::getFreeEphemeralPort();
+    int port = 0;
+    if(!forkSUMO)
+        port = 45585; // using a fix port number
+    else
+        port = TraCIConnection::getFreeEphemeralPort();
 
-    // assemble commandLine
-    std::ostringstream commandLine;
-    commandLine << SUMOapplication
-            << " --remote-port " << port
+    // assemble command line options
+    std::ostringstream fullOptions;
+    fullOptions << " --remote-port " << port
             << " --configuration-file " << SUMOconfig
             << (" " + SUMOcommandLine);
 
-    if(!runSUMO)
+    // assemble full command
+    std::ostringstream fullCommand;
+    fullCommand << SUMOapplication << fullOptions.str();
+
+    if(!forkSUMO)
     {
-        LOG_INFO << "\n>>> Run SUMO with the following command ... \n";
-        LOG_INFO << boost::format("    %1% \n") % commandLine.str();
+        LOG_INFO << "\n>>> Run SUMO application with the following arguments... \n";
+        LOG_INFO << boost::format("    %1% \n") % fullOptions.str();
         LOG_FLUSH;
 
         return port;
@@ -119,7 +126,7 @@ int TraCIConnection::startSUMO(std::string SUMOapplication, std::string SUMOconf
     ZeroMemory(&pi, sizeof(PROCESS_INFORMATION));
 
     char cmdline[32768];
-    strncpy(cmdline, commandLine.c_str(), sizeof(cmdline));
+    strncpy(cmdline, fullCommand.c_str(), sizeof(cmdline));
     bool bSuccess = CreateProcess(0, cmdline, 0, 0, 1, NORMAL_PRIORITY_CLASS | CREATE_NEW_CONSOLE, 0, 0, &si, &pi);
     if (!bSuccess)
     {
@@ -138,7 +145,7 @@ int TraCIConnection::startSUMO(std::string SUMOapplication, std::string SUMOconf
             msg = message;
         }
 
-        msg = std::string() + "Error launching TraCI server (\"" + commandLine + "\"): " + msg + ". Make sure you have set $PATH correctly.";
+        msg = std::string() + "Error launching TraCI server (\"" + fullCommand + "\"): " + msg + ". Make sure you have set $PATH correctly.";
 
         throw cRuntimeError(msg.c_str());
     }
@@ -166,13 +173,13 @@ int TraCIConnection::startSUMO(std::string SUMOapplication, std::string SUMOconf
 
         // run SUMO server inside this child process
         // if execution is successful then child will be blocked at this line
-        int r = system(commandLine.str().c_str());
+        int r = system(fullCommand.str().c_str());
 
         if (r == -1)
-            throw omnetpp::cRuntimeError("Running \"%s\" failed during system()", commandLine.str().c_str());
+            throw omnetpp::cRuntimeError("Running \"%s\" failed during system()", fullCommand.str().c_str());
 
         if (WEXITSTATUS(r) != 0)
-            throw omnetpp::cRuntimeError("Error launching TraCI server (\"%s\"): exited with code %d.", commandLine.str().c_str(), WEXITSTATUS(r));
+            throw omnetpp::cRuntimeError("Error launching TraCI server (\"%s\"): exited with code %d.", fullCommand.str().c_str(), WEXITSTATUS(r));
 
         exit(1);
     }
@@ -224,7 +231,7 @@ int TraCIConnection::getFreeEphemeralPort()
 }
 
 
-TraCIConnection* TraCIConnection::connect(const char* host, int port, bool runSUMO)
+TraCIConnection* TraCIConnection::connect(const char* host, int port, bool forkSUMO)
 {
     if(socketPtr)
         throw omnetpp::cRuntimeError("There is already an active connection to SUMO! Why calling 'connect' twice ?!");
@@ -256,7 +263,7 @@ TraCIConnection* TraCIConnection::connect(const char* host, int port, bool runSU
         throw omnetpp::cRuntimeError("Could not create socket to connect to TraCI server");
 
     // do not run SUMO automatically
-    if(!runSUMO)
+    if(!forkSUMO)
     {
         do
         {
