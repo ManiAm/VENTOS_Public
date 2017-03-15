@@ -102,14 +102,6 @@ public:
 	virtual void rescheduleMessage(omnetpp::cMessage* msg, omnetpp::simtime_t_cref t) = 0;
 
 	/**
-	 * @brief Enables the Decider to draw Power from the
-	 * phy layers power accounts.
-	 *
-	 * Does nothing if no Battery module in simulation is present.
-	 */
-	virtual void drawCurrent(double amount, int activity) = 0;
-
-	/**
 	 * @brief Returns a pointer to the simulations world-utility-module.
 	 */
 	virtual BaseWorldUtility* getWorldUtility() = 0;

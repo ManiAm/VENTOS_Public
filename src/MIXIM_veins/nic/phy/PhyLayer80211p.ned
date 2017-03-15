@@ -66,20 +66,25 @@ moduleinterface IWirelessPhy
 }
 
 
-// Basic physical layer module (See the class "BasePhyLayer" documentation)
-simple BasePhyLayer like IWirelessPhy
+// Adaptation of the PhyLayer class for 802.11p.
+//
+// @see BaseWaveApplLayer
+// @see Nic80211p
+// @see Mac1609_4
+//
+simple PhyLayer80211p like IWirelessPhy
 {
     parameters:
+        @class(Veins::PhyLayer80211p);
+        
         bool coreDebug   = default(false); //debug switch for core framework
         
         bool recordStats = default(false); //enable/disable tracking of statistics (eg. cOutvectors)
-        int headerLength = default(0) @unit(bit); //defines the length of the phy header (/preamble)
+        int headerLength = default(46 bit) @unit(bit); //defines the length of the phy header (SIGNAL without PREAMBLE)
         
-        bool emulationActive = default(false);
-                
         bool usePropagationDelay = default(true);		//Should transmission delay be simulated?
-        double thermalNoise = default(-110dBm) @unit(dBm);	//the strength of the thermal noise [dBm]
         bool useThermalNoise = default(true);			//should thermal noise be considered?
+        double thermalNoise = default(-110dBm) @unit(dBm);	//the strength of the thermal noise [dBm]
         
         xml analogueModels = default(xmldoc("config.xml")); 	//Specification of the analogue models to use and their parameters
         xml decider = default(xmldoc("config.xml"));			//Specification of the decider to use and its parameters
@@ -104,31 +109,6 @@ simple BasePhyLayer like IWirelessPhy
         int nbRadioChannels = default(1);  // Number of available radio channels. Defaults to single channel radio
         int initialRadioChannel = default(0);  // Initial radio channel
         
-    gates:
-        input upperLayerIn; 	// from the MAC layer
-        output upperLayerOut; 	// to the MAC layer
-        
-        input upperControlIn; 	// control from the MAC layer        
-        output upperControlOut; // control to the MAC layer
-        
-        input radioIn; // for sendDirect from other physical layers
-}
-
-
-// Adaptation of the PhyLayer class for 802.11p.
-//
-// @see BaseWaveApplLayer
-// @see Nic80211p
-// @see Mac1609_4
-//
-simple PhyLayer80211p extends BasePhyLayer
-{
-    parameters:
-        @class(Veins::PhyLayer80211p);
-        
-        //defines the length of the phy header (SIGNAL without PREAMBLE)
-        headerLength @unit(bit)  = default(46 bit);
-        
         //defines the CCA threshold
         double ccaThreshold @unit(dBm) = default(-65 dBm);
         
@@ -142,4 +122,13 @@ simple PhyLayer80211p extends BasePhyLayer
         
         bool record_stat = default(false);
         bool record_frameTxRx = default(false);
+        
+    gates:
+        input upperLayerIn; 	// from the MAC layer
+        output upperLayerOut; 	// to the MAC layer
+        
+        input upperControlIn; 	// control from the MAC layer        
+        output upperControlOut; // control to the MAC layer
+        
+        input radioIn; // for sendDirect from other physical layers
 }

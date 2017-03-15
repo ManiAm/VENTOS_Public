@@ -20,9 +20,10 @@
 //
 
 #include "Mac1609_4.h"
-
 #include "DeciderResult80211.h"
 #include "PhyToMacControlInfo.h"
+#include "AddressingInterface.h"
+#include "MacToNetwControlInfo.h"
 #include "baseAppl/ApplToPhyControlInfo.h"
 
 namespace Veins {
@@ -31,10 +32,45 @@ Define_Module(Veins::Mac1609_4);
 
 void Mac1609_4::initialize(int stage)
 {
-    BaseMacLayer::initialize(stage);
+    BaseLayer::initialize(stage);
 
-    if (stage == 0)
+    if(stage == 0)
     {
+        // get handle to phy layer
+        phy = FindModule<MacToPhyInterface*>::findSubModule(getParentModule());
+        if (phy == NULL)
+            throw omnetpp::cRuntimeError("Could not find a PHY module.");
+
+        headerLength = par("headerLength");
+        phyHeaderLength = phy->getPhyHeaderLength();
+
+        hasPar("coreDebug") ? coreDebug = par("coreDebug").boolValue() : coreDebug = false;
+
+        if (myMacAddr == LAddress::L2NULL())
+        {
+            // see if there is an addressing module available
+            // otherwise use NIC modules id as MAC address
+            AddressingInterface* addrScheme = FindModule<AddressingInterface*>::findSubModule(findHost());
+            if(addrScheme)
+                myMacAddr = addrScheme->myMacAddr(this);
+            else
+            {
+                const std::string addressString = par("address").stringValue();
+
+                if (addressString.empty() || addressString == "auto")
+                    myMacAddr = LAddress::L2Type(getParentModule()->getId());
+                else
+                    myMacAddr = LAddress::L2Type(addressString.c_str());
+
+                // use streaming operator for string conversion, this makes it more
+                // independent from the myMacAddr type
+                std::ostringstream oSS; oSS << myMacAddr;
+                par("address").setStringValue(oSS.str());
+            }
+
+            registerInterface();
+        }
+
         // get a pointer to the phy11p module
         phy11p = FindModule<Mac80211pToPhy11pInterface*>::findSubModule(getParentModule());
         assert(phy11p);
@@ -46,14 +82,16 @@ void Mac1609_4::initialize(int stage)
 
         record_stat = par("record_stat").boolValue();
 
-        //this is required to circumvent double precision issues with constants from CONST80211p.h
+        emulationActive = this->getParentModule()->par("emulationActive").boolValue();
+
+        // this is required to circumvent double precision issues with constants from CONST80211p.h
         assert(omnetpp::simTime().getScaleExp() == -12);
 
         txPower = par("txPower").doubleValue();
         bitrate = par("bitrate").longValue();
         setParametersForBitrate(bitrate);
 
-        //mac-adresses
+        // mac-adresses
         myMacAddress = intuniform(0,0xFFFFFFFE);
         myId = getParentModule()->getParentModule()->getFullName();
 
@@ -64,7 +102,7 @@ void Mac1609_4::initialize(int stage)
         sigChannelBusy = registerSignal("sigChannelBusy");
         sigCollision = registerSignal("sigCollision");
 
-        //create frequency mappings
+        // create frequency mappings
         frequency[Channels::CRIT_SOL] = 5.86e9;
         frequency[Channels::SCH1] = 5.87e9;
         frequency[Channels::SCH2] = 5.88e9;
@@ -282,10 +320,35 @@ void Mac1609_4::handleUpperControl(omnetpp::cMessage* msg)
 // all messages from application layer are sent to this method!
 void Mac1609_4::handleUpperMsg(omnetpp::cMessage* msg)
 {
+    // get a reference to this node
+    omnetpp::cModule *thisNode = this->getParentModule()->getParentModule();
+    // make sure that DSRCenabled is true on this node
+    if(!thisNode->par("DSRCenabled"))
+        throw omnetpp::cRuntimeError("Cannot send msg %s: DSRCenabled parameter is false in %s", msg->getName(), thisNode->getFullName());
+
     WaveShortMessage* thisMsg = dynamic_cast<WaveShortMessage*>(msg);
 
     if (thisMsg == NULL)
         throw omnetpp::cRuntimeError("WaveMac only accepts WaveShortMessages");
+
+    if(!emulationActive)
+    {
+        // give time for the radio to be in Tx state before transmitting
+        phy->setRadioState(Radio::TX);
+
+        // create a mac frame
+        Mac80211Pkt* mac = new Mac80211Pkt(thisMsg->getName(), thisMsg->getKind());
+        mac->setDestAddr(LAddress::L2BROADCAST());
+        mac->setSrcAddr(myMacAddress);
+        mac->encapsulate(thisMsg);
+
+        // and then send it
+        sendDelayed(mac, RADIODELAY_11P, lowerLayerOut);
+
+        statsSentPackets++;
+
+        return;
+    }
 
     t_access_category ac = mapPriority(thisMsg->getPriority());
 
@@ -366,13 +429,16 @@ void Mac1609_4::handleLowerControl(omnetpp::cMessage* msg)
 
         phy->setRadioState(Radio::RX);
 
-        // message was sent. update EDCA queue. go into post-transmit backoff and set cwCur to cwMin
-        myEDCA[activeChannel]->postTransmit(lastAC);
+        if(emulationActive)
+        {
+            // message was sent. update EDCA queue. go into post-transmit backoff and set cwCur to cwMin
+            myEDCA[activeChannel]->postTransmit(lastAC);
 
-        // channel just turned idle. don't set the chan to idle. the PHY layer decides, not us.
+            // channel just turned idle. don't set the chan to idle. the PHY layer decides, not us.
 
-        if (guardActive())
-            throw omnetpp::cRuntimeError("We shouldn't have sent a packet in guard!");
+            if (guardActive())
+                throw omnetpp::cRuntimeError("We shouldn't have sent a packet in guard!");
+        }
     }
     else if (msg->getKind() == MacToPhyInterface::RADIO_SWITCHING_OVER)
     {
@@ -416,6 +482,59 @@ void Mac1609_4::handleLowerControl(omnetpp::cMessage* msg)
         record_MAC_stat_func();
 
     delete msg;
+}
+
+
+void Mac1609_4::registerInterface()
+{
+
+}
+
+
+/**
+ * Decapsulates the network packet from the received MacPkt
+ **/
+omnetpp::cPacket* Mac1609_4::decapsMsg(MacPkt* msg)
+{
+    omnetpp::cPacket *m = msg->decapsulate();
+    setUpControlInfo(m, msg->getSrcAddr());
+
+    // delete the macPkt
+    delete msg;
+
+    coreEV << " message decapsulated " << std::endl;
+
+    return m;
+}
+
+
+/**
+ * Encapsulates the received NetwPkt into a MacPkt and set all needed
+ * header fields.
+ **/
+MacPkt* Mac1609_4::encapsMsg(omnetpp::cPacket *netwPkt)
+{
+    MacPkt *pkt = new MacPkt(netwPkt->getName(), netwPkt->getKind());
+    pkt->setBitLength(headerLength);
+
+    // copy dest address from the Control Info attached to the network
+    // message by the network layer
+    cObject* cInfo = netwPkt->removeControlInfo();
+
+    coreEV <<"CInfo removed, mac addr="<< getUpperDestinationFromControlInfo(cInfo) << std::endl;
+    pkt->setDestAddr(getUpperDestinationFromControlInfo(cInfo));
+
+    //delete the control info
+    delete cInfo;
+
+    //set the src address to own mac address (nic module getId())
+    pkt->setSrcAddr(myMacAddr);
+
+    //encapsulate the network packet
+    pkt->encapsulate(netwPkt);
+    coreEV <<"pkt encapsulated\n";
+
+    return pkt;
 }
 
 
@@ -726,6 +845,122 @@ omnetpp::simtime_t Mac1609_4::getFrameDuration(int payloadLengthBits, enum PHY_M
     }
 
     return duration;
+}
+
+
+Signal* Mac1609_4::createSimpleSignal(omnetpp::simtime_t_cref start, omnetpp::simtime_t_cref length, double power, double bitrate)
+{
+    omnetpp::simtime_t end = start + length;
+    //create signal with start at current simtime and passed length
+    Signal* s = new Signal(start, length);
+
+    //create and set tx power mapping
+    Mapping* txPowerMapping = createRectangleMapping(start, end, power);
+    s->setTransmissionPower(txPowerMapping);
+
+    //create and set bitrate mapping
+    Mapping* bitrateMapping = createConstantMapping(start, end, bitrate);
+    s->setBitrate(bitrateMapping);
+
+    return s;
+}
+
+
+Mapping* Mac1609_4::createConstantMapping(omnetpp::simtime_t_cref start, omnetpp::simtime_t_cref end, Argument::mapped_type_cref value)
+{
+    //create mapping over time
+    Mapping* m = MappingUtils::createMapping(Argument::MappedZero(), DimensionSet::timeDomain(), Mapping::LINEAR);
+
+    //set position Argument
+    Argument startPos(start);
+
+    //set mapping at position
+    m->setValue(startPos, value);
+
+    //set position Argument
+    Argument endPos(end);
+
+    //set mapping at position
+    m->setValue(endPos, value);
+
+    return m;
+}
+
+
+Mapping* Mac1609_4::createRectangleMapping(omnetpp::simtime_t_cref start, omnetpp::simtime_t_cref end, Argument::mapped_type_cref value)
+{
+    //create mapping over time
+    Mapping* m = MappingUtils::createMapping(DimensionSet::timeDomain(), Mapping::LINEAR);
+
+    //set position Argument
+    Argument startPos(start);
+    //set discontinuity at position
+    MappingUtils::addDiscontinuity(m, startPos, Argument::MappedZero(), MappingUtils::post(start), value);
+
+    //set position Argument
+    Argument endPos(end);
+    //set discontinuity at position
+    MappingUtils::addDiscontinuity(m, endPos, Argument::MappedZero(), MappingUtils::pre(end), value);
+
+    return m;
+}
+
+
+ConstMapping* Mac1609_4::createSingleFrequencyMapping(omnetpp::simtime_t_cref start,
+        omnetpp::simtime_t_cref end,
+        Argument::mapped_type_cref centerFreq,
+        Argument::mapped_type_cref halfBandwidth,
+        Argument::mapped_type_cref value)
+{
+    Mapping* res = MappingUtils::createMapping(Argument::MappedZero(), DimensionSet::timeFreqDomain(), Mapping::LINEAR);
+
+    Argument pos(DimensionSet::timeFreqDomain());
+
+    pos.setArgValue(Dimension::frequency(), centerFreq - halfBandwidth);
+    pos.setTime(start);
+    res->setValue(pos, value);
+
+    pos.setTime(end);
+    res->setValue(pos, value);
+
+    pos.setArgValue(Dimension::frequency(), centerFreq + halfBandwidth);
+    res->setValue(pos, value);
+
+    pos.setTime(start);
+    res->setValue(pos, value);
+
+    return res;
+}
+
+
+BaseConnectionManager* Mac1609_4::getConnectionManager()
+{
+    cModule* nic = getParentModule();
+    return ChannelAccess::getConnectionManager(nic);
+}
+
+
+const LAddress::L2Type& Mac1609_4::getUpperDestinationFromControlInfo(const cObject *const pCtrlInfo)
+{
+    return NetwToMacControlInfo::getDestFromControlInfo(pCtrlInfo);
+}
+
+
+/**
+ * Attaches a "control info" (MacToNetw) structure (object) to the message pMsg.
+ */
+omnetpp::cObject *const Mac1609_4::setUpControlInfo(omnetpp::cMessage *const pMsg, const LAddress::L2Type& pSrcAddr)
+{
+    return MacToNetwControlInfo::setControlInfo(pMsg, pSrcAddr);
+}
+
+
+/**
+ * Attaches a "control info" (MacToPhy) structure (object) to the message pMsg.
+ */
+omnetpp::cObject *const Mac1609_4::setDownControlInfo(omnetpp::cMessage *const pMsg, Signal *const pSignal)
+{
+    return MacToPhyControlInfo::setControlInfo(pMsg, pSignal);
 }
 
 

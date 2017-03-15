@@ -44,17 +44,6 @@ moduleinterface IWirelessMac
 }
 
 
-// Base module for every mac layer module
-simple BaseMacLayer extends BaseLayer like IWirelessMac
-{
-    parameters:
-        @class(BaseMacLayer);
-        bool   coreDebug = default(false);   // debug switch
-        double headerLength @unit(bit);      // length of the MAC packet header (in bits)
-        string address = default("auto");    // MAC address as hex string (12 hex digits), or "auto". "auto" values will be replaced by a generated MAC address in init stage 1.
-}
-
-
 //
 // Manages timeslots for CCH and SCH listening and sending.
 //
@@ -65,7 +54,7 @@ simple BaseMacLayer extends BaseLayer like IWirelessMac
 // @see Nic80211p
 // @see PhyLayer80211p
 //
-simple Mac1609_4 extends BaseMacLayer
+simple Mac1609_4 extends BaseLayer like IWirelessMac
 {
     parameters:
         @class(Veins::Mac1609_4);
@@ -73,6 +62,10 @@ simple Mac1609_4 extends BaseMacLayer
         @signal[sigChannelBusy](type=bool);
         // signal informing interested application about a collision
         @signal[sigCollision](type=bool);
+        
+        bool   coreDebug = default(false);   // debug switch
+        double headerLength = default(0 bit) @unit(bit);  // length of MAC header, header is already added at 1609_4
+        string address = default("auto");    // MAC address as hex string (12 hex digits), or "auto". "auto" values will be replaced by a generated MAC address in init stage 1.
         
         // cycle between an SCH and the CCH (or stay on CCH all the time)
         bool useServiceChannel = default(false);
@@ -83,9 +76,6 @@ simple Mac1609_4 extends BaseMacLayer
         // debug switch
         bool debug = default(false);
         
-        // length of MAC header, header is already added at 1609_4
-        headerLength @unit(bit) = default(0 bit);
-        
         // bit rate 
         double bitrate @unit(bps) = default(6 Mbps);
         
@@ -95,7 +85,8 @@ simple Mac1609_4 extends BaseMacLayer
         // tx power [mW]
         double txPower = default(20mW) @unit(mW);
         
-        // the maximum queue size of an EDCA queue in the MAC. 0 for unlimited. Queue strategy is "drop if full"
+        // the maximum queue size of an EDCA queue in the MAC. 
+        // 0 for unlimited. Queue strategy is "drop if full"
         int queueSize = default(0);
         
         bool record_stat = default(false);

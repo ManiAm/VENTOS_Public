@@ -10,7 +10,8 @@ module Nic80211p
         string macType;
         string phyType;
         
-        bool drawMaxIntfDist = default(true);           
+        bool drawMaxIntfDist = default(true);     
+        bool emulationActive = default(false);      
             
     gates:
         input upperLayerIn;     // to upper layers

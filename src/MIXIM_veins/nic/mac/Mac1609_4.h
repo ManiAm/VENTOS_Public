@@ -30,7 +30,6 @@
 #include "PhyLayer80211p.h"
 #include "WaveAppToMac1609_4Interface.h"
 #include "FindModule.h"
-#include "BaseMacLayer.h"
 #include "ConstsPhy.h"
 #include "Mac1609_4_EDCA.h"
 #include "Mac80211Pkt_m.h"
@@ -57,14 +56,63 @@ namespace Veins {
  * @see Decider80211p
  */
 
-class Mac1609_4 : public BaseMacLayer, public WaveAppToMac1609_4Interface
+class Mac1609_4 : public BaseLayer, public WaveAppToMac1609_4Interface
 {
+public:
+
+    /** @brief Message kinds used by this layer.*/
+    enum BaseMacMessageKinds
+    {
+        /** Stores the id on which classes extending BaseMac should
+         * continue their own message kinds.*/
+        LAST_BASE_MAC_MESSAGE_KIND = 23000,
+    };
+
+    /** @brief Control message kinds used by this layer.*/
+    enum BaseMacControlKinds
+    {
+        /** Indicates the end of a transmission*/
+        TX_OVER = 23500,
+        /** Tells the netw layer that a packet to be sent has been dropped.*/
+        PACKET_DROPPED,
+        /** Stores the id on which classes extending BaseMac should
+         * continue their own control kinds.*/
+        LAST_BASE_MAC_CONTROL_KIND,
+    };
+
 private:
+
     Mac80211pToPhy11pInterface* phy11p;
     VENTOS::Statistics* STAT;
     bool record_stat;
 
-protected:
+    bool emulationActive;
+
+    /** @brief Handler to the physical layer.*/
+    MacToPhyInterface* phy;
+
+    /**
+     * @brief Length of the MacPkt header
+     **/
+    int headerLength;
+
+    /**
+     * @brief MAC address.
+     **/
+    LAddress::L2Type myMacAddr;
+
+    /** @brief debug this core module? */
+    bool coreDebug;
+
+    /** @brief The length of the phy header (in bits).
+     *
+     * Since the MAC layer has to create the signal for
+     * a transmission it has to know the total length of
+     * the packet and therefore needs the length of the
+     * phy header.
+     */
+    int phyHeaderLength;
+
     /** @brief Self message to indicate that the current channel shall be switched.*/
     omnetpp::cMessage* nextChannelSwitch;
 
@@ -83,8 +131,6 @@ protected:
 
     /** @brief Stores the frequencies in Hz that are associated to the channel numbers.*/
     std::map<int, double> frequency;
-
-    int headerLength;
 
     bool useSCH;
     int mySCH;
@@ -126,7 +172,14 @@ protected:
 
 public:
 
+    Mac1609_4() : BaseLayer(), phy(NULL), myMacAddr(LAddress::L2NULL()) { }
+    Mac1609_4(unsigned stacksize) : BaseLayer(stacksize), phy(NULL), myMacAddr(LAddress::L2NULL()) { }
     ~Mac1609_4() { };
+
+    /**
+     * @brief Returns the MAC address of this MAC module.
+     */
+    const LAddress::L2Type& getMACAddress() { return myMacAddr; }
 
     // return true if alternate access is enabled
     bool isChannelSwitchingActive();
@@ -182,6 +235,17 @@ protected:
     /** @brief Handle control messages from lower layer.*/
     virtual void handleLowerControl(omnetpp::cMessage* msg);
 
+    /**
+     * @brief Registers this bridge's NIC with INET's InterfaceTable.
+     */
+    virtual void registerInterface();
+
+    /** @brief decapsulate the network message from the MacPkt */
+    virtual omnetpp::cPacket* decapsMsg(MacPkt*);
+
+    /** @brief Encapsulate the NetwPkt into an MacPkt */
+    virtual MacPkt* encapsMsg(omnetpp::cPacket*);
+
     /** @brief Set a state for the channel selecting operation.*/
     void setActiveChannel(t_channel state);
 
@@ -203,7 +267,93 @@ protected:
 
     omnetpp::simtime_t getFrameDuration(int payloadLengthBits, enum PHY_MCS mcs = MCS_DEFAULT) const;
 
+    /**
+     * @brief Creates a simple Signal defined over time with the
+     * passed parameters.
+     *
+     * Convenience method to be able to create the appropriate
+     * Signal for the MacToPhyControlInfo without needing to care
+     * about creating Mappings.
+     *
+     * NOTE: The created signal's transmission-power is a rectangular function.
+     * This method uses MappingUtils::addDiscontinuity to represent the discontinuities
+     * at the beginning and end of this rectangular function.
+     * Because of this the created mapping which represents the signal's
+     * transmission-power is still zero at the exact start and end.
+     * Please see the method MappingUtils::addDiscontinuity for the reason.
+     */
+    virtual Signal* createSimpleSignal(omnetpp::simtime_t_cref start, omnetpp::simtime_t_cref length, double power, double bitrate);
+
+    /**
+     * @brief Creates a simple Mapping with a constant curve
+     * progression at the passed value.
+     *
+     * Used by "createSimpleSignal" to create the bitrate mapping.
+     */
+    Mapping* createConstantMapping(omnetpp::simtime_t_cref start, omnetpp::simtime_t_cref end, Argument::mapped_type_cref value);
+
+    /**
+     * @brief Creates a simple Mapping with a constant curve
+     * progression at the passed value and discontinuities at the boundaries.
+     *
+     * Used by "createSimpleSignal" to create the power mapping.
+     */
+    Mapping* createRectangleMapping(omnetpp::simtime_t_cref start, omnetpp::simtime_t_cref end, Argument::mapped_type_cref value);
+
+    /**
+     * @brief Creates a Mapping defined over time and frequency with
+     * constant power in a certain frequency band.
+     */
+    ConstMapping* createSingleFrequencyMapping(omnetpp::simtime_t_cref start, omnetpp::simtime_t_cref end, Argument::mapped_type_cref centerFreq, Argument::mapped_type_cref bandWith, Argument::mapped_type_cref value);
+
+    /**
+     * @brief Returns a pointer to this MACs NICs ConnectionManager module.
+     * @return pointer to the connection manager module
+     */
+    BaseConnectionManager* getConnectionManager();
+
+    /**
+     * @brief Extracts the MAC address from the "control info" structure (object).
+     *
+     * Extract the destination MAC address from the "control info" which was prev. set by NetwToMacControlInfo::setControlInfo().
+     *
+     * @param pCtrlInfo The "control info" structure (object) prev. set by NetwToMacControlInfo::setControlInfo().
+     * @return The MAC address of message receiver.
+     */
+    virtual const LAddress::L2Type& getUpperDestinationFromControlInfo(const cObject *const pCtrlInfo);
+
+    /**
+     * @brief Attaches a "control info" (MacToNetw) structure (object) to the message pMsg.
+     *
+     * This is most useful when passing packets between protocol layers
+     * of a protocol stack, the control info will contain the destination MAC address.
+     *
+     * The "control info" object will be deleted when the message is deleted.
+     * Only one "control info" structure can be attached (the second
+     * setL3ToL2ControlInfo() call throws an error).
+     *
+     * @param pMsg      The message where the "control info" shall be attached.
+     * @param pSrcAddr  The MAC address of the message receiver.
+     */
+    virtual omnetpp::cObject *const setUpControlInfo(omnetpp::cMessage *const pMsg, const LAddress::L2Type& pSrcAddr);
+
+    /**
+     * @brief Attaches a "control info" (MacToPhy) structure (object) to the message pMsg.
+     *
+     * This is most useful when passing packets between protocol layers
+     * of a protocol stack, the control info will contain the signal.
+     *
+     * The "control info" object will be deleted when the message is deleted.
+     * Only one "control info" structure can be attached (the second
+     * setL3ToL2ControlInfo() call throws an error).
+     *
+     * @param pMsg      The message where the "control info" shall be attached.
+     * @param pSignal   The signal which should be send.
+     */
+    virtual omnetpp::cObject *const setDownControlInfo(omnetpp::cMessage *const pMsg, Signal *const pSignal);
+
 private:
+
     void record_MAC_stat_func();
 };
 
