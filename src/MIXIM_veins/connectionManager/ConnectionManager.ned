@@ -42,6 +42,8 @@ simple ConnectionManager
                 
         // debug switch for core framework
         bool coreDebug;
+        
+        double maxIntfDist = default(0);
 
         // maximum sending power used for this network [mW]
         double pMax @unit(mW) = default(20mW);

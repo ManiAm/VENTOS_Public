@@ -31,12 +31,14 @@ static double dist(double coord1, double coord2, double size) {
     }
 }
 
+
 double sqrTorusDist(Coord c, Coord b, Coord size) {
     double xDist = dist(c.x, b.x, size.x);
     double yDist = dist(c.y, b.y, size.y);
     double zDist = dist(c.z, b.z, size.z);
     return xDist * xDist + yDist * yDist + zDist * zDist;
 }
+
 
 void BaseConnectionManager::initialize(int stage)
 {
@@ -143,10 +145,12 @@ void BaseConnectionManager::initialize(int stage)
     }
 }
 
+
 BaseConnectionManager::GridCoord BaseConnectionManager::getCellForCoordinate(const Coord& c)
 {
     return GridCoord(c, findDistance);
 }
+
 
 void BaseConnectionManager::updateConnections(int nicID, const Coord* oldPos, const Coord* newPos)
 {
@@ -156,10 +160,12 @@ void BaseConnectionManager::updateConnections(int nicID, const Coord* oldPos, co
     checkGrid(oldCell, newCell, nicID );
 }
 
+
 BaseConnectionManager::NicEntries& BaseConnectionManager::getCellEntries(BaseConnectionManager::GridCoord& cell)
 {
     return nicGrid[cell.x][cell.y][cell.z];
 }
+
 
 void BaseConnectionManager::registerNicExt(int nicID)
 {
@@ -173,6 +179,7 @@ void BaseConnectionManager::registerNicExt(int nicID)
     NicEntries& cellEntries = getCellEntries(cell);
     cellEntries[nicID] = nicEntry;
 }
+
 
 void BaseConnectionManager::checkGrid(BaseConnectionManager::GridCoord& oldCell, BaseConnectionManager::GridCoord& newCell, int id)
 {
@@ -205,7 +212,7 @@ void BaseConnectionManager::checkGrid(BaseConnectionManager::GridCoord& oldCell,
             fillUnionWithNeighbors(gridUnion, newCell);
     }
 
-    GridCoord* c = gridUnion.next();
+    GridCoord *c = gridUnion.next();
     while(c != 0)
     {
         ccEV << "Update cons in [" << c->info() << "]" << std::endl;
@@ -213,6 +220,7 @@ void BaseConnectionManager::checkGrid(BaseConnectionManager::GridCoord& oldCell,
         c = gridUnion.next();
     }
 }
+
 
 int BaseConnectionManager::wrapIfTorus(int value, int max)
 {
@@ -233,6 +241,7 @@ int BaseConnectionManager::wrapIfTorus(int value, int max)
     else
         return value;
 }
+
 
 void BaseConnectionManager::fillUnionWithNeighbors(CoordSet& gridUnion, GridCoord cell)
 {
@@ -258,6 +267,7 @@ void BaseConnectionManager::fillUnionWithNeighbors(CoordSet& gridUnion, GridCoor
     }
 }
 
+
 bool BaseConnectionManager::isInRange(BaseConnectionManager::NicEntries::mapped_type pFromNic, BaseConnectionManager::NicEntries::mapped_type pToNic)
 {
     double dDistance = 0.0;
@@ -270,6 +280,7 @@ bool BaseConnectionManager::isInRange(BaseConnectionManager::NicEntries::mapped_
     return (dDistance <= maxDistSquared);
 }
 
+
 void BaseConnectionManager::updateNicConnections(NicEntries& nmap, BaseConnectionManager::NicEntries::mapped_type nic)
 {
     int id = nic->nicId;
@@ -279,12 +290,13 @@ void BaseConnectionManager::updateNicConnections(NicEntries& nmap, BaseConnectio
         NicEntries::mapped_type nic_i = i->second;
 
         // no recursive connections
-        if ( nic_i->nicId == id ) continue;
+        if (nic_i->nicId == id)
+            continue;
 
         bool inRange   = isInRange(nic, nic_i);
         bool connected = nic->isConnected(nic_i);
 
-        if ( inRange && !connected )
+        if (inRange && !connected)
         {
             // nodes within communication range: connect
             // nodes within communication range && not yet connected
@@ -292,16 +304,17 @@ void BaseConnectionManager::updateNicConnections(NicEntries& nmap, BaseConnectio
             nic->connectTo( nic_i );
             nic_i->connectTo( nic );
         }
-        else if ( !inRange && connected )
+        else if (!inRange && connected)
         {
             // out of range: disconnect
             // out of range, and still connected
             ccEV << "nic #" << id << " and #" << nic_i->nicId << " are NOT in range" << std::endl;
-            nic->disconnectFrom( nic_i );
-            nic_i->disconnectFrom( nic );
+            nic->disconnectFrom(nic_i);
+            nic_i->disconnectFrom(nic);
         }
     }
 }
+
 
 bool BaseConnectionManager::registerNic(cModule* nic, ChannelAccess* chAccess, const Coord* nicPos)
 {
@@ -337,6 +350,7 @@ bool BaseConnectionManager::registerNic(cModule* nic, ChannelAccess* chAccess, c
 
     return sendDirect;
 }
+
 
 bool BaseConnectionManager::unregisterNic(cModule* nicModule)
 {
@@ -388,6 +402,7 @@ bool BaseConnectionManager::unregisterNic(cModule* nicModule)
     return true;
 }
 
+
 void BaseConnectionManager::updateNicPos(int nicID, const Coord* newPos)
 {
     NicEntries::iterator ItNic = nics.find(nicID);
@@ -400,6 +415,7 @@ void BaseConnectionManager::updateNicPos(int nicID, const Coord* newPos)
     updateConnections(nicID, &oldPos, newPos);
 }
 
+
 const NicEntry::GateList& BaseConnectionManager::getGateList(int nicID) const
 {
     NicEntries::const_iterator ItNic = nics.find(nicID);
@@ -409,6 +425,7 @@ const NicEntry::GateList& BaseConnectionManager::getGateList(int nicID) const
     return ItNic->second->getGateList();
 }
 
+
 const omnetpp::cGate* BaseConnectionManager::getOutGateTo(const NicEntry* nic, const NicEntry* targetNic) const
 {
     NicEntries::const_iterator ItNic = nics.find(nic->nicId);
@@ -417,6 +434,7 @@ const omnetpp::cGate* BaseConnectionManager::getOutGateTo(const NicEntry* nic, c
 
     return ItNic->second->getOutGateTo(targetNic);
 }
+
 
 BaseConnectionManager::~BaseConnectionManager()
 {
