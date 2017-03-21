@@ -30,6 +30,7 @@
 #include "BaseConnectionManager.h"
 #include "Consts80211p.h"
 #include "AirFrame11p_m.h"
+#include "Mac80211Pkt_m.h"
 #include "MacToPhyControlInfo.h"
 #include "PhyToMacControlInfo.h"
 #include "DeciderResult80211.h"
@@ -47,7 +48,6 @@ namespace Veins {
 
 Define_Module(Veins::PhyLayer80211p);
 
-Coord NoMobiltyPos = Coord::ZERO;
 
 PhyLayer80211p::PhyLayer80211p()
 {
@@ -74,18 +74,18 @@ PhyLayer80211p::~PhyLayer80211p()
     for(AirFrameVector::iterator it = channel.begin(); it != channel.end(); ++it)
         cancelAndDelete(*it);
 
-    //free timer messages
+    // free timer messages
     if(txOverTimer)
         cancelAndDelete(txOverTimer);
 
     if(radioSwitchingOverTimer)
         cancelAndDelete(radioSwitchingOverTimer);
 
-    //free thermal noise mapping
+    // free thermal noise mapping
     if(thermalNoise)
         delete thermalNoise;
 
-    //free Decider
+    // free Decider
     if(decider != 0)
         delete decider;
 
@@ -95,7 +95,7 @@ PhyLayer80211p::~PhyLayer80211p()
      */
     AnalogueModel* rsamPointer = radio ? radio->getAnalogueModel() : NULL;
 
-    //free AnalogueModels
+    // free AnalogueModels
     for(AnalogueModelList::iterator it = analogueModels.begin(); it != analogueModels.end(); it++)
     {
         AnalogueModel* tmp = *it;
@@ -123,20 +123,30 @@ void PhyLayer80211p::initialize(int stage)
 
     if (stage == 0)
     {
-        //get ccaThreshold before calling BasePhyLayer::initialize() which instantiates the deciders
+        // get pointer to the world module
+        world = FindModule<BaseWorldUtility*>::findGlobalModule();
+        if (world == NULL)
+            throw omnetpp::cRuntimeError("Could not find BaseWorldUtility module");
+
+        // get a pointer to the Statistics module
+        omnetpp::cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("statistics");
+        STAT = static_cast<VENTOS::Statistics*>(module);
+        ASSERT(STAT);
+
+        // get ccaThreshold before calling BasePhyLayer::initialize() which instantiates the decider
         ccaThreshold = pow(10, par("ccaThreshold").doubleValue() / 10);
         collectCollisionStatistics = par("collectCollisionStatistics").boolValue();
 
         // if using sendDirect, make sure that messages arrive without delay
         gate("radioIn")->setDeliverOnReceptionStart(true);
 
-        //get gate ids
+        // get gate ids
         upperLayerIn = findGate("upperLayerIn");
         upperLayerOut = findGate("upperLayerOut");
         upperControlOut = findGate("upperControlOut");
         upperControlIn = findGate("upperControlIn");
 
-        emulationActive = this->getParentModule()->par("emulationActive").boolValue();
+        emulationActive = par("emulationActive").boolValue();
 
         if(par("useThermalNoise").boolValue())
         {
@@ -154,11 +164,6 @@ void PhyLayer80211p::initialize(int stage)
         // initialize radio
         radio = initializeRadio();
 
-        // get pointer to the world module
-        world = FindModule<BaseWorldUtility*>::findGlobalModule();
-        if (world == NULL)
-            throw omnetpp::cRuntimeError("Could not find BaseWorldUtility module");
-
         if(cc->hasPar("sat") && (sensitivity - FWMath::dBm2mW(cc->par("sat").doubleValue())) < -0.000001)
         {
             throw omnetpp::cRuntimeError("Sensitivity can't be smaller than the "
@@ -166,7 +171,7 @@ void PhyLayer80211p::initialize(int stage)
                     "Please adjust your omnetpp.ini file accordingly.");
         }
 
-        // analogue model parameters
+        // Analog model parameters
         initializeAnalogueModels(par("analogueModels").xmlValue());
 
         // decider parameters
@@ -181,11 +186,6 @@ void PhyLayer80211p::initialize(int stage)
 
         // erase the RadioStateAnalogueModel
         analogueModels.erase(analogueModels.begin());
-
-        // get a pointer to the Statistics module
-        omnetpp::cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("statistics");
-        STAT = static_cast<VENTOS::Statistics*>(module);
-        ASSERT(STAT);
 
         record_stat = par("record_stat").boolValue();
         record_frameTxRx = par("record_frameTxRx").boolValue();
@@ -207,15 +207,21 @@ void PhyLayer80211p::handleMessage(omnetpp::cMessage* msg)
     // self messages
     if(msg->isSelfMessage())
         handleSelfMessage(msg);
-    // MacPkts <-- MacToPhyControlInfo
+
+    // data message coming from MAC
     else if(msg->getArrivalGateId() == upperLayerIn)
         handleUpperMessage(msg);
-    // control messages
+
+    // control message coming from MAC
     else if(msg->getArrivalGateId() == upperControlIn)
         handleUpperControlMessage(msg);
-    // AirFrames
+
+    // received an AirFrame
     else if(msg->getKind() == AIR_FRAME)
     {
+        // if DSRCenabled is false, then ChannelAccess class will not send me
+        // any frames. But we double-check here to make sure that DSRCenabled is true
+
         // get a reference to this node
         omnetpp::cModule *thisNode = this->getParentModule()->getParentModule();
         // make sure that DSRCenabled is true on this node
@@ -229,6 +235,54 @@ void PhyLayer80211p::handleMessage(omnetpp::cMessage* msg)
     {
         EV << "Unknown message received. \n";
         delete msg;
+    }
+}
+
+
+void PhyLayer80211p::handleSelfMessage(omnetpp::cMessage* msg)
+{
+    switch(msg->getKind())
+    {
+    // transmission over
+    case TX_OVER:
+    {
+        assert(msg == txOverTimer);
+
+        sendControlMsgToMac(new VENTOS::PhyToMacReport("Transmission over", TX_OVER));
+
+        Decider80211p* dec = dynamic_cast<Decider80211p*>(decider);
+        assert(dec);
+
+        // check if there is another packet on the channel
+        if (dec->cca(omnetpp::simTime(),NULL))
+        {
+            // change the channel state to idle
+            DBG << "Channel idle after transmit!\n";
+            dec->setChannelIdleStatus(true);
+        }
+        else
+            DBG << "Channel not yet idle after transmit! \n";
+
+        break;
+    }
+    // radio switch over
+    case RADIO_SWITCHING_OVER:
+        assert(msg == radioSwitchingOverTimer);
+        finishRadioSwitching();
+        break;
+
+    // AirFrame
+    case AIR_FRAME:
+        handleAirFrame(static_cast<AirFrame*>(msg));
+        break;
+
+    // ChannelSenseRequest
+    case CHANNEL_SENSE_REQUEST:
+        handleChannelSenseRequest(msg);
+        break;
+
+    default:
+        break;
     }
 }
 
@@ -365,76 +419,6 @@ void PhyLayer80211p::initializeAnalogueModels(omnetpp::cXMLElement* xmlConfig)
 }
 
 
-void PhyLayer80211p::initializeDecider(omnetpp::cXMLElement* xmlConfig)
-{
-    decider = 0;
-
-    if(xmlConfig == 0)
-        throw omnetpp::cRuntimeError("No decider configuration file specified.");
-
-    omnetpp::cXMLElementList deciderList = xmlConfig->getElementsByTagName("Decider");
-
-    if(deciderList.empty())
-        throw omnetpp::cRuntimeError("No decider configuration found in configuration file.");
-
-    if(deciderList.size() > 1)
-        throw omnetpp::cRuntimeError("More than one decider configuration found in configuration file.");
-
-    omnetpp::cXMLElement* deciderData = deciderList.front();
-
-    const char* name = deciderData->getAttribute("type");
-
-    if(name == 0)
-        throw omnetpp::cRuntimeError("Could not read type of decider from configuration file.");
-
-    ParameterMap params;
-    getParametersFromXML(deciderData, params);
-
-    decider = getDeciderFromName(name, params);
-
-    if(decider == 0)
-        throw omnetpp::cRuntimeError("Could not find a decider with the name \"%s\".", name);
-
-    coreEV << "Decider \"" << name << "\" loaded." << std::endl;
-}
-
-
-void PhyLayer80211p::getParametersFromXML(omnetpp::cXMLElement* xmlData, ParameterMap& outputMap)
-{
-    omnetpp::cXMLElementList parameters = xmlData->getElementsByTagName("Parameter");
-
-    for(auto &it : parameters)
-    {
-        const char* name = it->getAttribute("name");
-        const char* type = it->getAttribute("type");
-        const char* value = it->getAttribute("value");
-
-        if(name == 0 || type == 0 || value == 0)
-            throw omnetpp::cRuntimeError("Invalid parameter, could not find name, type or value.");
-
-        std::string sType = type;   //needed for easier comparison
-        std::string sValue = value; //needed for easier comparison
-
-        omnetpp::cMsgPar param(name);
-
-        //parse type of parameter and set value
-        if (sType == "bool")
-            param.setBoolValue(sValue == "true" || sValue == "1");
-        else if (sType == "double")
-            param.setDoubleValue(strtod(value, 0));
-        else if (sType == "string")
-            param.setStringValue(value);
-        else if (sType == "long")
-            param.setLongValue(strtol(value, 0, 0));
-        else
-            throw omnetpp::cRuntimeError("Unknown parameter type: '%s'", sType.c_str());
-
-        //add parameter to output map
-        outputMap[name] = param;
-    }
-}
-
-
 AnalogueModel* PhyLayer80211p::getAnalogueModelFromName(std::string name, ParameterMap& params)
 {
     if (name == "SimplePathlossModel")
@@ -463,6 +447,79 @@ AnalogueModel* PhyLayer80211p::getAnalogueModelFromName(std::string name, Parame
         return radio->getAnalogueModel();
 
     return 0;
+}
+
+
+AnalogueModel* PhyLayer80211p::initializeSimplePathlossModel(ParameterMap& params)
+{
+    // init with default value
+    double alpha = 2.0;
+    double carrierFrequency = 5.890e+9;
+    bool useTorus = world->useTorus();
+    const Coord& playgroundSize = *(world->getPgs());
+
+    // get alpha-coefficient from config
+    ParameterMap::iterator it = params.find("alpha");
+
+    if ( it != params.end() ) // parameter alpha has been specified in config.xml
+    {
+        // set alpha
+        alpha = it->second.doubleValue();
+        coreEV << "createPathLossModel(): alpha set from config.xml to " << alpha << std::endl;
+
+        // check whether alpha is not smaller than specified in ConnectionManager
+        if(cc->hasPar("alpha") && alpha < cc->par("alpha").doubleValue())
+        {
+            throw omnetpp::cRuntimeError("TestPhyLayer::createPathLossModel(): alpha can't be smaller than specified in \
+                   ConnectionManager. Please adjust your config.xml file accordingly");
+        }
+    }
+    else // alpha has not been specified in config.xml
+    {
+        if (cc->hasPar("alpha")) // parameter alpha has been specified in ConnectionManager
+        {
+            // set alpha according to ConnectionManager
+            alpha = cc->par("alpha").doubleValue();
+            coreEV << "createPathLossModel(): alpha set from ConnectionManager to " << alpha << std::endl;
+        }
+        else // alpha has not been specified in ConnectionManager
+        {
+            // keep alpha at default value
+            coreEV << "createPathLossModel(): alpha set from default value to " << alpha << std::endl;
+        }
+    }
+
+    // get carrierFrequency from config
+    it = params.find("carrierFrequency");
+    if ( it != params.end() ) // parameter carrierFrequency has been specified in config.xml
+    {
+        // set carrierFrequency
+        carrierFrequency = it->second.doubleValue();
+        coreEV << "createPathLossModel(): carrierFrequency set from config.xml to " << carrierFrequency << std::endl;
+
+        // check whether carrierFrequency is not smaller than specified in ConnectionManager
+        if(cc->hasPar("carrierFrequency") && carrierFrequency < cc->par("carrierFrequency").doubleValue())
+        {
+            throw omnetpp::cRuntimeError("TestPhyLayer::createPathLossModel(): carrierFrequency can't be smaller than specified in \
+                   ConnectionManager. Please adjust your config.xml file accordingly");
+        }
+    }
+    else // carrierFrequency has not been specified in config.xml
+    {
+        if (cc->hasPar("carrierFrequency")) // parameter carrierFrequency has been specified in ConnectionManager
+        {
+            // set carrierFrequency according to ConnectionManager
+            carrierFrequency = cc->par("carrierFrequency").doubleValue();
+            coreEV << "createPathLossModel(): carrierFrequency set from ConnectionManager to " << carrierFrequency << std::endl;
+        }
+        else // carrierFrequency has not been specified in ConnectionManager
+        {
+            // keep carrierFrequency at default value
+            coreEV << "createPathLossModel(): carrierFrequency set from default value to " << carrierFrequency << std::endl;
+        }
+    }
+
+    return new SimplePathlossModel(alpha, carrierFrequency, useTorus, playgroundSize, coreDebug);
 }
 
 
@@ -584,115 +641,10 @@ AnalogueModel* PhyLayer80211p::initializeBreakpointPathlossModel(ParameterMap& p
 }
 
 
-AnalogueModel* PhyLayer80211p::initializeTwoRayInterferenceModel(ParameterMap& params)
-{
-    ASSERT(params.count("DielectricConstant") == 1);
-    double dielectricConstant= params["DielectricConstant"].doubleValue();
-
-    return new TwoRayInterferenceModel(dielectricConstant, coreDebug);
-}
-
-
-AnalogueModel* PhyLayer80211p::initializeNakagamiFading(ParameterMap& params)
-{
-    bool constM = params["constM"].boolValue();
-    double m = 0;
-    if (constM)
-        m = params["m"].doubleValue();
-
-    return new NakagamiFading(constM, m, coreDebug);
-}
-
-
-AnalogueModel* PhyLayer80211p::initializeSimplePathlossModel(ParameterMap& params)
-{
-    // init with default value
-    double alpha = 2.0;
-    double carrierFrequency = 5.890e+9;
-    bool useTorus = world->useTorus();
-    const Coord& playgroundSize = *(world->getPgs());
-
-    // get alpha-coefficient from config
-    ParameterMap::iterator it = params.find("alpha");
-
-    if ( it != params.end() ) // parameter alpha has been specified in config.xml
-    {
-        // set alpha
-        alpha = it->second.doubleValue();
-        coreEV << "createPathLossModel(): alpha set from config.xml to " << alpha << std::endl;
-
-        // check whether alpha is not smaller than specified in ConnectionManager
-        if(cc->hasPar("alpha") && alpha < cc->par("alpha").doubleValue())
-        {
-            throw omnetpp::cRuntimeError("TestPhyLayer::createPathLossModel(): alpha can't be smaller than specified in \
-	               ConnectionManager. Please adjust your config.xml file accordingly");
-        }
-    }
-    else // alpha has not been specified in config.xml
-    {
-        if (cc->hasPar("alpha")) // parameter alpha has been specified in ConnectionManager
-        {
-            // set alpha according to ConnectionManager
-            alpha = cc->par("alpha").doubleValue();
-            coreEV << "createPathLossModel(): alpha set from ConnectionManager to " << alpha << std::endl;
-        }
-        else // alpha has not been specified in ConnectionManager
-        {
-            // keep alpha at default value
-            coreEV << "createPathLossModel(): alpha set from default value to " << alpha << std::endl;
-        }
-    }
-
-    // get carrierFrequency from config
-    it = params.find("carrierFrequency");
-    if ( it != params.end() ) // parameter carrierFrequency has been specified in config.xml
-    {
-        // set carrierFrequency
-        carrierFrequency = it->second.doubleValue();
-        coreEV << "createPathLossModel(): carrierFrequency set from config.xml to " << carrierFrequency << std::endl;
-
-        // check whether carrierFrequency is not smaller than specified in ConnectionManager
-        if(cc->hasPar("carrierFrequency") && carrierFrequency < cc->par("carrierFrequency").doubleValue())
-        {
-            throw omnetpp::cRuntimeError("TestPhyLayer::createPathLossModel(): carrierFrequency can't be smaller than specified in \
-	               ConnectionManager. Please adjust your config.xml file accordingly");
-        }
-    }
-    else // carrierFrequency has not been specified in config.xml
-    {
-        if (cc->hasPar("carrierFrequency")) // parameter carrierFrequency has been specified in ConnectionManager
-        {
-            // set carrierFrequency according to ConnectionManager
-            carrierFrequency = cc->par("carrierFrequency").doubleValue();
-            coreEV << "createPathLossModel(): carrierFrequency set from ConnectionManager to " << carrierFrequency << std::endl;
-        }
-        else // carrierFrequency has not been specified in ConnectionManager
-        {
-            // keep carrierFrequency at default value
-            coreEV << "createPathLossModel(): carrierFrequency set from default value to " << carrierFrequency << std::endl;
-        }
-    }
-
-    return new SimplePathlossModel(alpha, carrierFrequency, useTorus, playgroundSize, coreDebug);
-}
-
-
 AnalogueModel* PhyLayer80211p::initializePERModel(ParameterMap& params)
 {
     double per = params["packetErrorRate"].doubleValue();
     return new PERModel(per);
-}
-
-
-Decider* PhyLayer80211p::getDeciderFromName(std::string name, ParameterMap& params)
-{
-    if(name == "Decider80211p")
-    {
-        protocolId = IEEE_80211;
-        return initializeDecider80211p(params);
-    }
-
-    return 0;
 }
 
 
@@ -741,69 +693,114 @@ AnalogueModel* PhyLayer80211p::initializeSimpleObstacleShadowing(ParameterMap& p
 }
 
 
-Decider* PhyLayer80211p::initializeDecider80211p(ParameterMap& params)
+AnalogueModel* PhyLayer80211p::initializeTwoRayInterferenceModel(ParameterMap& params)
+{
+    ASSERT(params.count("DielectricConstant") == 1);
+    double dielectricConstant= params["DielectricConstant"].doubleValue();
+
+    return new TwoRayInterferenceModel(dielectricConstant, coreDebug);
+}
+
+
+AnalogueModel* PhyLayer80211p::initializeNakagamiFading(ParameterMap& params)
+{
+    bool constM = params["constM"].boolValue();
+    double m = 0;
+    if (constM)
+        m = params["m"].doubleValue();
+
+    return new NakagamiFading(constM, m, coreDebug);
+}
+
+
+void PhyLayer80211p::getParametersFromXML(omnetpp::cXMLElement* xmlData, ParameterMap& outputMap)
+{
+    omnetpp::cXMLElementList parameters = xmlData->getElementsByTagName("Parameter");
+
+    for(auto &it : parameters)
+    {
+        const char* name = it->getAttribute("name");
+        const char* type = it->getAttribute("type");
+        const char* value = it->getAttribute("value");
+
+        if(name == 0 || type == 0 || value == 0)
+            throw omnetpp::cRuntimeError("Invalid parameter, could not find name, type or value.");
+
+        std::string sType = type;   //needed for easier comparison
+        std::string sValue = value; //needed for easier comparison
+
+        omnetpp::cMsgPar param(name);
+
+        //parse type of parameter and set value
+        if (sType == "bool")
+            param.setBoolValue(sValue == "true" || sValue == "1");
+        else if (sType == "double")
+            param.setDoubleValue(strtod(value, 0));
+        else if (sType == "string")
+            param.setStringValue(value);
+        else if (sType == "long")
+            param.setLongValue(strtol(value, 0, 0));
+        else
+            throw omnetpp::cRuntimeError("Unknown parameter type: '%s'", sType.c_str());
+
+        //add parameter to output map
+        outputMap[name] = param;
+    }
+}
+
+
+void PhyLayer80211p::initializeDecider(omnetpp::cXMLElement* xmlConfig)
+{
+    decider = 0;
+
+    if(xmlConfig == 0)
+        throw omnetpp::cRuntimeError("No decider configuration file specified.");
+
+    omnetpp::cXMLElementList deciderList = xmlConfig->getElementsByTagName("Decider");
+
+    if(deciderList.empty())
+        throw omnetpp::cRuntimeError("No decider configuration found in configuration file.");
+
+    if(deciderList.size() > 1)
+        throw omnetpp::cRuntimeError("More than one decider configuration found in configuration file.");
+
+    omnetpp::cXMLElement* deciderData = deciderList.front();
+
+    const char* name = deciderData->getAttribute("type");
+
+    if(name == 0)
+        throw omnetpp::cRuntimeError("Could not read type of decider from configuration file.");
+
+    ParameterMap params;
+    getParametersFromXML(deciderData, params);
+
+    decider = getDeciderFromName(name, params);
+
+    if(decider == 0)
+        throw omnetpp::cRuntimeError("Could not find a decider with the name \"%s\".", name);
+
+    coreEV << "Decider \"" << name << "\" loaded." << std::endl;
+}
+
+
+BaseDecider* PhyLayer80211p::getDeciderFromName(std::string name, ParameterMap& params)
+{
+    if(name == "Decider80211p")
+    {
+        protocolId = IEEE_80211;
+        return initializeDecider80211p(params);
+    }
+
+    return 0;
+}
+
+
+BaseDecider* PhyLayer80211p::initializeDecider80211p(ParameterMap& params)
 {
     double centerFreq = params["centerFrequency"];
     Decider80211p* dec = new Decider80211p(this, sensitivity, ccaThreshold, allowTxDuringRx, centerFreq, findHost()->getIndex(), collectCollisionStatistics, coreDebug);
     dec->setPath(getParentModule()->getFullPath());
     return dec;
-}
-
-
-void PhyLayer80211p::changeListeningFrequency(double freq)
-{
-    Decider80211p* dec = dynamic_cast<Decider80211p*>(decider);
-    assert(dec);
-
-    dec->changeFrequency(freq);
-}
-
-
-void PhyLayer80211p::handleSelfMessage(omnetpp::cMessage* msg)
-{
-    switch(msg->getKind())
-    {
-    // transmission over
-    case TX_OVER:
-    {
-        assert(msg == txOverTimer);
-
-        sendControlMsgToMac(new VENTOS::PhyToMacReport("Transmission over", TX_OVER));
-
-        Decider80211p* dec = dynamic_cast<Decider80211p*>(decider);
-        assert(dec);
-
-        // check if there is another packet on the chan
-        if (dec->cca(omnetpp::simTime(),NULL))
-        {
-            // change the chan-state to idle
-            DBG << "Channel idle after transmit!\n";
-            dec->setChannelIdleStatus(true);
-        }
-        else
-            DBG << "Channel not yet idle after transmit! \n";
-
-        break;
-    }
-    // radio switch over
-    case RADIO_SWITCHING_OVER:
-        assert(msg == radioSwitchingOverTimer);
-        finishRadioSwitching();
-        break;
-
-        //AirFrame
-    case AIR_FRAME:
-        handleAirFrame(static_cast<AirFrame*>(msg));
-        break;
-
-        //ChannelSenseRequest
-    case CHANNEL_SENSE_REQUEST:
-        handleChannelSenseRequest(msg);
-        break;
-
-    default:
-        break;
-    }
 }
 
 
@@ -855,7 +852,7 @@ void PhyLayer80211p::handleAirFrameStartReceive(AirFrame* frame)
         frame->getSignal().setReceptionSenderInfo(frame);
         filterSignal(frame);
 
-        if(decider && isKnownProtocolId(frame->getProtocolId()))
+        if(decider && frame->getProtocolId() == protocolId)
         {
             frame->setState(RECEIVING);
 
@@ -893,7 +890,6 @@ void PhyLayer80211p::handleAirFrameReceiving(AirFrame* frame)
     Signal& signal = frame->getSignal();
     omnetpp::simtime_t nextHandleTime = decider->processSignal(frame);
 
-    assert(signal.getDuration() == frame->getDuration());
     omnetpp::simtime_t signalEndTime = signal.getReceptionStart() + frame->getDuration();
 
     //check if this is the end of the receiving process
@@ -926,7 +922,7 @@ void PhyLayer80211p::handleAirFrameEndReceive(AirFrame* frame)
     if(!emulationActive)
     {
         // emulation is not active, sending the frame up to the MAC
-        DeciderResult *result = new DeciderResult80211(false, 0, 0, 0);
+        DeciderResult80211 *result = new DeciderResult80211(false, 0, 0, 0);
         sendUp(frame, result);
     }
 
@@ -988,8 +984,8 @@ void PhyLayer80211p::filterSignal(AirFrame *frame)
     ChannelMobilityPtrType sendersMobility  = senderModule   ? senderModule->getMobilityModule()   : NULL;
     ChannelMobilityPtrType receiverMobility = receiverModule ? receiverModule->getMobilityModule() : NULL;
 
-    const Coord sendersPos  = sendersMobility  ? sendersMobility->getCurrentPosition() : NoMobiltyPos;
-    const Coord receiverPos = receiverMobility ? receiverMobility->getCurrentPosition(): NoMobiltyPos;
+    const Coord sendersPos  = sendersMobility  ? sendersMobility->getCurrentPosition() : Coord::ZERO;
+    const Coord receiverPos = receiverMobility ? receiverMobility->getCurrentPosition(): Coord::ZERO;
 
     for(auto &it : analogueModels)
         it->filterSignal(frame, sendersPos, receiverPos);
@@ -998,54 +994,55 @@ void PhyLayer80211p::filterSignal(AirFrame *frame)
 
 AirFrame *PhyLayer80211p::encapsMsg(omnetpp::cPacket *macPkt)
 {
-    if(!emulationActive)
-    {
-        // create the new AirFrame11p
-        AirFrame* frame = new AirFrame11p(macPkt->getName(), AIR_FRAME);
-        frame->encapsulate(macPkt);
-        return frame;
-    }
+    // the macPkt must always have a ControlInfo attached
+    MacToPhyControlInfo *mac_control = dynamic_cast<MacToPhyControlInfo *>(macPkt->removeControlInfo());
+    assert(mac_control);
 
-    // the macPkt must always have a ControlInfo attached (contains Signal)
-    cObject* ctrlInfo = macPkt->removeControlInfo();
-    assert(ctrlInfo);
+    // extract parameters from the MAC control
+    uint64_t bitrate = mac_control->getBitrate();
+    double txPower_mW = mac_control->getPower();
+    double freq = mac_control->getFreq();
 
-    // Retrieve the pointer to the Signal-instance from the ControlInfo-instance.
-    // We are now the new owner of this instance.
-    Signal* s = MacToPhyControlInfo::getSignalFromControlInfo(ctrlInfo);
-    // make sure we really obtained a pointer to an instance
-    assert(s);
+    // delete the mac_control
+    delete mac_control;
+    mac_control = 0;
+
+    // calculate frame duration
+    omnetpp::simtime_t duration = getFrameDuration(macPkt->getBitLength(), bitrate);
+    assert(duration > 0);
+
+    // create signal
+    Signal* s = createSignal(omnetpp::simTime() + RADIODELAY_11P, duration, txPower_mW, bitrate, freq);
 
     // create the new AirFrame11p
     AirFrame* frame = new AirFrame11p(macPkt->getName(), AIR_FRAME);
 
-    assert(s->getDuration() > 0);
-    frame->setDuration(s->getDuration());
-    // copy the signal into the AirFrame
+    // set frame duration
+    frame->setDuration(duration);
+
+    // and copy the signal into the AirFrame
     frame->setSignal(*s);
-    // set priority of AirFrames above the normal priority to ensure
-    // channel consistency (before any thing else happens at a time
-    // point t make sure that the channel has removed every AirFrame
-    // ended at t and added every AirFrame started at t)
-    frame->setSchedulingPriority(airFramePriority());
-    frame->setProtocolId(myProtocolId());
-    frame->setBitLength(headerLength);
-    frame->setId(world->getUniqueAirFrameId());
-    frame->setChannel(radio->getCurrentChannel());
 
     // pointer and Signal not needed anymore
     delete s;
     s = 0;
 
-    // delete the Control info
-    delete ctrlInfo;
-    ctrlInfo = 0;
+    // set priority of AirFrames above the normal priority to ensure
+    // channel consistency (before any thing else happens at a time
+    // point t make sure that the channel has removed every AirFrame
+    // ended at t and added every AirFrame started at t)
+    frame->setSchedulingPriority(airFramePriority());
+
+    frame->setProtocolId(protocolId);
+    frame->setBitLength(headerLength);
+    frame->setId(world->getUniqueAirFrameId());
+    frame->setChannel(radio->getCurrentChannel());
 
     frame->encapsulate(macPkt);
 
     // from here on, the AirFrame is the owner of the MacPacket
     macPkt = 0;
-    coreEV <<"AirFrame encapsulated, length: " << frame->getBitLength() << "\n";
+    coreEV << "AirFrame encapsulated, length: " << frame->getBitLength() << "\n";
 
     return frame;
 }
@@ -1055,90 +1052,6 @@ void PhyLayer80211p::finishRadioSwitching()
 {
     radio->endSwitch(omnetpp::simTime());
     sendControlMsgToMac(new VENTOS::PhyToMacReport("Radio switching over", RADIO_SWITCHING_OVER));
-}
-
-
-int PhyLayer80211p::getRadioState()
-{
-    Enter_Method_Silent();
-
-    assert(radio);
-    return radio->getCurrentState();
-}
-
-
-omnetpp::simtime_t PhyLayer80211p::setRadioState(int rs)
-{
-    Enter_Method_Silent();
-
-    assert(radio);
-
-    if (rs == Radio::TX)
-        decider->switchToTx();
-
-    if(txOverTimer && txOverTimer->isScheduled())
-        EV_WARN << "Switched radio while sending an AirFrame. The effects this would have on the transmission are not simulated by the BasePhyLayer!";
-
-    omnetpp::simtime_t switchTime = radio->switchTo(rs, omnetpp::simTime());
-
-    //invalid switch time, we are probably already switching
-    if(switchTime < 0)
-        return switchTime;
-
-    // if switching is done in exactly zero-time no extra self-message is scheduled
-    if (switchTime == 0.0)
-    {
-        // TODO: in case of zero-time-switch, send no control-message to mac!
-        // maybe call a method finishRadioSwitchingSilent()
-        finishRadioSwitching();
-    }
-    else
-        scheduleAt(omnetpp::simTime() + switchTime, radioSwitchingOverTimer);
-
-    return switchTime;
-}
-
-
-int PhyLayer80211p::getPhyHeaderLength()
-{
-    Enter_Method_Silent();
-
-    if (headerLength < 0)
-        return par("headerLength").longValue();
-
-    return headerLength;
-}
-
-
-void PhyLayer80211p::setCurrentRadioChannel(int newRadioChannel)
-{
-    if(txOverTimer && txOverTimer->isScheduled())
-        EV_WARN << "Switched channel while sending an AirFrame. The effects this would have on the transmission are not simulated by the BasePhyLayer!";
-
-    radio->setCurrentChannel(newRadioChannel);
-    decider->channelChanged(newRadioChannel);
-    coreEV << "Switched radio to channel " << newRadioChannel << std::endl;
-}
-
-
-int PhyLayer80211p::getCurrentRadioChannel()
-{
-    return radio->getCurrentChannel();
-}
-
-
-int PhyLayer80211p::getNbRadioChannels()
-{
-    return par("nbRadioChannels");
-}
-
-
-ChannelState PhyLayer80211p::getChannelState()
-{
-    Enter_Method_Silent();
-
-    assert(decider);
-    return decider->getChannelState();
 }
 
 
@@ -1155,123 +1068,112 @@ double PhyLayer80211p::getCCAThreshold()
 }
 
 
-void PhyLayer80211p::sendControlMsgToMac(VENTOS::PhyToMacReport* msg)
+Signal* PhyLayer80211p::createSignal(omnetpp::simtime_t start, omnetpp::simtime_t duration, double power, uint64_t bitrate, double frequency)
 {
-    if(msg->getKind() == CHANNEL_SENSE_REQUEST)
-    {
-        if(channelInfo.isRecording())
-            channelInfo.stopRecording();
-    }
-    else if (msg->getKind() == Decider80211p::BITERROR)
-    {
-        NumLostFrames_BiteError++;
+    // create signal with start at current simtime and passed length
+    Signal* s = new Signal(start, duration);
 
-        if(record_stat) record_PHY_stat_func();
-        if(record_frameTxRx) record_frameTxRx_stat_func(msg, "BITERROR");
-    }
-    else if(msg->getKind() == Decider80211p::COLLISION)
-    {
-        NumLostFrames_Collision++;
+    // create and set tx power mapping
+    omnetpp::simtime_t end = start + duration;
+    ConstMapping* txPowerMapping = createSingleFrequencyMapping(start, end, frequency, 5.0e6, power);
+    s->setTransmissionPower(txPowerMapping);
 
-        if(record_stat) record_PHY_stat_func();
-        if(record_frameTxRx) record_frameTxRx_stat_func(msg, "COLLISION");
-    }
-    else if(msg->getKind() == Decider80211p::RECWHILESEND)
-    {
-        NumLostFrames_TXRX++;
+    Mapping* bitrateMapping = MappingUtils::createMapping(DimensionSet::timeDomain(), Mapping::STEPS);
 
-        if(record_stat) record_PHY_stat_func();
-        if(record_frameTxRx) record_frameTxRx_stat_func(msg, "RECWHILESEND");
-    }
+    Argument pos(start);
+    bitrateMapping->setValue(pos, bitrate);
 
-    send(msg, upperControlOut);
+    pos.setTime(getPhyHeaderLength() / bitrate);
+    bitrateMapping->setValue(pos, bitrate);
+
+    s->setBitrate(bitrateMapping);
+
+    return s;
 }
 
 
-void PhyLayer80211p::sendUp(AirFrame* frame, DeciderResult* result)
+Signal* PhyLayer80211p::createSimpleSignal(omnetpp::simtime_t_cref start, omnetpp::simtime_t_cref length, double power, double bitrate)
 {
-    if(record_frameTxRx)
-    {
-        // we need the id of the message assigned by OMNET++
-        long int frameId = (dynamic_cast<omnetpp::cPacket *>(frame))->getId();
-        long int nicId = this->getParentModule()->getId();
+    omnetpp::simtime_t end = start + length;
+    //create signal with start at current simtime and passed length
+    Signal* s = new Signal(start, length);
 
-        auto it = STAT->global_frameTxRx_stat.find(std::make_pair(frameId, nicId));
-        if(it == STAT->global_frameTxRx_stat.end())
-            throw omnetpp::cRuntimeError("received frame '%d' has never been transmitted!", frameId);
+    //create and set tx power mapping
+    Mapping* txPowerMapping = createRectangleMapping(start, end, power);
+    s->setTransmissionPower(txPowerMapping);
 
-        it->second.ReceivedAt = omnetpp::simTime().dbl();
-        it->second.FrameRxStatus = "HEALTHY";
-    }
+    //create and set bitrate mapping
+    Mapping* bitrateMapping = createConstantMapping(start, end, bitrate);
+    s->setBitrate(bitrateMapping);
 
-    NumReceivedFrames++;
-
-    if(record_stat)
-        record_PHY_stat_func();
-
-    coreEV << "Decapsulating MacPacket from Airframe with ID " << frame->getId() << " and sending it up to MAC." << std::endl;
-
-    omnetpp::cMessage* packet = frame->decapsulate();
-    assert(packet);
-
-    setUpControlInfo(packet, result);
-
-    send(packet, upperLayerOut);
+    return s;
 }
 
 
-void PhyLayer80211p::cancelScheduledMessage(omnetpp::cMessage* msg)
+Mapping* PhyLayer80211p::createRectangleMapping(omnetpp::simtime_t_cref start, omnetpp::simtime_t_cref end, Argument::mapped_type_cref value)
 {
-    if(msg->isScheduled())
-        cancelEvent(msg);
-    else
-    {
-        EV << "Warning: Decider wanted to cancel a scheduled message but message"
-                << " wasn't actually scheduled. Message is: " << msg << std::endl;
-    }
+    //create mapping over time
+    Mapping* m = MappingUtils::createMapping(DimensionSet::timeDomain(), Mapping::LINEAR);
+
+    //set position Argument
+    Argument startPos(start);
+    //set discontinuity at position
+    MappingUtils::addDiscontinuity(m, startPos, Argument::MappedZero(), MappingUtils::post(start), value);
+
+    //set position Argument
+    Argument endPos(end);
+    //set discontinuity at position
+    MappingUtils::addDiscontinuity(m, endPos, Argument::MappedZero(), MappingUtils::pre(end), value);
+
+    return m;
 }
 
 
-BaseWorldUtility* PhyLayer80211p::getWorldUtility()
+Mapping* PhyLayer80211p::createConstantMapping(omnetpp::simtime_t_cref start, omnetpp::simtime_t_cref end, Argument::mapped_type_cref value)
 {
-    return world;
+    //create mapping over time
+    Mapping* m = MappingUtils::createMapping(Argument::MappedZero(), DimensionSet::timeDomain(), Mapping::LINEAR);
+
+    //set position Argument
+    Argument startPos(start);
+
+    //set mapping at position
+    m->setValue(startPos, value);
+
+    //set position Argument
+    Argument endPos(end);
+
+    //set mapping at position
+    m->setValue(endPos, value);
+
+    return m;
 }
 
 
-void PhyLayer80211p::recordScalar(const char *name, double value, const char *unit)
+ConstMapping* PhyLayer80211p::createSingleFrequencyMapping(omnetpp::simtime_t_cref start,
+        omnetpp::simtime_t_cref end,
+        Argument::mapped_type_cref centerFreq,
+        Argument::mapped_type_cref halfBandwidth,
+        Argument::mapped_type_cref value)
 {
-    ChannelAccess::recordScalar(name, value, unit);
-}
+    Mapping* res = MappingUtils::createMapping(Argument::MappedZero(), DimensionSet::timeFreqDomain(), Mapping::LINEAR);
 
+    Argument pos(DimensionSet::timeFreqDomain());
 
-void PhyLayer80211p::getChannelInfo(omnetpp::simtime_t_cref from, omnetpp::simtime_t_cref to, AirFrameVector& out)
-{
-    channelInfo.getAirFrames(from, to, out);
-}
+    pos.setArgValue(Dimension::frequency(), centerFreq - halfBandwidth);
+    pos.setTime(start);
+    res->setValue(pos, value);
 
+    pos.setTime(end);
+    res->setValue(pos, value);
 
-ConstMapping* PhyLayer80211p::getThermalNoise(omnetpp::simtime_t_cref from, omnetpp::simtime_t_cref to)
-{
-    if(thermalNoise)
-        thermalNoise->initializeArguments(Argument(from));
+    pos.setArgValue(Dimension::frequency(), centerFreq + halfBandwidth);
+    res->setValue(pos, value);
 
-    return thermalNoise;
-}
+    pos.setTime(start);
+    res->setValue(pos, value);
 
-
-/**
- * Attaches a "control info" (PhyToMac) structure (object) to the message pMsg.
- */
-omnetpp::cObject *const PhyLayer80211p::setUpControlInfo(omnetpp::cMessage *const pMsg, DeciderResult *const pDeciderResult)
-{
-    return PhyToMacControlInfo::setControlInfo(pMsg, pDeciderResult);
-}
-
-
-void PhyLayer80211p::rescheduleMessage(omnetpp::cMessage* msg, omnetpp::simtime_t_cref t)
-{
-    cancelScheduledMessage(msg);
-    scheduleAt(t, msg);
+    return res;
 }
 
 
@@ -1309,5 +1211,244 @@ void PhyLayer80211p::record_frameTxRx_stat_func(VENTOS::PhyToMacReport* msg, std
     it->second.ReceivedAt = omnetpp::simTime().dbl();
     it->second.FrameRxStatus = report;
 }
+
+// ######## implementation of MacToPhyInterface #########
+
+int PhyLayer80211p::getRadioState()
+{
+    Enter_Method_Silent();
+
+    assert(radio);
+    return radio->getCurrentState();
+}
+
+
+omnetpp::simtime_t PhyLayer80211p::setRadioState(int rs)
+{
+    Enter_Method_Silent();
+
+    assert(radio);
+
+    if (rs == Radio::TX)
+        decider->switchToTx();
+
+    if(txOverTimer && txOverTimer->isScheduled())
+        EV_WARN << "Switched radio while sending an AirFrame. The effects this would have on the transmission are not simulated by the BasePhyLayer!";
+
+    omnetpp::simtime_t switchTime = radio->switchTo(rs, omnetpp::simTime());
+
+    // invalid switch time, we are probably already switching
+    if(switchTime < 0)
+        return switchTime;
+
+    // if switching is done in exactly zero-time no extra self-message is scheduled
+    if (switchTime == 0.0)
+    {
+        // TODO: in case of zero-time-switch, send no control-message to MAC!
+        // maybe call a method finishRadioSwitchingSilent()
+        finishRadioSwitching();
+    }
+    else
+        scheduleAt(omnetpp::simTime() + switchTime, radioSwitchingOverTimer);
+
+    return switchTime;
+}
+
+
+ChannelState PhyLayer80211p::getChannelState()
+{
+    Enter_Method_Silent();
+
+    assert(decider);
+    return decider->getChannelState();
+}
+
+
+int PhyLayer80211p::getPhyHeaderLength()
+{
+    if (headerLength < 0)
+        return par("headerLength").longValue();
+
+    return headerLength;
+}
+
+
+void PhyLayer80211p::setCurrentRadioChannel(int newRadioChannel)
+{
+    if(txOverTimer && txOverTimer->isScheduled())
+        EV_WARN << "Switched channel while sending an AirFrame. The effects this would have on the transmission are not simulated by the BasePhyLayer!";
+
+    radio->setCurrentChannel(newRadioChannel);
+    decider->channelChanged(newRadioChannel);
+    coreEV << "Switched radio to channel " << newRadioChannel << std::endl;
+}
+
+
+int PhyLayer80211p::getCurrentRadioChannel()
+{
+    return radio->getCurrentChannel();
+}
+
+
+int PhyLayer80211p::getNbRadioChannels()
+{
+    return par("nbRadioChannels");
+}
+
+
+omnetpp::simtime_t PhyLayer80211p::getFrameDuration(int payloadLengthBits, uint64_t bitrate, enum PHY_MCS mcs) const
+{
+    // N_DBPS is derived from bitrate
+    double n_dbps = -1;
+
+    for (unsigned int i = 0; i < NUM_BITRATES_80211P; i++)
+    {
+        if (bitrate == BITRATES_80211P[i])
+            n_dbps = N_DBPS_80211P[i];
+    }
+
+    if(n_dbps == -1)
+        throw omnetpp::cRuntimeError("Chosen Bitrate is not valid for 802.11p: Valid rates are: 3Mbps, 4.5Mbps, 6Mbps, 9Mbps, 12Mbps, 18Mbps, 24Mbps and 27Mbps. Please adjust your omnetpp.ini file accordingly.");
+
+    omnetpp::simtime_t duration;
+
+    if (mcs == MCS_DEFAULT)
+    {
+        // calculate frame duration according to Equation (17-29) of the IEEE 802.11-2007 standard
+        duration = PHY_HDR_PREAMBLE_DURATION + PHY_HDR_PLCPSIGNAL_DURATION + T_SYM_80211P * ceil( (16 + payloadLengthBits + 6)/(n_dbps) );
+    }
+    else
+    {
+        uint32_t ndbps = getNDBPS(mcs);
+        duration = PHY_HDR_PREAMBLE_DURATION + PHY_HDR_PLCPSIGNAL_DURATION + T_SYM_80211P * ceil( (16 + payloadLengthBits + 6)/(ndbps) );
+    }
+
+    return duration;
+}
+
+
+void PhyLayer80211p::changeListeningFrequency(double freq)
+{
+    Decider80211p* dec = dynamic_cast<Decider80211p*>(decider);
+    assert(dec);
+
+    dec->changeFrequency(freq);
+}
+
+// ###############################################
+
+// ######## implementation of DeciderToPhyInterface #########
+
+void PhyLayer80211p::getChannelInfo(omnetpp::simtime_t_cref from, omnetpp::simtime_t_cref to, AirFrameVector& out)
+{
+    channelInfo.getAirFrames(from, to, out);
+}
+
+
+ConstMapping* PhyLayer80211p::getThermalNoise(omnetpp::simtime_t_cref from, omnetpp::simtime_t_cref to)
+{
+    if(thermalNoise)
+        thermalNoise->initializeArguments(Argument(from));
+
+    return thermalNoise;
+}
+
+
+void PhyLayer80211p::sendControlMsgToMac(VENTOS::PhyToMacReport* msg)
+{
+    if(msg->getKind() == CHANNEL_SENSE_REQUEST)
+    {
+        if(channelInfo.isRecording())
+            channelInfo.stopRecording();
+    }
+    else if (msg->getKind() == Decider80211p::BITERROR)
+    {
+        NumLostFrames_BiteError++;
+
+        if(record_stat) record_PHY_stat_func();
+        if(record_frameTxRx) record_frameTxRx_stat_func(msg, "BITERROR");
+    }
+    else if(msg->getKind() == Decider80211p::COLLISION)
+    {
+        NumLostFrames_Collision++;
+
+        if(record_stat) record_PHY_stat_func();
+        if(record_frameTxRx) record_frameTxRx_stat_func(msg, "COLLISION");
+    }
+    else if(msg->getKind() == Decider80211p::RECWHILESEND)
+    {
+        NumLostFrames_TXRX++;
+
+        if(record_stat) record_PHY_stat_func();
+        if(record_frameTxRx) record_frameTxRx_stat_func(msg, "RECWHILESEND");
+    }
+
+    send(msg, upperControlOut);
+}
+
+
+void PhyLayer80211p::sendUp(AirFrame* frame, DeciderResult80211* result)
+{
+    if(record_frameTxRx)
+    {
+        // we need the id of the message assigned by OMNET++
+        long int frameId = (dynamic_cast<omnetpp::cPacket *>(frame))->getId();
+        long int nicId = this->getParentModule()->getId();
+
+        auto it = STAT->global_frameTxRx_stat.find(std::make_pair(frameId, nicId));
+        if(it == STAT->global_frameTxRx_stat.end())
+            throw omnetpp::cRuntimeError("received frame '%d' has never been transmitted!", frameId);
+
+        it->second.ReceivedAt = omnetpp::simTime().dbl();
+        it->second.FrameRxStatus = "HEALTHY";
+    }
+
+    NumReceivedFrames++;
+
+    if(record_stat)
+        record_PHY_stat_func();
+
+    coreEV << "Decapsulating MacPacket from Airframe with ID " << frame->getId() << " and sending it up to MAC." << std::endl;
+
+    omnetpp::cMessage* packet = frame->decapsulate();
+    assert(packet);
+
+    PhyToMacControlInfo::setControlInfo(packet, result);
+
+    send(packet, upperLayerOut);
+}
+
+
+void PhyLayer80211p::cancelScheduledMessage(omnetpp::cMessage* msg)
+{
+    if(msg->isScheduled())
+        cancelEvent(msg);
+    else
+    {
+        EV << "Warning: Decider wanted to cancel a scheduled message but message"
+                << " wasn't actually scheduled. Message is: " << msg << std::endl;
+    }
+}
+
+
+void PhyLayer80211p::rescheduleMessage(omnetpp::cMessage* msg, omnetpp::simtime_t_cref t)
+{
+    cancelScheduledMessage(msg);
+    scheduleAt(t, msg);
+}
+
+
+BaseWorldUtility* PhyLayer80211p::getWorldUtility()
+{
+    return world;
+}
+
+
+void PhyLayer80211p::recordScalar(const char *name, double value, const char *unit)
+{
+    ChannelAccess::recordScalar(name, value, unit);
+}
+
+// ###############################################
 
 }

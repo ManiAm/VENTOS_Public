@@ -128,7 +128,7 @@ protected:
     //Hysteresis implementation
     std::map<std::string, int> vehicleLaneChangeCount; //Map from vehicle ID to how many times it's changed lanes
     int HysteresisCount; //Number of lane changes before a reroute is done
-    LaneCostsMode laneCostsMode;
+    LaneCostsMode laneCostsMode = MODE_NOTHING;
 
     double EWMARate;
 

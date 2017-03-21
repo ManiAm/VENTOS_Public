@@ -49,15 +49,14 @@ omnetpp::simtime_t BaseDecider::processNewSignal(AirFrame* frame)
     // check whether signal is strong enough to receive
     if ( recvPower < sensitivity )
     {
-        deciderEV << "Signal is to weak (" << recvPower << " < " << sensitivity
-                << ") -> do not receive." << std::endl;
+        deciderEV << "Signal is to weak (" << recvPower << " < " << sensitivity << ") -> do not receive." << std::endl;
+
         // Signal too weak, we can't receive it, tell PhyLayer that we don't want it again
         return notAgain;
     }
 
     // Signal is strong enough, receive this Signal and schedule it
-    deciderEV << "Signal is strong enough (" << recvPower << " > " << sensitivity
-            << ") -> Trying to receive AirFrame." << std::endl;
+    deciderEV << "Signal is strong enough (" << recvPower << " > " << sensitivity << ") -> Trying to receive AirFrame." << std::endl;
 
     currentSignal.first = frame;
     currentSignal.second = EXPECT_END;
@@ -74,12 +73,12 @@ omnetpp::simtime_t BaseDecider::processSignalEnd(AirFrame* frame)
     EV_STATICCONTEXT
 
     deciderEV << "packet was received correctly, it is now handed to upper layer...\n";
-    phy->sendUp(frame, new DeciderResult(true));
+    phy->sendUp(frame, new DeciderResult80211(true));
 
     // we have processed this AirFrame and we prepare to receive the next one
     currentSignal.first = 0;
 
-    //channel is idle now
+    // channel is idle now
     setChannelIdleStatus(true);
 
     return notAgain;
@@ -128,11 +127,11 @@ omnetpp::simtime_t BaseDecider::handleNewSenseRequest(MacToPhyCSR* request)
     currentChannelSenseRequest.setRequest(request);
     currentChannelSenseRequest.setSenseStart(now);
 
-    //get point in time when we can answer the request (as far as we
-    //know at this point in time)
+    // get point in time when we can answer the request (as far as we
+    // know at this point in time)
     currentChannelSenseRequest.canAnswerAt = canAnswerCSR(currentChannelSenseRequest);
 
-    //check if we can already answer the request
+    // check if we can already answer the request
     if(now == currentChannelSenseRequest.canAnswerAt)
     {
         answerCSR(currentChannelSenseRequest);
@@ -164,13 +163,13 @@ void BaseDecider::channelStateChanged()
     if(!currentChannelSenseRequest.getRequest())
         return;
 
-    //check if the point in time when we can answer the request has changed
+    // check if the point in time when we can answer the request has changed
     omnetpp::simtime_t canAnswerAt = canAnswerCSR(currentChannelSenseRequest);
 
-    //check if answer time has changed
+    // check if answer time has changed
     if(canAnswerAt != currentChannelSenseRequest.canAnswerAt)
     {
-        //can we answer it now?
+        // can we answer it now?
         if(canAnswerAt == omnetpp::simTime())
         {
             phy->cancelScheduledMessage(currentChannelSenseRequest.getRequest());
@@ -178,8 +177,7 @@ void BaseDecider::channelStateChanged()
         }
         else
         {
-            phy->rescheduleMessage(currentChannelSenseRequest.getRequest(),
-                    canAnswerAt);
+            phy->rescheduleMessage(currentChannelSenseRequest.getRequest(), canAnswerAt);
             currentChannelSenseRequest.canAnswerAt = canAnswerAt;
         }
     }
@@ -240,6 +238,7 @@ void BaseDecider::answerCSR(CSRInfo& requestInfo)
 
     // todo: I commented the following line and the program reaches here
     ASSERT(false);
+
     // and send it to the Mac-Layer as Control-message (via Interface)
     // phy->sendControlMsgToMac(requestInfo.first);
 
@@ -262,7 +261,7 @@ Mapping* BaseDecider::calculateSnrMapping(AirFrame* frame)
     ConstMapping* recvPowerMap = signal.getReceivingPower();
     assert(recvPowerMap);
 
-    //TODO: handle noise of zero (must not devide with zero!)
+    //TODO: handle noise of zero (must not divide with zero!)
     Mapping* snrMap = MappingUtils::divide( *recvPowerMap, *noiseMap, Argument::MappedZero() );
 
     delete noiseMap;
@@ -306,7 +305,7 @@ Mapping* BaseDecider::calculateRSSIMapping( omnetpp::simtime_t_cref start, omnet
 
         // if iterator points to exclude (that includes the default-case 'exclude == 0')
         // then skip this AirFrame
-        if ( *it == exclude )
+        if (*it == exclude)
             continue;
 
         // otherwise get the Signal and its receiving-power-mapping

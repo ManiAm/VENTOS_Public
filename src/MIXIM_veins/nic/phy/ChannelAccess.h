@@ -79,7 +79,7 @@ protected:
 	bool usePropagationDelay;
 
 	/** @brief Is this module already registered with ConnectionManager? */
-	bool isRegistered;
+	bool isRegistered = false;
 
 	/** @brief Pointer to the World Utility, to obtain some global information*/
 	BaseWorldUtility* world;
@@ -113,16 +113,6 @@ protected:
 	void sendToChannel(omnetpp::cPacket *msg);
 
 public:
-
-	/**
-	 * @brief Returns a pointer to the ConnectionManager responsible for the
-	 * passed NIC module.
-	 *
-	 * @param nic a pointer to a NIC module
-	 * @return a pointer to a connection manager module or NULL if an error
-	 * occurred
-	 */
-	static BaseConnectionManager* getConnectionManager(cModule* nic);
 
 	/** @brief Register with ConnectionManager.
 	 *

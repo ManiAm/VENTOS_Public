@@ -79,6 +79,8 @@ simple PhyLayer80211p like IWirelessPhy
         
         bool coreDebug   = default(false); //debug switch for core framework
         
+        bool emulationActive = default(false);
+        
         bool recordStats = default(false); //enable/disable tracking of statistics (eg. cOutvectors)
         int headerLength = default(46 bit) @unit(bit); //defines the length of the phy header (SIGNAL without PREAMBLE)
         

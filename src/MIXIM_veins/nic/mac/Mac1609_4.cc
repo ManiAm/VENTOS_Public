@@ -36,66 +36,26 @@ void Mac1609_4::initialize(int stage)
 
     if(stage == 0)
     {
+        headerLength = par("headerLength");
+        hasPar("coreDebug") ? coreDebug = par("coreDebug").boolValue() : coreDebug = false;
+        myMacAddress = intuniform(0,0xFFFFFFFE);
+        myId = getParentModule()->getParentModule()->getFullName();
+        txPower = par("txPower").doubleValue();
+        bitrate = par("bitrate").longValue();
+        record_stat = par("record_stat").boolValue();
+
         // get handle to phy layer
         phy = FindModule<MacToPhyInterface*>::findSubModule(getParentModule());
         if (phy == NULL)
             throw omnetpp::cRuntimeError("Could not find a PHY module.");
-
-        headerLength = par("headerLength");
-        phyHeaderLength = phy->getPhyHeaderLength();
-
-        hasPar("coreDebug") ? coreDebug = par("coreDebug").boolValue() : coreDebug = false;
-
-        if (myMacAddr == LAddress::L2NULL())
-        {
-            // see if there is an addressing module available
-            // otherwise use NIC modules id as MAC address
-            AddressingInterface* addrScheme = FindModule<AddressingInterface*>::findSubModule(findHost());
-            if(addrScheme)
-                myMacAddr = addrScheme->myMacAddr(this);
-            else
-            {
-                const std::string addressString = par("address").stringValue();
-
-                if (addressString.empty() || addressString == "auto")
-                    myMacAddr = LAddress::L2Type(getParentModule()->getId());
-                else
-                    myMacAddr = LAddress::L2Type(addressString.c_str());
-
-                // use streaming operator for string conversion, this makes it more
-                // independent from the myMacAddr type
-                std::ostringstream oSS; oSS << myMacAddr;
-                par("address").setStringValue(oSS.str());
-            }
-
-            registerInterface();
-        }
-
-        // get a pointer to the phy11p module
-        phy11p = FindModule<Mac80211pToPhy11pInterface*>::findSubModule(getParentModule());
-        assert(phy11p);
 
         // get a pointer to the Statistics module
         omnetpp::cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("statistics");
         STAT = static_cast<VENTOS::Statistics*>(module);
         ASSERT(STAT);
 
-        record_stat = par("record_stat").boolValue();
-
-        emulationActive = this->getParentModule()->par("emulationActive").boolValue();
-
         // this is required to circumvent double precision issues with constants from CONST80211p.h
         assert(omnetpp::simTime().getScaleExp() == -12);
-
-        txPower = par("txPower").doubleValue();
-        bitrate = par("bitrate").longValue();
-        setParametersForBitrate(bitrate);
-
-        // mac-adresses
-        myMacAddress = intuniform(0,0xFFFFFFFE);
-        myId = getParentModule()->getParentModule()->getFullName();
-
-        headerLength = par("headerLength");
 
         nextMacEvent = new omnetpp::cMessage("next Mac Event");
 
@@ -176,13 +136,14 @@ void Mac1609_4::initialize(int stage)
 
 void Mac1609_4::finish()
 {
-    //clean up queues
+    // clean up queues
 
     for (auto &iter : myEDCA)
     {
         statsNumInternalContention += iter.second->statsNumInternalContention;
         statsNumBackoff += iter.second->statsNumBackoff;
         statsSlotsBackoff += iter.second->statsSlotsBackoff;
+
         iter.second->cleanUp();
         delete iter.second;
     }
@@ -214,7 +175,7 @@ void Mac1609_4::handleSelfMsg(omnetpp::cMessage* msg)
             channelBusySelf(false);
             setActiveChannel(type_SCH);
             channelIdle(true);
-            phy11p->changeListeningFrequency(frequency[mySCH]);
+            phy->changeListeningFrequency(frequency[mySCH]);
             break;
 
         case type_SCH:
@@ -222,55 +183,32 @@ void Mac1609_4::handleSelfMsg(omnetpp::cMessage* msg)
             channelBusySelf(false);
             setActiveChannel(type_CCH);
             channelIdle(true);
-            phy11p->changeListeningFrequency(frequency[Channels::CCH]);
+            phy->changeListeningFrequency(frequency[Channels::CCH]);
             break;
         }
-        //schedule next channel switch in 50ms
+        // schedule next channel switch in 50ms
     }
-    else if (msg ==  nextMacEvent)
+    else if (msg == nextMacEvent)
     {
-        //we actually came to the point where we can send a packet
+        // we actually came to the point where we can send a packet
         channelBusySelf(true);
+
+        // get the right WSM message from the queue
         WaveShortMessage* pktToSend = myEDCA[activeChannel]->initiateTransmit(lastIdle);
 
+        // WSM message priority
         lastAC = mapPriority(pktToSend->getPriority());
 
-        EV << "MacEvent received. Trying to send packet with priority" << lastAC << std::endl;
+        // encapsulated the WSM message
+        Mac80211Pkt *macPkt = encapsMsg(pktToSend);
 
-        //send the packet
-        Mac80211Pkt* mac = new Mac80211Pkt(pktToSend->getName(), pktToSend->getKind());
-        mac->setDestAddr(LAddress::L2BROADCAST());
-        mac->setSrcAddr(myMacAddress);
-        mac->encapsulate(pktToSend->dup());
+        // extract the control info from the MAC packet
+        MacToPhyControlInfo *macCtl = dynamic_cast<MacToPhyControlInfo *>(macPkt->getControlInfo());
+        assert(macCtl);
 
-        enum PHY_MCS mcs;
-        double txPower_mW;
-        uint64_t datarate;
-        VENTOS::ApplToPhyControlInfo *controlInfo = dynamic_cast<VENTOS::ApplToPhyControlInfo *>(pktToSend->getControlInfo());
-        if (controlInfo)
-        {
-            //if MCS is not specified, just use the default one
-            mcs = (enum PHY_MCS)controlInfo->getMcs();
-            if (mcs != MCS_DEFAULT)
-                datarate = getOfdmDatarate(mcs, BW_OFDM_10_MHZ);
-            else
-                datarate = bitrate;
+        omnetpp::simtime_t sendingDuration = RADIODELAY_11P + phy->getFrameDuration(macPkt->getBitLength(), macCtl->getBitrate(), macCtl->getMCS());
 
-            //apply the same principle to tx power
-            txPower_mW = controlInfo->getTxPower_mW();
-            if (txPower_mW < 0)
-                txPower_mW = txPower;
-        }
-        else
-        {
-            mcs = MCS_DEFAULT;
-            txPower_mW = txPower;
-            datarate = bitrate;
-        }
-
-        omnetpp::simtime_t sendingDuration = RADIODELAY_11P + getFrameDuration(mac->getBitLength(), mcs);
-
-        EV << "Sending duration will be" << sendingDuration << std::endl;
+        EV << "Sending duration will be " << sendingDuration << std::endl;
 
         if ((!useSCH) || (timeLeftInSlot() > sendingDuration))
         {
@@ -280,32 +218,22 @@ void Mac1609_4::handleSelfMsg(omnetpp::cMessage* msg)
             // give time for the radio to be in Tx state before transmitting
             phy->setRadioState(Radio::TX);
 
-            double freq = (activeChannel == type_CCH) ? frequency[Channels::CCH] : frequency[mySCH];
+            EV << "Sending MAC frame '" << macPkt->getFullName() << "' with priority " << lastAC << " to PHY layer." << std::endl;
 
-            // create signal
-            omnetpp::simtime_t duration = getFrameDuration(mac->getBitLength());
-            Signal* s = createSignal(omnetpp::simTime()+RADIODELAY_11P, duration, txPower_mW, datarate, freq);
-
-            // attach the signal to the mac message
-            MacToPhyControlInfo* cinfo = new MacToPhyControlInfo(s);
-            mac->setControlInfo(cinfo);
-
-            EV << "Sending a Packet. Frequency " << freq << " Priority" << lastAC << std::endl;
-
-            sendDelayed(mac, RADIODELAY_11P, lowerLayerOut);
+            sendDelayed(macPkt, RADIODELAY_11P, lowerLayerOut);
 
             statsSentPackets++;
         }
         else
-        {   //not enough time left now
+        {   // not enough time left now
             EV << "Too little Time left. This packet cannot be send in this slot. \n";
             statsNumTooLittleTime++;
 
-            //revoke TXOP
+            // revoke TXOP
             myEDCA[activeChannel]->revokeTxOPs();
-            delete mac;
+            delete macPkt;
             channelIdle();
-            //do nothing. contention will automatically start after channel switch
+            // do nothing. contention will automatically start after channel switch
         }
     }
 }
@@ -331,32 +259,13 @@ void Mac1609_4::handleUpperMsg(omnetpp::cMessage* msg)
     if (thisMsg == NULL)
         throw omnetpp::cRuntimeError("WaveMac only accepts WaveShortMessages");
 
-    if(!emulationActive)
-    {
-        // give time for the radio to be in Tx state before transmitting
-        phy->setRadioState(Radio::TX);
-
-        // create a mac frame
-        Mac80211Pkt* mac = new Mac80211Pkt(thisMsg->getName(), thisMsg->getKind());
-        mac->setDestAddr(LAddress::L2BROADCAST());
-        mac->setSrcAddr(myMacAddress);
-        mac->encapsulate(thisMsg);
-
-        // and then send it
-        sendDelayed(mac, RADIODELAY_11P, lowerLayerOut);
-
-        statsSentPackets++;
-
-        return;
-    }
-
     t_access_category ac = mapPriority(thisMsg->getPriority());
 
     EV << "Received a message from upper layer for channel " << thisMsg->getChannelNumber() << " Access Category (Priority):  " << ac << std::endl;
 
     t_channel chan;
 
-    //rewrite SCH channel to actual SCH the Mac1609_4 is set to
+    // rewrite SCH channel to actual SCH the Mac1609_4 is set to
     if (thisMsg->getChannelNumber() == Channels::CCH)
         chan = type_CCH;
     else
@@ -368,7 +277,7 @@ void Mac1609_4::handleUpperMsg(omnetpp::cMessage* msg)
 
     int num = myEDCA[chan]->queuePacket(ac,thisMsg);
 
-    //packet was dropped in Mac
+    // packet was dropped in MAC
     if (num == -1)
     {
         statsDroppedPackets++;
@@ -382,7 +291,7 @@ void Mac1609_4::handleUpperMsg(omnetpp::cMessage* msg)
     else
         EV << "this packet is NOT for the currently active channel \n";
 
-    //if this packet is not at the front of a new queue we don't have to re-evaluate times
+    // if this packet is not at the front of a new queue we don't have to re-evaluate times
     if(num == 1 && chan == activeChannel)
     {
         if(idleChannel)
@@ -421,6 +330,46 @@ void Mac1609_4::handleUpperMsg(omnetpp::cMessage* msg)
 }
 
 
+void Mac1609_4::handleLowerMsg(omnetpp::cMessage* msg)
+{
+    Mac80211Pkt* macPkt = static_cast<Mac80211Pkt*>(msg);
+    ASSERT(macPkt);
+
+    WaveShortMessage* wsm = dynamic_cast<WaveShortMessage*>(macPkt->decapsulate());
+
+    // pass information about received frame to the upper layers
+    DeciderResult80211 *macRes = dynamic_cast<DeciderResult80211 *>(PhyToMacControlInfo::getDeciderResult(msg));
+    ASSERT(macRes);
+
+    DeciderResult80211 *res = new DeciderResult80211(*macRes);
+    wsm->setControlInfo(new PhyToMacControlInfo(res));
+
+    long dest = macPkt->getDestAddr();
+
+    EV << "Received frame name= " << macPkt->getName() << ", myState=" << " src=" << macPkt->getSrcAddr() << " dst=" << macPkt->getDestAddr() << " myAddr=" << myMacAddress << std::endl;
+
+    if (macPkt->getDestAddr() == myMacAddress)
+    {
+        EV << "Received a data packet addressed to me. \n";
+
+        statsReceivedPackets++;
+        sendUp(wsm);
+    }
+    else if (dest == LAddress::L2BROADCAST())
+    {
+        statsReceivedBroadcasts++;
+        sendUp(wsm);
+    }
+    else
+    {
+        EV << "Packet not for me, deleting... \n";
+        delete wsm;
+    }
+
+    delete macPkt;
+}
+
+
 void Mac1609_4::handleLowerControl(omnetpp::cMessage* msg)
 {
     if (msg->getKind() == MacToPhyInterface::TX_OVER)
@@ -429,16 +378,13 @@ void Mac1609_4::handleLowerControl(omnetpp::cMessage* msg)
 
         phy->setRadioState(Radio::RX);
 
-        if(emulationActive)
-        {
-            // message was sent. update EDCA queue. go into post-transmit backoff and set cwCur to cwMin
-            myEDCA[activeChannel]->postTransmit(lastAC);
+        // message was sent. update EDCA queue. go into post-transmit backoff and set cwCur to cwMin
+        myEDCA[activeChannel]->postTransmit(lastAC);
 
-            // channel just turned idle. don't set the chan to idle. the PHY layer decides, not us.
+        // channel just turned idle. don't set the channel to idle. the PHY layer decides, not us.
 
-            if (guardActive())
-                throw omnetpp::cRuntimeError("We shouldn't have sent a packet in guard!");
-        }
+        if (guardActive())
+            throw omnetpp::cRuntimeError("We shouldn't have sent a packet in guard!");
     }
     else if (msg->getKind() == MacToPhyInterface::RADIO_SWITCHING_OVER)
     {
@@ -464,11 +410,11 @@ void Mac1609_4::handleLowerControl(omnetpp::cMessage* msg)
 
         phy->setRadioState(Radio::RX);
     }
-    else if (msg->getKind() == Mac80211pToPhy11pInterface::CHANNEL_BUSY)
+    else if (msg->getKind() == MacToPhyInterface::CHANNEL_BUSY)
     {
         channelBusy();
     }
-    else if (msg->getKind() == Mac80211pToPhy11pInterface::CHANNEL_IDLE)
+    else if (msg->getKind() == MacToPhyInterface::CHANNEL_IDLE)
     {
         channelIdle();
     }
@@ -485,19 +431,15 @@ void Mac1609_4::handleLowerControl(omnetpp::cMessage* msg)
 }
 
 
-void Mac1609_4::registerInterface()
-{
-
-}
-
-
 /**
  * Decapsulates the network packet from the received MacPkt
  **/
 omnetpp::cPacket* Mac1609_4::decapsMsg(MacPkt* msg)
 {
     omnetpp::cPacket *m = msg->decapsulate();
-    setUpControlInfo(m, msg->getSrcAddr());
+
+    // Attaches a "control info" (MacToNetw) structure (object) to the message m.
+    MacToNetwControlInfo::setControlInfo(m, msg->getSrcAddr());
 
     // delete the macPkt
     delete msg;
@@ -508,33 +450,59 @@ omnetpp::cPacket* Mac1609_4::decapsMsg(MacPkt* msg)
 }
 
 
-/**
- * Encapsulates the received NetwPkt into a MacPkt and set all needed
- * header fields.
- **/
-MacPkt* Mac1609_4::encapsMsg(omnetpp::cPacket *netwPkt)
+Mac80211Pkt* Mac1609_4::encapsMsg(WaveShortMessage *pktToSend)
 {
-    MacPkt *pkt = new MacPkt(netwPkt->getName(), netwPkt->getKind());
-    pkt->setBitLength(headerLength);
+    Mac80211Pkt* mac = new Mac80211Pkt(pktToSend->getName(), pktToSend->getKind());
+    mac->setDestAddr(LAddress::L2BROADCAST());
+    mac->setSrcAddr(myMacAddress);
+    mac->encapsulate(pktToSend->dup());
 
-    // copy dest address from the Control Info attached to the network
-    // message by the network layer
-    cObject* cInfo = netwPkt->removeControlInfo();
+    enum PHY_MCS mcs;
+    double txPower_mW;
+    uint64_t datarate;
 
-    coreEV <<"CInfo removed, mac addr="<< getUpperDestinationFromControlInfo(cInfo) << std::endl;
-    pkt->setDestAddr(getUpperDestinationFromControlInfo(cInfo));
+    // extract the control info from the WSM message
+    VENTOS::ApplToPhyControlInfo *controlInfo = dynamic_cast<VENTOS::ApplToPhyControlInfo *>(pktToSend->getControlInfo());
 
-    //delete the control info
-    delete cInfo;
+    if (controlInfo)
+    {
+        // get MCS from the control info
+        // MCS specifies the modulation and coding scheme used for transmission
+        mcs = (enum PHY_MCS)controlInfo->getMcs();
 
-    //set the src address to own mac address (nic module getId())
-    pkt->setSrcAddr(myMacAddr);
+        // if MCS is not specified, just use the default one
+        if (mcs != MCS_DEFAULT)
+            datarate = getOFDMDatarate(mcs, BW_OFDM_10_MHZ);
+        else
+            datarate = bitrate;
 
-    //encapsulate the network packet
-    pkt->encapsulate(netwPkt);
-    coreEV <<"pkt encapsulated\n";
+        // get Tx power from the control info
+        txPower_mW = controlInfo->getTxPower_mW();
 
-    return pkt;
+        if (txPower_mW < 0)
+            txPower_mW = txPower;
+    }
+    else
+    {
+        mcs = MCS_DEFAULT;
+        txPower_mW = txPower;
+        datarate = bitrate;
+    }
+
+    double freq = (activeChannel == type_CCH) ? frequency[Channels::CCH] : frequency[mySCH];
+
+    // create a control info
+    MacToPhyControlInfo* cinfo = new MacToPhyControlInfo();
+
+    cinfo->setPower(txPower_mW);
+    cinfo->setBitrate(datarate);
+    cinfo->setMCS(mcs);
+    cinfo->setFreq(freq);
+
+    // attach the control info to the MAC
+    mac->setControlInfo(cinfo);
+
+    return mac;
 }
 
 
@@ -542,30 +510,6 @@ void Mac1609_4::setActiveChannel(t_channel state)
 {
     activeChannel = state;
     assert(state == type_CCH || (useSCH && state == type_SCH));
-}
-
-
-Signal* Mac1609_4::createSignal(omnetpp::simtime_t start, omnetpp::simtime_t length, double power, uint64_t bitrate, double frequency)
-{
-    omnetpp::simtime_t end = start + length;
-    //create signal with start at current simtime and passed length
-    Signal* s = new Signal(start, length);
-
-    //create and set tx power mapping
-    ConstMapping* txPowerMapping = createSingleFrequencyMapping(start, end, frequency, 5.0e6, power);
-    s->setTransmissionPower(txPowerMapping);
-
-    Mapping* bitrateMapping = MappingUtils::createMapping(DimensionSet::timeDomain(), Mapping::STEPS);
-
-    Argument pos(start);
-    bitrateMapping->setValue(pos, bitrate);
-
-    pos.setTime(phyHeaderLength / bitrate);
-    bitrateMapping->setValue(pos, bitrate);
-
-    s->setBitrate(bitrateMapping);
-
-    return s;
 }
 
 
@@ -616,84 +560,28 @@ void Mac1609_4::changeServiceChannel(int cN)
 
     if (activeChannel == type_SCH)
     {
-        //change to new chan immediately if we are in a SCH slot,
+        //change to new channel immediately if we are in a SCH slot,
         //otherwise it will switch to the new SCH upon next channel switch
-        phy11p->changeListeningFrequency(frequency[mySCH]);
+        phy->changeListeningFrequency(frequency[mySCH]);
     }
 }
 
 
-void Mac1609_4::setTxPower(double txPower_mW)
+t_access_category Mac1609_4::mapPriority(int priority)
 {
-    txPower = txPower_mW;
-}
-
-
-void Mac1609_4::setMCS(enum PHY_MCS mcs)
-{
-    ASSERT2(mcs != MCS_DEFAULT, "invalid MCS selected");
-
-    bitrate = getOfdmDatarate(mcs, BW_OFDM_10_MHZ);
-    setParametersForBitrate(bitrate);
-}
-
-
-void Mac1609_4::setCCAThreshold(double ccaThreshold_dBm)
-{
-    phy11p->setCCAThreshold(ccaThreshold_dBm);
-}
-
-
-void Mac1609_4::handleLowerMsg(omnetpp::cMessage* msg)
-{
-    Mac80211Pkt* macPkt = static_cast<Mac80211Pkt*>(msg);
-    ASSERT(macPkt);
-
-    WaveShortMessage* wsm = dynamic_cast<WaveShortMessage*>(macPkt->decapsulate());
-
-    // pass information about received frame to the upper layers
-    DeciderResult80211 *macRes = dynamic_cast<DeciderResult80211 *>(PhyToMacControlInfo::getDeciderResult(msg));
-    ASSERT(macRes);
-
-    DeciderResult80211 *res = new DeciderResult80211(*macRes);
-    wsm->setControlInfo(new PhyToMacControlInfo(res));
-
-    long dest = macPkt->getDestAddr();
-
-    EV << "Received frame name= " << macPkt->getName() << ", myState=" << " src=" << macPkt->getSrcAddr() << " dst=" << macPkt->getDestAddr() << " myAddr=" << myMacAddress << std::endl;
-
-    if (macPkt->getDestAddr() == myMacAddress)
+    // dummy mapping function
+    switch (priority)
     {
-        EV << "Received a data packet addressed to me. \n";
-
-        statsReceivedPackets++;
-        sendUp(wsm);
-    }
-    else if (dest == LAddress::L2BROADCAST())
-    {
-        statsReceivedBroadcasts++;
-        sendUp(wsm);
-    }
-    else
-    {
-        EV << "Packet not for me, deleting... \n";
-        delete wsm;
-    }
-
-    delete macPkt;
-}
-
-
-t_access_category Mac1609_4::mapPriority(int prio)
-{
-    //dummy mapping function
-    switch (prio)
-    {
-    case 0: return AC_BK;
-    case 1: return AC_BE;
-    case 2: return AC_VI;
-    case 3: return AC_VO;
-    default: throw omnetpp::cRuntimeError("MacLayer received a packet with unknown priority"); break;
+    case 0:
+        return AC_BK;
+    case 1:
+        return AC_BE;
+    case 2:
+        return AC_VI;
+    case 3:
+        return AC_VO;
+    default:
+        throw omnetpp::cRuntimeError("MacLayer received a packet with unknown priority");
     }
 
     return AC_VO;
@@ -705,7 +593,9 @@ void Mac1609_4::channelBusySelf(bool generateTxOp)
     //the channel turned busy because we're sending. we don't want our queues to go into backoff
     //internal contention is already handled in initiateTransmission
 
-    if (!idleChannel) return;
+    if (!idleChannel)
+        return;
+
     idleChannel = false;
     EV << "Channel turned busy: Switch or Self-Send" << std::endl;
 
@@ -796,21 +686,6 @@ void Mac1609_4::channelIdle(bool afterSwitch)
 }
 
 
-void Mac1609_4::setParametersForBitrate(uint64_t bitrate)
-{
-    for (unsigned int i = 0; i < NUM_BITRATES_80211P; i++)
-    {
-        if (bitrate == BITRATES_80211P[i])
-        {
-            n_dbps = N_DBPS_80211P[i];
-            return;
-        }
-    }
-
-    throw omnetpp::cRuntimeError("Chosen Bitrate is not valid for 802.11p: Valid rates are: 3Mbps, 4.5Mbps, 6Mbps, 9Mbps, 12Mbps, 18Mbps, 24Mbps and 27Mbps. Please adjust your omnetpp.ini file accordingly.");
-}
-
-
 bool Mac1609_4::isChannelSwitchingActive()
 {
     return useSCH;
@@ -826,141 +701,6 @@ omnetpp::simtime_t Mac1609_4::getSwitchingInterval()
 bool Mac1609_4::isCurrentChannelCCH()
 {
     return (activeChannel == type_CCH);
-}
-
-
-omnetpp::simtime_t Mac1609_4::getFrameDuration(int payloadLengthBits, enum PHY_MCS mcs) const
-{
-    omnetpp::simtime_t duration;
-
-    if (mcs == MCS_DEFAULT)
-    {
-        // calculate frame duration according to Equation (17-29) of the IEEE 802.11-2007 standard
-        duration = PHY_HDR_PREAMBLE_DURATION + PHY_HDR_PLCPSIGNAL_DURATION + T_SYM_80211P * ceil( (16 + payloadLengthBits + 6)/(n_dbps) );
-    }
-    else
-    {
-        uint32_t ndbps = getNDBPS(mcs);
-        duration = PHY_HDR_PREAMBLE_DURATION + PHY_HDR_PLCPSIGNAL_DURATION + T_SYM_80211P * ceil( (16 + payloadLengthBits + 6)/(ndbps) );
-    }
-
-    return duration;
-}
-
-
-Signal* Mac1609_4::createSimpleSignal(omnetpp::simtime_t_cref start, omnetpp::simtime_t_cref length, double power, double bitrate)
-{
-    omnetpp::simtime_t end = start + length;
-    //create signal with start at current simtime and passed length
-    Signal* s = new Signal(start, length);
-
-    //create and set tx power mapping
-    Mapping* txPowerMapping = createRectangleMapping(start, end, power);
-    s->setTransmissionPower(txPowerMapping);
-
-    //create and set bitrate mapping
-    Mapping* bitrateMapping = createConstantMapping(start, end, bitrate);
-    s->setBitrate(bitrateMapping);
-
-    return s;
-}
-
-
-Mapping* Mac1609_4::createConstantMapping(omnetpp::simtime_t_cref start, omnetpp::simtime_t_cref end, Argument::mapped_type_cref value)
-{
-    //create mapping over time
-    Mapping* m = MappingUtils::createMapping(Argument::MappedZero(), DimensionSet::timeDomain(), Mapping::LINEAR);
-
-    //set position Argument
-    Argument startPos(start);
-
-    //set mapping at position
-    m->setValue(startPos, value);
-
-    //set position Argument
-    Argument endPos(end);
-
-    //set mapping at position
-    m->setValue(endPos, value);
-
-    return m;
-}
-
-
-Mapping* Mac1609_4::createRectangleMapping(omnetpp::simtime_t_cref start, omnetpp::simtime_t_cref end, Argument::mapped_type_cref value)
-{
-    //create mapping over time
-    Mapping* m = MappingUtils::createMapping(DimensionSet::timeDomain(), Mapping::LINEAR);
-
-    //set position Argument
-    Argument startPos(start);
-    //set discontinuity at position
-    MappingUtils::addDiscontinuity(m, startPos, Argument::MappedZero(), MappingUtils::post(start), value);
-
-    //set position Argument
-    Argument endPos(end);
-    //set discontinuity at position
-    MappingUtils::addDiscontinuity(m, endPos, Argument::MappedZero(), MappingUtils::pre(end), value);
-
-    return m;
-}
-
-
-ConstMapping* Mac1609_4::createSingleFrequencyMapping(omnetpp::simtime_t_cref start,
-        omnetpp::simtime_t_cref end,
-        Argument::mapped_type_cref centerFreq,
-        Argument::mapped_type_cref halfBandwidth,
-        Argument::mapped_type_cref value)
-{
-    Mapping* res = MappingUtils::createMapping(Argument::MappedZero(), DimensionSet::timeFreqDomain(), Mapping::LINEAR);
-
-    Argument pos(DimensionSet::timeFreqDomain());
-
-    pos.setArgValue(Dimension::frequency(), centerFreq - halfBandwidth);
-    pos.setTime(start);
-    res->setValue(pos, value);
-
-    pos.setTime(end);
-    res->setValue(pos, value);
-
-    pos.setArgValue(Dimension::frequency(), centerFreq + halfBandwidth);
-    res->setValue(pos, value);
-
-    pos.setTime(start);
-    res->setValue(pos, value);
-
-    return res;
-}
-
-
-BaseConnectionManager* Mac1609_4::getConnectionManager()
-{
-    cModule* nic = getParentModule();
-    return ChannelAccess::getConnectionManager(nic);
-}
-
-
-const LAddress::L2Type& Mac1609_4::getUpperDestinationFromControlInfo(const cObject *const pCtrlInfo)
-{
-    return NetwToMacControlInfo::getDestFromControlInfo(pCtrlInfo);
-}
-
-
-/**
- * Attaches a "control info" (MacToNetw) structure (object) to the message pMsg.
- */
-omnetpp::cObject *const Mac1609_4::setUpControlInfo(omnetpp::cMessage *const pMsg, const LAddress::L2Type& pSrcAddr)
-{
-    return MacToNetwControlInfo::setControlInfo(pMsg, pSrcAddr);
-}
-
-
-/**
- * Attaches a "control info" (MacToPhy) structure (object) to the message pMsg.
- */
-omnetpp::cObject *const Mac1609_4::setDownControlInfo(omnetpp::cMessage *const pMsg, Signal *const pSignal)
-{
-    return MacToPhyControlInfo::setControlInfo(pMsg, pSignal);
 }
 
 

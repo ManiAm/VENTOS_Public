@@ -11,7 +11,16 @@
 #define DECIDERRESULT80211_H_
 
 #include "MiXiMDefs.h"
-#include "Decider.h"
+
+/**
+ * @brief A class to represent the result of a processed packet (that is not
+ * noise) by the Decider.
+ *
+ * It stores information (i.e. basically whether a packet has been received
+ * correctly) for the MACLayer that is handed up to the MACLayer by the PhyLayer
+ * together with the received packet. (see also DeciderToPhyInterface)
+ */
+
 
 /**
  * @brief Defines an extended DeciderResult for the 80211 protocol
@@ -20,9 +29,13 @@
  * @ingroup decider
  * @ingroup ieee80211
  */
-class MIXIM_API DeciderResult80211 : public DeciderResult
+
+class MIXIM_API DeciderResult80211
 {
 protected:
+
+    /** Stores if the AirFrame for this result was received correct.*/
+    bool isCorrect;
 
     /** @brief Stores the bit-rate of the transmission of the packet */
     double bitrate;
@@ -44,13 +57,23 @@ protected:
 
 public:
 
+    DeciderResult80211(bool isCorrect = true) : isCorrect(isCorrect) {};
+
     /**
      * @brief Initialises with the passed values.
      *
      * "bitrate" defines the bit-rate of the transmission of the packet.
      */
     DeciderResult80211(bool isCorrect, double bitrate, double snr, double recvPower_dBm = 0, bool collision = false):
-        DeciderResult(isCorrect), bitrate(bitrate), snr(snr), recvPower_dBm(recvPower_dBm), collision(collision) {}
+        isCorrect(isCorrect), bitrate(bitrate), snr(snr), recvPower_dBm(recvPower_dBm), collision(collision) {}
+
+    /**
+     * @brief A Function that returns a very basic result about the Signal.
+     */
+    bool isSignalCorrect() const
+    {
+        return isCorrect;
+    }
 
     /**
      * @brief Returns the bit-rate of the transmission of the packet.

@@ -9,9 +9,26 @@
 #define BASEDECIDER_H_
 
 #include "MiXiMDefs.h"
-#include "Decider.h"
+#include "DeciderToPhyInterface.h"
+#include "src/msg/MacToPhyCSR_m.h"
+
 
 class Mapping;
+
+/**
+ * @brief The basic Decider class
+ *
+ * The Deciders tasks are:
+ *  1.  decide which packets should be handed up to the MAC Layer (primary task)
+ *  2.  decide whether the channel is busy/idle at a time point or
+ *      during a time interval (channel sensing)
+ *
+ * BasePhyLayer hands every receiving AirFrame several times to the
+ * "processSignal()"-function and is returned a time point when to do so again.
+ *
+ * @ingroup decider
+ */
+
 
 /**
  * @brief Provides some base functionality for most common deciders.
@@ -38,8 +55,10 @@ class Mapping;
  * @ingroup decider
  * @ingroup baseModules
  */
-class MIXIM_API BaseDecider: public Decider {
+class MIXIM_API BaseDecider
+{
 public:
+
     /**
      * @brief The kinds of ControlMessages this Decider sends.
      *
@@ -55,6 +74,15 @@ public:
     };
 
 protected:
+
+    /** @brief A pointer to the physical layer of this Decider. */
+    DeciderToPhyInterface* phy;
+
+    /** @brief simtime that tells the Phy-Layer not to pass an AirFrame again */
+    const omnetpp::simtime_t notAgain;
+
+    /** @brief Defines what an AirFrameVector shall be here */
+    typedef DeciderToPhyInterface::AirFrameVector AirFrameVector;
 
     /** @brief The current state of processing for a signal*/
     enum SignalState {
@@ -111,22 +139,51 @@ public:
      * host and the debug flag.
      */
     BaseDecider(DeciderToPhyInterface* phy, double sensitivity, int myIndex, bool debug):
-        Decider(phy),
+        phy(phy),
+        notAgain(-1),
         sensitivity(sensitivity),
         isChannelIdle(true),
         myIndex(myIndex),
-        debug(debug)
-{
+        debug(debug) {
         currentSignal.first = 0;
         currentSignal.second = NEW;
         currentChannelSenseRequest.first = 0;
         currentChannelSenseRequest.second = -1;
         currentChannelSenseRequest.canAnswerAt = -1;
-}
+    }
 
     virtual ~BaseDecider() {}
 
 public:
+
+    /**
+     * @brief Method to be called by an OMNeT-module during its own finish(),
+     * to enable a decider to do some things.
+     */
+    virtual void finish() {}
+
+    /**
+     * @brief Called by phy layer to indicate that the channel this radio
+     * currently listens to has changed.
+     *
+     * Sub-classing deciders which support multiple channels should override
+     * this method to handle the effects of channel changes on ongoing
+     * receptions.
+     *
+     * @param newChannel The new channel the radio has changed to.
+     */
+    virtual void channelChanged(int newChannel) {}
+
+    /**
+     * @brief Notifies the decider that phy layer is starting a transmission.
+     *
+     * This helps the decider interrupting a current reception. In a standard
+     * 802.11 MAC, this should never happen, but in other MAC layers you might
+     * decide to interrupt an ongoing reception and start transmitting. Thank
+     * to this method, the decider can flag the ongoing frame as non received
+     * because of the transmission.
+     */
+    virtual void switchToTx() {}
 
     /**
      * @brief Processes an AirFrame given by the PhyLayer

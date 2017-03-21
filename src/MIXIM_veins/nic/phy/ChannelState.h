@@ -21,6 +21,7 @@ protected:
 
 	/** @brief the current RSSI value of the channel */
 	double rssi;
+
 public:
 
 	/**
@@ -49,13 +50,14 @@ public:
 	 *
 	 * Of the form "[<idle/busy> with rssi of x]".
 	 */
-	std::string info() const {
+	std::string info() const
+	{
 		std::stringstream os;
-		if (idle) {
+		if (idle)
 			os << "[idle with rssi of ";
-		} else {
+		else
 			os << "[busy with rssi of ";
-		}
+
 		os << rssi << "]";
 		return os.str();
 	}

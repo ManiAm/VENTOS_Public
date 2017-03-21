@@ -4,7 +4,7 @@
 
 Signal::Signal(omnetpp::simtime_t_cref sendingStart, omnetpp::simtime_t_cref duration):
 	senderModuleID(-1), senderFromGateID(-1), receiverModuleID(-1), receiverToGateID(-1),
-	sendingStart(sendingStart), duration(duration),
+	sendingStart(sendingStart), transmissionDelay(duration),
 	propagationDelay(0),
 	power(NULL), bitrate(NULL),
 	txBitrate(NULL),
@@ -13,7 +13,7 @@ Signal::Signal(omnetpp::simtime_t_cref sendingStart, omnetpp::simtime_t_cref dur
 
 Signal::Signal(const Signal & o):
 	senderModuleID(o.senderModuleID), senderFromGateID(o.senderFromGateID), receiverModuleID(o.receiverModuleID), receiverToGateID(o.receiverToGateID),
-	sendingStart(o.sendingStart), duration(o.duration),
+	sendingStart(o.sendingStart), transmissionDelay(o.transmissionDelay),
 	propagationDelay(o.propagationDelay),
 	power(NULL), bitrate(NULL),
 	txBitrate(NULL),
@@ -39,7 +39,7 @@ Signal::Signal(const Signal & o):
 
 const Signal& Signal::operator=(const Signal& o) {
 	sendingStart     = o.sendingStart;
-	duration         = o.duration;
+	transmissionDelay = o.transmissionDelay;
 	propagationDelay = o.propagationDelay;
 	senderModuleID   = o.senderModuleID;
 	senderFromGateID = o.senderFromGateID;
@@ -88,18 +88,18 @@ const Signal& Signal::operator=(const Signal& o) {
 }
 
 void Signal::swap(Signal& s) {
-	std::swap(senderModuleID,   s.senderModuleID);
-	std::swap(senderFromGateID, s.senderFromGateID);
-	std::swap(receiverModuleID, s.receiverModuleID);
-	std::swap(receiverToGateID, s.receiverToGateID);
-	std::swap(sendingStart,     s.sendingStart);
-	std::swap(duration,         s.duration);
-	std::swap(propagationDelay, s.propagationDelay);
-	std::swap(power,            s.power);
-	std::swap(bitrate,          s.bitrate);
-	std::swap(txBitrate,        s.txBitrate);
-	std::swap(attenuations,     s.attenuations);
-	std::swap(rcvPower,         s.rcvPower);
+	std::swap(senderModuleID,    s.senderModuleID);
+	std::swap(senderFromGateID,  s.senderFromGateID);
+	std::swap(receiverModuleID,  s.receiverModuleID);
+	std::swap(receiverToGateID,  s.receiverToGateID);
+	std::swap(sendingStart,      s.sendingStart);
+	std::swap(transmissionDelay, s.transmissionDelay);
+	std::swap(propagationDelay,  s.propagationDelay);
+	std::swap(power,             s.power);
+	std::swap(bitrate,           s.bitrate);
+	std::swap(txBitrate,         s.txBitrate);
+	std::swap(attenuations,      s.attenuations);
+	std::swap(rcvPower,          s.rcvPower);
 }
 
 Signal::~Signal()
@@ -134,7 +134,7 @@ omnetpp::simtime_t_cref Signal::getSendingStart() const {
 }
 
 omnetpp::simtime_t Signal::getSendingEnd() const {
-	return sendingStart + duration;
+	return sendingStart + transmissionDelay;
 }
 
 omnetpp::simtime_t Signal::getReceptionStart() const {
@@ -142,12 +142,9 @@ omnetpp::simtime_t Signal::getReceptionStart() const {
 }
 
 omnetpp::simtime_t Signal::getReceptionEnd() const {
-	return sendingStart + propagationDelay + duration;
+	return sendingStart + propagationDelay + transmissionDelay;
 }
 
-omnetpp::simtime_t_cref Signal::getDuration() const{
-	return duration;
-}
 
 omnetpp::simtime_t_cref Signal::getPropagationDelay() const {
 	return propagationDelay;

@@ -13,15 +13,11 @@
 
 #include "MiXiMDefs.h"
 #include "PhyToMacReport_m.h"
+#include "DeciderResult80211.h"
 
 class AirFrame;
 class BaseWorldUtility;
 class ConstMapping;
-
-/**
- * See Decider.h for definition of DeciderResult
- */
-class DeciderResult;
 
 /**
  * @brief This class is the interface for a Decider to the BasePhyLayer.
@@ -37,9 +33,11 @@ class DeciderResult;
  *
  * @ingroup decider
  */
+
 class MIXIM_API DeciderToPhyInterface
 {
 public:
+
 	/**
 	 * @brief Type for container of AirFrames.
 	 *
@@ -80,7 +78,7 @@ public:
 	 * the corresponding DeciderResult up to MACLayer
 	 *
 	 */
-	virtual void sendUp(AirFrame* packet, DeciderResult* result) = 0;
+	virtual void sendUp(AirFrame* packet, DeciderResult80211* result) = 0;
 
 	/**
 	 * @brief Tells the PhyLayer to cancel a scheduled message (AirFrame or
@@ -115,10 +113,12 @@ public:
 	 *
 	 * Records a double into the scalar result file.
 	 */
-	virtual void recordScalar(const char *name, double value, const char *unit=NULL) = 0;
+	virtual void recordScalar(const char *name, double value, const char *unit = NULL) = 0;
 
 	/** @brief Returns the channel currently used by the radio. */
 	virtual int getCurrentRadioChannel() = 0;
+
+    virtual int getRadioState() = 0;
 };
 
 #endif /*DECIDER_TO_PHY_INTERFACE_H_*/

@@ -24,8 +24,8 @@
 
 #include "BaseDecider.h"
 #include "Consts80211p.h"
-#include "Mac80211pToPhy11pInterface.h"
-#include "Decider80211pToPhy80211pInterface.h"
+#include "MacToPhyInterface.h"
+#include "DeciderToPhyInterface.h"
 #include "msg/AirFrame11p_m.h"
 
 namespace Veins {
@@ -106,7 +106,6 @@ protected:
     double myStartTime;
 
     std::string myPath;
-    Decider80211pToPhy80211pInterface* phy11p;
     std::map<AirFrame*,int> signalStates;
 
     /** @brief enable/disable statistics collection for collisions
@@ -131,7 +130,7 @@ protected:
      *
      *
      */
-    virtual DeciderResult* checkIfSignalOk(AirFrame* frame);
+    virtual DeciderResult80211* checkIfSignalOk(AirFrame* frame);
 
     virtual omnetpp::simtime_t processNewSignal(AirFrame* frame);
 
@@ -207,8 +206,6 @@ public:
                 myStartTime(omnetpp::simTime().dbl()),
                 collectCollisionStats(collectCollisionStatistics),
                 collisions(0) {
-        phy11p = dynamic_cast<Decider80211pToPhy80211pInterface*>(phy);
-        assert(phy11p);
     }
 
     void setPath(std::string myPath)

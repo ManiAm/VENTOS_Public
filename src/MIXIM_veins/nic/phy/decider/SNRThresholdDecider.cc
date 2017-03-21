@@ -210,7 +210,7 @@ omnetpp::simtime_t SNRThresholdDecider::processSignalEnd(AirFrame* frame)
 	{
 		deciderEV << "SNR is above threshold("<<snrThreshold<<") -> sending up." << std::endl;
 		// go on with processing this AirFrame, send it to the Mac-Layer
-		phy->sendUp(frame, new DeciderResult(true));
+		phy->sendUp(frame, new DeciderResult80211(true));
 	}
 	else
 	{

@@ -49,7 +49,8 @@ enum Bandwidth {
 };
 
 /** @brief Given bandwidth and MCS returns datarate in bits per second */
-inline uint64_t getOfdmDatarate(enum PHY_MCS mcs, enum Bandwidth bw) {
+inline uint64_t getOFDMDatarate(enum PHY_MCS mcs, enum Bandwidth bw)
+{
 	//divide datarate by div, depending on bandwidth
 	uint64_t div;
 	//datarate to be returned

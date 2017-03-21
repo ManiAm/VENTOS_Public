@@ -2,6 +2,8 @@
 #define MACTOPHYINTERFACE_H_
 
 #include <omnetpp.h>
+
+#include "ConstsPhy.h"
 #include "MiXiMDefs.h"
 #include "Signal_.h"
 #include "ChannelState.h"
@@ -34,11 +36,16 @@ public:
 		/** @brief Stores the id on which classes extending BasePhy should
 		 * continue their own kinds.*/
 		LAST_BASE_PHY_KIND,
+
+		// used by 11p
+        CHANNEL_IDLE,
+        CHANNEL_BUSY,
 	};
 
 public:
 
 	virtual ~MacToPhyInterface() {}
+
 	/**
 	 * @brief Returns the current state the radio is in. See RadioState
 	 * for possible values.
@@ -91,6 +98,12 @@ public:
 
 	/** @brief Returns the number of channels available on this radio. */
 	virtual int getNbRadioChannels() = 0;
+
+    /** @brief asking the frame duration from the PHY layer. */
+    virtual omnetpp::simtime_t getFrameDuration(int payloadLengthBits, uint64_t bitrate, enum Veins::PHY_MCS mcs = Veins::MCS_DEFAULT) const = 0;
+
+    virtual void changeListeningFrequency(double freq) = 0;
+    virtual void setCCAThreshold(double ccaThreshold_dBm) = 0;
 };
 
 #endif /*MACTOPHYINTERFACE_H_*/

@@ -78,7 +78,7 @@ omnetpp::simtime_t Decider80211p::processNewSignal(AirFrame* msg)
     {
         setChannelIdleStatus(false);
 
-        if (phy11p->getRadioState() == Radio::TX)
+        if (phy->getRadioState() == Radio::TX)
         {
             frame->setBitError(true);
             frame->setWasTransmitting(true);
@@ -100,7 +100,7 @@ omnetpp::simtime_t Decider80211p::processNewSignal(AirFrame* msg)
 
             //channel turned busy
             //measure communication density
-            myBusyTime += signal.getDuration().dbl();
+            myBusyTime += msg->getDuration().dbl();
         }
 
         return signal.getReceptionEnd();
@@ -203,7 +203,7 @@ Mapping* Decider80211p::calculateNoiseRSSIMapping(omnetpp::simtime_t_cref start,
 }
 
 
-DeciderResult* Decider80211p::checkIfSignalOk(AirFrame* frame)
+DeciderResult80211* Decider80211p::checkIfSignalOk(AirFrame* frame)
 {
     EV_STATICCONTEXT
 
@@ -484,14 +484,14 @@ omnetpp::simtime_t Decider80211p::processSignalEnd(AirFrame* msg)
     //remove this frame from our current signals
     signalStates.erase(frame);
 
-    DeciderResult* result;
+    DeciderResult80211* result;
 
     if (frame->getUnderSensitivity())
     {
         //this frame was not even detected by the radio card
         result = new DeciderResult80211(false,0,0,recvPower_dBm);
     }
-    else if (frame->getWasTransmitting() || phy11p->getRadioState() == Radio::TX)
+    else if (frame->getWasTransmitting() || phy->getRadioState() == Radio::TX)
     {
         //this frame was received while sending
         whileSending = true;
@@ -564,7 +564,7 @@ omnetpp::simtime_t Decider80211p::processSignalEnd(AirFrame* msg)
         delete result;
     }
 
-    if (phy11p->getRadioState() == Radio::TX)
+    if (phy->getRadioState() == Radio::TX)
     {
         EV << "I'm currently sending\n";
     }
@@ -596,9 +596,9 @@ void Decider80211p::setChannelIdleStatus(bool isIdle)
     channelStateChanged();
 
     if (isIdle)
-        phy->sendControlMsgToMac(new VENTOS::PhyToMacReport("ChannelStatus", Mac80211pToPhy11pInterface::CHANNEL_IDLE));
+        phy->sendControlMsgToMac(new VENTOS::PhyToMacReport("ChannelStatus", MacToPhyInterface::CHANNEL_IDLE));
     else
-        phy->sendControlMsgToMac(new VENTOS::PhyToMacReport("ChannelStatus", Mac80211pToPhy11pInterface::CHANNEL_BUSY));
+        phy->sendControlMsgToMac(new VENTOS::PhyToMacReport("ChannelStatus", MacToPhyInterface::CHANNEL_BUSY));
 }
 
 

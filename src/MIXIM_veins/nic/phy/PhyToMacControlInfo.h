@@ -3,7 +3,7 @@
 
 #include <omnetpp.h>
 #include "MiXiMDefs.h"
-#include "Decider.h"
+
 
 /**
  * @brief Controlinfo for packets which are send from Physical
@@ -13,24 +13,28 @@
  * @ingroup phyLayer
  * @ingroup macLayer
  */
-class MIXIM_API PhyToMacControlInfo: public omnetpp::cObject {
+class MIXIM_API PhyToMacControlInfo: public omnetpp::cObject
+{
 protected:
+
 	/** The result of the decider evaluation.*/
-	DeciderResult * result;
+    DeciderResult80211 * result;
 
 public:
+
 	/**
 	 * @brief Initializes the PhyToMacControlInfo with the passed DeciderResult.
 	 *
 	 * NOTE: PhyToMacControlInfo takes ownership of the passed DeciderResult!
 	 */
-	PhyToMacControlInfo(DeciderResult* result):
+	PhyToMacControlInfo(DeciderResult80211* result):
 		result(result) {}
 
 	/**
 	 * @brief Clean up the DeciderResult.
 	 */
-	virtual ~PhyToMacControlInfo() {
+	virtual ~PhyToMacControlInfo()
+	{
 		if(result)
 			delete result;
 	}
@@ -38,7 +42,8 @@ public:
 	/**
 	 * @brief Returns the result of the evaluation of the Decider.
 	 */
-	DeciderResult* getDeciderResult() const {
+	DeciderResult80211* getDeciderResult() const
+	{
 		return result;
 	}
 
@@ -55,22 +60,27 @@ public:
      * @param pMsg				The message where the "control info" shall be attached.
      * @param pDeciderResult	The decider results.
      */
-    static cObject *const setControlInfo(omnetpp::cMessage *const pMsg, DeciderResult *const pDeciderResult) {
+    static cObject *const setControlInfo(omnetpp::cMessage *const pMsg, DeciderResult80211 *const pDeciderResult)
+    {
     	PhyToMacControlInfo *const cCtrlInfo = new PhyToMacControlInfo(pDeciderResult);
     	pMsg->setControlInfo(cCtrlInfo);
 
     	return cCtrlInfo;
     }
+
     /**
      * @brief extracts the decider result from message "control info".
      */
-    static DeciderResult *const getDeciderResult(omnetpp::cMessage *const pMsg) {
+    static DeciderResult80211 *const getDeciderResult(omnetpp::cMessage *const pMsg)
+    {
     	return getDeciderResultFromControlInfo(pMsg->getControlInfo());
     }
+
     /**
      * @brief extracts the decider result from message "control info".
      */
-    static DeciderResult *const getDeciderResultFromControlInfo(cObject *const pCtrlInfo) {
+    static DeciderResult80211 *const getDeciderResultFromControlInfo(cObject *const pCtrlInfo)
+    {
     	PhyToMacControlInfo *const cCtrlInfo = dynamic_cast<PhyToMacControlInfo *const>(pCtrlInfo);
 
     	if (cCtrlInfo)

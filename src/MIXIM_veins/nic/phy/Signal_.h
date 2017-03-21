@@ -3,8 +3,10 @@
 
 #include <list>
 #include <omnetpp.h>
+
 #include "MiXiMDefs.h"
 #include "Mapping.h"
+
 
 /**
  * @brief The signal class stores the physical representation of the
@@ -29,18 +31,23 @@
  *
  * @ingroup phyLayer
  */
-class MIXIM_API Signal {
+
+class MIXIM_API Signal
+{
 public:
+
 	/**
 	 * @brief Shortcut type for a concatenated Mapping using multiply operator.
 	 *
 	 * Used to define the receiving power mapping.
 	 */
 	typedef ConcatConstMapping<std::multiplies<double> > MultipliedMapping;
+
 	/** @brief Shortcut type for a list of ConstMappings.*/
 	typedef std::list<ConstMapping*> ConstMappingList;
 
 protected:
+
 	/** @brief Sender module id, additional definition here because BasePhyLayer will do some selfMessages with AirFrame. */
 	int senderModuleID;
 	/** @brief Sender gate id, additional definition here because BasePhyLayer will do some selfMessages with AirFrame. */
@@ -49,10 +56,11 @@ protected:
 	int receiverModuleID;
 	/** @brief Receiver gate id, additional definition here because BasePhyLayer will do some selfMessages with AirFrame. */
 	int receiverToGateID;
+
 	/** @brief The start of the signal transmission at the sender module.*/
 	omnetpp::simtime_t sendingStart;
 	/** @brief The duration of the signal transmission.*/
-	omnetpp::simtime_t duration;
+	omnetpp::simtime_t transmissionDelay;
 	/** @brief The propagation delay of the transmission. */
 	omnetpp::simtime_t propagationDelay;
 
@@ -65,29 +73,35 @@ protected:
 	/** @brief If propagation delay is not zero this stores the undelayed bitrate*/
 	Mapping* txBitrate;
 
-	/** @brief Stores the functions describing the attenuations of the signal*/
+	/** @brief Stores the functions describing the attenuation of the signal*/
 	ConstMappingList attenuations;
 
 	/** @brief Stores the mapping defining the receiving power of the signal.*/
 	MultipliedMapping* rcvPower;
 
 protected:
+
 	/**
 	 * @brief Deletes the rcvPower mapping member because it became
 	 * out-dated.
 	 *
 	 * This happens when transmission power or propagation delay changes.
 	 */
-	void markRcvPowerOutdated() {
-		if(rcvPower){
-			if(propagationDelay != 0) {
+	void markRcvPowerOutdated()
+	{
+		if(rcvPower)
+		{
+			if(propagationDelay != 0)
+			{
 				assert(rcvPower->getRefMapping() != power);
 				delete rcvPower->getRefMapping();
 			}
+
 			delete rcvPower;
 			rcvPower = 0;
 		}
 	}
+
 public:
 
 	/**
@@ -106,7 +120,6 @@ public:
 	 * mappings are cloned correct.
 	 */
 	const Signal& operator=(const Signal& o);
-
 
 	void swap(Signal& s);
 
@@ -140,11 +153,6 @@ public:
 	omnetpp::simtime_t getReceptionEnd() const;
 
 	/**
-	 * @brief Returns the duration of the signal transmission.
-	 */
-	omnetpp::simtime_t_cref getDuration() const;
-
-	/**
 	 * @brief Returns the propagation delay of the signal.
 	 */
 	omnetpp::simtime_t_cref getPropagationDelay() const;
@@ -176,7 +184,8 @@ public:
 	 *
 	 * The ownership of the passed pointer goes to the signal.
 	 */
-	void addAttenuation(ConstMapping* att) {
+	void addAttenuation(ConstMapping* att)
+	{
 		//assert the attenuation wasn't already added to the list before
 		assert(std::find(attenuations.begin(), attenuations.end(), att) == attenuations.end());
 
@@ -193,7 +202,8 @@ public:
 	 * Be aware that the transmission power mapping is not yet affected
 	 * by the propagation delay!
 	 */
-	ConstMapping* getTransmissionPower() {
+	ConstMapping* getTransmissionPower()
+	{
 		return power;
 	}
 
@@ -204,7 +214,8 @@ public:
 	 * Be aware that the transmission power mapping is not yet affected
 	 * by the propagation delay!
 	 */
-	const ConstMapping* getTransmissionPower() const {
+	const ConstMapping* getTransmissionPower() const
+	{
 		return power;
 	}
 
@@ -212,15 +223,17 @@ public:
 	 * @brief Returns the function representing the bitrate of the
 	 * signal.
 	 */
-	Mapping* getBitrate() {
+	Mapping* getBitrate()
+	{
 		return bitrate;
 	}
 
 	/**
-	 * @brief Returns a list of functions representing the attenuations
+	 * @brief Returns a list of functions representing the attenuation
 	 * of the signal.
 	 */
-	const ConstMappingList& getAttenuation() const {
+	const ConstMappingList& getAttenuation() const
+	{
 		return attenuations;
 	}
 
@@ -231,17 +244,17 @@ public:
 	 * The receiving power is calculated by multiplying the transmission
 	 * power with the attenuation of every receiving phys AnalogueModel.
 	 */
-	MultipliedMapping* getReceivingPower() {
+	MultipliedMapping* getReceivingPower()
+	{
 		if(!rcvPower)
 		{
 			ConstMapping* tmp = power;
-			if(propagationDelay != 0) {
+			if(propagationDelay != 0)
+			{
 				tmp = new ConstDelayedMapping(power, propagationDelay);
 			}
-			rcvPower = new MultipliedMapping(tmp,
-											  attenuations.begin(),
-											  attenuations.end(),
-											  false, Argument::MappedZero());
+
+			rcvPower = new MultipliedMapping(tmp, attenuations.begin(), attenuations.end(), false, Argument::MappedZero());
 		}
 
 		return rcvPower;

@@ -37,6 +37,7 @@ namespace Veins {
 class WaveAppToMac1609_4Interface
 {
 public:
+    virtual const LAddress::L2Type& getMACAddress() = 0;
     virtual bool isChannelSwitchingActive() = 0;
     virtual omnetpp::simtime_t getSwitchingInterval() =  0;
     virtual bool isCurrentChannelCCH() = 0;

@@ -36,18 +36,6 @@
 
 const simsignalwrap_t ChannelAccess::mobilityStateChangedSignal = simsignalwrap_t(MIXIM_SIGNAL_MOBILITY_CHANGE_NAME);
 
-BaseConnectionManager* ChannelAccess::getConnectionManager(cModule* nic)
-{
-    std::string cmName = nic->hasPar("connectionManagerName") ? nic->par("connectionManagerName").stringValue() : "";
-    if (cmName != "")
-    {
-        omnetpp::cModule* ccModule = omnetpp::cSimulation::getActiveSimulation()->getModuleByPath(cmName.c_str());
-        return dynamic_cast<BaseConnectionManager *>(ccModule);
-    }
-    else
-        return FindModule<BaseConnectionManager *>::findGlobalModule();
-}
-
 
 void ChannelAccess::initialize(int stage)
 {
@@ -60,15 +48,13 @@ void ChannelAccess::initialize(int stage)
         if(this->getParentModule()->getParentModule()->par("DSRCenabled"))
             findHost()->subscribe(mobilityStateChangedSignal, this);
 
-        cModule* nic = getParentModule();
-        cc = getConnectionManager(nic);
-        if(cc == NULL)
-            throw omnetpp::cRuntimeError("Could not find connectionmanager module");
-
-        isRegistered = false;
+        // get a pointer to the connection manager module
+        omnetpp::cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("connMan");
+        cc = static_cast<BaseConnectionManager*>(module);
+        ASSERT(cc);
 
         // get a pointer to the Statistics module
-        omnetpp::cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("statistics");
+        module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("statistics");
         STAT = static_cast<VENTOS::Statistics*>(module);
         ASSERT(STAT);
     }
@@ -227,10 +213,8 @@ void ChannelAccess::recordFrameTx(omnetpp::cPacket *msg /*AirFrame11p*/, omnetpp
         throw omnetpp::cRuntimeError("frame/nic '(%d,%d)' is not unique", frameId, nicId);
     else
     {
-        // extract signal from frame
         Veins::AirFrame11p *frame = dynamic_cast<Veins::AirFrame11p *>(msg);
         ASSERT(frame);
-        auto signal = frame->getSignal();
 
         VENTOS::msgTxRxStat_t entry = {};
 
@@ -240,7 +224,7 @@ void ChannelAccess::recordFrameTx(omnetpp::cPacket *msg /*AirFrame11p*/, omnetpp
         entry.SentAt = omnetpp::simTime().dbl();
         entry.FrameSize = msg->getBitLength();
         entry.TransmissionSpeed = 6; //signal.getBitrate();
-        entry.TransmissionTime = signal.getDuration().dbl();
+        entry.TransmissionTime = frame->getDuration().dbl();
         entry.DistanceToReceiver = propDelay.distance;
         entry.PropagationDelay = propDelay.propagationDelay.dbl();
 
