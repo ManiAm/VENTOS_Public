@@ -30,7 +30,7 @@ omnetpp::simtime_t SNRThresholdDecider::processNewSignal(AirFrame* frame)
 	//Therefore we use MappingUtils "post"-method to ask for the receiving power
 	//at the correct position.
 	Signal& signal = frame->getSignal();
-	omnetpp::simtime_t receivingStart = MappingUtils::post(signal.getReceptionStart());
+	omnetpp::simtime_t receivingStart = MappingUtils::post(frame->getSendingTime() + signal.getPropagationDelay());
 	double recvPower = signal.getReceivingPower()->getValue(Argument(receivingStart));
 
 	// check whether signal is strong enough to receive
@@ -49,7 +49,7 @@ omnetpp::simtime_t SNRThresholdDecider::processNewSignal(AirFrame* frame)
 	currentSignal.first = frame;
 	currentSignal.second = EXPECT_END;
 
-	return signal.getReceptionEnd();
+	return frame->getSendingTime() + signal.getPropagationDelay() + frame->getDuration();
 }
 
 // TODO: for now we check a larger mapping within an interval
@@ -192,8 +192,8 @@ omnetpp::simtime_t SNRThresholdDecider::processSignalEnd(AirFrame* frame)
 	assert(snrMap);
 
 	const Signal& signal = frame->getSignal();
-	omnetpp::simtime_t start = signal.getReceptionStart();
-	omnetpp::simtime_t end = signal.getReceptionEnd();
+	omnetpp::simtime_t start = frame->getSendingTime() + signal.getPropagationDelay();
+	omnetpp::simtime_t end = frame->getSendingTime() + signal.getPropagationDelay() + frame->getDuration();
 
 	// NOTE: Since this decider does not consider the amount of time when the signal's SNR is
 	// below the threshold even the smallest (normally insignificant) drop causes this decider

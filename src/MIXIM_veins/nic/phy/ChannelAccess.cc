@@ -61,9 +61,9 @@ void ChannelAccess::initialize(int stage)
     else if (stage == 1)
     {
         record_frameTxRx = this->par("record_frameTxRx").boolValue();
-    }
 
-    usePropagationDelay = par("usePropagationDelay");
+        usePropagationDelay = par("usePropagationDelay");
+    }
 }
 
 
@@ -137,6 +137,11 @@ void ChannelAccess::sendToChannel(omnetpp::cPacket *msg)
 
             if(record_frameTxRx)
                 recordFrameTx(msg, i->second, prop);
+
+            // todo
+            double currentTime = omnetpp::simTime().dbl();  // 38.791735000000003
+            double proppp = prop.propagationDelay.dbl();  // 3.0021000000000001e-08
+            double duration = frameDuration.dbl(); // 0.00010399999999999999
 
             sendDirect(msg, prop.propagationDelay, frameDuration, i->second->getOwnerModule(), radioEnd);
         }

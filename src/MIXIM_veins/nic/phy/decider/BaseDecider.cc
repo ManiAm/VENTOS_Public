@@ -42,9 +42,11 @@ omnetpp::simtime_t BaseDecider::processNewSignal(AirFrame* frame)
         return notAgain;
     }
 
-    // get the receiving power of the Signal at start-time
     Signal& signal = frame->getSignal();
-    double recvPower = signal.getReceivingPower()->getValue(Argument(signal.getReceptionStart()));
+    omnetpp::simtime_t receptionStart = frame->getSendingTime() + signal.getPropagationDelay();
+
+    // get the receiving power of the Signal at start-time
+    double recvPower = signal.getReceivingPower()->getValue(Argument(receptionStart));
 
     // check whether signal is strong enough to receive
     if ( recvPower < sensitivity )
@@ -64,7 +66,7 @@ omnetpp::simtime_t BaseDecider::processNewSignal(AirFrame* frame)
     //channel turned busy
     setChannelIdleStatus(false);
 
-    return signal.getReceptionEnd();
+    return frame->getSendingTime() + signal.getPropagationDelay() + frame->getDuration();
 }
 
 
@@ -253,11 +255,12 @@ Mapping* BaseDecider::calculateSnrMapping(AirFrame* frame)
     /* calculate Noise-Strength-Mapping */
     Signal& signal = frame->getSignal();
 
-    omnetpp::simtime_t start = signal.getReceptionStart();
-    omnetpp::simtime_t end   = signal.getReceptionEnd();
+    omnetpp::simtime_t start = frame->getSendingTime() + signal.getPropagationDelay();
+    omnetpp::simtime_t end   = frame->getSendingTime() + signal.getPropagationDelay() + frame->getDuration();
 
     Mapping* noiseMap = calculateRSSIMapping(start, end, frame);
     assert(noiseMap);
+
     ConstMapping* recvPowerMap = signal.getReceivingPower();
     assert(recvPowerMap);
 
@@ -323,9 +326,12 @@ Mapping* BaseDecider::calculateRSSIMapping( omnetpp::simtime_t_cref start, omnet
 
         // Mapping* resultMapNew = Mapping::add( *(signal.getReceivingPower()), *resultMap, start, end );
 
+        omnetpp::simtime_t receptionStart = (*it)->getSendingTime() + signal.getPropagationDelay();
+        omnetpp::simtime_t receptionEnd = (*it)->getSendingTime() + signal.getPropagationDelay() + (*it)->getDuration();
+
         deciderEV << "Adding mapping of Airframe with ID " << (*it)->getId()
-				                << ". Starts at " << signal.getReceptionStart()
-				                << " and ends at " << signal.getReceptionEnd() << std::endl;
+				                << ". Starts at " << receptionStart
+				                << " and ends at " << receptionEnd << std::endl;
 
         Mapping* resultMapNew = MappingUtils::add( *recvPowerMap, *resultMap, Argument::MappedZero() );
 

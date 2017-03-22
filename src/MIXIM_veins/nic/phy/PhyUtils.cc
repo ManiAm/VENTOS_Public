@@ -4,11 +4,16 @@
 
 void RadioStateAnalogueModel::filterSignal(AirFrame *frame, const Coord& sendersPos, const Coord& receiverPos)
 {
-    Signal&      signal     = frame->getSignal();
-    RSAMMapping* attMapping = new RSAMMapping(this, signal.getReceptionStart(), signal.getReceptionEnd());
+    Signal& signal = frame->getSignal();
+
+    omnetpp::simtime_t_cref signalStart = frame->getSendingTime() + signal.getPropagationDelay();
+    omnetpp::simtime_t_cref signalEnd   = frame->getSendingTime() + signal.getPropagationDelay() + frame->getDuration();
+
+    RSAMMapping* attMapping = new RSAMMapping(this, signalStart, signalEnd);
 
     signal.addAttenuation(attMapping);
 }
+
 
 void RadioStateAnalogueModel::cleanUpUntil(omnetpp::simtime_t_cref t)
 {
@@ -22,7 +27,6 @@ void RadioStateAnalogueModel::cleanUpUntil(omnetpp::simtime_t_cref t)
     {
         return;
     }
-
 
     // CASE: t is greater than the timepoint of the last element
     // ==> clear complete list except the last element, return
@@ -62,6 +66,7 @@ void RadioStateAnalogueModel::cleanUpUntil(omnetpp::simtime_t_cref t)
 
 }
 
+
 void RadioStateAnalogueModel::writeRecvEntry(omnetpp::simtime_t_cref time, Argument::mapped_type_cref value)
 {
     // bugfixed on 08.04.2008
@@ -78,18 +83,16 @@ void RadioStateAnalogueModel::writeRecvEntry(omnetpp::simtime_t_cref time, Argum
 }
 
 
-
-
 Radio::Radio(int numRadioStates,
         bool recordStats,
         int initialState,
         Argument::mapped_type_cref minAtt, Argument::mapped_type_cref maxAtt,
         int currentChannel, int nbChannels):
-	                state(initialState), nextState(initialState),
-	                numRadioStates(numRadioStates),
-	                minAtt(minAtt), maxAtt(maxAtt),
-	                rsam(mapStateToAtt(initialState)),
-	                currentChannel(currentChannel), nbChannels(nbChannels)
+	                        state(initialState), nextState(initialState),
+	                        numRadioStates(numRadioStates),
+	                        minAtt(minAtt), maxAtt(maxAtt),
+	                        rsam(mapStateToAtt(initialState)),
+	                        currentChannel(currentChannel), nbChannels(nbChannels)
 {
     assert(nbChannels > 0);
     assert(currentChannel > -1);
@@ -122,17 +125,17 @@ Radio::Radio(int numRadioStates,
     }
 }
 
+
 Radio::~Radio()
 {
     // delete all allocated memory for the switching times matrix
     for (int i = 0; i < numRadioStates; i++)
-    {
         delete[] swTimes[i];
-    }
 
     delete[] swTimes;
     swTimes = 0;
 }
+
 
 omnetpp::simtime_t Radio::switchTo(int newState, omnetpp::simtime_t_cref now)
 {
@@ -142,16 +145,13 @@ omnetpp::simtime_t Radio::switchTo(int newState, omnetpp::simtime_t_cref now)
     // state to switch to must not be SWITCHING
     assert(newState != SWITCHING);
 
-
     // return error value if newState is the same as the current state
     // if (newState == state) return -1;
 
     // return error value if Radio is currently switching
     if (state == SWITCHING) return -1;
 
-
     /* REGULAR CASE */
-
 
     // set the nextState to the newState and the current state to SWITCHING
     nextState = newState;
@@ -165,6 +165,7 @@ omnetpp::simtime_t Radio::switchTo(int newState, omnetpp::simtime_t_cref now)
     // return matching entry from the switch times matrix
     return swTimes[lastState][nextState];
 }
+
 
 void Radio::setSwitchTime(int from, int to, omnetpp::simtime_t_cref time)
 {
@@ -180,6 +181,7 @@ void Radio::setSwitchTime(int from, int to, omnetpp::simtime_t_cref time)
     swTimes[from][to] = time;
     return;
 }
+
 
 void Radio::endSwitch(omnetpp::simtime_t_cref now)
 {
@@ -197,8 +199,6 @@ void Radio::endSwitch(omnetpp::simtime_t_cref now)
 }
 
 
-
-
 RSAMConstMappingIterator::RSAMConstMappingIterator
 (const RadioStateAnalogueModel* rsam,
         omnetpp::simtime_t_cref signalStart,
@@ -213,6 +213,7 @@ RSAMConstMappingIterator::RSAMConstMappingIterator
 
     jumpToBegin();
 }
+
 
 void RSAMConstMappingIterator::jumpTo(const Argument& pos)
 {
@@ -234,6 +235,7 @@ void RSAMConstMappingIterator::jumpTo(const Argument& pos)
     setNextPosition();
 }
 
+
 void RSAMConstMappingIterator::setNextPosition()
 {
     if (hasNext()) // iterator it does not stand on last entry and next entry is before signal end
@@ -241,30 +243,34 @@ void RSAMConstMappingIterator::setNextPosition()
         if(position.getTime() < signalStart) //signal start is our first key entry
         {
             nextPosition.setTime(signalStart);
-        } else
+        }
+        else
         {
             CurrList::const_iterator it2 = it;
             it2++;
 
             assert(it->getTime() <= position.getTime() && position.getTime() < it2->getTime());
 
-            //point in time for the "pre step" of the next real key entry
+            // point in time for the "pre step" of the next real key entry
             omnetpp::simtime_t_cref preTime = MappingUtils::pre(it2->getTime());
 
-            if(position.getTime() == preTime) {
+            if(position.getTime() == preTime)
+            {
                 nextPosition.setTime(it2->getTime());
             }
-            else {
+            else
+            {
                 nextPosition.setTime(preTime);
             }
         }
 
-    } else // iterator it stands on last entry or next entry whould be behind signal end
+    }
+    else // iterator it stands on last entry or next entry whould be behind signal end
     {
         nextPosition.setTime(position.getTime() + 1);
     }
-
 }
+
 
 void RSAMConstMappingIterator::iterateTo(const Argument& pos)
 {
@@ -293,6 +299,7 @@ void RSAMConstMappingIterator::iterateTo(const Argument& pos)
 
 }
 
+
 bool RSAMConstMappingIterator::inRange() const
 {
     omnetpp::simtime_t_cref t             = position.getTime();
@@ -303,19 +310,19 @@ bool RSAMConstMappingIterator::inRange() const
             && t <= lastEntryTime;
 }
 
+
 bool RSAMConstMappingIterator::hasNext() const
 {
     assert( !(rsam->radioStateAttenuation.empty()) );
 
     CurrList::const_iterator it2 = it;
     if (it2 != rsam->radioStateAttenuation.end())
-    {
         it2++;
-    }
 
     return 	position.getTime() < signalStart
             || (it2 != rsam->radioStateAttenuation.end() && it2->getTime() <= signalEnd);
 }
+
 
 void RSAMConstMappingIterator::iterateToOverZeroSwitches(omnetpp::simtime_t_cref t)
 {
@@ -330,6 +337,7 @@ void RSAMConstMappingIterator::iterateToOverZeroSwitches(omnetpp::simtime_t_cref
     }
 }
 
+
 RSAMMapping::argument_value_t RSAMMapping::getValue(const Argument& pos) const
 {
     // extract the time-component from the argument
@@ -337,8 +345,7 @@ RSAMMapping::argument_value_t RSAMMapping::getValue(const Argument& pos) const
 
     // assert that t is not before the first timepoint in the RSAM
     // and receiving list is not empty
-    assert( !(rsam->radioStateAttenuation.empty()) &&
-            !(t < rsam->radioStateAttenuation.front().getTime()) );
+    assert( !(rsam->radioStateAttenuation.empty()) && !(t < rsam->radioStateAttenuation.front().getTime()) );
 
     /* receiving list contains at least one entry */
 
@@ -352,10 +359,10 @@ RSAMMapping::argument_value_t RSAMMapping::getValue(const Argument& pos) const
     return it->getValue();
 }
 
+
 ConstMappingIterator* RSAMMapping::createConstIterator(const Argument& pos) const
 {
-    RSAMConstMappingIterator* rsamCMI
-    = new RSAMConstMappingIterator(rsam, signalStart, signalEnd);
+    RSAMConstMappingIterator* rsamCMI = new RSAMConstMappingIterator(rsam, signalStart, signalEnd);
 
     rsamCMI->jumpTo(pos);
 

@@ -21,17 +21,22 @@ LogNormalShadowing::LogNormalShadowing(double mean, double stdDev, omnetpp::simt
 	mean(mean), stdDev(stdDev), interval(interval)
 { }
 
+
 LogNormalShadowing::~LogNormalShadowing() {}
 
-double LogNormalShadowing::randomLogNormalGain() const {
+
+double LogNormalShadowing::randomLogNormalGain() const
+{
 	return FWMath::dBm2mW(-1.0 * omnetpp::cSimulation::getActiveSimulation()->getContext()->normal(mean, stdDev));
 }
 
-void LogNormalShadowing::filterSignal(AirFrame *frame, const Coord& sendersPos, const Coord& receiverPos) {
+
+void LogNormalShadowing::filterSignal(AirFrame *frame, const Coord& sendersPos, const Coord& receiverPos)
+{
 	Signal&   signal = frame->getSignal();
-	omnetpp::simtime_t start  = signal.getReceptionStart();
-	omnetpp::simtime_t end    = signal.getReceptionEnd();
-	Mapping*  att    = MappingUtils::createMapping(DimensionSet::timeDomain(), Mapping::LINEAR);
+	omnetpp::simtime_t start = frame->getSendingTime() + signal.getPropagationDelay();
+	omnetpp::simtime_t end = frame->getSendingTime() + signal.getPropagationDelay() + frame->getDuration();
+	Mapping *att = MappingUtils::createMapping(DimensionSet::timeDomain(), Mapping::LINEAR);
 
 	Argument pos;
 

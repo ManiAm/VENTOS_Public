@@ -33,7 +33,7 @@ packet AirFrame
 {
     Signal signal;		// Contains the physical data of this AirFrame
     int state = 1; 		// state of the AirFrames, used by the physical layer as state machine for delay and transmission duration simulation
-    int type = 0;		// If type isn't null then this is a control-AirFrame and type specifies the control type
+    int type = 0;		// If type isn't null then this is a control-AirFrame and id specifies the control type
     long id;			// Unique ID of the AirFrame used as identifier for related control-AirFrames
 	int protocolId;		// the id of the phy protocol of this airframe
 	int channel;    	// the channel of the radio used for this transmission

@@ -56,7 +56,7 @@ omnetpp::simtime_t Decider80211p::processNewSignal(AirFrame* msg)
     Signal& signal = frame->getSignal();
 
     Argument start(DimensionSet::timeFreqDomain());
-    start.setTime(signal.getReceptionStart());
+    start.setTime(frame->getSendingTime() + signal.getPropagationDelay());
     start.setArgValue(Dimension::frequency(), centerFrequency);
 
     signalStates[frame] = EXPECT_END;
@@ -72,7 +72,7 @@ omnetpp::simtime_t Decider80211p::processNewSignal(AirFrame* msg)
         if (cca(omnetpp::simTime(), NULL) == false)
             setChannelIdleStatus(false);
 
-        return signal.getReceptionEnd();
+        return frame->getSendingTime() + signal.getPropagationDelay() + frame->getDuration();
     }
     else
     {
@@ -103,7 +103,7 @@ omnetpp::simtime_t Decider80211p::processNewSignal(AirFrame* msg)
             myBusyTime += msg->getDuration().dbl();
         }
 
-        return signal.getReceptionEnd();
+        return frame->getSendingTime() + signal.getPropagationDelay() + frame->getDuration();;
     }
 }
 
@@ -141,8 +141,8 @@ void Decider80211p::calculateSinrAndSnrMapping(AirFrame* frame, Mapping **sinrMa
     /* calculate Noise-Strength-Mapping */
     Signal& signal = frame->getSignal();
 
-    omnetpp::simtime_t start = signal.getReceptionStart();
-    omnetpp::simtime_t end   = signal.getReceptionEnd();
+    omnetpp::simtime_t start = frame->getSendingTime() + signal.getPropagationDelay();
+    omnetpp::simtime_t end   = frame->getSendingTime() + signal.getPropagationDelay() + frame->getDuration();
 
     //call BaseDecider function to get Noise plus Interference mapping
     Mapping* noiseInterferenceMap = calculateRSSIMapping(start, end, frame);
@@ -223,12 +223,12 @@ DeciderResult80211* Decider80211p::checkIfSignalOk(AirFrame* frame)
     assert(sinrMap);
 
     Signal& s = frame->getSignal();
-    omnetpp::simtime_t start = s.getReceptionStart();
-    omnetpp::simtime_t end = s.getReceptionEnd();
+    omnetpp::simtime_t start = frame->getSendingTime() + s.getPropagationDelay();
+    omnetpp::simtime_t end = frame->getSendingTime() + s.getPropagationDelay() + frame->getDuration();
 
     //compute receive power
     Argument st(DimensionSet::timeFreqDomain());
-    st.setTime(s.getReceptionStart());
+    st.setTime(start);
     st.setArgValue(Dimension::frequency(), centerFrequency);
     double recvPower_dBm = 10*log10(s.getReceivingPower()->getValue(st));
 
@@ -474,7 +474,7 @@ omnetpp::simtime_t Decider80211p::processSignalEnd(AirFrame* msg)
     Signal& signal = frame->getSignal();
 
     Argument start(DimensionSet::timeFreqDomain());
-    start.setTime(signal.getReceptionStart());
+    start.setTime(frame->getSendingTime() + signal.getPropagationDelay());
     start.setArgValue(Dimension::frequency(), centerFrequency);
 
     double recvPower_dBm = 10*log10(signal.getReceivingPower()->getValue(start));

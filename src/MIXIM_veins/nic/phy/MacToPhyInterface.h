@@ -27,6 +27,8 @@ public:
 	enum BasePhyMessageKinds {
 		/** @brief Indicates the end of a send transmission. */
 		TX_OVER = 22000,
+        /** @brief radio delay. */
+        RADIO_DELAY,
 		/** @brief Indicates the end of a radio switch. */
 		RADIO_SWITCHING_OVER,
 		/** @brief Channel sense control message between Mac and Phy.*/

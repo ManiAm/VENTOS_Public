@@ -57,6 +57,7 @@ PhyLayer80211p::PhyLayer80211p()
     this->radio = 0;
     this->decider = 0;
     this->radioSwitchingOverTimer = 0;
+    this->radioDelayTimer = 0;
     this->txOverTimer = 0;
     this->headerLength = -1;
     this->world = NULL;
@@ -80,6 +81,9 @@ PhyLayer80211p::~PhyLayer80211p()
 
     if(radioSwitchingOverTimer)
         cancelAndDelete(radioSwitchingOverTimer);
+
+    if(radioDelayTimer)
+        cancelAndDelete(radioDelayTimer);
 
     // free thermal noise mapping
     if(thermalNoise)
@@ -180,6 +184,7 @@ void PhyLayer80211p::initialize(int stage)
         // Initialize timer messages
         radioSwitchingOverTimer = new omnetpp::cMessage("radio switching over", RADIO_SWITCHING_OVER);
         txOverTimer = new omnetpp::cMessage("transmission over", TX_OVER);
+        radioDelayTimer = new omnetpp::cMessage("radio delay", RADIO_DELAY);
 
         if (par("headerLength").longValue() != PHY_HDR_TOTAL_LENGTH)
             throw omnetpp::cRuntimeError("The header length of the 802.11p standard is 46bit, please change your omnetpp.ini accordingly by either setting it to 46bit or removing the entry");
@@ -265,18 +270,31 @@ void PhyLayer80211p::handleSelfMessage(omnetpp::cMessage* msg)
 
         break;
     }
+    // waiting for the radio is over
+    case RADIO_DELAY:
+    {
+        // transmit the frame
+        sendToChannel(readyToSendFrame);
+
+        NumSentFrames++;
+
+        if(record_stat)
+            record_PHY_stat_func();
+
+        break;
+    }
     // radio switch over
     case RADIO_SWITCHING_OVER:
         assert(msg == radioSwitchingOverTimer);
         finishRadioSwitching();
         break;
 
-    // AirFrame
+        // AirFrame
     case AIR_FRAME:
         handleAirFrame(static_cast<AirFrame*>(msg));
         break;
 
-    // ChannelSenseRequest
+        // ChannelSenseRequest
     case CHANNEL_SENSE_REQUEST:
         handleChannelSenseRequest(msg);
         break;
@@ -310,19 +328,15 @@ void PhyLayer80211p::handleUpperMessage(omnetpp::cMessage* msg)
     // build the AirFrame to send
     assert(dynamic_cast<omnetpp::cPacket*>(msg) != 0);
 
-    AirFrame* frame = encapsMsg(static_cast<omnetpp::cPacket*>(msg));
+    readyToSendFrame = encapsMsg(static_cast<omnetpp::cPacket*>(msg));
 
     // make sure there is no self message of kind TX_OVER scheduled
     // and schedule the actual one
     assert (!txOverTimer->isScheduled());
-    scheduleAt(omnetpp::simTime() + frame->getDuration(), txOverTimer);
+    scheduleAt(omnetpp::simTime() + RADIODELAY_11P + readyToSendFrame->getDuration(), txOverTimer);
 
-    sendToChannel(frame);
-
-    NumSentFrames++;
-
-    if(record_stat)
-        record_PHY_stat_func();
+    // wait for the radio delay and then send the frame to the channel
+    scheduleAt(omnetpp::simTime() + RADIODELAY_11P, radioDelayTimer);
 }
 
 
@@ -839,34 +853,31 @@ void PhyLayer80211p::handleAirFrameStartReceive(AirFrame* frame)
 
     if(usePropagationDelay)
     {
-        Signal& s = frame->getSignal();
-        omnetpp::simtime_t delay = omnetpp::simTime() - s.getSendingStart();
-        s.setPropagationDelay(delay);
+        // calculate the propagation delay
+        omnetpp::simtime_t delay = omnetpp::simTime() - frame->getSendingTime();
+        // then set it in the frame's signal
+        frame->getSignal().setPropagationDelay(delay);
     }
 
-    // sendingStart + propagationDelay
-    assert(frame->getSignal().getReceptionStart() == omnetpp::simTime());
+    assert(frame->getSendingTime() + frame->getSignal().getPropagationDelay() == omnetpp::simTime());
 
     if(emulationActive)
     {
-        frame->getSignal().setReceptionSenderInfo(frame);
         filterSignal(frame);
 
         if(decider && frame->getProtocolId() == protocolId)
         {
             frame->setState(RECEIVING);
 
-            //pass the AirFrame the first time to the Decider
+            // pass the AirFrame the first time to the Decider
             handleAirFrameReceiving(frame);
         }
-        //if no decider is defined we will schedule the message directly to its end
+        // if no decider is defined we will schedule the message directly to its end
         else
         {
-            Signal& signal = frame->getSignal();
-
-            omnetpp::simtime_t signalEndTime = signal.getReceptionStart() + frame->getDuration();
             frame->setState(END_RECEIVE);
 
+            omnetpp::simtime_t signalEndTime = frame->getSendingTime() + frame->getSignal().getPropagationDelay() + frame->getDuration();
             scheduleAt(signalEndTime, frame);
         }
     }
@@ -876,8 +887,7 @@ void PhyLayer80211p::handleAirFrameStartReceive(AirFrame* frame)
         frame->setState(END_RECEIVE);
 
         // schedule the message directly to its end
-        Signal& signal = frame->getSignal();
-        omnetpp::simtime_t signalEndTime = signal.getReceptionStart() + frame->getDuration();
+        omnetpp::simtime_t signalEndTime = frame->getSendingTime() + frame->getSignal().getPropagationDelay() + frame->getDuration();
         scheduleAt(signalEndTime, frame);
 
         return;
@@ -887,12 +897,11 @@ void PhyLayer80211p::handleAirFrameStartReceive(AirFrame* frame)
 
 void PhyLayer80211p::handleAirFrameReceiving(AirFrame* frame)
 {
-    Signal& signal = frame->getSignal();
     omnetpp::simtime_t nextHandleTime = decider->processSignal(frame);
 
-    omnetpp::simtime_t signalEndTime = signal.getReceptionStart() + frame->getDuration();
+    omnetpp::simtime_t signalEndTime = frame->getSendingTime() + frame->getSignal().getPropagationDelay();
 
-    //check if this is the end of the receiving process
+    // check if this is the end of the receiving process
     if(omnetpp::simTime() >= signalEndTime)
     {
         frame->setState(END_RECEIVE);
@@ -900,13 +909,13 @@ void PhyLayer80211p::handleAirFrameReceiving(AirFrame* frame)
         return;
     }
 
-    //smaller zero means don't give it to me again
+    // smaller zero means don't give it to me again
     if(nextHandleTime < 0)
     {
         nextHandleTime = signalEndTime;
         frame->setState(END_RECEIVE);
     }
-    //invalid point in time
+    // invalid point in time
     else if(nextHandleTime < omnetpp::simTime() || nextHandleTime > signalEndTime)
         throw omnetpp::cRuntimeError("Invalid next handle time returned by Decider. Expected a value between current simulation time (%.2f) and end of signal (%.2f) but got %.2f",
                 SIMTIME_DBL(omnetpp::simTime()), SIMTIME_DBL(signalEndTime), SIMTIME_DBL(nextHandleTime));
@@ -951,12 +960,12 @@ void PhyLayer80211p::handleChannelSenseRequest(omnetpp::cMessage* msg)
 
     omnetpp::simtime_t nextHandleTime = decider->handleChannelSenseRequest(senseReq);
 
-    //schedule request for next handling
+    // schedule request for next handling
     if(nextHandleTime >= omnetpp::simTime())
     {
         scheduleAt(nextHandleTime, msg);
 
-        //don't throw away any AirFrames while ChannelSenseRequest is active
+        // don't throw away any AirFrames while ChannelSenseRequest is active
         if(!channelInfo.isRecording())
             channelInfo.startRecording(omnetpp::simTime());
     }
@@ -1070,11 +1079,12 @@ double PhyLayer80211p::getCCAThreshold()
 
 Signal* PhyLayer80211p::createSignal(omnetpp::simtime_t start, omnetpp::simtime_t duration, double power, uint64_t bitrate, double frequency)
 {
-    // create signal with start at current simtime and passed length
-    Signal* s = new Signal(start, duration);
+    // create an empty signal
+    Signal* s = new Signal();
+
+    omnetpp::simtime_t end = start + duration;
 
     // create and set tx power mapping
-    omnetpp::simtime_t end = start + duration;
     ConstMapping* txPowerMapping = createSingleFrequencyMapping(start, end, frequency, 5.0e6, power);
     s->setTransmissionPower(txPowerMapping);
 
@@ -1094,9 +1104,10 @@ Signal* PhyLayer80211p::createSignal(omnetpp::simtime_t start, omnetpp::simtime_
 
 Signal* PhyLayer80211p::createSimpleSignal(omnetpp::simtime_t_cref start, omnetpp::simtime_t_cref length, double power, double bitrate)
 {
+    // create an empty signal
+    Signal* s = new Signal();
+
     omnetpp::simtime_t end = start + length;
-    //create signal with start at current simtime and passed length
-    Signal* s = new Signal(start, length);
 
     //create and set tx power mapping
     Mapping* txPowerMapping = createRectangleMapping(start, end, power);

@@ -103,6 +103,8 @@ private:
     /** @brief The id of the in-control gate from the Mac layer */
     int upperControlIn;
 
+    AirFrame* readyToSendFrame = NULL;
+
     long NumSentFrames = 0;
     long NumReceivedFrames = 0;
     long NumLostFrames_BiteError = 0;  // A frame was not received due to bit-errors
@@ -168,6 +170,8 @@ private:
      * transmission of an AirFrame is over.
      */
     omnetpp::cMessage* txOverTimer;
+
+    omnetpp::cMessage* radioDelayTimer;
 
     /** @brief The states of the receiving process for AirFrames.*/
     enum AirFrameStates {

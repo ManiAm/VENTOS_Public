@@ -13,7 +13,7 @@
  * signal of an AirFrame.
  *
  * This includes start, duration and propagation delay of the signal,
- * Mappings which represent the transmission power, bitrate, attenuations
+ * Mappings which represent the transmission power, bitrate, attenuation
  * caused by effects of the channel on the signal during its transmission
  * and the receiving power.
  *
@@ -36,260 +36,325 @@ class MIXIM_API Signal
 {
 public:
 
-	/**
-	 * @brief Shortcut type for a concatenated Mapping using multiply operator.
-	 *
-	 * Used to define the receiving power mapping.
-	 */
-	typedef ConcatConstMapping<std::multiplies<double> > MultipliedMapping;
+    /**
+     * @brief Shortcut type for a concatenated Mapping using multiply operator.
+     *
+     * Used to define the receiving power mapping.
+     */
+    typedef ConcatConstMapping<std::multiplies<double> > MultipliedMapping;
 
-	/** @brief Shortcut type for a list of ConstMappings.*/
-	typedef std::list<ConstMapping*> ConstMappingList;
-
-protected:
-
-	/** @brief Sender module id, additional definition here because BasePhyLayer will do some selfMessages with AirFrame. */
-	int senderModuleID;
-	/** @brief Sender gate id, additional definition here because BasePhyLayer will do some selfMessages with AirFrame. */
-	int senderFromGateID;
-	/** @brief Receiver module id, additional definition here because BasePhyLayer will do some selfMessages with AirFrame. */
-	int receiverModuleID;
-	/** @brief Receiver gate id, additional definition here because BasePhyLayer will do some selfMessages with AirFrame. */
-	int receiverToGateID;
-
-	/** @brief The start of the signal transmission at the sender module.*/
-	omnetpp::simtime_t sendingStart;
-	/** @brief The duration of the signal transmission.*/
-	omnetpp::simtime_t transmissionDelay;
-	/** @brief The propagation delay of the transmission. */
-	omnetpp::simtime_t propagationDelay;
-
-	/** @brief Stores the function which describes the power of the signal*/
-	ConstMapping* power;
-
-	/** @brief Stores the function which describes the bitrate of the signal*/
-	Mapping* bitrate;
-
-	/** @brief If propagation delay is not zero this stores the undelayed bitrate*/
-	Mapping* txBitrate;
-
-	/** @brief Stores the functions describing the attenuation of the signal*/
-	ConstMappingList attenuations;
-
-	/** @brief Stores the mapping defining the receiving power of the signal.*/
-	MultipliedMapping* rcvPower;
+    /** @brief Shortcut type for a list of ConstMappings.*/
+    typedef std::list<ConstMapping*> ConstMappingList;
 
 protected:
 
-	/**
-	 * @brief Deletes the rcvPower mapping member because it became
-	 * out-dated.
-	 *
-	 * This happens when transmission power or propagation delay changes.
-	 */
-	void markRcvPowerOutdated()
-	{
-		if(rcvPower)
-		{
-			if(propagationDelay != 0)
-			{
-				assert(rcvPower->getRefMapping() != power);
-				delete rcvPower->getRefMapping();
-			}
+    /** @brief The propagation delay of the transmission. */
+    omnetpp::simtime_t propagationDelay;
 
-			delete rcvPower;
-			rcvPower = 0;
-		}
-	}
+    /** @brief Stores the function which describes the power of the signal*/
+    ConstMapping* power;
+
+    /** @brief Stores the function which describes the bitrate of the signal*/
+    Mapping* bitrate;
+
+    /** @brief If propagation delay is not zero this stores the undelayed bitrate*/
+    Mapping* txBitrate;
+
+    /** @brief Stores the functions describing the attenuation of the signal*/
+    ConstMappingList attenuations;
+
+    /** @brief Stores the mapping defining the receiving power of the signal.*/
+    MultipliedMapping* rcvPower;
 
 public:
 
-	/**
-	 * @brief Initializes a signal with the specified start and length.
-	 */
-	Signal(omnetpp::simtime_t_cref start = -1.0, omnetpp::simtime_t_cref length = -1.0);
+    /**
+     * @brief Initializes a signal with the specified start and length.
+     */
+    Signal() {
 
-	/**
-	 * @brief Overwrites the copy constructor to make sure that the
-	 * mappings are cloned correct.
-	 */
-	Signal(const Signal& o);
+        this->propagationDelay = 0;
+        this->power = NULL;
+        this->bitrate = NULL;
+        this->txBitrate = NULL;
+        this->attenuations = ConstMappingList();
+        this->rcvPower = NULL;
+    }
 
-	/**
-	 * @brief Overwrites the copy operator to make sure that the
-	 * mappings are cloned correct.
-	 */
-	const Signal& operator=(const Signal& o);
+    /**
+     * @brief Overwrites the copy constructor to make sure that the
+     * mappings are cloned correct.
+     */
+    Signal(const Signal& o)
+    {
+        this->propagationDelay = o.propagationDelay;
+        this->power = NULL;
+        this->bitrate = NULL;
+        this->txBitrate = NULL;
+        this->attenuations = ConstMappingList();
+        this->rcvPower = NULL;
 
-	void swap(Signal& s);
+        if (o.power)
+            power = o.power->constClone();
 
-	/**
-	 * @brief Delete the functions of this signal.
-	 */
-	~Signal();
+        if (o.bitrate)
+            bitrate = o.bitrate->clone();
 
-	/**
-	 * @brief Returns the point in time when the sending of the Signal started
-	 * at the sender module.
-	 */
-	omnetpp::simtime_t_cref getSendingStart() const;
+        if (o.txBitrate)
+            txBitrate = o.txBitrate->clone();
 
-	/**
-	 * @brief Returns the point in time when the sending of the Signal ended
-	 * at the sender module.
-	 */
-	omnetpp::simtime_t getSendingEnd() const;
+        for(ConstMappingList::const_iterator it = o.attenuations.begin(); it != o.attenuations.end(); it++)
+            attenuations.push_back((*it)->constClone());
+    }
 
-	/**
-	 * @brief Returns the point in time when the receiving of the Signal started
-	 * at the receiver module. Already includes the propagation delay.
-	 */
-	omnetpp::simtime_t getReceptionStart() const;
+    /**
+     * @brief Delete the functions of this signal.
+     */
+    ~Signal()
+    {
+        if(rcvPower)
+        {
+            if(propagationDelay != 0)
+            {
+                assert(rcvPower->getRefMapping() != power);
+                delete rcvPower->getRefMapping();
+            }
 
-	/**
-	 * @brief Returns the point in time when the receiving of the Signal ended
-	 * at the receiver module. Already includes the propagation delay.
-	 */
-	omnetpp::simtime_t getReceptionEnd() const;
+            delete rcvPower;
+        }
 
-	/**
-	 * @brief Returns the propagation delay of the signal.
-	 */
-	omnetpp::simtime_t_cref getPropagationDelay() const;
+        if(power)
+            delete power;
 
-	/**
-	 * @brief Sets the propagation delay of the signal.
-	 *
-	 * This should be only set by the sending physical layer.
-	 */
-	void setPropagationDelay(omnetpp::simtime_t_cref delay);
+        if(bitrate)
+            delete bitrate;
 
-	/**
-	 * @brief Sets the function representing the transmission power
-	 * of the signal.
-	 *
-	 * The ownership of the passed pointer goes to the signal.
-	 */
-	void setTransmissionPower(ConstMapping* power);
+        if(txBitrate)
+            delete txBitrate;
 
-	/**
-	 * @brief Sets the function representing the bitrate of the signal.
-	 *
-	 * The ownership of the passed pointer goes to the signal.
-	 */
-	void setBitrate(Mapping* bitrate);
+        for(ConstMappingList::iterator it = attenuations.begin(); it != attenuations.end(); it++)
+            delete *it;
+    }
 
-	/**
-	 * @brief Adds a function representing an attenuation of the signal.
-	 *
-	 * The ownership of the passed pointer goes to the signal.
-	 */
-	void addAttenuation(ConstMapping* att)
-	{
-		//assert the attenuation wasn't already added to the list before
-		assert(std::find(attenuations.begin(), attenuations.end(), att) == attenuations.end());
+    /**
+     * @brief Overwrites the copy operator to make sure that the
+     * mappings are cloned correct.
+     */
+    const Signal& operator=(const Signal& o)
+    {
+        propagationDelay = o.propagationDelay;
 
-		attenuations.push_back(att);
+        markRcvPowerOutdated();
 
-		if(rcvPower)
-			rcvPower->addMapping(att);
-	}
+        if(power)
+        {
+            delete power;
+            power = NULL;
+        }
 
-	/**
-	 * @brief Returns the function representing the transmission power
-	 * of the signal.
-	 *
-	 * Be aware that the transmission power mapping is not yet affected
-	 * by the propagation delay!
-	 */
-	ConstMapping* getTransmissionPower()
-	{
-		return power;
-	}
+        if(bitrate)
+        {
+            delete bitrate;
+            bitrate = NULL;
+        }
 
-	/**
-	 * @brief Returns the function representing the transmission power
-	 * of the signal.
-	 *
-	 * Be aware that the transmission power mapping is not yet affected
-	 * by the propagation delay!
-	 */
-	const ConstMapping* getTransmissionPower() const
-	{
-		return power;
-	}
+        if(txBitrate)
+        {
+            delete txBitrate;
+            txBitrate = NULL;
+        }
 
-	/**
-	 * @brief Returns the function representing the bitrate of the
-	 * signal.
-	 */
-	Mapping* getBitrate()
-	{
-		return bitrate;
-	}
+        if(o.power)
+            power = o.power->constClone();
 
-	/**
-	 * @brief Returns a list of functions representing the attenuation
-	 * of the signal.
-	 */
-	const ConstMappingList& getAttenuation() const
-	{
-		return attenuations;
-	}
+        if(o.bitrate)
+            bitrate = o.bitrate->clone();
 
-	/**
-	 * @brief Calculates and returns the receiving power of this Signal.
-	 * Ownership of the returned mapping belongs to this class.
-	 *
-	 * The receiving power is calculated by multiplying the transmission
-	 * power with the attenuation of every receiving phys AnalogueModel.
-	 */
-	MultipliedMapping* getReceivingPower()
-	{
-		if(!rcvPower)
-		{
-			ConstMapping* tmp = power;
-			if(propagationDelay != 0)
-			{
-				tmp = new ConstDelayedMapping(power, propagationDelay);
-			}
+        if(o.txBitrate)
+            txBitrate = o.txBitrate->clone();
 
-			rcvPower = new MultipliedMapping(tmp, attenuations.begin(), attenuations.end(), false, Argument::MappedZero());
-		}
+        for(ConstMappingList::const_iterator it = attenuations.begin(); it != attenuations.end(); ++it)
+            delete(*it);
 
-		return rcvPower;
-	}
+        attenuations.clear();
 
-	/**
-	 * Returns a pointer to the arrival module. It returns NULL if the signal
-	 * has not been sent/received yet, or if the module was deleted
-	 * in the meantime.
-	 */
-	omnetpp::cModule *getReceptionModule() const {return receiverModuleID < 0 ? NULL : omnetpp::getSimulation()->getModule(receiverModuleID);}
+        for(ConstMappingList::const_iterator it = o.attenuations.begin(); it != o.attenuations.end(); ++it)
+            attenuations.push_back((*it)->constClone());
 
-	/**
-	 * Returns pointers to the gate from which the signal was sent and
-	 * on which gate it arrived. A NULL pointer is returned
-	 * for new (unsent) signal.
-	 */
-	omnetpp::cGate *getReceptionGate() const;
+        return *this;
+    }
 
-	/**
-	 * Returns a pointer to the sender module. It returns NULL if the signal
-	 * has not been sent/received yet, or if the sender module got deleted
-	 * in the meantime.
-	 */
-	omnetpp::cModule *getSendingModule() const {return senderModuleID < 0 ? NULL : omnetpp::getSimulation()->getModule(senderModuleID);}
+    void swap(Signal& s)
+    {
+        std::swap(propagationDelay,  s.propagationDelay);
+        std::swap(power,             s.power);
+        std::swap(bitrate,           s.bitrate);
+        std::swap(txBitrate,         s.txBitrate);
+        std::swap(attenuations,      s.attenuations);
+        std::swap(rcvPower,          s.rcvPower);
+    }
 
-	/**
-	 * Returns pointers to the gate from which the signal was sent and
-	 * on which gate it arrived. A NULL pointer is returned
-	 * for new (unsent) signal.
-	 */
-	omnetpp::cGate *getSendingGate() const;
+    omnetpp::simtime_t getPropagationDelay() const
+    {
+        return propagationDelay;
+    }
 
-	/** @brief Saves the arrival sender module information form message. */
-	void setReceptionSenderInfo(const omnetpp::cMessage *const pMsg);
+    /**
+     * @brief Returns the function representing the transmission power
+     * of the signal.
+     *
+     * Be aware that the transmission power mapping is not yet affected
+     * by the propagation delay!
+     */
+    ConstMapping* getTransmissionPower()
+    {
+        return power;
+    }
+
+    /**
+     * @brief Returns the function representing the transmission power
+     * of the signal.
+     *
+     * Be aware that the transmission power mapping is not yet affected
+     * by the propagation delay!
+     */
+    const ConstMapping* getTransmissionPower() const
+    {
+        return power;
+    }
+
+    /**
+     * @brief Returns the function representing the bitrate of the
+     * signal.
+     */
+    Mapping* getBitrate()
+    {
+        return bitrate;
+    }
+
+    /**
+     * @brief Returns a list of functions representing the attenuation
+     * of the signal.
+     */
+    const ConstMappingList& getAttenuation() const
+    {
+        return attenuations;
+    }
+
+    /**
+     * @brief Calculates and returns the receiving power of this Signal.
+     * Ownership of the returned mapping belongs to this class.
+     *
+     * The receiving power is calculated by multiplying the transmission
+     * power with the attenuation of every receiving phys AnalogueModel.
+     */
+    MultipliedMapping* getReceivingPower()
+    {
+        if(!rcvPower)
+        {
+            ConstMapping* tmp = power;
+            if(propagationDelay != 0)
+            {
+                tmp = new ConstDelayedMapping(power, propagationDelay);
+            }
+
+            rcvPower = new MultipliedMapping(tmp, attenuations.begin(), attenuations.end(), false, Argument::MappedZero());
+        }
+
+        return rcvPower;
+    }
+
+    /**
+     * @brief Sets the propagation delay of the signal.
+     *
+     * This should be only set by the sending physical layer.
+     */
+    void setPropagationDelay(omnetpp::simtime_t_cref delay)
+    {
+        assert(propagationDelay == 0);
+        assert(!txBitrate);
+
+        markRcvPowerOutdated();
+
+        propagationDelay = delay;
+
+        if(bitrate)
+        {
+            txBitrate = bitrate;
+            bitrate = new DelayedMapping(txBitrate, propagationDelay);
+        }
+    }
+
+    /**
+     * @brief Sets the function representing the transmission power
+     * of the signal.
+     *
+     * The ownership of the passed pointer goes to the signal.
+     */
+    void setTransmissionPower(ConstMapping* power)
+    {
+        if(this->power)
+        {
+            markRcvPowerOutdated();
+            delete this->power;
+        }
+
+        this->power = power;
+    }
+
+    /**
+     * @brief Sets the function representing the bitrate of the signal.
+     *
+     * The ownership of the passed pointer goes to the signal.
+     */
+    void setBitrate(Mapping* bitrate)
+    {
+        assert(!txBitrate);
+
+        if(this->bitrate)
+            delete this->bitrate;
+
+        this->bitrate = bitrate;
+    }
+
+    /**
+     * @brief Adds a function representing an attenuation of the signal.
+     *
+     * The ownership of the passed pointer goes to the signal.
+     */
+    void addAttenuation(ConstMapping* att)
+    {
+        //assert the attenuation wasn't already added to the list before
+        assert(std::find(attenuations.begin(), attenuations.end(), att) == attenuations.end());
+
+        attenuations.push_back(att);
+
+        if(rcvPower)
+            rcvPower->addMapping(att);
+    }
+
+protected:
+
+    /**
+     * @brief Deletes the rcvPower mapping member because it became
+     * out-dated.
+     *
+     * This happens when transmission power or propagation delay changes.
+     */
+    void markRcvPowerOutdated()
+    {
+        if(rcvPower)
+        {
+            if(propagationDelay != 0)
+            {
+                assert(rcvPower->getRefMapping() != power);
+                delete rcvPower->getRefMapping();
+            }
+
+            delete rcvPower;
+            rcvPower = 0;
+        }
+    }
 };
 
 #endif /*SIGNAL_H_*/
