@@ -404,7 +404,7 @@ void Mac1609_4::handleLowerControl(omnetpp::cMessage* msg)
     {
         EV << "A packet was not received because we were sending while receiving" << std::endl;
     }
-    else if (msg->getKind() == BaseDecider::PACKET_DROPPED)
+    else if (msg->getKind() == BaseDecider::DROPPED)
     {
         EV << "Phylayer said packet was dropped" << std::endl;
 

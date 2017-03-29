@@ -67,7 +67,7 @@ public:
      */
     enum BaseDeciderControlKinds {
         /** @brief The phy has recognized a bit error in the packet.*/
-        PACKET_DROPPED = 22100,
+        DROPPED = 22100,
         /** @brief Sub-classing decider should begin their own kinds at this
          * value.*/
         LAST_BASE_DECIDER_CONTROL_KIND

@@ -75,7 +75,7 @@ public:
         TX_OVER = 23500,
 
         /** Tells the upper layer that a packet to be sent has been dropped.*/
-        PACKET_DROPPED,
+        DROPPED,
 
         /** Stores the id on which classes extending BaseMac should
          * continue their own control kinds.*/
