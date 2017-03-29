@@ -24,15 +24,13 @@
 namespace Veins {
 
 
-int EDCA::createQueue(int aifsn, int cwMin, int cwMax, t_access_category ac)
+void EDCA::createQueue(int aifsn, int cwMin, int cwMax, t_access_category ac)
 {
     if (myQueues.find(ac) != myQueues.end())
         throw omnetpp::cRuntimeError("You can only add one queue per Access Category per EDCA subsystem");
 
     EDCAQueue_t newQueue(aifsn, cwMin, cwMax, ac);
     myQueues[ac] = newQueue;
-
-    return ++numQueues;
 }
 
 
@@ -187,20 +185,24 @@ WaveShortMessage* EDCA::initiateTransmit(omnetpp::simtime_t lastIdle)
 
     EV << "Initiating transmit at " << omnetpp::simTime() << ". I've been idle since " << idleTime << std::endl;
 
-    for (auto &iter : myQueues)
+    // As t_access_category is sorted by priority, we iterate back to front.
+    // This realizes the behavior documented in IEEE Std 802.11-2012 Section 9.2.4.2;
+    // that is, "data frames from the higher priority AC" win an internal collision.
+    // The phrase "EDCAF of higher UP" of IEEE Std 802.11-2012 Section 9.19.2.3 is assumed to be meaningless.
+    for (auto iter = myQueues.rbegin(); iter != myQueues.rend(); iter++)
     {
-        if (iter.second.queue.size() != 0)
+        if (iter->second.queue.size() != 0)
         {
-            if (idleTime >= (iter.second.aifsn * SLOTLENGTH_11P) + SIFS_11P && iter.second.txOP)
+            if (idleTime >= (iter->second.aifsn * SLOTLENGTH_11P) + SIFS_11P && iter->second.txOP)
             {
-                EV << "Queue " << iter.first << " is ready to send! \n";
+                EV << "Queue " << iter->first << " is ready to send! \n";
 
-                iter.second.txOP = false;
+                iter->second.txOP = false;
 
-                //this queue is ready to send
+                // this queue is ready to send
                 if (pktToSend == NULL)
                 {
-                    pktToSend = iter.second.queue.front();
+                    pktToSend = iter->second.queue.front();
                 }
                 else
                 {
@@ -209,10 +211,10 @@ WaveShortMessage* EDCA::initiateTransmit(omnetpp::simtime_t lastIdle)
                     // It's called internal contention and its wonderful
                     statsNumInternalContention++;
 
-                    iter.second.cwCur = std::min(iter.second.cwMax,(iter.second.cwCur+1)*2-1);
-                    iter.second.currentBackoff = owner->intuniform(0,iter.second.cwCur);
+                    iter->second.cwCur = std::min(iter->second.cwMax,(iter->second.cwCur+1)*2-1);
+                    iter->second.currentBackoff = owner->intuniform(0,iter->second.cwCur);
 
-                    EV << "Internal contention for queue " << iter.first  << " : "<< iter.second.currentBackoff << ". Increase cwCur to " << iter.second.cwCur << std::endl;
+                    EV << "Internal contention for queue " << iter->first  << " : "<< iter->second.currentBackoff << ". Increase cwCur to " << iter->second.cwCur << std::endl;
                 }
             }
         }

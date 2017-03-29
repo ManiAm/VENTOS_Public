@@ -27,7 +27,7 @@
 
 namespace Veins {
 
-// access categories for EDCA
+// EDCA access categories in increasing order of priority (see IEEE Std 802.11-2012, Table 9-1)
 enum t_access_category
 {
     AC_BK = 0,  // background
@@ -64,7 +64,6 @@ public:
 
     omnetpp::cModule *owner;
     std::map<t_access_category, EDCAQueue_t> myQueues;
-    int numQueues;
     uint32_t maxQueueSize;
     omnetpp::simtime_t lastStart; //when we started the last contention;
     t_channel channelType;
@@ -80,7 +79,6 @@ public:
     EDCA(omnetpp::cModule *owner, t_channel channelType, int maxQueueLength = 0)
     {
         this->owner = owner;
-        this->numQueues = 0;
         this->maxQueueSize = maxQueueLength;
         this->channelType = channelType;
         this->statsNumInternalContention = 0;
@@ -89,7 +87,7 @@ public:
     };
 
     // @brief currently you have to call createQueue in the right order. First Call is priority 0, second 1 and so on...
-    int createQueue(int aifsn, int cwMin, int cwMax, t_access_category);
+    void createQueue(int aifsn, int cwMin, int cwMax, t_access_category);
     int queuePacket(t_access_category AC, WaveShortMessage* cmsg);
     void backoff(t_access_category ac);
     omnetpp::simtime_t startContent(omnetpp::simtime_t idleSince, bool guardActive);
