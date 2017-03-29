@@ -138,11 +138,6 @@ void ChannelAccess::sendToChannel(omnetpp::cPacket *msg)
             if(record_frameTxRx)
                 recordFrameTx(msg, i->second, prop);
 
-            // todo
-            double currentTime = omnetpp::simTime().dbl();  // 38.791735000000003
-            double proppp = prop.propagationDelay.dbl();  // 3.0021000000000001e-08
-            double duration = frameDuration.dbl(); // 0.00010399999999999999
-
             sendDirect(msg, prop.propagationDelay, frameDuration, i->second->getOwnerModule(), radioEnd);
         }
         else
@@ -232,6 +227,7 @@ void ChannelAccess::recordFrameTx(omnetpp::cPacket *msg /*AirFrame11p*/, omnetpp
         entry.TransmissionTime = frame->getDuration().dbl();
         entry.DistanceToReceiver = propDelay.distance;
         entry.PropagationDelay = propDelay.propagationDelay.dbl();
+        entry.ReceivedAt = -1;
 
         STAT->global_frameTxRx_stat.insert(std::make_pair(std::make_pair(frameId, nicId), entry));
     }

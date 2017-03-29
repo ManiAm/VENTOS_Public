@@ -336,6 +336,7 @@ void PhyLayer80211p::handleUpperMessage(omnetpp::cMessage* msg)
     scheduleAt(omnetpp::simTime() + RADIODELAY_11P + readyToSendFrame->getDuration(), txOverTimer);
 
     // wait for the radio delay and then send the frame to the channel
+    assert (!radioDelayTimer->isScheduled());
     scheduleAt(omnetpp::simTime() + RADIODELAY_11P, radioDelayTimer);
 }
 
@@ -899,7 +900,7 @@ void PhyLayer80211p::handleAirFrameReceiving(AirFrame* frame)
 {
     omnetpp::simtime_t nextHandleTime = decider->processSignal(frame);
 
-    omnetpp::simtime_t signalEndTime = frame->getSendingTime() + frame->getSignal().getPropagationDelay();
+    omnetpp::simtime_t signalEndTime = frame->getSendingTime() + frame->getSignal().getPropagationDelay() + frame->getDuration();
 
     // check if this is the end of the receiving process
     if(omnetpp::simTime() >= signalEndTime)
@@ -1309,22 +1310,22 @@ int PhyLayer80211p::getNbRadioChannels()
 
 omnetpp::simtime_t PhyLayer80211p::getFrameDuration(int payloadLengthBits, uint64_t bitrate, enum PHY_MCS mcs) const
 {
-    // N_DBPS is derived from bitrate
-    double n_dbps = -1;
-
-    for (unsigned int i = 0; i < NUM_BITRATES_80211P; i++)
-    {
-        if (bitrate == BITRATES_80211P[i])
-            n_dbps = N_DBPS_80211P[i];
-    }
-
-    if(n_dbps == -1)
-        throw omnetpp::cRuntimeError("Chosen Bitrate is not valid for 802.11p: Valid rates are: 3Mbps, 4.5Mbps, 6Mbps, 9Mbps, 12Mbps, 18Mbps, 24Mbps and 27Mbps. Please adjust your omnetpp.ini file accordingly.");
-
     omnetpp::simtime_t duration;
 
     if (mcs == MCS_DEFAULT)
     {
+        // N_DBPS is derived from bitrate
+        double n_dbps = -1;
+
+        for (unsigned int i = 0; i < NUM_BITRATES_80211P; i++)
+        {
+            if (bitrate == BITRATES_80211P[i])
+                n_dbps = N_DBPS_80211P[i];
+        }
+
+        if(n_dbps == -1)
+            throw omnetpp::cRuntimeError("Chosen Bitrate is not valid for 802.11p: Valid rates are: 3Mbps, 4.5Mbps, 6Mbps, 9Mbps, 12Mbps, 18Mbps, 24Mbps and 27Mbps. Please adjust your omnetpp.ini file accordingly.");
+
         // calculate frame duration according to Equation (17-29) of the IEEE 802.11-2007 standard
         duration = PHY_HDR_PREAMBLE_DURATION + PHY_HDR_PLCPSIGNAL_DURATION + T_SYM_80211P * ceil( (16 + payloadLengthBits + 6)/(n_dbps) );
     }
