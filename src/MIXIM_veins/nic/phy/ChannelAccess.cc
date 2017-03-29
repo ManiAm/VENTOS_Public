@@ -176,9 +176,6 @@ void ChannelAccess::sendToChannel(omnetpp::cPacket *msg)
 
 ChannelAccess::prop_t ChannelAccess::calculatePropagationDelay(const NicEntry* nic)
 {
-    if(!usePropagationDelay)
-        return prop_t {};
-
     ChannelAccess *const senderModule   = this;
     ChannelAccess *const receiverModule = nic->chAccess;
 
@@ -192,7 +189,9 @@ ChannelAccess::prop_t ChannelAccess::calculatePropagationDelay(const NicEntry* n
     // this time-point is used to calculate the distance between sending and receiving host
     double dist = receiverPos.distance(sendersPos);
 
-    omnetpp::simtime_t propagationDelay = dist / BaseWorldUtility::speedOfLight();
+    omnetpp::simtime_t propagationDelay = 0;
+    if(usePropagationDelay)
+        propagationDelay = dist / BaseWorldUtility::speedOfLight();
 
     prop_t entry = {propagationDelay, dist};
 
