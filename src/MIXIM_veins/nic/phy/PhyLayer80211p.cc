@@ -189,9 +189,6 @@ void PhyLayer80211p::initialize(int stage)
         if (par("headerLength").longValue() != PHY_HDR_TOTAL_LENGTH)
             throw omnetpp::cRuntimeError("The header length of the 802.11p standard is 46bit, please change your omnetpp.ini accordingly by either setting it to 46bit or removing the entry");
 
-        // erase the RadioStateAnalogueModel
-        analogueModels.erase(analogueModels.begin());
-
         record_stat = par("record_stat").boolValue();
         record_frameTxRx = par("record_frameTxRx").boolValue();
 
@@ -390,21 +387,7 @@ Radio* PhyLayer80211p::initializeRadio()
 
 void PhyLayer80211p::initializeAnalogueModels(omnetpp::cXMLElement* xmlConfig)
 {
-    /*
-     * first of all, attach the AnalogueModel that represents the RadioState
-     * to the AnalogueModelList as first element.
-     */
-
-    std::string s("RadioStateAnalogueModel");
-    ParameterMap p;
-
-    AnalogueModel* newAnalogueModel = getAnalogueModelFromName(s, p);
-    if(newAnalogueModel == 0)
-        throw omnetpp::cRuntimeError("Could not find an analogue model with the name \"%s\".", s.c_str());
-
-    analogueModels.push_back(newAnalogueModel);
-
-    // then load all the analog models listed in the xml file
+    // load all the analog models listed in the xml file
 
     if(xmlConfig == 0)
         throw omnetpp::cRuntimeError("No analogue models configuration file specified.");

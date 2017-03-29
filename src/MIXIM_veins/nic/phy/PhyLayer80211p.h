@@ -367,12 +367,14 @@ public:
 
     // ##########################################################
 
-private:
+protected:
 
     /**
      * @brief Handles self scheduled messages.
      */
     virtual void handleSelfMessage(omnetpp::cMessage* msg);
+
+private:
 
     void handleUpperMessage(omnetpp::cMessage* msg);
 
