@@ -592,6 +592,39 @@ void Statistics::save_FrameTxRx_stat_toFile()
     if(global_frameTxRx_stat.empty())
         return;
 
+    typedef struct msgTxRxStat_vec
+    {
+        msgTxRxStat_t entry;
+        long int MsgID;
+        long int nic;
+    } msgTxRxStat_vec_t;
+
+    // copy the map into a vector
+    std::vector<msgTxRxStat_vec_t> global_frameTxRx_stat_vec;
+    for(auto &y : global_frameTxRx_stat)
+    {
+        msgTxRxStat_vec_t newEntry;
+
+        newEntry.entry = y.second;
+        newEntry.MsgID = y.first.first;
+        newEntry.nic = y.first.second;
+
+        global_frameTxRx_stat_vec.push_back(newEntry);
+    }
+
+    // sort the vector
+    std::sort(global_frameTxRx_stat_vec.begin(), global_frameTxRx_stat_vec.end(),
+            [](const msgTxRxStat_vec_t &a, const msgTxRxStat_vec_t &b) -> bool {
+        if(a.entry.SentAt < b.entry.SentAt)
+            return true;
+        else if(a.entry.SentAt == b.entry.SentAt && a.entry.SenderNode < b.entry.SenderNode)
+            return true;
+        else if(a.entry.SentAt == b.entry.SentAt && a.entry.SenderNode == b.entry.SenderNode && a.entry.DistanceToReceiver < b.entry.DistanceToReceiver)
+            return true;
+        else
+            return false;
+    });
+
     int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
 
     std::ostringstream fileName;
@@ -647,41 +680,38 @@ void Statistics::save_FrameTxRx_stat_toFile()
     fprintf (filePtr, "%-20s","SenderNode");
     fprintf (filePtr, "%-20s","ReceiverNode");
     fprintf (filePtr, "%-20s","ReceiverGateId");
-    fprintf (filePtr, "%-20s","SentAt");
+    fprintf (filePtr, "%-20s","SendingStartAt");
     fprintf (filePtr, "%-20s","FrameSize");
     fprintf (filePtr, "%-20s","TransmissionSpeed");
     fprintf (filePtr, "%-20s","TransmissionTime");
     fprintf (filePtr, "%-20s","DistanceToReceiver");
     fprintf (filePtr, "%-22s","PropagationDelay");
-    fprintf (filePtr, "%-20s","ReceivedAt");
+    fprintf (filePtr, "%-20s","ReceptionEndAt");
     fprintf (filePtr, "%-20s\n\n","FrameRxStatus");
 
     // write body
     std::string oldSender = "";
-    for(auto &y : global_frameTxRx_stat)
+    for(auto &y : global_frameTxRx_stat_vec)
     {
-        if(oldSender != y.second.SenderNode)
+        if(oldSender != y.entry.SenderNode)
         {
             fprintf(filePtr, "\n");
-            oldSender = y.second.SenderNode;
+            oldSender = y.entry.SenderNode;
         }
 
-        long int msgId = y.first.first;
-        long int nic = y.first.second;
-
-        fprintf (filePtr, "%-20ld", msgId);
-        fprintf (filePtr, "%-20s", y.second.MsgName.c_str());
-        fprintf (filePtr, "%-20s", y.second.SenderNode.c_str());
-        fprintf (filePtr, "%-20s", y.second.ReceiverNode.c_str());
-        fprintf (filePtr, "%-20ld", nic);
-        fprintf (filePtr, "%-20.8f", y.second.SentAt);
-        fprintf (filePtr, "%-20d", y.second.FrameSize);
-        fprintf (filePtr, "%-20.2f", y.second.TransmissionSpeed);
-        fprintf (filePtr, "%-20.8f", y.second.TransmissionTime);
-        fprintf (filePtr, "%-20.8f", y.second.DistanceToReceiver);
-        fprintf (filePtr, "%-22.13f", y.second.PropagationDelay);
-        fprintf (filePtr, "%-20.8f", y.second.ReceivedAt);
-        fprintf (filePtr, "%-20s\n", y.second.FrameRxStatus.c_str());
+        fprintf (filePtr, "%-20ld", y.MsgID);
+        fprintf (filePtr, "%-20s", y.entry.MsgName.c_str());
+        fprintf (filePtr, "%-20s", y.entry.SenderNode.c_str());
+        fprintf (filePtr, "%-20s", y.entry.ReceiverNode.c_str());
+        fprintf (filePtr, "%-20ld", y.nic);
+        fprintf (filePtr, "%-20.8f", y.entry.SentAt);
+        fprintf (filePtr, "%-20d", y.entry.FrameSize);
+        fprintf (filePtr, "%-20.2f", y.entry.TransmissionSpeed);
+        fprintf (filePtr, "%-20.8f", y.entry.TransmissionTime);
+        fprintf (filePtr, "%-20.8f", y.entry.DistanceToReceiver);
+        fprintf (filePtr, "%-22.13f", y.entry.PropagationDelay);
+        fprintf (filePtr, "%-20.8f", y.entry.ReceivedAt);
+        fprintf (filePtr, "%-20s\n", y.entry.FrameRxStatus.c_str());
     }
 
     fclose(filePtr);
