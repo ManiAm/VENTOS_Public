@@ -73,7 +73,7 @@ omnetpp::simtime_t EDCA::startContent(omnetpp::simtime_t idleSince, bool guardAc
             {
                 //cw is not increased
                 iter.second.currentBackoff = owner->intuniform(0, iter.second.cwCur);
-                statsNumBackoff++;
+                NumBackoff++;
             }
 
             omnetpp::simtime_t DIFS = iter.second.aifsn * SLOTLENGTH_11P + SIFS_11P;
@@ -209,7 +209,7 @@ WaveShortMessage* EDCA::initiateTransmit(omnetpp::simtime_t lastIdle)
                     // there was already another packet ready.
                     // we have to go increase cw and go into backoff.
                     // It's called internal contention and its wonderful
-                    statsNumInternalContention++;
+                    NumInternalContention++;
 
                     iter->second.cwCur = std::min(iter->second.cwMax,(iter->second.cwCur+1)*2-1);
                     iter->second.currentBackoff = owner->intuniform(0,iter->second.cwCur);
@@ -232,8 +232,8 @@ void EDCA::backoff(t_access_category ac)
     EV_STATICCONTEXT
 
     myQueues[ac].currentBackoff = owner->intuniform(0,myQueues[ac].cwCur);
-    statsSlotsBackoff += myQueues[ac].currentBackoff;
-    statsNumBackoff++;
+    SlotsBackoff += myQueues[ac].currentBackoff;
+    NumBackoff++;
 
     EV << "Going into Backoff because channel was busy when new packet arrived from upperLayer" << std::endl;
 }
@@ -254,8 +254,8 @@ void EDCA::postTransmit(t_access_category ac)
     myQueues[ac].currentBackoff = owner->intuniform(0, myQueues[ac].cwCur);
 
     // update the statistics
-    statsSlotsBackoff += myQueues[ac].currentBackoff;
-    statsNumBackoff++;
+    SlotsBackoff += myQueues[ac].currentBackoff;
+    NumBackoff++;
 
     EV << "Queue " << ac << " will go into post-transmit backoff for " << myQueues[ac].currentBackoff << " slots" << std::endl;
 }

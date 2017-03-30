@@ -64,15 +64,12 @@ typedef struct MAC_stat
 {
     double last_stat_time;
 
-    long statsDroppedPackets;        // packet was dropped in Mac
-    long statsNumTooLittleTime;      // Too little time in this interval. Will not schedule nextMacEvent
-    long statsNumInternalContention; // there was already another packet ready. we have to go increase CW and go into backoff. It's called internal contention and its wonderful
-    long statsNumBackoff;
-    long statsSlotsBackoff;
-    double statsTotalBusyTime;
-    long statsSentPackets;
-    long statsReceivedPackets;     // received a data packet addressed to me
-    long statsReceivedBroadcasts;  // received a broadcast data packet
+    long NumDroppedFrames;      // packet was dropped from the EDCA queue
+    long NumTooLittleTime;      // too little time in this interval. Will not schedule nextMacEvent
+    long NumInternalContention; // there was already another packet ready. we have to go increase CW and go into backoff. It's called internal contention and its wonderful
+    long NumBackoff;
+    long SlotsBackoff;
+    double TotalBusyTime;
 } MAC_stat_t;
 
 typedef struct PHY_stat

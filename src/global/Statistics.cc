@@ -478,30 +478,24 @@ void Statistics::save_MAC_stat_toFile()
     // write header
     fprintf (filePtr, "%-20s","vehicleName");
     fprintf (filePtr, "%-20s","lastStatTime");
-    fprintf (filePtr, "%-20s","DroppedPackets");
+    fprintf (filePtr, "%-20s","NumDroppedFrames");
     fprintf (filePtr, "%-20s","NumTooLittleTime");
     fprintf (filePtr, "%-30s","NumInternalContention");
     fprintf (filePtr, "%-20s","NumBackoff");
     fprintf (filePtr, "%-20s","SlotsBackoff");
-    fprintf (filePtr, "%-20s","TotalBusyTime");
-    fprintf (filePtr, "%-20s","SentPackets");
-    fprintf (filePtr, "%-20s","ReceivedPackets");
-    fprintf (filePtr, "%-20s\n\n","ReceivedBroadcasts");
+    fprintf (filePtr, "%-20s \n\n","TotalBusyTime");
 
     // write body
     for(auto &y : global_MAC_stat)
     {
         fprintf (filePtr, "%-20s", y.first.c_str());
         fprintf (filePtr, "%-20.8f", y.second.last_stat_time);
-        fprintf (filePtr, "%-20ld", y.second.statsDroppedPackets);
-        fprintf (filePtr, "%-20ld", y.second.statsNumTooLittleTime);
-        fprintf (filePtr, "%-30ld", y.second.statsNumInternalContention);
-        fprintf (filePtr, "%-20ld", y.second.statsNumBackoff);
-        fprintf (filePtr, "%-20ld", y.second.statsSlotsBackoff);
-        fprintf (filePtr, "%-20.8f", y.second.statsTotalBusyTime);
-        fprintf (filePtr, "%-20ld", y.second.statsSentPackets);
-        fprintf (filePtr, "%-20ld", y.second.statsReceivedPackets);
-        fprintf (filePtr, "%-20ld\n", y.second.statsReceivedBroadcasts);
+        fprintf (filePtr, "%-20ld", y.second.NumDroppedFrames);
+        fprintf (filePtr, "%-20ld", y.second.NumTooLittleTime);
+        fprintf (filePtr, "%-30ld", y.second.NumInternalContention);
+        fprintf (filePtr, "%-20ld", y.second.NumBackoff);
+        fprintf (filePtr, "%-20ld", y.second.SlotsBackoff);
+        fprintf (filePtr, "%-20.8f \n", y.second.TotalBusyTime);
     }
 
     fclose(filePtr);

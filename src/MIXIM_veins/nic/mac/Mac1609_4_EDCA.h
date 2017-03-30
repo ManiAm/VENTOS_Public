@@ -69,9 +69,9 @@ public:
     t_channel channelType;
 
     /** @brief Stats */
-    long statsNumInternalContention;
-    long statsNumBackoff;
-    long statsSlotsBackoff;
+    long NumInternalContention;
+    long NumBackoff;
+    long SlotsBackoff;
 
     /** @brief Id for debug messages */
     std::string myId;
@@ -81,9 +81,9 @@ public:
         this->owner = owner;
         this->maxQueueSize = maxQueueLength;
         this->channelType = channelType;
-        this->statsNumInternalContention = 0;
-        this->statsNumBackoff = 0;
-        this->statsSlotsBackoff = 0;
+        this->NumInternalContention = 0;
+        this->NumBackoff = 0;
+        this->SlotsBackoff = 0;
     };
 
     // @brief currently you have to call createQueue in the right order. First Call is priority 0, second 1 and so on...

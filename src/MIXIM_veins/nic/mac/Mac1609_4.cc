@@ -140,13 +140,16 @@ void Mac1609_4::finish()
 
     for (auto &iter : myEDCA)
     {
-        statsNumInternalContention += iter.second->statsNumInternalContention;
-        statsNumBackoff += iter.second->statsNumBackoff;
-        statsSlotsBackoff += iter.second->statsSlotsBackoff;
+        NumInternalContention += iter.second->NumInternalContention;
+        NumBackoff += iter.second->NumBackoff;
+        SlotsBackoff += iter.second->SlotsBackoff;
 
         iter.second->cleanUp();
         delete iter.second;
     }
+
+    if(record_stat)
+        record_MAC_stat_func();
 
     myEDCA.clear();
 
@@ -221,13 +224,11 @@ void Mac1609_4::handleSelfMsg(omnetpp::cMessage* msg)
             EV << "Sending MAC frame '" << macPkt->getFullName() << "' with priority " << lastAC << " to PHY layer." << std::endl;
 
             sendDelayed(macPkt, RADIODELAY_11P, lowerLayerOut);
-
-            statsSentPackets++;
         }
         else
         {   // not enough time left now
             EV << "Too little Time left. This packet cannot be send in this slot. \n";
-            statsNumTooLittleTime++;
+            NumTooLittleTime++;
 
             // revoke TXOP
             myEDCA[activeChannel]->revokeTxOPs();
@@ -277,10 +278,10 @@ void Mac1609_4::handleUpperMsg(omnetpp::cMessage* msg)
 
     int num = myEDCA[chan]->queuePacket(ac,thisMsg);
 
-    // packet was dropped in MAC
+    // MAC frame was dropped in MAC
     if (num == -1)
     {
-        statsDroppedPackets++;
+        NumDroppedFrames++;
         return;
     }
 
@@ -315,7 +316,7 @@ void Mac1609_4::handleUpperMsg(omnetpp::cMessage* msg)
 
                     //it is possible that this queue has an txop. we have to revoke it
                     myEDCA[activeChannel]->revokeTxOPs();
-                    statsNumTooLittleTime++;
+                    NumTooLittleTime++;
                 }
             }
             else
@@ -352,12 +353,10 @@ void Mac1609_4::handleLowerMsg(omnetpp::cMessage* msg)
     {
         EV << "Received a data packet addressed to me. \n";
 
-        statsReceivedPackets++;
         sendUp(wsm);
     }
     else if (dest == LAddress::L2BROADCAST())
     {
-        statsReceivedBroadcasts++;
         sendUp(wsm);
     }
     else
@@ -657,7 +656,7 @@ void Mac1609_4::channelIdle(bool afterSwitch)
 
     //channel turned idle! lets start contention!
     lastIdle = delay + omnetpp::simTime();
-    statsTotalBusyTime += omnetpp::simTime() - lastBusy;
+    TotalBusyTime += omnetpp::simTime() - lastBusy;
 
     //get next Event from current EDCA subsystem
     omnetpp::simtime_t nextEvent = myEDCA[activeChannel]->startContent(lastIdle,guardActive());
@@ -673,7 +672,7 @@ void Mac1609_4::channelIdle(bool afterSwitch)
         {
             EV << "Too little time in this interval. will not schedule macEvent" << std::endl;
 
-            statsNumTooLittleTime++;
+            NumTooLittleTime++;
             myEDCA[activeChannel]->revokeTxOPs();
         }
     }
@@ -709,15 +708,12 @@ void Mac1609_4::record_MAC_stat_func()
     VENTOS::MAC_stat_t entry = {};
 
     entry.last_stat_time = omnetpp::simTime().dbl();
-    entry.statsDroppedPackets = statsDroppedPackets;
-    entry.statsNumTooLittleTime = statsNumTooLittleTime;
-    entry.statsNumInternalContention = statsNumInternalContention;
-    entry.statsNumBackoff = statsNumBackoff;
-    entry.statsSlotsBackoff = statsSlotsBackoff;
-    entry.statsTotalBusyTime = statsTotalBusyTime.dbl();
-    entry.statsSentPackets = statsSentPackets;
-    entry.statsReceivedPackets = statsReceivedPackets;
-    entry.statsReceivedBroadcasts = statsReceivedBroadcasts;
+    entry.NumDroppedFrames = NumDroppedFrames;
+    entry.NumTooLittleTime = NumTooLittleTime;
+    entry.NumInternalContention = NumInternalContention;
+    entry.NumBackoff = NumBackoff;
+    entry.SlotsBackoff = SlotsBackoff;
+    entry.TotalBusyTime = TotalBusyTime.dbl();
 
     auto it = STAT->global_MAC_stat.find(myId);
     if(it == STAT->global_MAC_stat.end())

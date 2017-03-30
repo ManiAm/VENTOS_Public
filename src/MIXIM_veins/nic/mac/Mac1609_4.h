@@ -136,15 +136,12 @@ private:
     bool idleChannel = true;
 
     /** @brief stats */
-    long statsReceivedPackets = 0;
-    long statsReceivedBroadcasts = 0;
-    long statsSentPackets = 0;
-    long statsDroppedPackets = 0;
-    long statsNumTooLittleTime = 0;
-    long statsNumInternalContention = 0;
-    long statsNumBackoff = 0;
-    long statsSlotsBackoff = 0;
-    omnetpp::simtime_t statsTotalBusyTime = 0;
+    long NumDroppedFrames = 0;
+    long NumTooLittleTime = 0;
+    long NumInternalContention = 0;
+    long NumBackoff = 0;
+    long SlotsBackoff = 0;
+    omnetpp::simtime_t TotalBusyTime = 0;
 
     //tell to anybody which is interested when the channel turns busy or idle
     omnetpp::simsignal_t sigChannelBusy;
