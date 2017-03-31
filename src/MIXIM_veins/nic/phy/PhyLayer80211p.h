@@ -89,10 +89,10 @@ class PhyLayer80211p : public ChannelAccess, public DeciderToPhyInterface, publi
 {
 private:
 
-    VENTOS::Statistics* STAT;
+    VENTOS::Statistics* STAT = NULL;
 
     /** @brief Pointer to the World Utility, to obtain some global information*/
-    BaseWorldUtility* world;
+    BaseWorldUtility* world = NULL;
 
     /** @brief The id of the in-data gate from the Mac layer */
     int upperLayerIn;
@@ -114,26 +114,26 @@ private:
     bool record_stat;
     bool record_frameTxRx;
 
-    std::string myId;
+    std::string myId = "";
 
     // return An integer representing the identifier of the used protocol
-    int protocolId;
+    int protocolId = GENERIC;
 
     enum ProtocolIds {
         GENERIC = 0,
         IEEE_80211 = 12123
     };
 
-    bool emulationActive;
+    bool emulationActive = false;
 
     /** @brief Defines the strength of the thermal noise.*/
-    ConstantSimpleConstMapping* thermalNoise;
+    ConstantSimpleConstMapping* thermalNoise = NULL;
 
     /** @brief The sensitivity describes the minimum strength a signal must have to be received.*/
-    double sensitivity;
+    double sensitivity = -1;
 
     /** @brief Stores if tracking of statistics (esp. cOutvectors) is enabled.*/
-    bool recordStats;
+    bool recordStats = false;
 
     /**
      * @brief Channel info keeps track of received AirFrames and provides information about
@@ -142,10 +142,10 @@ private:
     ChannelInfo channelInfo;
 
     /** @brief The state machine storing the current radio state (TX, RX, SLEEP).*/
-    Radio* radio;
+    Radio* radio = NULL;
 
     /** @brief Pointer to the decider module. */
-    BaseDecider* decider;
+    BaseDecider* decider = NULL;
 
     /** @brief Used to store the AnalogueModels to be used as filters.*/
     typedef std::vector<AnalogueModel*> AnalogueModelList;
@@ -163,15 +163,15 @@ private:
      * @brief Self message scheduled to the point in time when the
      * switching process of the radio is over.
      */
-    omnetpp::cMessage* radioSwitchingOverTimer;
+    omnetpp::cMessage* radioSwitchingOverTimer = NULL;
 
     /**
      * @brief Self message scheduled to the point in time when the
      * transmission of an AirFrame is over.
      */
-    omnetpp::cMessage* txOverTimer;
+    omnetpp::cMessage* txOverTimer = NULL;
 
-    omnetpp::cMessage* radioDelayTimer;
+    omnetpp::cMessage* radioDelayTimer = NULL;
 
     /** @brief The states of the receiving process for AirFrames.*/
     enum AirFrameStates {
@@ -184,19 +184,10 @@ private:
     };
 
     /** @brief Stores the length of the phy header in bits. */
-    int headerLength;
+    int headerLength = -1;
 
     /** @brief CCA threshold. See Decider80211p for details */
-    double ccaThreshold;
-
-    /** @brief enable/disable detection of packet collisions */
-    bool collectCollisionStatistics;
-
-    /** @brief allows/disallows interruption of current reception for txing
-     *
-     * See detailed description in Decider80211p
-     */
-    bool allowTxDuringRx;
+    double ccaThreshold = -1;
 
 public:
 
@@ -396,13 +387,13 @@ private:
      * @brief Initializes the AnalogueModels with the data from the
      * passed XML-config data.
      */
-    void initializeAnalogueModels(omnetpp::cXMLElement* xmlConfig);
+    void initializeAnalogueModels();
 
     /**
      * @brief Initializes the Decider with the data from the
      * passed XML-config data.
      */
-    void initializeDecider(omnetpp::cXMLElement* xmlConfig);
+    void initializeDecider();
 
     /**
      * @brief Utility function. Reads the parameters of a XML element

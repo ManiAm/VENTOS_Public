@@ -51,28 +51,19 @@ Define_Module(Veins::PhyLayer80211p);
 
 PhyLayer80211p::PhyLayer80211p()
 {
-    this->protocolId = GENERIC;
-    this->emulationActive = false;
-    this->thermalNoise = 0;
-    this->radio = 0;
-    this->decider = 0;
-    this->radioSwitchingOverTimer = 0;
-    this->radioDelayTimer = 0;
-    this->txOverTimer = 0;
-    this->headerLength = -1;
-    this->world = NULL;
+
 }
 
 
 PhyLayer80211p::~PhyLayer80211p()
 {
     //get AirFrames from ChannelInfo and delete
-    //(although ChannelInfo normally owns the AirFrames it
-    //is not able to cancel and delete them itself
+    // (although ChannelInfo normally owns the AirFrames it
+    // is not able to cancel and delete them itself)
     AirFrameVector channel;
     channelInfo.getAirFrames(0, omnetpp::simTime(), channel);
 
-    for(AirFrameVector::iterator it = channel.begin(); it != channel.end(); ++it)
+    for(auto it = channel.begin(); it != channel.end(); ++it)
         cancelAndDelete(*it);
 
     // free timer messages
@@ -100,7 +91,7 @@ PhyLayer80211p::~PhyLayer80211p()
     AnalogueModel* rsamPointer = radio ? radio->getAnalogueModel() : NULL;
 
     // free AnalogueModels
-    for(AnalogueModelList::iterator it = analogueModels.begin(); it != analogueModels.end(); it++)
+    for(auto it = analogueModels.begin(); it != analogueModels.end(); it++)
     {
         AnalogueModel* tmp = *it;
 
@@ -137,10 +128,6 @@ void PhyLayer80211p::initialize(int stage)
         STAT = static_cast<VENTOS::Statistics*>(module);
         ASSERT(STAT);
 
-        // get ccaThreshold before calling BasePhyLayer::initialize() which instantiates the decider
-        ccaThreshold = pow(10, par("ccaThreshold").doubleValue() / 10);
-        collectCollisionStatistics = par("collectCollisionStatistics").boolValue();
-
         // if using sendDirect, make sure that messages arrive without delay
         gate("radioIn")->setDeliverOnReceptionStart(true);
 
@@ -150,47 +137,28 @@ void PhyLayer80211p::initialize(int stage)
         upperControlOut = findGate("upperControlOut");
         upperControlIn = findGate("upperControlIn");
 
-        emulationActive = par("emulationActive").boolValue();
-
-        if(par("useThermalNoise").boolValue())
-        {
-            double thermalNoiseVal = FWMath::dBm2mW(par("thermalNoise").doubleValue());
-            thermalNoise = new ConstantSimpleConstMapping(DimensionSet::timeDomain(), thermalNoiseVal);
-        }
-        else
-            thermalNoise = 0;
-
-        sensitivity = FWMath::dBm2mW(par("sensitivity").doubleValue());
-
         headerLength = par("headerLength").longValue();
+        if (headerLength != PHY_HDR_TOTAL_LENGTH)
+            throw omnetpp::cRuntimeError("The header length of the 802.11p standard is 46bit, please change your omnetpp.ini accordingly by either setting it to 46bit or removing the entry");
+
         recordStats = par("recordStats").boolValue();
+        record_stat = par("record_stat").boolValue();
+        record_frameTxRx = par("record_frameTxRx").boolValue();
+        emulationActive = par("emulationActive").boolValue();
 
         // initialize radio
         radio = initializeRadio();
 
-        if(cc->hasPar("sat") && (sensitivity - FWMath::dBm2mW(cc->par("sat").doubleValue())) < -0.000001)
-        {
-            throw omnetpp::cRuntimeError("Sensitivity can't be smaller than the "
-                    "signal attenuation threshold (sat) in ConnectionManager. "
-                    "Please adjust your omnetpp.ini file accordingly.");
-        }
+        // initialize analog models
+        initializeAnalogueModels();
 
-        // Analog model parameters
-        initializeAnalogueModels(par("analogueModels").xmlValue());
+        // initialize decider
+        initializeDecider();
 
-        // decider parameters
-        initializeDecider(par("decider").xmlValue());
-
-        // Initialize timer messages
+        // initialize timer messages
         radioSwitchingOverTimer = new omnetpp::cMessage("radio switching over", RADIO_SWITCHING_OVER);
         txOverTimer = new omnetpp::cMessage("transmission over", TX_OVER);
         radioDelayTimer = new omnetpp::cMessage("radio delay", RADIO_DELAY);
-
-        if (par("headerLength").longValue() != PHY_HDR_TOTAL_LENGTH)
-            throw omnetpp::cRuntimeError("The header length of the 802.11p standard is 46bit, please change your omnetpp.ini accordingly by either setting it to 46bit or removing the entry");
-
-        record_stat = par("record_stat").boolValue();
-        record_frameTxRx = par("record_frameTxRx").boolValue();
 
         myId = getParentModule()->getParentModule()->getFullName();
     }
@@ -282,20 +250,23 @@ void PhyLayer80211p::handleSelfMessage(omnetpp::cMessage* msg)
     }
     // radio switch over
     case RADIO_SWITCHING_OVER:
+    {
         assert(msg == radioSwitchingOverTimer);
         finishRadioSwitching();
         break;
-
-        // AirFrame
+    }
+    // AirFrame
     case AIR_FRAME:
+    {
         handleAirFrame(static_cast<AirFrame*>(msg));
         break;
-
-        // ChannelSenseRequest
+    }
+    // ChannelSenseRequest
     case CHANNEL_SENSE_REQUEST:
+    {
         handleChannelSenseRequest(msg);
         break;
-
+    }
     default:
         break;
     }
@@ -357,8 +328,8 @@ Radio* PhyLayer80211p::initializeRadio()
     int initialRadioState = par("initialRadioState").longValue();
     double radioMinAtt = par("radioMinAtt").doubleValue();
     double radioMaxAtt = par("radioMaxAtt").doubleValue();
-    int nbRadioChannels = hasPar("nbRadioChannels") ? par("nbRadioChannels") : 1;
     int initialRadioChannel = hasPar("initialRadioChannel") ? par("initialRadioChannel") : 0;
+    int nbRadioChannels = hasPar("nbRadioChannels") ? par("nbRadioChannels") : 1;
 
     Radio* radio = Radio::createNewRadio(recordStats, initialRadioState,
             radioMinAtt, radioMaxAtt, initialRadioChannel, nbRadioChannels);
@@ -385,10 +356,10 @@ Radio* PhyLayer80211p::initializeRadio()
 }
 
 
-void PhyLayer80211p::initializeAnalogueModels(omnetpp::cXMLElement* xmlConfig)
+// load all the analog models listed in the xml file
+void PhyLayer80211p::initializeAnalogueModels()
 {
-    // load all the analog models listed in the xml file
-
+    omnetpp::cXMLElement* xmlConfig = par("analogueModels").xmlValue();
     if(xmlConfig == 0)
         throw omnetpp::cRuntimeError("No analogue models configuration file specified.");
 
@@ -747,10 +718,10 @@ void PhyLayer80211p::getParametersFromXML(omnetpp::cXMLElement* xmlData, Paramet
 }
 
 
-void PhyLayer80211p::initializeDecider(omnetpp::cXMLElement* xmlConfig)
+// load all deciders listed in the xml file
+void PhyLayer80211p::initializeDecider()
 {
-    decider = 0;
-
+    omnetpp::cXMLElement* xmlConfig = par("decider").xmlValue();
     if(xmlConfig == 0)
         throw omnetpp::cRuntimeError("No decider configuration file specified.");
 
@@ -765,7 +736,6 @@ void PhyLayer80211p::initializeDecider(omnetpp::cXMLElement* xmlConfig)
     omnetpp::cXMLElement* deciderData = deciderList.front();
 
     const char* name = deciderData->getAttribute("type");
-
     if(name == 0)
         throw omnetpp::cRuntimeError("Could not read type of decider from configuration file.");
 
@@ -773,7 +743,6 @@ void PhyLayer80211p::initializeDecider(omnetpp::cXMLElement* xmlConfig)
     getParametersFromXML(deciderData, params);
 
     decider = getDeciderFromName(name, params);
-
     if(decider == 0)
         throw omnetpp::cRuntimeError("Could not find a decider with the name \"%s\".", name);
 
@@ -795,8 +764,33 @@ BaseDecider* PhyLayer80211p::getDeciderFromName(std::string name, ParameterMap& 
 
 BaseDecider* PhyLayer80211p::initializeDecider80211p(ParameterMap& params)
 {
-    double centerFreq = params["centerFrequency"];
-    Decider80211p* dec = new Decider80211p(this, sensitivity, ccaThreshold, allowTxDuringRx, centerFreq, findHost()->getIndex(), collectCollisionStatistics, coreDebug);
+    sensitivity = FWMath::dBm2mW(par("sensitivity").doubleValue());
+
+    if(cc->hasPar("sat") && (sensitivity - FWMath::dBm2mW(cc->par("sat").doubleValue())) < -0.000001)
+    {
+        throw omnetpp::cRuntimeError("Sensitivity can't be smaller than the "
+                "signal attenuation threshold (sat) in ConnectionManager. "
+                "Please adjust your omnetpp.ini file accordingly.");
+    }
+
+    // Clear Channel Assessment (CCA)
+    ccaThreshold = pow(10, par("ccaThreshold").doubleValue() / 10);
+
+    if(par("useThermalNoise").boolValue())
+    {
+        double thermalNoiseVal = FWMath::dBm2mW(par("thermalNoise").doubleValue());
+        thermalNoise = new ConstantSimpleConstMapping(DimensionSet::timeDomain(), thermalNoiseVal);
+    }
+
+    Decider80211p* dec = new Decider80211p(this,
+            sensitivity,
+            ccaThreshold,
+            par("allowTxDuringRx").boolValue(),
+            params["centerFrequency"].doubleValue(),
+            findHost()->getIndex(),
+            par("collectCollisionStatistics").boolValue(),
+            coreDebug);
+
     dec->setPath(getParentModule()->getFullPath());
     return dec;
 }
@@ -812,12 +806,15 @@ void PhyLayer80211p::handleAirFrame(AirFrame* frame)
     case START_RECEIVE:
         handleAirFrameStartReceive(frame);
         break;
+
     case RECEIVING:
         handleAirFrameReceiving(frame);
         break;
+
     case END_RECEIVE:
         handleAirFrameEndReceive(frame);
         break;
+
     default:
         throw omnetpp::cRuntimeError("Unknown AirFrame state: %s", frame->getState());
         break;
@@ -847,6 +844,7 @@ void PhyLayer80211p::handleAirFrameStartReceive(AirFrame* frame)
 
     if(emulationActive)
     {
+        // add attenuation to the signal object of the frame using an analog model
         filterSignal(frame);
 
         if(decider && frame->getProtocolId() == protocolId)
@@ -881,6 +879,9 @@ void PhyLayer80211p::handleAirFrameStartReceive(AirFrame* frame)
 
 void PhyLayer80211p::handleAirFrameReceiving(AirFrame* frame)
 {
+    // send the frame to the decider. If the frame is healthy, then
+    // it will be sent up to the MAC layer. If the frame is lost, then the
+    // reason is sent up to the MAC layer
     omnetpp::simtime_t nextHandleTime = decider->processSignal(frame);
 
     omnetpp::simtime_t signalEndTime = frame->getSendingTime() + frame->getSignal().getPropagationDelay() + frame->getDuration();
@@ -967,18 +968,17 @@ void PhyLayer80211p::filterSignal(AirFrame *frame)
     if (analogueModels.empty())
         return;
 
-    ChannelAccess *const senderModule   = dynamic_cast<ChannelAccess *const>(frame->getSenderModule());
-    ChannelAccess *const receiverModule = dynamic_cast<ChannelAccess *const>(frame->getArrivalModule());
-
+    ChannelAccess *const senderModule = dynamic_cast<ChannelAccess *const>(frame->getSenderModule());
     assert(senderModule);
+    // claim the Move pattern of the sender from the Signal
+    ChannelMobilityPtrType sendersMobility = senderModule ? senderModule->getMobilityModule()   : NULL;
+    // get the sender module position
+    const Coord sendersPos  = sendersMobility ? sendersMobility->getCurrentPosition() : Coord::ZERO;
+
+    ChannelAccess *const receiverModule = dynamic_cast<ChannelAccess *const>(frame->getArrivalModule());
     assert(receiverModule);
-
-    /** claim the Move pattern of the sender from the Signal */
-    ChannelMobilityPtrType sendersMobility  = senderModule   ? senderModule->getMobilityModule()   : NULL;
     ChannelMobilityPtrType receiverMobility = receiverModule ? receiverModule->getMobilityModule() : NULL;
-
-    const Coord sendersPos  = sendersMobility  ? sendersMobility->getCurrentPosition() : Coord::ZERO;
-    const Coord receiverPos = receiverMobility ? receiverMobility->getCurrentPosition(): Coord::ZERO;
+    const Coord receiverPos = receiverMobility ? receiverMobility->getCurrentPosition() : Coord::ZERO;
 
     for(auto &it : analogueModels)
         it->filterSignal(frame, sendersPos, receiverPos);

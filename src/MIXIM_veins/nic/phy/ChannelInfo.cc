@@ -56,26 +56,24 @@ omnetpp::simtime_t ChannelInfo::removeAirFrame(AirFrame* frame)
 {
     assert(airFrameStarts.count(frame) > 0);
 
-    //get start of AirFrame
+    // get start of AirFrame
     omnetpp::simtime_t_cref startTime = airFrameStarts[frame];
 
-    //calculate end time
+    // calculate end time
     omnetpp::simtime_t_cref endTime   = startTime + frame->getDuration();
 
-    //remove this AirFrame from active AirFrames
+    // remove this AirFrame from active AirFrames
     deleteAirFrame(activeAirFrames, frame, startTime, endTime);
 
-    //add to inactive AirFrames
+    // add to inactive AirFrames
     addToInactives(frame, startTime, endTime);
-
 
     // Now check, whether the earliest time-point we need to store information
     // for might have moved on in time, since an AirFrame has been deleted.
-    if(isChannelEmpty()) {
+    if(isChannelEmpty())
         earliestInfoPoint = -1;
-    } else {
+    else
         earliestInfoPoint = findEarliestInfoPoint();
-    }
 
     return earliestInfoPoint;
 }
@@ -117,15 +115,14 @@ void ChannelInfo::deleteAirFrame(AirFrameMatrix& airFrames,
     AirFrameMatrix::iterator listIt = airFrames.find(endTime);
     AirFrameTimeList* list = &listIt->second;
 
-    for(AirFrameTimeList::iterator it = list->begin();
-            it != list->end(); it++)
+    for(AirFrameTimeList::iterator it = list->begin(); it != list->end(); it++)
     {
         if(it->second == frame)
         {
             it = list->erase(it);
-            if(list->empty()) {
+            if(list->empty())
                 airFrames.erase(listIt);
-            }
+
             return;
         }
     }
@@ -133,8 +130,7 @@ void ChannelInfo::deleteAirFrame(AirFrameMatrix& airFrames,
     assert(false);
 }
 
-bool ChannelInfo::canDiscardInterval(omnetpp::simtime_t_cref startTime,
-        omnetpp::simtime_t_cref endTime)
+bool ChannelInfo::canDiscardInterval(omnetpp::simtime_t_cref startTime, omnetpp::simtime_t_cref endTime)
 {
     assert(recordStartTime >= 0 || recordStartTime == -1);
 
@@ -145,15 +141,10 @@ bool ChannelInfo::canDiscardInterval(omnetpp::simtime_t_cref startTime,
             && !isIntersecting(activeAirFrames, startTime, endTime);
 }
 
-void ChannelInfo::checkAndCleanInterval(omnetpp::simtime_t_cref startTime,
-        omnetpp::simtime_t_cref endTime)
+void ChannelInfo::checkAndCleanInterval(omnetpp::simtime_t_cref startTime, omnetpp::simtime_t_cref endTime)
 {
-
-
     // get through inactive AirFrame which intersected with the passed interval
-    IntersectionIterator inactiveIntersectIt(&inactiveAirFrames,
-            startTime,
-            endTime);
+    IntersectionIterator inactiveIntersectIt(&inactiveAirFrames, startTime, endTime);
 
     AirFrame* inactiveIntersect = inactiveIntersectIt.next();
     while(inactiveIntersect != 0)
@@ -170,6 +161,7 @@ void ChannelInfo::checkAndCleanInterval(omnetpp::simtime_t_cref startTime,
             delete inactiveIntersect;
             inactiveIntersect = 0;
         }
+
         inactiveIntersect = inactiveIntersectIt.next();
     }
 }
@@ -194,8 +186,7 @@ void ChannelInfo::addToInactives(AirFrame*      frame,
     }
 }
 
-bool ChannelInfo::isIntersecting(const AirFrameMatrix& airFrames,
-        omnetpp::simtime_t_cref from, omnetpp::simtime_t_cref to) const
+bool ChannelInfo::isIntersecting(const AirFrameMatrix& airFrames, omnetpp::simtime_t_cref from, omnetpp::simtime_t_cref to) const
 {
     ConstIntersectionIterator it(&airFrames, from, to);
     return (it.next() != 0);
@@ -215,8 +206,8 @@ void ChannelInfo::getIntersections( const AirFrameMatrix& airFrames,
     }
 }
 
-void ChannelInfo::getAirFrames(omnetpp::simtime_t_cref from, omnetpp::simtime_t_cref to,
-        AirFrameVector& out) const
+
+void ChannelInfo::getAirFrames(omnetpp::simtime_t_cref from, omnetpp::simtime_t_cref to, AirFrameVector& out) const
 {
     //check for intersecting inactive AirFrames
     getIntersections(inactiveAirFrames, from, to, out);
@@ -224,4 +215,3 @@ void ChannelInfo::getAirFrames(omnetpp::simtime_t_cref from, omnetpp::simtime_t_
     //check for intersecting active AirFrames
     getIntersections(activeAirFrames, from, to, out);
 }
-

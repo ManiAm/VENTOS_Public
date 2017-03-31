@@ -35,12 +35,12 @@ void SimplePathlossModel::filterSignal(AirFrame *frame, const Coord& sendersPos,
 
     Signal& signal = frame->getSignal();
 
-    /** Calculate the distance factor */
+    // calculate the distance factor
     double sqrDistance = useTorus ? receiverPos.sqrTorusDist(sendersPos, playgroundSize) : receiverPos.sqrdist(sendersPos);
 
     splmEV << "sqrdistance is: " << sqrDistance << std::endl;
 
-    //attenuation is negligible
+    // attenuation is negligible
     if(sqrDistance <= 1.0)
         return;
 
@@ -60,9 +60,9 @@ void SimplePathlossModel::filterSignal(AirFrame *frame, const Coord& sendersPos,
 
     const DimensionSet& domain = hasFrequency ? DimensionSet::timeFreqDomain() : DimensionSet::timeDomain();
 
-    //create the Attenuation mapping which takes the distance factor as parameter
-    //to calculate the attenuation from this and the frequency used for the transmission
-    //see the classes "getValue()" for more
+    // create the Attenuation mapping which takes the distance factor as parameter
+    // to calculate the attenuation from this and the frequency used for the transmission
+    // see the classes "getValue()" for more
     SimplePathlossConstMapping* attMapping = new SimplePathlossConstMapping(domain, this, distFactor);
 
     // at last add the created attenuation mapping to the signal

@@ -1,9 +1,10 @@
 #ifndef CHANNELINFO_H_
 #define CHANNELINFO_H_
 
-#include "src/msg/AirFrame_m.h"
 #include <list>
 #include <omnetpp.h>
+
+#include "src/msg/AirFrame_m.h"
 #include "MiXiMDefs.h"
 
 /**
@@ -46,8 +47,10 @@ protected:
 
     /** @brief Type for a pair of an AirFrame and a simulation time.*/
     typedef std::pair<omnetpp::simtime_t, AirFrame*> AirFrameTimePair;
+
     /** @brief Type for a list of AirFrames and a simulation time.*/
     typedef std::list<AirFrameTimePair> AirFrameTimeList;
+
     /**
      * The AirFrames are stored in a Matrix with start- and end time as
      * dimensions.
@@ -106,18 +109,17 @@ protected:
          * specified AirFrameMatrix.
          */
         BaseIntersectionIterator(C* airFrames, omnetpp::simtime_t_cref from, omnetpp::simtime_t_cref to) :
-            intervals(airFrames), from(from), to(to)
-    {
+            intervals(airFrames), from(from), to(to) {
             // begin at the smallest end-time-entry fulfilling the intersection
             // condition 1
             endIt = intervals->lower_bound(from);
 
-            if(endIt != intervals->end()) {
+            if(endIt != intervals->end())
                 startIt = endIt->second.begin();
-            }
-            //we are already pointing at the first unchecked interval
+
+            // we are already pointing at the first unchecked interval
             alreadyNext = true;
-    }
+        }
 
         /**
          * @brief Increases the iterator to the next intersecting AirFrame and
@@ -143,12 +145,12 @@ protected:
                 // while there are entries left at the current end-time
                 while(startIt != endIt->second.end())
                 {
-                    // check if this entry fulfilles the intersection condition
+                    // check if this entry fulfills the intersection condition
                     // 2 (condition 1 is already fulfilled in the constructor by
                     // the start-value of the end-time-iterator)
-                    if(startIt->first <= to) {
+                    if(startIt->first <= to)
                         return startIt->second;
-                    }
+
                     startIt++;
                 }
 
@@ -157,7 +159,6 @@ protected:
                     return 0;
 
                 startIt = endIt->second.begin();
-
             }
 
             return 0;
@@ -175,17 +176,18 @@ protected:
      *
      * Extends the const-version by an erase method.
      */
-    class IntersectionIterator:
-            public BaseIntersectionIterator<AirFrameMatrix,
-            AirFrameMatrix::iterator,
-            AirFrameTimeList::iterator>
+    class IntersectionIterator: public BaseIntersectionIterator<AirFrameMatrix,
+    AirFrameMatrix::iterator,
+    AirFrameTimeList::iterator>
     {
     private:
+
         /** @brief Type for shortcut to base class type.*/
         typedef BaseIntersectionIterator<AirFrameMatrix,
                 AirFrameMatrix::iterator,
                 AirFrameTimeList::iterator> Base;
     public:
+
         /**
          * @brief Creates an iterator for the specified interval at the
          * specified AirFrameMatrix.
@@ -194,7 +196,7 @@ protected:
                 omnetpp::simtime_t_cref  from,
                 omnetpp::simtime_t_cref  to) :
                     Base(airFrames, from, to)
-    {}
+    { }
 
         /**
          * @brief Erases the AirFrame the iterator currently points to from the
@@ -215,17 +217,16 @@ protected:
             if(startIt == endIt->second.end())
             {
                 //check if we deleted the only entry in the list
-                if(endIt->second.empty()) {
+                if(endIt->second.empty())
                     intervals->erase(endIt++); //delete list from map
-                } else {
+                else
                     endIt++;
-                }
 
                 //increase to a valid value if we are not done
-                if(endIt != intervals->end()) {
+                if(endIt != intervals->end())
                     startIt = endIt->second.begin();
-                }
             }
+
             alreadyNext = true;
         }
     };
@@ -259,7 +260,7 @@ protected:
      * information stored.*/
     omnetpp::simtime_t recordStartTime;
 
-            public:
+    public:
     /**
      * @brief Type for a container of AirFrames.
      *
@@ -267,7 +268,7 @@ protected:
      */
     typedef std::list<AirFrame*> AirFrameVector;
 
-            protected:
+    protected:
     /**
      * @brief Asserts that every inactive AirFrame is still intersecting with at
      * least one active airframe or with the current record start time.
@@ -357,11 +358,11 @@ protected:
         checkAndCleanInterval(start, inactiveAirFrames.rbegin()->first);
     }
 
-            public:
+    public:
     ChannelInfo():
         earliestInfoPoint(-1),
         recordStartTime(-1)
-            {}
+    {}
 
     virtual ~ChannelInfo() {}
 

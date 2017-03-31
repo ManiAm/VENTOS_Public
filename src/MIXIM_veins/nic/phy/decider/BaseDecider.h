@@ -10,8 +10,8 @@
 
 #include "MiXiMDefs.h"
 #include "DeciderToPhyInterface.h"
+#include "src/msg/AirFrame_m.h"
 #include "src/msg/MacToPhyCSR_m.h"
-
 
 class Mapping;
 
@@ -23,7 +23,7 @@ class Mapping;
  *  2.  decide whether the channel is busy/idle at a time point or
  *      during a time interval (channel sensing)
  *
- * BasePhyLayer hands every receiving AirFrame several times to the
+ * PHY layer hands every receiving AirFrame several times to the
  * "processSignal()"-function and is returned a time point when to do so again.
  *
  * @ingroup decider
@@ -256,14 +256,16 @@ protected:
      * @brief Processes any Signal for which no state could be found.
      * (is an error case).
      */
-    virtual omnetpp::simtime_t processUnknownSignal(AirFrame* frame);
+    virtual omnetpp::simtime_t processUnknownSignal(AirFrame* frame)
+    {
+        throw omnetpp::cRuntimeError("Unknown state for the AirFrame with ID %d", frame->getId());
+    }
 
     /**
      * @brief Returns the SignalState for the passed AirFrame.
      *
      * The default implementation checks if the passed AirFrame
-     * is the "currentSignal" and returns its state or if not
-     * "NEW".
+     * is the "currentSignal" and returns its state or if not "NEW".
      */
     virtual int getSignalState(AirFrame* frame);
 

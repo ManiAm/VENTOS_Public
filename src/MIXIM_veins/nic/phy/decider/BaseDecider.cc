@@ -5,9 +5,8 @@
  *      Author: karl
  */
 
-#include "src/msg/AirFrame_m.h"
-#include "BaseDecider.h"
 #include <cassert>
+#include "BaseDecider.h"
 
 #define deciderEV EV << "[Host " << myIndex << "] - PhyLayer(Decider): "
 
@@ -83,13 +82,6 @@ omnetpp::simtime_t BaseDecider::processSignalEnd(AirFrame* frame)
     // channel is idle now
     setChannelIdleStatus(true);
 
-    return notAgain;
-}
-
-
-omnetpp::simtime_t BaseDecider::processUnknownSignal(AirFrame* frame)
-{
-    throw omnetpp::cRuntimeError("Unknown state for the AirFrame with ID %d", frame->getId());
     return notAgain;
 }
 
