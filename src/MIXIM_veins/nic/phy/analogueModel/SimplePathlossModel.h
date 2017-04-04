@@ -89,6 +89,7 @@ public:
 class MIXIM_API SimplePathlossModel : public AnalogueModel
 {
 protected:
+
 	friend class SimplePathlossConstMapping;
 
 	/** @brief Path loss coefficient. **/
@@ -107,6 +108,7 @@ protected:
 	bool debug;
 
 public:
+
 	/**
 	 * @brief Initializes the analogue model. playgroundSize
 	 * need to be valid as long as this instance exists.

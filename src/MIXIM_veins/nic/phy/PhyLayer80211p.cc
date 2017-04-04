@@ -880,8 +880,8 @@ void PhyLayer80211p::handleAirFrameStartReceive(AirFrame* frame)
 void PhyLayer80211p::handleAirFrameReceiving(AirFrame* frame)
 {
     // send the frame to the decider. If the frame is healthy, then
-    // it will be sent up to the MAC layer. If the frame is lost, then the
-    // reason is sent up to the MAC layer
+    // it will be sent up to the MAC layer. If the frame is lost, then
+    // the reason is sent up to the MAC layer
     omnetpp::simtime_t nextHandleTime = decider->processSignal(frame);
 
     omnetpp::simtime_t signalEndTime = frame->getSendingTime() + frame->getSignal().getPropagationDelay() + frame->getDuration();

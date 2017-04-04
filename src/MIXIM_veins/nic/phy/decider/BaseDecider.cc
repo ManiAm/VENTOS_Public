@@ -21,10 +21,13 @@ omnetpp::simtime_t BaseDecider::processSignal(AirFrame* frame)
     {
     case NEW:
         return processNewSignal(frame);
+
     case EXPECT_HEADER:
         return processSignalHeader(frame);
+
     case EXPECT_END:
         return processSignalEnd(frame);
+
     default:
         return processUnknownSignal(frame);
     }
@@ -52,17 +55,17 @@ omnetpp::simtime_t BaseDecider::processNewSignal(AirFrame* frame)
     {
         deciderEV << "Signal is to weak (" << recvPower << " < " << sensitivity << ") -> do not receive." << std::endl;
 
-        // Signal too weak, we can't receive it, tell PhyLayer that we don't want it again
+        // signal too weak, we can't receive it, tell PhyLayer that we don't want it again
         return notAgain;
     }
 
-    // Signal is strong enough, receive this Signal and schedule it
+    // signal is strong enough, receive this Signal and schedule it
     deciderEV << "Signal is strong enough (" << recvPower << " > " << sensitivity << ") -> Trying to receive AirFrame." << std::endl;
 
     currentSignal.first = frame;
     currentSignal.second = EXPECT_END;
 
-    //channel turned busy
+    // channel turned busy
     setChannelIdleStatus(false);
 
     return frame->getSendingTime() + signal.getPropagationDelay() + frame->getDuration();
@@ -196,17 +199,16 @@ omnetpp::simtime_t BaseDecider::canAnswerCSR(const CSRInfo& requestInfo)
     case UNTIL_IDLE:
         modeFulfilled = isChannelIdle;
         break;
+
     case UNTIL_BUSY:
         modeFulfilled = !isChannelIdle;
         break;
     }
 
     if(modeFulfilled)
-    {
         return omnetpp::simTime();
-    }
 
-    //return point in time when time out is reached
+    // return point in time when time out is reached
     return requestInfo.second + requestInfo.first->getSenseTimeout();
 }
 
@@ -244,7 +246,7 @@ void BaseDecider::answerCSR(CSRInfo& requestInfo)
 
 Mapping* BaseDecider::calculateSnrMapping(AirFrame* frame)
 {
-    /* calculate Noise-Strength-Mapping */
+    // calculate Noise-Strength-Mapping
     Signal& signal = frame->getSignal();
 
     omnetpp::simtime_t start = frame->getSendingTime() + signal.getPropagationDelay();
