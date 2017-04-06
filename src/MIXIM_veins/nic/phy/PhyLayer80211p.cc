@@ -824,7 +824,7 @@ void PhyLayer80211p::handleAirFrame(AirFrame* frame)
 
 void PhyLayer80211p::handleAirFrameStartReceive(AirFrame* frame)
 {
-    coreEV << "Received new AirFrame " << frame << " from channel. \n";
+    coreEV << "Received new AirFrame '" << frame << "' from channel. \n";
 
     if(channelInfo.isChannelEmpty())
         radio->setTrackingModeTo(true);

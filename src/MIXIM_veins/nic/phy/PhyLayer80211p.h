@@ -144,9 +144,6 @@ private:
     /** @brief The state machine storing the current radio state (TX, RX, SLEEP).*/
     Radio* radio = NULL;
 
-    /** @brief Pointer to the decider module. */
-    BaseDecider* decider = NULL;
-
     /** @brief Used to store the AnalogueModels to be used as filters.*/
     typedef std::vector<AnalogueModel*> AnalogueModelList;
 
@@ -173,6 +170,14 @@ private:
 
     omnetpp::cMessage* radioDelayTimer = NULL;
 
+    /** @brief Stores the length of the phy header in bits. */
+    int headerLength = -1;
+
+    /** @brief CCA threshold. See Decider80211p for details */
+    double ccaThreshold = -1;
+
+protected:
+
     /** @brief The states of the receiving process for AirFrames.*/
     enum AirFrameStates {
         /** @brief Start of actual receiving process of the AirFrame. */
@@ -183,11 +188,8 @@ private:
         END_RECEIVE
     };
 
-    /** @brief Stores the length of the phy header in bits. */
-    int headerLength = -1;
-
-    /** @brief CCA threshold. See Decider80211p for details */
-    double ccaThreshold = -1;
+    /** @brief Pointer to the decider module. */
+    BaseDecider* decider = NULL;
 
 public:
 
@@ -361,11 +363,36 @@ public:
 protected:
 
     /**
+     * @brief Handles messages received from the channel (probably AirFrames).
+     */
+    virtual void handleAirFrame(AirFrame* frame);
+
+    /**
+     * @brief Handles incoming AirFrames with the state FIRST_RECEIVE.
+     */
+    void handleAirFrameFirstReceive(AirFrame* msg);
+
+    /**
+     * @brief Handles incoming AirFrames with the state START_RECEIVE.
+     */
+    virtual void handleAirFrameStartReceive(AirFrame* msg);
+
+    /**
+     * @brief Handles incoming AirFrames with the state RECEIVING.
+     */
+    virtual void handleAirFrameReceiving(AirFrame* msg);
+
+    /**
+     * @brief Handles incoming AirFrames with the state END_RECEIVE.
+     */
+    virtual void handleAirFrameEndReceive(AirFrame* msg);
+
+private:
+
+    /**
      * @brief Handles self scheduled messages.
      */
     virtual void handleSelfMessage(omnetpp::cMessage* msg);
-
-private:
 
     void handleUpperMessage(omnetpp::cMessage* msg);
 
@@ -491,31 +518,6 @@ private:
      * a confirmation message.
      */
     virtual void finishRadioSwitching();
-
-    /**
-     * @brief Handles messages received from the channel (probably AirFrames).
-     */
-    virtual void handleAirFrame(AirFrame* frame);
-
-    /**
-     * @brief Handles incoming AirFrames with the state FIRST_RECEIVE.
-     */
-    void handleAirFrameFirstReceive(AirFrame* msg);
-
-    /**
-     * @brief Handles incoming AirFrames with the state START_RECEIVE.
-     */
-    virtual void handleAirFrameStartReceive(AirFrame* msg);
-
-    /**
-     * @brief Handles incoming AirFrames with the state RECEIVING.
-     */
-    virtual void handleAirFrameReceiving(AirFrame* msg);
-
-    /**
-     * @brief Handles incoming AirFrames with the state END_RECEIVE.
-     */
-    virtual void handleAirFrameEndReceive(AirFrame* msg);
 
     /**
      * @brief Handles reception of a ChannelSenseRequest by forwarding it

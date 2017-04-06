@@ -587,13 +587,21 @@ bool Decider80211p::cca(omnetpp::simtime_t_cref time, AirFrame* exclude)
 
 void Decider80211p::setChannelIdleStatus(bool isIdle)
 {
+    EV_STATICCONTEXT
+
     isChannelIdle = isIdle;
     channelStateChanged();
 
     if (isIdle)
+    {
+        EV << "sending 'IDLE' ChannelStatus to MAC \n";
         phy->sendControlMsgToMac(new VENTOS::PhyToMacReport("ChannelStatus", MacToPhyInterface::CHANNEL_IDLE));
+    }
     else
+    {
+        EV << "sending 'BUSY' ChannelStatus to MAC \n";
         phy->sendControlMsgToMac(new VENTOS::PhyToMacReport("ChannelStatus", MacToPhyInterface::CHANNEL_BUSY));
+    }
 }
 
 
