@@ -126,8 +126,6 @@ private:
     omnetpp::simsignal_t Signal_initialize_withTraCI;
     omnetpp::simsignal_t Signal_executeEachTS;
     omnetpp::simsignal_t Signal_module_added;
-    omnetpp::simsignal_t Signal_module_deleted;
-    omnetpp::simsignal_t Signal_departed;
     omnetpp::simsignal_t Signal_arrived;
 
     double updateInterval = 0;

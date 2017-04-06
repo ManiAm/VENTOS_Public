@@ -57,7 +57,10 @@ void Statistics::initialize(int stage)
         TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
 
+        record_sim_stat = par("record_sim_stat").boolValue();
+
         // register signals
+
         Signal_initialize_withTraCI = registerSignal("initialize_withTraCI");
         omnetpp::getSimulation()->getSystemModule()->subscribe("initialize_withTraCI", this);
 
@@ -67,16 +70,8 @@ void Statistics::initialize(int stage)
         Signal_module_added = registerSignal("module_added");
         omnetpp::getSimulation()->getSystemModule()->subscribe("module_added", this);
 
-        Signal_module_deleted = registerSignal("module_deleted");
-        omnetpp::getSimulation()->getSystemModule()->subscribe("module_deleted", this);
-
-        Signal_departed = registerSignal("departed");
-        omnetpp::getSimulation()->getSystemModule()->subscribe("departed", this);
-
         Signal_arrived = registerSignal("arrived");
         omnetpp::getSimulation()->getSystemModule()->subscribe("arrived", this);
-
-        record_sim_stat = par("record_sim_stat").boolValue();
     }
 }
 
@@ -152,8 +147,8 @@ void Statistics::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t
 {
     Enter_Method_Silent();
 
-    // note that this signal can be emitted more than once for a vehicle when
-    // ROI (region of interest) is defined
+    // note that this signal can be emitted more than once for a vehicle
+    // when that vehicle enters/exits ROI (region of interest)
     if(signalID == Signal_module_added)
     {
         omnetpp::cModule *m = static_cast<omnetpp::cModule *>(obj);
