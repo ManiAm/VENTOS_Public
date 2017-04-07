@@ -74,22 +74,6 @@ network Network
             parameters:
                 @display("p=144,213;i=block/broadcast");
         }
-        cobalt: Cobalt {
-            parameters:
-                @display("p=245,213;i=block/broadcast");
-        }
-        Ethernet: Ethernet {
-            parameters:
-                @display("p=48,299;i=block/network");
-        }
-        USB: USB {
-            parameters:
-                @display("p=144,299;i=block/mac");
-        }
-        Bluetooth: BLE_Dump {
-            parameters:
-                @display("p=245,299;i=device/wifilaptop");
-        }
         tutorial: tutorial {
             parameters:
                 @display("p=337,299;i=old/ring");

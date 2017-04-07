@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <buildspec version="4.0">
-    <dir makemake-options="--deep --make-so -O out -lboost_system -lboost_filesystem -lboost_serialization -lpcap -lusb-1.0 -lbluetooth -lsnmp++ -lcurl -lshark_debug -llapack_atlas -lblas --meta:recurse --meta:auto-include-path --meta:export-library --meta:use-exported-libs --meta:feature-cflags --meta:feature-ldflags" path="src" type="makemake"/>
+    <dir makemake-options="--deep --make-so -O out -lboost_system -lboost_filesystem -lboost_serialization -lcurl -lshark_debug -llapack_atlas -lblas --meta:recurse --meta:auto-include-path --meta:export-library --meta:use-exported-libs --meta:feature-cflags --meta:feature-ldflags" path="src" type="makemake"/>
     <dir makemake-options="-O out --meta:recurse --meta:auto-include-path --meta:export-library --meta:use-exported-libs --meta:feature-cflags --meta:feature-ldflags" path="." type="makemake"/>
     <dir makemake-options="--deep -o loggingWindow -O out --meta:recurse --meta:auto-include-path --meta:export-library --meta:use-exported-libs --meta:feature-cflags --meta:feature-ldflags" path="src/loggingWindow" type="custom"/>
 </buildspec>
