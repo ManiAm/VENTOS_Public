@@ -544,6 +544,9 @@ if [ ! -d "omnetpp-5.0" ]; then
     if [[ "$findings" = "0" ]]; then        
         echo "downloading omnet++"
         lftp -e 'pget -n 5 omnetpp-5.0-src.tgz -o /tmp/VENTOS_tmp/omnetpp.tgz; bye' -p 28 -u userftp,userftp ftp://rubinet.ece.ucdavis.edu/download
+        if [[ $? -ne 0 ]]; then
+            exit 1
+        fi
     elif [[ "$findings" > "1" ]]; then
         echo "ERROR: more than one omnet++ archive file exists!"
         exit 1
@@ -1092,6 +1095,9 @@ if ! [[ "$result" == "1" ]]; then
     if [ ! -d "CMake" ]; then
         echo "downloading CMake"
         curl -o cmake.zip -LOk https://github.com/Kitware/CMake/archive/master.zip
+        if [[ $? -ne 0 ]]; then
+            exit 1
+        fi
         unzip cmake.zip -d CMake > /dev/null
     fi
 
@@ -1146,6 +1152,9 @@ if [[ "$result" == "2" ]]; then
     if [ ! -d "gnuplot" ]; then
         echo "downloading gnuplot"
         lftp -e 'pget -n 2 gnuplot-5.0.3.tar.gz -o /tmp/VENTOS_tmp/gnuplot.tar.gz; bye' -p 28 -u userftp,userftp ftp://rubinet.ece.ucdavis.edu/download
+        if [[ $? -ne 0 ]]; then
+            exit 1
+        fi
         mkdir gnuplot
         tar zxf gnuplot.tar.gz -C gnuplot --strip 1
     fi
@@ -1183,6 +1192,9 @@ else
     if [ ! -d "eigen" ]; then
         echo "downloading eigen"
         curl -o eigen.zip -LOk https://github.com/RLovelett/eigen/archive/master.zip
+        if [[ $? -ne 0 ]]; then
+            exit 1
+        fi
         unzip eigen.zip -d eigen > /dev/null
     fi
 
@@ -1231,6 +1243,9 @@ if [[ 1 ]]; then
     if [ ! -d "Shark" ]; then
         echo "downloading shark"
         curl -o shark.zip -LOk https://github.com/Shark-ML/Shark/archive/master.zip
+        if [[ $? -ne 0 ]]; then
+            exit 1
+        fi
         unzip shark.zip -d Shark > /dev/null
     fi
 
