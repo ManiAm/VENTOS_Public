@@ -78,10 +78,6 @@ elif [[ ("$OSTYPE" == "linux-gnu" && "$OS" == "Ubuntu" && "$VER_major" == "15" &
 elif [[ ("$OSTYPE" == "linux-gnu" && "$OS" == "Ubuntu" && "$VER_major" == "14" && "$VER_minor" == "04") ]]; then
     echo "Starting script ..."
 
-# Ubuntu 12.04
-elif [[ ("$OSTYPE" == "linux-gnu" && "$OS" == "Ubuntu" && "$VER_major" == "12" && "$VER_minor" == "04") ]]; then
-    echo "Starting script ..."
-
 # Yosemiti (Mac OS 10.10)
 elif [[ ("$OSTYPE" == "darwin"* && "$OS" == "Mac OS X" && "$VER_major" == "10" && "$VER_minor" == "10") ]]; then
     echo "Starting script ..."
@@ -496,7 +492,7 @@ if [[ "$OS" == "Ubuntu" ]]; then
     echo ""
     echo "Check 3D visualization libraries for OMNET++"
     echo "============================================"
-    libs=("libqt4-dev" "qt4-qmake" "libqt4-opengl-dev" "openscenegraph" "libopenscenegraph-dev" "openscenegraph-plugin-osgearth" "osgearth" "osgearth-data" "libosgearth-dev")
+    libs=("qt5-default" "openscenegraph" "libopenscenegraph-dev" "openscenegraph-plugin-osgearth" "osgearth" "osgearth-data" "libosgearth-dev")
     install_LIB_linux libs[@]
 
 elif [[ "$OS" == "Mac OS X" ]]; then
@@ -512,10 +508,13 @@ echo "Preparing to install OMNET++"
 echo "============================"
 ver=$(opp_run -v 2> /dev/null | grep 'Build:' | awk '{print $2}')
 verNum=$(echo $ver | sed 's/^.*-//g')
+targetVer="5.1"
+omnetDIR="omnetpp-"$targetVer
 
 # should we install a newer version?
-vercomp "$verNum" "5.0"
+vercomp "$verNum" $targetVer
 result=$?
+# if version < $targetVer
 if ! [[ "$result" == "2" ]]; then
     loc=$(which opp_run)
     echo "found $ver in"
@@ -538,15 +537,23 @@ echo ""
 echo "Downloading OMNET++"
 echo "==================="
 # check if omnet directory exists
-if [ ! -d "omnetpp-5.0" ]; then
-    # searching for omnet++ archive
-    findings=$(find /tmp/VENTOS_tmp -name "omnetpp*.tgz" -o -name "omnetpp*.tar" | wc -l | xargs)  # xargs: remove all whitespaces
+if [ ! -d $omnetDIR ]; then
+    # searching for omnet++ archive (# xargs: remove all whitespaces)
+    findings=$(find /tmp/VENTOS_tmp -name "omnetpp*.tgz" -o -name "omnetpp*.tar" | wc -l | xargs)
     if [[ "$findings" = "0" ]]; then        
         echo "downloading omnet++"
-        lftp -e 'pget -n 5 omnetpp-5.0-src.tgz -o /tmp/VENTOS_tmp/omnetpp.tgz; bye' -p 28 -u userftp,userftp ftp://rubinet.ece.ucdavis.edu/download
+
+        if [[ "$OS" == "Ubuntu" ]]; then
+            omnetURL="omnetpp-5.1-src-linux.tgz"
+        elif [[ "$OS" == "Mac OS X" ]]; then
+            omnetURL="omnetpp-5.1-src-macosx.tgz"
+        fi
+
+        lftp -e "pget -n 5 $omnetURL -o /tmp/VENTOS_tmp/omnetpp.tgz; bye" -p 28 -u userftp,userftp ftp://rubinet.ece.ucdavis.edu/download
         if [[ $? -ne 0 ]]; then
             exit 1
         fi
+
     elif [[ "$findings" > "1" ]]; then
         echo "ERROR: more than one omnet++ archive file exists!"
         exit 1
@@ -559,7 +566,7 @@ if [ ! -d "omnetpp-5.0" ]; then
     tar zxf $omnetFile  
     echo "done!"
 else
-    echo "omnetpp-5.0 folder already exists!"
+    echo $omnetDIR" folder already exists!"
 fi
 
 echo ""
@@ -569,7 +576,7 @@ echo "========================="
 # In the OMNET++ folder you can see the `configure.in` file that is used by autoconf to generate the `configure` script. Additional input parameters for configure script are defined in `configure.user` file. The configure script detects installed software and configuration of your system, and generates three outputs: `config.log`, `config.status`, and `Makefile.inc`. The first two files are used for debugging purposes, and the last file will be read later by the makefiles during the build process.
 
 # go to omnet directory
-cd omnetpp-5.0
+cd $omnetDIR
 if [[ $? -ne 0 ]]; then
     exit 1
 fi
@@ -642,43 +649,18 @@ if [ "" != "$check" ]; then
     exit 1
 fi
 
-# check if g++ suports c++11
-# Starting from version 4.6, OMNET++ uses C++11 standard (formerly known as C++0x) by default. This means that OMNET++ source code as well as all the imported projects will be compiled with this flag. Look for this line in the configure output, and make sure that it is 'yes'.
-value=$(</tmp/VENTOS_tmp/out.zvapoq)
-res=$(echo "$value" | grep "supports -std=c++11... yes")
-if [ "" = "$res" ]; then
-    printf "\n\e[1;31mconfigure script reports that g++ does not support c++11.\e[0m \n\n"
-    # get g++ version
-    gppVER=$(g++ --version | grep ^g++ | sed 's/^.* //g')
+ver=$(opp_run -v 2> /dev/null | grep 'Build:' | awk '{print $2}')
+verNum=$(echo $ver | sed 's/^.*-//g')
 
-    # should we install g++ 4.8?
-    vercomp "$gppVER" "4.8"
-    result=$?
-    if [[ "$result" == "2" ]]; then
-        echo -n "g++ version is" $gppVER". Install g++ 4.8 (y/n)? "
-        read answer
-        if echo "$answer" | grep -iq "^y" ;then
-            echo $sudoPass | sudo -S add-apt-repository -y ppa:ubuntu-toolchain-r/test > /dev/null
-            echo $sudoPass | sudo -S apt-get update > /dev/null
-            echo $sudoPass | sudo -S update-alternatives --remove-all gcc > /dev/null
-            echo $sudoPass | sudo -S update-alternatives --remove-all g++ > /dev/null
-            echo $sudoPass | sudo -S apt-get --force-yes --yes install gcc-4.8
-            echo $sudoPass | sudo -S apt-get --force-yes --yes install g++-4.8
-            echo $sudoPass | sudo -S update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 20 > /dev/null
-            echo $sudoPass | sudo -S update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 20 > /dev/null
-            echo $sudoPass | sudo -S update-alternatives --config gcc > /dev/null
-            echo $sudoPass | sudo -S update-alternatives --config g++ > /dev/null
-
-            printf "\n\e[1;31mClose this terminal and run the script again!\e[0m \n"
-            exit 1
-        else
-            exit 1;
-        fi
-    else
-        # g++ version is >= 4.8. USE_CXX11 must be unset 
-        printf "\e[1;31mc++11 is not enabled in OMNET++. Go to OMNET++ folder and open the 'configure.user' file. Find USE_CXX11 flag and set it to 'yes'.\e[0m \n"
-        exit 1
-    fi
+# make sure omnet version is correct
+vercomp "$verNum" $targetVer
+result=$?
+if [[ ("" != "$verNum") && ("$result" != "0") ]]; then
+    echo ""
+    echo "ERROR: The PATH variable contains an old version of OMNET"
+    echo "Open .bashrc file and remove the old OMNET path"
+    echo "Then open a NEW terminal and execute the runme script again!"
+    exit 1 
 fi
 
 echo ""
@@ -746,9 +728,9 @@ if [[ "$OS" == "Mac OS X" ]]; then
             echo "certificate VENTOS already exists!"
         else
             # make a directory in omnet to store keys and certificates
-            mkdir omnetpp-5.0/keys
+            mkdir $omnetDIR/keys
             # go to the directory
-            cd omnetpp-5.0/keys
+            cd $omnetDIR/keys
             # check if change directory was successful (next command is dangerous!)
             if [[ $? -ne 0 ]]; then
                 exit 1
@@ -1049,14 +1031,8 @@ echo "==============================="
 
 if [[ "$OS" == "Ubuntu" ]]; then
 
-    # in Ubuntu 12.04, libboost-all-dev installs 1.46 but we need 1.48 at minimum
-    if [[ "$VER_major" == "12" && "$VER_minor" == "04" ]]; then
-        boostLIB="libboost1.48-all-dev"
-    else
-        boostLIB="libboost-all-dev"
-    fi
-    
-    libs=("$boostLIB" "libssl-dev" "libcurl4-gnutls-dev" "libbluetooth-dev" "libgtkmm-3.0-dev")
+    # we need boost 1.48 at minimum    
+    libs=("libboost-all-dev" "libssl-dev" "libcurl4-gnutls-dev" "libbluetooth-dev" "libgtkmm-3.0-dev")
     install_LIB_linux libs[@]
 
 elif [[ "$OS" == "Mac OS X" ]]; then
