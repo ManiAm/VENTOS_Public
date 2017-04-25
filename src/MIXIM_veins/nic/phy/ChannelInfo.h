@@ -4,7 +4,7 @@
 #include <list>
 #include <omnetpp.h>
 
-#include "src/msg/AirFrame_m.h"
+#include "src/msg/AirFrame_serial.h"
 #include "MiXiMDefs.h"
 
 /**

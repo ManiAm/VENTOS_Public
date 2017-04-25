@@ -1,7 +1,7 @@
 #ifndef SIMPLEOBSTACLEFADING_H_
 #define SIMPLEOBSTACLEFADING_H_
 
-#include "src/msg/AirFrame_m.h"
+#include "src/msg/AirFrame_serial.h"
 #include "AnalogueModel.h"
 #include "Mapping.h"
 #include "BaseWorldUtility.h"

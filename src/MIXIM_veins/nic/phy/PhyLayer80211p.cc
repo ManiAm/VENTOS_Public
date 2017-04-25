@@ -29,7 +29,7 @@
 #include "Decider80211p.h"
 #include "BaseConnectionManager.h"
 #include "Consts80211p.h"
-#include "AirFrame11p_m.h"
+#include "AirFrame11p_serial.h"
 #include "Mac80211Pkt_m.h"
 #include "MacToPhyControlInfo.h"
 #include "PhyToMacControlInfo.h"

@@ -13,7 +13,7 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 //
 
-#include "src/msg/AirFrame_m.h"
+#include "src/msg/AirFrame_serial.h"
 #include "JakesFading.h"
 #include "BaseWorldUtility.h"
 #include "ChannelAccess.h"

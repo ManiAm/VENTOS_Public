@@ -27,20 +27,30 @@ class FilledUpMapping;
  * @ingroup mappingDetails
  */
 template<class Base>
-class BaseFilteredIterator : public Base {
+class BaseFilteredIterator : public Base
+{
 public:
+
     typedef typename Base::argument_value_t      argument_value_t;
     typedef typename Base::argument_value_cref_t argument_value_cref_t;
+
 protected:
+
     Base* origIterator;
 
-public:
-    BaseFilteredIterator(Base* orig):
-        origIterator(orig) {}
+    friend class boost::serialization::access;
 
-    virtual ~BaseFilteredIterator() {
-        delete origIterator;
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & origIterator;
     }
+
+public:
+
+    BaseFilteredIterator(Base* orig): origIterator(orig) {}
+
+    virtual ~BaseFilteredIterator() { delete origIterator; }
 
     virtual const Argument& getNextPosition() const { return origIterator->getNextPosition(); }
 
@@ -61,6 +71,7 @@ public:
     virtual argument_value_t getValue() const { return origIterator->getValue(); }
 };
 
+
 /**
  * @brief Const version of the BaseFilteredIterator. Meant to be used for
  * ConstMappingIterator instances.
@@ -79,10 +90,11 @@ typedef BaseFilteredIterator<ConstMappingIterator> FilteredConstMappingIterator;
  * @author Karl Wessel
  * @ingroup mappingDetails
  */
-class MIXIM_API FilteredMappingIterator : public BaseFilteredIterator<MappingIterator> {
+class MIXIM_API FilteredMappingIterator : public BaseFilteredIterator<MappingIterator>
+{
 public:
-    FilteredMappingIterator(MappingIterator* orig):
-        BaseFilteredIterator<MappingIterator>(orig) {}
+
+    FilteredMappingIterator(MappingIterator* orig): BaseFilteredIterator<MappingIterator>(orig) {}
 
     virtual ~FilteredMappingIterator() {}
 
@@ -98,11 +110,12 @@ public:
  * @ingroup mapping
  */
 template<template <typename> class Interpolator>
-class TimeMappingIterator:public MappingIterator {
+class TimeMappingIterator:public MappingIterator
+{
 protected:
+
     /** @brief The templated InterpolateableMap the underlying Mapping uses std::map as storage type.*/
-    typedef InterpolateableMap< Interpolator< std::map<omnetpp::simtime_t, argument_value_t> > >
-    interpolator_map_type;
+    typedef InterpolateableMap< Interpolator< std::map<omnetpp::simtime_t, argument_value_t> > > interpolator_map_type;
     typedef typename interpolator_map_type::interpolator_type    interpolator_type;
     typedef typename interpolator_map_type::mapped_type          mapped_type;
     typedef typename interpolator_map_type::iterator_intpl       iterator;
@@ -128,14 +141,31 @@ protected:
     bool         isStepMapping;
 
     bool         atPreStep;
+
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & valueIt;
+        archive & position;
+        archive & nextPosition;
+        archive & isStepMapping;
+        archive & atPreStep;
+    }
+
 protected:
-    void updateNextPos() {
+
+    void updateNextPos()
+    {
         omnetpp::simtime_t t = valueIt.getNextPosition();
-        if(isStepMapping && !atPreStep) {
+
+        if(isStepMapping && !atPreStep)
             t.setRaw(t.raw() - 1);
-        }
+
         nextPosition.setTime(t);
     }
+
 public:
 
     /**
@@ -277,6 +307,7 @@ public:
     }
 };
 
+
 /**
  * @brief Implements the Mapping-interface with an InterpolateableMap from
  * simtime_t to double between which values can be interpolated to represent
@@ -286,11 +317,12 @@ public:
  * @ingroup mapping
  */
 template<template <typename> class Interpolator>
-class TimeMapping:public Mapping {
+class TimeMapping:public Mapping
+{
 protected:
+
     /** @brief The templated InterpolateableMap the underlying Mapping uses std::map as storage type.*/
-    typedef InterpolateableMap< Interpolator< std::map<omnetpp::simtime_t, argument_value_t> > >
-    interpolator_map_type;
+    typedef InterpolateableMap< Interpolator< std::map<omnetpp::simtime_t, argument_value_t> > > interpolator_map_type;
     typedef typename interpolator_map_type::interpolator_type    interpolator_type;
     typedef typename interpolator_map_type::mapped_type          mapped_type;
     typedef typename interpolator_map_type::mapped_cref_type     mapped_cref_type;
@@ -299,6 +331,15 @@ protected:
 
     /** @brief Stores the key-entries defining the function.*/
     interpolator_map_type entries;
+
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & entries;
+    }
+
 public:
 
     /**
@@ -370,8 +411,10 @@ public:
  * @author Karl Wessel
  * @ingroup mappingDetails
  */
-class MIXIM_API LinearIntplMappingIterator:public MappingIterator {
+class MIXIM_API LinearIntplMappingIterator:public MappingIterator
+{
 protected:
+
     /** @brief Iterator for the left Mapping to interpolate.*/
     ConstMappingIterator* leftIt;
     /** @brief Iterator for the right Mapping to interpolate.*/
@@ -380,6 +423,16 @@ protected:
     /** @brief The factor defining how strong the left and the right Mapping
      * affect the interpolation.*/
     argument_value_t      factor;
+
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & leftIt;
+        archive & rightIt;
+        archive & factor;
+    }
 
 public:
     /**
@@ -474,6 +527,7 @@ public:
     virtual const Argument& getNextPosition() const { assert(false); return *((Argument *)NULL); }
 };
 
+
 /**
  * @brief Helper class which represents a linear interpolation between
  * two other mappings.
@@ -481,8 +535,10 @@ public:
  * @author Karl Wessel
  * @ingroup mappingDetails
  */
-class MIXIM_API LinearIntplMapping:public Mapping {
+class MIXIM_API LinearIntplMapping:public Mapping
+{
 protected:
+
     /** @brief The left mapping to interpolate.*/
     const ConstMapping* left;
     /** @brief The right mapping to interpolate*/
@@ -491,6 +547,16 @@ protected:
     /** @brief The interpolation factor determining the linear interpolation
      * between left and right mapping.*/
     argument_value_t    factor;
+
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & left;
+        archive & right;
+        archive & factor;
+    }
 
 public:
 
@@ -553,6 +619,7 @@ public:
     virtual void setValue(const Argument& pos, argument_value_cref_t value) { assert(false); }
 };
 
+
 /**
  * @brief Helper class (-specialization) for multiDimMapping which is used by an
  * InterpolateableMap as return value of the "getValue()" - method.
@@ -565,8 +632,10 @@ public:
  * @ingroup mappingDetails
  */
 template<>
-class Interpolated<Mapping*> {
+class Interpolated<Mapping*>
+{
 protected:
+
     typedef Mapping*          value_type;
     typedef const value_type& value_cref_type;
     typedef value_type&       value_ref_type;
@@ -580,11 +649,25 @@ protected:
 
     /** @brief Stores if we use the temporary IntplMapping or a external pointer.*/
     bool       isPointer;
+
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & mapping;
+        archive & value;
+        archive & isPointer;
+        archive & isInterpolated;
+    }
+
 public:
+
     /** @brief Stores if the underlying Mapping is interpolated or not.*/
     bool       isInterpolated;
 
 public:
+
     /**
      * @brief Initializes this Interpolated instance to represent the passed
      * Interpolated Mapping. Copies the passed Mapping to its internal member.
@@ -666,6 +749,7 @@ public:
     }
 };
 
+
 /**
  * @brief Specialization of the Linear-template which provides LinearInterpolation
  * for pointer two Mappings. Used by MultiDimMapping.
@@ -674,11 +758,14 @@ public:
  * @ingroup mappingDetails
  */
 template<>
-class Linear< std::map<Argument::mapped_type, Mapping*> > : public InterpolatorBase< std::map<Argument::mapped_type, Mapping*> >  {
+class Linear< std::map<Argument::mapped_type, Mapping*> > : public InterpolatorBase< std::map<Argument::mapped_type, Mapping*> >
+{
 protected:
+
     typedef InterpolatorBase< std::map<Argument::mapped_type, Mapping*> > base_class_type;
 
 public:
+
     typedef base_class_type::storage_type     storage_type;
     typedef base_class_type::container_type   container_type;
     typedef base_class_type::key_type         key_type;
@@ -692,6 +779,7 @@ public:
     typedef base_class_type::interpolated     interpolated;
 
 public:
+
     Linear():
         base_class_type() {}
 
@@ -714,17 +802,18 @@ public:
      * This state can be retrieved with the "isInterpolated"-Member of the returned
      * "interpolated".
      */
-    virtual
-    interpolated operator()(const const_iterator&  first,
+    virtual interpolated operator()(const const_iterator&  first,
             const const_iterator&  last,
             key_cref_type          pos,
-            const_iterator         upperBound) const{
-        if(first == last) {
+            const_iterator         upperBound) const
+    {
+        if(first == last)
             return base_class_type::outOfRangeVal;
-        }
-        if(upperBound == first){
+
+
+        if(upperBound == first)
             return asInterpolated(upperBound->second, true);
-        }
+
 
         const_iterator right = upperBound;
         const_iterator left  = --upperBound;
@@ -732,26 +821,29 @@ public:
         if(left->first == pos)
             return asInterpolated(left->second, false, false);
 
-        if(right == last){
+        if(right == last)
             return asInterpolated(left->second, true);
-        }
+
 
         return interpolated(LinearIntplMapping(left->second, right->second, linearInterpolationFactor(pos, left->first, right->first)));
     }
 
 protected:
+
     /**
      * @brief calculates the linear interpolation factor used for the created
      * LinearIntplMappings.
      */
-    static ConstMapping::argument_value_t linearInterpolationFactor(key_cref_type t, key_cref_type t0, key_cref_type t1){
+    static ConstMapping::argument_value_t linearInterpolationFactor(key_cref_type t, key_cref_type t0, key_cref_type t1)
+    {
         assert( (t0 <= t && t <= t1) || (t0 >= t && t >= t1) );
-        if (t0 == t1) {
+        if (t0 == t1)
             return 0;
-        }
+
         return cast_it<ConstMapping::argument_value_t>( (t - t0) / (t1 - t0) );
     }
 };
+
 
 /**
  * @brief Represents a constant mathematical mapping (f(x) = c)
@@ -761,11 +853,22 @@ protected:
  * @author Karl Wessel
  * @ingroup mapping
  */
-class MIXIM_API ConstantSimpleConstMapping : public SimpleConstMapping {
+class MIXIM_API ConstantSimpleConstMapping : public SimpleConstMapping
+{
 protected:
+
     argument_value_t value;
 
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & value;
+    }
+
 public:
+
     ConstantSimpleConstMapping(const DimensionSet& dims, argument_value_cref_t val):
         SimpleConstMapping(dims), value(val) {}
 
@@ -795,6 +898,7 @@ public:
     }
 };
 
+
 /**
  * @brief Wraps an ConstMappingIterator into a MappingIterator
  * interface.
@@ -805,14 +909,27 @@ public:
  * @author Karl Wessel
  * @ingroup mappingDetails
  */
-class MIXIM_API ConstMappingIteratorWrapper : public MappingIterator {
+class MIXIM_API ConstMappingIteratorWrapper : public MappingIterator
+{
 protected:
+
     ConstMappingIterator *const iterator;
+
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & iterator;
+    }
+
 public:
+
     ConstMappingIteratorWrapper(ConstMappingIterator* it):
         iterator(it) {}
 
-    virtual ~ConstMappingIteratorWrapper() {
+    virtual ~ConstMappingIteratorWrapper()
+    {
         if(iterator)
             delete iterator;
     }
@@ -838,6 +955,7 @@ public:
     virtual argument_value_t getValue() const { return iterator->getValue(); }
 };
 
+
 /**
  * @brief Wraps an ConstMapping into a Mapping interface.
  *
@@ -847,11 +965,22 @@ public:
  * @author Karl Wessel
  * @ingroup mappingDetails
  */
-class MIXIM_API ConstMappingWrapper : public Mapping {
+class MIXIM_API ConstMappingWrapper : public Mapping
+{
 protected:
+
     const ConstMapping* mapping;
 
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & mapping;
+    }
+
 public:
+
     ConstMappingWrapper(const ConstMapping* m):
         Mapping(m->getDimensionSet()), mapping(m) {}
 
@@ -882,8 +1011,10 @@ public:
     }
 };
 
+
 template<template <typename> class Interpolator>
 class MultiDimMapping;
+
 
 /**
  * @brief Implementation of the MappingIterator-interface which is able
@@ -905,11 +1036,12 @@ class MultiDimMapping;
  * @ingroup mapping
  */
 template<template <typename> class Interpolator>
-class MultiDimMappingIterator:public MappingIterator {
+class MultiDimMappingIterator:public MappingIterator
+{
 protected:
+
     /** @brief The templated InterpolateableMap the underlying Mapping uses std::map as storage type.*/
-    typedef InterpolateableMap< Interpolator< std::map<argument_value_t, Mapping*> > >
-    interpolator_map_type;
+    typedef InterpolateableMap< Interpolator< std::map<argument_value_t, Mapping*> > > interpolator_map_type;
 
     typedef typename interpolator_map_type::interpolated         interpolated;
     typedef typename interpolator_map_type::iterator_intpl       iterator;
@@ -935,6 +1067,19 @@ protected:
     /** @brief The position a call to "next()" would jump to.*/
     Argument nextPosition;
 
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & mapping;
+        archive & valueIt;
+        archive & subMapping;
+        archive & subIterator;
+        archive & position;
+        archive & nextPosition;
+    }
+
 protected:
 
     /**
@@ -944,7 +1089,8 @@ protected:
      * Called when the position of of the iterator inside the
      * dimension this Iterator represents has changed.
      */
-    void updateSubIterator(const Argument& pos) {
+    void updateSubIterator(const Argument& pos)
+    {
         interpolated subM = valueIt.getValue();
         if(subM != subMapping) {
             if(subIterator)
@@ -968,7 +1114,8 @@ protected:
      * Called when the position of of the iterator inside the
      * dimension this Iterator represents has changed.
      */
-    void updateSubIterator() {
+    void updateSubIterator()
+    {
         interpolated subM = valueIt.getValue();
         if(subM != subMapping) {
             if(subIterator)
@@ -993,7 +1140,8 @@ protected:
      *
      * Called when the current position has changed.
      */
-    void updateNextPosition(){
+    void updateNextPosition()
+    {
         bool intp = subMapping.isInterpolated;
 
         bool noSubIt = false;
@@ -1019,6 +1167,7 @@ protected:
     }
 
 public:
+
     /**
      * @brief Initializes the Iterator for the passed MultiDimMapping and sets
      * its position two the first entry of the passed MultiDimMapping.
@@ -1254,11 +1403,12 @@ public:
  * @ingroup mapping
  */
 template<template <typename> class Interpolator>
-class MultiDimMapping:public Mapping {
+class MultiDimMapping:public Mapping
+{
 protected:
+
     /** @brief The templated InterpolateableMap the underlying Mapping uses std::map as storage type.*/
-    typedef InterpolateableMap< Interpolator< std::map<argument_value_t, Mapping*> > >
-    interpolator_map_type;
+    typedef InterpolateableMap< Interpolator< std::map<argument_value_t, Mapping*> > > interpolator_map_type;
     typedef typename interpolator_map_type::interpolator_type    interpolator_type;
     typedef typename interpolator_map_type::mapped_type          mapped_type;
     typedef typename interpolator_map_type::mapped_cref_type     mapped_cref_type;
@@ -1287,7 +1437,20 @@ protected:
 
     friend class MultiDimMappingIterator<Interpolator>;
 
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & outOfRangeMapping;
+        archive & wrappedOORMapping;
+        archive & entries;
+        archive & myDimension;
+        archive & isMaster;
+    }
+
 protected:
+
     /**
      * @brief Initializes the Mapping with the passed DimensionSet as domain and
      * the passed dimension as the dimension this instance should represent.
@@ -1381,6 +1544,7 @@ protected:
     }
 
 public:
+
     /**
      * @brief Initializes the Mapping with the passed DimensionSet as domain.
      *
@@ -1547,6 +1711,7 @@ public:
     Dimension getDimension() { return myDimension; }
 };
 
+
 /**
  * @brief MappingIterator implementation for FilledUpMappings.
  *
@@ -1557,8 +1722,10 @@ public:
  * @author Karl Wessel
  * @ingroup mappingDetails
  */
-class MIXIM_API FilledUpMappingIterator : public MultiDimMappingIterator<Linear>{
+class MIXIM_API FilledUpMappingIterator : public MultiDimMappingIterator<Linear>
+{
 public:
+
     FilledUpMappingIterator(FilledUpMapping& mapping);
 
     FilledUpMappingIterator(FilledUpMapping& mapping, const Argument& pos);
@@ -1567,6 +1734,7 @@ public:
         assert(false);
     }
 };
+
 
 /**
  * @brief Takes a source ConstMapping with a domain A and a set of KeyEntries
@@ -1581,18 +1749,31 @@ public:
  * @author Karl Wessel
  * @ingroup mappingDetails
  */
-class MIXIM_API FilledUpMapping : public MultiDimMapping<Linear> {
-    //--------members----------
+class MIXIM_API FilledUpMapping : public MultiDimMapping<Linear>
+{
 public:
+
     typedef std::set<argument_value_t>   KeySet;
     typedef std::map<Dimension, KeySet > KeyMap;
+
 protected:
+
     Mapping*      fillRef;
     const KeyMap& keys;
 
-    //--------methods----------
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & fillRef;
+        archive & keys;
+    }
+
 protected:
-    void fillRefIfNecessary() {
+
+    void fillRefIfNecessary()
+    {
         const KeyMap::const_iterator itEnd = keys.end();
         KeyMap::const_iterator       it    = keys.find(myDimension);
 
@@ -1620,7 +1801,9 @@ protected:
         else
             return new FilledUpMapping(dimensions, nextDim, keys);
     }
+
 public:
+
     FilledUpMapping(const ConstMapping* source, const DimensionSet& dims, const KeyMap& rkeys):
         MultiDimMapping<Linear>(dims), fillRef(0), keys(rkeys)
         {
@@ -1670,14 +1853,17 @@ public:
     }
 };
 
+
 /**
  * @brief Provides several utility methods for Mappings.
  *
  * @author Karl Wessel
  * @ingroup mapping
  */
-class MIXIM_API MappingUtils {
+class MIXIM_API MappingUtils
+{
 public:
+
     typedef std::list<const ConstMapping*> MappingBuffer;
 
     /** @brief The default value for findMin() functions if it does not find a minimum element.
@@ -1697,6 +1883,7 @@ public:
     }
 
 private:
+
     static const ConstMapping *const createCompatibleMapping(const ConstMapping& src, const ConstMapping& dst);
 
     static bool iterateToNext(ConstMappingIterator* it1, ConstMappingIterator* it2);
@@ -1789,8 +1976,6 @@ public:
 
         return result;
     }
-
-
 
     /**
      * @brief Multiplies the passed functions element-wise with each other
@@ -1912,19 +2097,28 @@ public:
 };
 
 
-
 /**
  * @brief Deletes its ConstMapping when this iterator is deleted.
  *
  * @author Karl Wessel
  * @ingroup mappingDetails
  */
-class MIXIM_API ConcatConstMappingIterator : public FilteredConstMappingIterator{
-    //--------members----------
+class MIXIM_API ConcatConstMappingIterator : public FilteredConstMappingIterator
+{
 protected:
+
     ConstMapping* baseMapping;
 
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & baseMapping;
+    }
+
 public:
+
     ConcatConstMappingIterator(ConstMapping* baseMapping):
         FilteredConstMappingIterator(baseMapping->createConstIterator()),
         baseMapping(baseMapping) {}
@@ -1938,6 +2132,7 @@ public:
     }
 };
 
+
 /**
  * @brief Defines it values by concatenating one or more
  * Mappings to a reference Mapping.
@@ -1946,8 +2141,10 @@ public:
  * @ingroup mappingDetails
  */
 template<class Operator>
-class ConcatConstMapping: public ConstMapping {
+class ConcatConstMapping: public ConstMapping
+{
 protected:
+
     typedef std::pair<Dimension, Argument::const_iterator> DimIteratorPair;
     typedef std::list<ConstMapping*> MappingSet;
     MappingSet            mappings;
@@ -1957,7 +2154,20 @@ protected:
     Argument::mapped_type oorValue;
 
     Operator op;
+
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & mappings;
+        archive & refMapping;
+        archive & continueOutOfRange;
+        archive & oorValue;
+    }
+
 public:
+
     /**
      * @brief Initializes with the passed reference Mapping, the operator
      * and the Mappings defined by the passed iterator.
@@ -2064,6 +2274,7 @@ public:
     }
 };
 
+
 /**
  * @brief Common base for a Const- and NonConst-Iterator for a DelayedMapping.
  *
@@ -2072,13 +2283,27 @@ public:
  * @author Karl Wessel
  */
 template<class Base, class Iterator>
-class BaseDelayedIterator: public Base {
+class BaseDelayedIterator: public Base
+{
 protected:
+
     omnetpp::simtime_t delay;
 
     Argument position;
     Argument nextPosition;
+
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & delay;
+        archive & position;
+        archive & nextPosition;
+    }
+
 protected:
+
     Argument undelayPosition(const Argument& pos) const{
         Argument res(pos);
         res.setTime(res.getTime() - delay);
@@ -2097,6 +2322,7 @@ protected:
     }
 
 public:
+
     BaseDelayedIterator(Iterator* it, omnetpp::simtime_t_cref delay):
         Base(it), delay(delay) {
 
@@ -2132,6 +2358,7 @@ public:
     }
 };
 
+
 /**
  * @brief ConstIterator for a ConstDelayedMapping
  *
@@ -2158,20 +2385,33 @@ typedef BaseDelayedIterator<FilteredMappingIterator, MappingIterator> DelayedMap
  * @author Karl Wessel
  */
 template<class Base>
-class BaseDelayedMapping: public Base {
+class BaseDelayedMapping: public Base
+{
 protected:
+
     Base* mapping;
     omnetpp::simtime_t delay;
 
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & mapping;
+        archive & delay;
+    }
 
 protected:
-    Argument delayPosition(const Argument& pos) const {
+
+    Argument delayPosition(const Argument& pos) const
+    {
         Argument res(pos);
         res.setTime(res.getTime() - delay);
         return res;
     }
 
 public:
+
     BaseDelayedMapping(Base* mapping, omnetpp::simtime_t_cref delay):
         Base(mapping->getDimensionSet()), mapping(mapping), delay(delay) {}
 
@@ -2204,6 +2444,7 @@ public:
     }
 };
 
+
 /**
  * @brief Moves another ConstMapping in its time dimension.
  *
@@ -2213,8 +2454,10 @@ public:
  * @ingroup mappingDetails
  * @author Karl Wessel
  */
-class MIXIM_API ConstDelayedMapping: public BaseDelayedMapping<ConstMapping> {
+class MIXIM_API ConstDelayedMapping: public BaseDelayedMapping<ConstMapping>
+{
 public:
+
     ConstDelayedMapping(ConstMapping* mapping, omnetpp::simtime_t_cref delay):
         BaseDelayedMapping<ConstMapping>(mapping, delay) {}
 
@@ -2225,6 +2468,7 @@ public:
     }
 };
 
+
 /**
  * @brief Moves another Mapping in its time dimension.
  *
@@ -2234,8 +2478,10 @@ public:
  * @ingroup mappingDetails
  * @author Karl Wessel
  */
-class MIXIM_API DelayedMapping: public BaseDelayedMapping<Mapping> {
+class MIXIM_API DelayedMapping: public BaseDelayedMapping<Mapping>
+{
 public:
+
     DelayedMapping(Mapping* mapping, omnetpp::simtime_t_cref delay):
         BaseDelayedMapping<Mapping>(mapping, delay) {}
 

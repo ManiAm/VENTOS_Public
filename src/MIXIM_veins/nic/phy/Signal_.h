@@ -3,6 +3,7 @@
 
 #include <list>
 #include <omnetpp.h>
+#include <boost/serialization/access.hpp>
 
 #include "MiXiMDefs.h"
 #include "Mapping.h"
@@ -49,7 +50,7 @@ public:
 protected:
 
     /** @brief The propagation delay of the transmission. */
-    omnetpp::simtime_t propagationDelay;
+    double propagationDelay;
 
     /** @brief Stores the function which describes the power of the signal*/
     ConstMapping* power;
@@ -65,6 +66,19 @@ protected:
 
     /** @brief Stores the mapping defining the receiving power of the signal.*/
     MultipliedMapping* rcvPower;
+
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & propagationDelay;
+        archive & power;
+        archive & bitrate;
+        archive & txBitrate;
+        archive & attenuations;
+        archive & rcvPower;
+    }
 
 public:
 
@@ -276,7 +290,7 @@ public:
 
         markRcvPowerOutdated();
 
-        propagationDelay = delay;
+        propagationDelay = delay.dbl();
 
         if(bitrate)
         {

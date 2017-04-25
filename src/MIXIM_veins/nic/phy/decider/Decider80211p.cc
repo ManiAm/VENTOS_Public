@@ -28,7 +28,7 @@
 #include "DeciderResult80211.h"
 #include "Mac80211Pkt_m.h"
 #include "Signal_.h"
-#include "AirFrame11p_m.h"
+#include "AirFrame11p_serial.h"
 #include "NistErrorRate.h"
 #include "ConstsPhy.h"
 

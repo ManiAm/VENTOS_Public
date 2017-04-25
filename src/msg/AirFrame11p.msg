@@ -14,7 +14,7 @@
 //
 
 cplusplus {{
-#include "AirFrame_m.h"
+#include "AirFrame_serial.h"
 }}
 
 class AirFrame;
@@ -23,6 +23,8 @@ namespace Veins;
 // Extension of base AirFrame message
 message AirFrame11p extends AirFrame 
 {
+    @customize(true);
+    
     bool underSensitivity = false;
     bool wasTransmitting = false;
 }

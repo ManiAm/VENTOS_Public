@@ -26,8 +26,10 @@
  * @ingroup mappingDetails
  */
 template<class V>
-class Interpolated {
+class Interpolated
+{
 protected:
+
 	typedef V                 value_type;
 	typedef const value_type& value_cref_type;
 	typedef value_type&       value_ref_type;
@@ -35,11 +37,14 @@ protected:
 
 	/** @brief A value this class represents.*/
 	value_type value;
+
 public:
+
 	/** @brief Stores if the underlying value is interpolated or not.*/
 	const bool isInterpolated;
 
 public:
+
 	Interpolated(value_cref_type v, bool isIntpl = true):
 		value(v), isInterpolated(isIntpl) {}
 
@@ -76,14 +81,17 @@ private:
 		value(), isInterpolated(true) {}
 };
 
+
 /**
  * @brief Compares a the first value of a pair to a value.
  *
  * @ingroup mappingDetails
  */
 template<class Pair, class Key>
-class PairLess {
+class PairLess
+{
 public:
+
 	bool operator()(const Pair& p, const Key& v) const {
 		return p.first < v;
 	}
@@ -97,9 +105,12 @@ public:
 	}
 };
 
+
 template<class _ContainerType>
-class InterpolatorBase {
+class InterpolatorBase
+{
 public:
+
 	typedef _ContainerType                        storage_type;
 	typedef storage_type                          container_type;
 	typedef typename storage_type::key_type       key_type;
@@ -113,14 +124,17 @@ public:
 	typedef Interpolated<mapped_type>             interpolated;
 
 public:
+
 	/** @brief Comparator for STL functions. */
 	comparator_type    comp;
 
 protected:
+
 	bool               continueOutOfRange;
 	interpolated       outOfRangeVal;
 
 public:
+
 	InterpolatorBase():
 		continueOutOfRange(true), outOfRangeVal(mapped_type()) {}
 
@@ -205,6 +219,8 @@ protected:
 			return outOfRangeVal;
 	}
 };
+
+
 /**
  * @brief Given two iterators defining a range of key-value-pairs this class
  * provides interpolation of values for an arbitrary key by returning the
@@ -217,11 +233,14 @@ protected:
  * @ingroup mappingDetails
  */
 template<class _ContainerType>
-class NextSmaller : public InterpolatorBase<_ContainerType> {
+class NextSmaller : public InterpolatorBase<_ContainerType>
+{
 protected:
+
 	typedef InterpolatorBase<_ContainerType> base_class_type;
 
 public:
+
 	typedef typename base_class_type::storage_type     storage_type;
 	typedef typename base_class_type::container_type   container_type;
 	typedef typename base_class_type::key_type         key_type;
@@ -235,6 +254,7 @@ public:
 	typedef typename base_class_type::interpolated     interpolated;
 
 public:
+
 	NextSmaller():
 		base_class_type() {}
 
@@ -279,6 +299,7 @@ public:
 	virtual bool isStepping() const {return true;}
 };
 
+
 /**
  * @brief Given two iterators defining a range of key-value-pairs this class
  * provides interpolation of values for an arbitrary key by returning the
@@ -288,11 +309,14 @@ public:
  * @ingroup mappingDetails
  */
 template<class _ContainerType>
-class Nearest : public InterpolatorBase<_ContainerType> {
+class Nearest : public InterpolatorBase<_ContainerType>
+{
 protected:
+
 	typedef InterpolatorBase<_ContainerType> base_class_type;
 
 public:
+
 	typedef typename base_class_type::storage_type     storage_type;
 	typedef typename base_class_type::container_type   container_type;
 	typedef typename base_class_type::key_type         key_type;
@@ -306,6 +330,7 @@ public:
 	typedef typename base_class_type::interpolated     interpolated;
 
 public:
+
 	Nearest():
 		base_class_type() {}
 
@@ -373,6 +398,7 @@ T cast_it(omnetpp::simtime_t rValToCast) {
 	return cast_it(SIMTIME_DBL(rValToCast));
 }
 
+
 /**
  * @brief Given two iterators defining a range of key-value-pairs this class
  * provides linear interpolation of the value at an arbitrary key-position.
@@ -381,11 +407,14 @@ T cast_it(omnetpp::simtime_t rValToCast) {
  * @ingroup mappingDetails
  */
 template<class _ContainerType>
-class Linear : public InterpolatorBase<_ContainerType>  {
+class Linear : public InterpolatorBase<_ContainerType>
+{
 protected:
+
 	typedef InterpolatorBase<_ContainerType> base_class_type;
 
 public:
+
 	typedef typename base_class_type::storage_type     storage_type;
 	typedef typename base_class_type::container_type   container_type;
 	typedef typename base_class_type::key_type         key_type;
@@ -399,6 +428,7 @@ public:
 	typedef typename base_class_type::interpolated     interpolated;
 
 public:
+
 	Linear():
 		base_class_type() {}
 
@@ -494,6 +524,7 @@ protected:
 	}
 };
 
+
 /**
  * @brief Template for an interpolateable const iterator for any container
  * which maps from a key to a value. This doesn't necessarily has to be a
@@ -538,8 +569,10 @@ protected:
  * @ingroup mappingDetails
  */
 template< typename _Interpolator, typename _IteratorType = typename _Interpolator::const_iterator >
-class ConstInterpolateableIterator {
+class ConstInterpolateableIterator
+{
 public:
+
 	typedef _Interpolator                                interpolator_type;
 	typedef typename interpolator_type::container_type   container_type;
 	typedef typename interpolator_type::key_type         key_type;
@@ -555,14 +588,18 @@ public:
 	/** @brief typedef for the returned Interpolated value of this class.*/
 	//typedef Interpolated<V> interpolated;
 	typedef typename interpolator_type::interpolated     interpolated;
+
 protected:
+
 	used_iterator             first;
 	used_iterator             last;
 	used_iterator             right;
 
 	key_type                  position;
 	const interpolator_type&  interpolate;
+
 public:
+
 	/**
 	 * @brief Initializes the iterator with the passed Iterators
 	 * as boundaries.
@@ -697,6 +734,7 @@ public:
 	}
 };
 
+
 /**
  * @brief Provides an interpolateable iterator for any Container which maps
  * from keys to values which is able to change the underlying Container.
@@ -717,6 +755,7 @@ template< typename TInterpolator >
 class InterpolateableIterator : public ConstInterpolateableIterator<TInterpolator, typename TInterpolator::iterator>
 {
 protected:
+
 	typedef ConstInterpolateableIterator<TInterpolator, typename TInterpolator::iterator>
 	                                                                base_class_type;
 	typedef typename base_class_type::container_type                container_type;
@@ -737,6 +776,7 @@ protected:
 	container_type& cont;
 
 public:
+
 	InterpolateableIterator(container_type& cont, const interpolator_type& intpl):
 		base_class_type(cont.begin(), cont.end(), intpl), cont(cont) {}
 
@@ -761,6 +801,7 @@ public:
 	}
 };
 
+
 /**
  * @brief Represents a std::map which is able to interpolate.
  *
@@ -773,8 +814,10 @@ public:
  * @ingroup mappingDetails
  */
 template< class TInterpolator, class TContainer = typename TInterpolator::container_type >
-class InterpolateableMap : public TContainer {
+class InterpolateableMap : public TContainer
+{
 public:
+
 	typedef TContainer                                              container_type;
 	typedef TInterpolator                                           interpolator_type;
 	typedef container_type                                          base_class_type;
@@ -796,6 +839,7 @@ public:
 protected:
 
 	interpolator_type interpolate;
+
 public:
 
 	InterpolateableMap() {}

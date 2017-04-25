@@ -31,7 +31,7 @@
 #include "FindModule.h"
 #include "BaseWorldUtility.h"
 #include "BaseConnectionManager.h"
-#include "AirFrame11p_m.h"
+#include "AirFrame11p_serial.h"
 #include "MacToPhyControlInfo.h"
 
 const simsignalwrap_t ChannelAccess::mobilityStateChangedSignal = simsignalwrap_t(MIXIM_SIGNAL_MOBILITY_CHANGE_NAME);

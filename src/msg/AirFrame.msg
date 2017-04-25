@@ -31,6 +31,8 @@ class noncobject Signal;
 
 packet AirFrame
 {
+    @customize(true);
+    
     Signal signal;		// Contains the physical data of this AirFrame
     int state = 1; 		// state of the AirFrames, used by the physical layer as state machine for delay and transmission duration simulation
     int type = 0;		// If type isn't null then this is a control-AirFrame and id specifies the control type

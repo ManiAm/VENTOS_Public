@@ -10,7 +10,7 @@
 
 #include "MiXiMDefs.h"
 #include "DeciderToPhyInterface.h"
-#include "src/msg/AirFrame_m.h"
+#include "src/msg/AirFrame_serial.h"
 #include "src/msg/MacToPhyCSR_m.h"
 
 class Mapping;

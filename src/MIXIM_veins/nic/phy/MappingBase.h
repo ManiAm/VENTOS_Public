@@ -10,6 +10,13 @@
 #include <sstream>
 #include <iomanip>
 
+#include <boost/serialization/access.hpp>
+
+#include <boost/serialization/list.hpp>
+#include <boost/serialization/string.hpp>
+#include <boost/serialization/map.hpp>
+#include <boost/serialization/utility.hpp>
+
 #include "MiXiMDefs.h"
 #include "Interpolation.h"
 
@@ -28,16 +35,32 @@
  * @author Karl Wessel
  * @ingroup mapping
  */
-class MIXIM_API Dimension {
+class MIXIM_API Dimension
+{
 public:
+
     /** @brief Type for map from dimension name to ID.*/
     typedef std::map<std::string, int>   DimensionIDMap;
     typedef DimensionIDMap::key_type     DimensionNameType;
     typedef DimensionIDMap::mapped_type  DimensionIdType;
+
 protected:
+
+    /** @brief The unique id of the dimension this instance represents.*/
+    DimensionIdType id;
+
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & id;
+    }
+
+protected:
+
     /** @brief Type for map from ID to dimension name.*/
-    typedef std::map< DimensionIdType
-            , DimensionNameType> DimensionNameMap;
+    typedef std::map< DimensionIdType, DimensionNameType> DimensionNameMap;
 
     /**
      * @brief stores the registered dimensions ids.
@@ -69,10 +92,8 @@ protected:
      */
     static int getDimensionID(const DimensionNameType& name);
 
-    /** @brief The unique id of the dimension this instance represents.*/
-    DimensionIdType id;
-
 public:
+
     /** @brief Shortcut to the time Dimension, same as 'Dimension("time")',
      * but spares the parsing of a string.*/
     static const Dimension& time() {
@@ -144,6 +165,7 @@ public:
     }
 };
 
+
 /**
  * @brief Represents a set of dimensions which is used to define over which
  * dimensions a mapping is defined (the domain of the mapping).
@@ -159,8 +181,10 @@ public:
  * @author Karl Wessel
  * @ingroup mapping
  */
-class MIXIM_API DimensionSet:public std::set<Dimension> {
+class MIXIM_API DimensionSet : public std::set<Dimension>
+{
 public:
+
     /** @brief Shortcut to a DimensionSet which only contains time. */
     static const DimensionSet& timeDomain() {
         static DimensionSet o(Dimension::time());
@@ -172,7 +196,9 @@ public:
         static DimensionSet o(Dimension::time(), Dimension::frequency());
         return o;
     }
+
 public:
+
     /**
      * @brief Default constructor creates an empty DimensionSet
      */
@@ -185,6 +211,7 @@ public:
     DimensionSet(const DimensionSet::value_type& d){
         this->insert(d);
     }
+
     /**
      * @brief Creates a new DimensionSet with the passed Dimensions as
      * initial Dimensions (convenience method)
@@ -193,6 +220,7 @@ public:
         this->insert(d1);
         this->insert(d2);
     }
+
     /**
      * @brief Creates a new DimensionSet with the passed Dimensions as
      * initial Dimensions (convenience method)
@@ -259,6 +287,7 @@ public:
     }
 };
 
+
 /**
  * @brief Defines an argument for a mapping.
  *
@@ -271,8 +300,10 @@ public:
  * @author Karl Wessel
  * @ingroup mapping
  */
-class MIXIM_API Argument {
+class MIXIM_API Argument
+{
 public:
+
     typedef DimensionSet::value_type key_type;
     typedef double                   mapped_type;
     typedef const mapped_type        mapped_type_cref;
@@ -282,27 +313,42 @@ public:
         static Argument::mapped_type o(0);
         return o;
     }
+
     /** @brief One value of a Argument value. */
     const static mapped_type&         MappedOne() {
         static Argument::mapped_type o(1);
         return o;
     }
+
 protected:
+
     typedef std::map<key_type, mapped_type> container_type;
     typedef container_type::value_type      value_type;
+
     /** @brief Stores the time dimension in Omnet's time type */
     omnetpp::simtime_t      time;
 
     /** @brief Maps the dimensions of this Argument to their values. */
     container_type values;
 
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & time;
+        archive & values;
+    }
+
 public:
+
     /** @brief Iterator type for this set.*/
     typedef container_type::iterator       iterator;
     /** @brief Const-iterator type for this set.*/
     typedef container_type::const_iterator const_iterator;
 
 protected:
+
     /**
      * @brief Inserts the passed value for the passed Dimension into
      * this Argument.
@@ -322,6 +368,7 @@ protected:
     class key_iterator : public IteratorType
     {
     public:
+
         typedef typename IteratorType::value_type::first_type const& reference;
         typedef typename IteratorType::value_type::first_type const* pointer;
 
@@ -331,12 +378,15 @@ protected:
         {
             return IteratorType::operator*().first;
         }
+
         pointer  operator ->() const
         {
             return &IteratorType::operator->()->first;
         }
     };
+
     public:
+
     /**
      * @brief Initialize this argument with the passed value for
      * the time dimension.
@@ -501,11 +551,11 @@ protected:
      */
     const_iterator begin() const { return values.begin(); }
 
-
     /**
      * @brief Returns an iterator to the value behind the last argument value.
      */
     iterator end() { return values.end(); }
+
     /**
      * @brief Returns an iterator to the value behind the last argument value.
      */
@@ -517,6 +567,7 @@ protected:
      * Returns end() if there is no Argument for that dimension.
      */
     iterator find(const Argument::key_type& dim);
+
     /**
      * @brief Returns an iterator to the Argument value for the passed Dimension.
      *
@@ -529,12 +580,14 @@ protected:
      * compares greater or equal to the passed Dimension.
      */
     iterator lower_bound(const Argument::key_type& dim);
+
     /**
      * @brief Returns an iterator to the first Argument value which dimension
      * compares greater or equal to the passed Dimension.
      */
     const_iterator lower_bound(const Argument::key_type& dim) const;
 };
+
 
 /**
  * @brief This exception is thrown by the MappingIterators when "next()" or "nextPosition()" is called
@@ -569,11 +622,15 @@ class NoNextIteratorException {};
  * @author Karl Wessel
  * @ingroup mapping
  */
-class MIXIM_API ConstMappingIterator {
+class MIXIM_API ConstMappingIterator
+{
 public:
+
     typedef Argument::mapped_type      argument_value_t;
     typedef Argument::mapped_type_cref argument_value_cref_t;
+
 public:
+
     virtual ~ConstMappingIterator() {}
 
     /**
@@ -646,9 +703,14 @@ public:
     virtual argument_value_t getValue() const = 0;
 };
 
+
 class Mapping;
 
-namespace mixim { namespace math {
+namespace mixim
+{
+
+namespace math
+{
 
 template<typename T, bool B = std::numeric_limits<T>::has_infinity>
 struct mW2dBm {
@@ -678,6 +740,7 @@ struct mW2dBm<T,true> {
 
 };};
 
+
 /**
  * @brief Represents a not changeable mapping (mathematical function)
  * from domain with at least the time to  a Argument::mapped_type value.
@@ -689,18 +752,31 @@ struct mW2dBm<T,true> {
  * @author Karl Wessel
  * @ingroup mapping
  */
-class MIXIM_API ConstMapping {
+class MIXIM_API ConstMapping
+{
 public:
+
     typedef Argument::mapped_type      argument_value_t;
     typedef Argument::mapped_type_cref argument_value_cref_t;
 
 protected:
+
     /** @brief The dimensions of this mappings domain.*/
     DimensionSet dimensions;
 
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & dimensions;
+    }
+
 private:
+
     template<class T>
-    std::string toString(T v, unsigned int length) const {
+    std::string toString(T v, unsigned int length) const
+    {
         std::stringstream osToStr(std::stringstream::out);
 
         using std::operator<<;
@@ -711,7 +787,8 @@ private:
         return osToStr.str();
     }
 
-    std::string toString(omnetpp::simtime_t_cref v, unsigned int length) const {
+    std::string toString(omnetpp::simtime_t_cref v, unsigned int length) const
+    {
         return toString(SIMTIME_DBL(v), length);
     }
 
@@ -970,6 +1047,7 @@ public:
         out << std::endl << osBorder.str() << std::endl;
         return out;
     }
+
     friend std::ostream& operator<<(std::ostream& out, const ConstMapping& rMapToPrint) {
         return rMapToPrint.print(out);
     }
@@ -989,9 +1067,12 @@ public:
  * @author Karl Wessel
  * @ingroup mapping
  */
-class MIXIM_API MappingIterator:public ConstMappingIterator {
+class MIXIM_API MappingIterator:public ConstMappingIterator
+{
 public:
+
     virtual ~MappingIterator() {}
+
     /**
      * @brief Changes the value of the Mapping at the current
      * position.
@@ -1014,8 +1095,10 @@ public:
  * @author Karl Wessel
  * @ingroup mapping
  */
-class MIXIM_API Mapping:public ConstMapping {
+class MIXIM_API Mapping:public ConstMapping
+{
 public:
+
     /** @brief Types of interpolation methods for mappings.*/
     enum InterpolationMethod {
         /** @brief interpolates with next lower entry*/
@@ -1026,8 +1109,6 @@ public:
 				   constant before the first and after the last entry*/
         LINEAR
     };
-
-protected:
 
 public:
 
@@ -1106,8 +1187,6 @@ public:
         return dynamic_cast<ConstMappingIterator*>( const_cast<Mapping*>(this)->createIterator(pos) );
     }
 
-
-
     /**
      * @brief Returns a deep copy of this Mapping.
      */
@@ -1118,8 +1197,6 @@ public:
      * the according "clone()"-implementation.
      */
     virtual ConstMapping* constClone() const { return clone(); }
-
-
 };
 
 
@@ -1142,10 +1219,13 @@ public:
  * @author Karl Wessel
  * @ingroup mapping
  */
-class MIXIM_API SimpleConstMappingIterator:public ConstMappingIterator {
+class MIXIM_API SimpleConstMappingIterator:public ConstMappingIterator
+{
 protected:
+
     /** @brief Type for a set of Arguments defining key entries.*/
     typedef std::set<Argument>       KeyEntrySet;
+
     /** @brief Type of a key entries item.*/
     typedef KeyEntrySet::value_type  KeyEntryType;
 
@@ -1167,7 +1247,20 @@ protected:
      * entry of the current position.*/
     KeyEntrySet::const_iterator nextEntry;
 
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & mapping;
+        archive & dimensions;
+        archive & position;
+        archive & keyEntries;
+        archive & nextEntry;
+    }
+
 public:
+
     /**
      * @brief Initializes the ConstIterator for the passed ConstMapping,
      * with the passed key entries to iterate over and the passed position
@@ -1298,6 +1391,7 @@ public:
     virtual argument_value_t getValue() const { return mapping->getValue(position); }
 };
 
+
 /**
  * @brief Abstract subclass of ConstMapping which can be used as base for
  * any ConstMapping implementation with read access of constant complexity.
@@ -1317,14 +1411,24 @@ public:
  * @author Karl Wessel
  * @ingroup mapping
  */
-class MIXIM_API SimpleConstMapping:public ConstMapping {
+class MIXIM_API SimpleConstMapping:public ConstMapping
+{
 protected:
+
     /** @brief Type for a set of Arguments defining key entries.*/
     typedef std::set<Argument> KeyEntrySet;
 
     /** @brief A set of Arguments defining the "points of interest" an iterator
      * should iterate over.*/
     KeyEntrySet keyEntries;
+
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & keyEntries;
+    }
 
 protected:
 
@@ -1342,6 +1446,7 @@ protected:
             DimensionSet::const_iterator curDim, Argument& pos);
 
 public:
+
     /**
      * @brief Returns a pointer of a new Iterator which is able to iterate
      * over the Mapping.
@@ -1363,6 +1468,7 @@ public:
     }
 
 public:
+
     /**
      * @brief Initializes a not yet iterateable SimpleConstmapping with the
      * passed DimensionSet as domain.
@@ -1461,7 +1567,5 @@ public:
      */
     ConstMapping* constClone() const  = 0;
 };
-
-
 
 #endif /*FUNCTION_H_*/
