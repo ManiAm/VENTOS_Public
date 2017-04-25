@@ -1,4 +1,9 @@
-# Compiled source
-*.cc
-*.h
+# Ignore everything
+*
+
+# But not these files...
+!.gitignore
+!*.msg
+!*_serial.h
+
 
