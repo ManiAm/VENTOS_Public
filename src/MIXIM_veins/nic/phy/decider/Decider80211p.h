@@ -23,9 +23,9 @@
 #define DECIDER80211p_H_
 
 #include "BaseDecider.h"
-#include "Consts80211p.h"
-#include "MacToPhyInterface.h"
-#include "DeciderToPhyInterface.h"
+#include "MIXIM_veins/nic/Consts80211p.h"
+#include "MIXIM_veins/nic/phy/MacToPhyInterface.h"
+#include "MIXIM_veins/nic/phy/DeciderToPhyInterface.h"
 #include "msg/AirFrame11p_m.h"
 
 namespace Veins {

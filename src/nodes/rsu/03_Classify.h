@@ -36,7 +36,6 @@
 #include <shark/ObjectiveFunctions/Loss/ZeroOneLoss.h>
 
 #include <shark/LinAlg/Base.h>
-#include <shark/Rng/GlobalRng.h>
 #include <shark/Models/Converter.h>
 #include <shark/Models/Kernels/GaussianRbfKernel.h>
 #include <shark/Algorithms/Trainers/CSvmTrainer.h>
@@ -44,7 +43,7 @@
 #undef ev
 #include "boost/filesystem.hpp"
 
-#include <rsu/02_Monitor.h>
+#include "nodes/rsu/02_Monitor.h"
 
 namespace VENTOS {
 

@@ -22,7 +22,7 @@
 #ifndef BASE_LAYER_H
 #define BASE_LAYER_H
 
-#include "MiXiMDefs.h"
+#include "global/MiXiMDefs.h"
 #include "PassedMessage.h"
 #include "baseAppl/01_BaseModule.h"
 

@@ -26,23 +26,23 @@
  */
 
 #include "PhyLayer80211p.h"
-#include "Decider80211p.h"
-#include "BaseConnectionManager.h"
-#include "Consts80211p.h"
-#include "AirFrame11p_serial.h"
-#include "Mac80211Pkt_m.h"
-#include "MacToPhyControlInfo.h"
+#include "MIXIM_veins/nic/phy/decider/Decider80211p.h"
+#include "MIXIM_veins/connectionManager/BaseConnectionManager.h"
+#include "MIXIM_veins/nic/Consts80211p.h"
+#include "msg/AirFrame11p_serial.h"
+#include "msg/Mac80211Pkt_m.h"
+#include "MIXIM_veins/nic/mac/MacToPhyControlInfo.h"
 #include "PhyToMacControlInfo.h"
-#include "DeciderResult80211.h"
+#include "MIXIM_veins/nic/phy/decider/DeciderResult80211.h"
 
-#include "SimplePathlossModel.h"
-#include "BreakpointPathlossModel.h"
-#include "LogNormalShadowing.h"
-#include "JakesFading.h"
-#include "PERModel.h"
-#include "SimpleObstacleShadowing.h"
-#include "TwoRayInterferenceModel.h"
-#include "NakagamiFading.h"
+#include "MIXIM_veins/nic/phy/analogueModel/SimplePathlossModel.h"
+#include "MIXIM_veins/nic/phy/analogueModel/BreakpointPathlossModel.h"
+#include "MIXIM_veins/nic/phy/analogueModel/LogNormalShadowing.h"
+#include "MIXIM_veins/nic/phy/analogueModel/JakesFading.h"
+#include "MIXIM_veins/nic/phy/analogueModel/PERModel.h"
+#include "MIXIM_veins/nic/phy/analogueModel/SimpleObstacleShadowing.h"
+#include "MIXIM_veins/nic/phy/analogueModel/TwoRayInterferenceModel.h"
+#include "MIXIM_veins/nic/phy/analogueModel/NakagamiFading.h"
 
 namespace Veins {
 

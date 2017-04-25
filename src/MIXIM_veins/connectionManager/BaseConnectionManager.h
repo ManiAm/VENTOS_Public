@@ -1,7 +1,7 @@
 #ifndef BASECONNECTIONMANAGER_H_
 #define BASECONNECTIONMANAGER_H_
 
-#include "MiXiMDefs.h"
+#include "global/MiXiMDefs.h"
 #include "NicEntry.h"
 
 /**

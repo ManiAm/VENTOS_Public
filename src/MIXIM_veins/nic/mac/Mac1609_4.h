@@ -27,12 +27,12 @@
 
 #include "baseAppl/02_BaseLayer.h"
 #include "MacToPhyControlInfo.h"
-#include "PhyLayer80211p.h"
+#include "MIXIM_veins/nic/phy/PhyLayer80211p.h"
 #include "WaveAppToMac1609_4Interface.h"
-#include "FindModule.h"
+#include "global/FindModule.h"
 #include "ConstsPhy.h"
 #include "Mac1609_4_EDCA.h"
-#include "Mac80211Pkt_m.h"
+#include "msg/Mac80211Pkt_m.h"
 #include "global/Statistics.h"
 
 namespace Veins {

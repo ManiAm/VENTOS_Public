@@ -3,8 +3,8 @@
 
 #include <cassert>
 
-#include "MiXiMDefs.h"
-#include "AnalogueModel.h"
+#include "global/MiXiMDefs.h"
+#include "MIXIM_veins/nic/phy/AnalogueModel.h"
 
 /**
  * @brief This class applies a parameterized packet error rate

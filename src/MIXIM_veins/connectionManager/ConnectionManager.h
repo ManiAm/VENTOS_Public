@@ -1,7 +1,7 @@
 #ifndef CONNECTIONMANAGER_H_
 #define CONNECTIONMANAGER_H_
 
-#include "MiXiMDefs.h"
+#include "global/MiXiMDefs.h"
 #include "BaseConnectionManager.h"
 
 /**

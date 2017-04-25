@@ -13,9 +13,9 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 //
 
-#include "src/msg/AirFrame_serial.h"
+#include "msg/AirFrame_serial.h"
 #include "LogNormalShadowing.h"
-#include "Mapping.h"
+#include "MIXIM_veins/nic/phy/Mapping.h"
 
 LogNormalShadowing::LogNormalShadowing(double mean, double stdDev, omnetpp::simtime_t_cref interval):
 	mean(mean), stdDev(stdDev), interval(interval)

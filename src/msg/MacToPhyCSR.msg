@@ -1,6 +1,6 @@
 
 cplusplus {{
-#include "ChannelState.h"
+#include "MIXIM_veins/nic/phy/ChannelState.h"
 }}
 
 class noncobject ChannelState;

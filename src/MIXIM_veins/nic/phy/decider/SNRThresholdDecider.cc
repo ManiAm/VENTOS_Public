@@ -1,8 +1,8 @@
 
-#include "src/msg/AirFrame_m.h"
 #include <cassert>
+#include "msg/AirFrame_m.h"
 #include "SNRThresholdDecider.h"
-#include "Mapping.h"
+#include "MIXIM_veins/nic/phy/Mapping.h"
 
 #define deciderEV EV << "[Host " << myIndex << "] - PhyLayer(Decider): "
 

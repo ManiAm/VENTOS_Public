@@ -20,8 +20,8 @@
 //
 
 #include "Mac1609_4.h"
-#include "DeciderResult80211.h"
-#include "PhyToMacControlInfo.h"
+#include "MIXIM_veins/nic/phy/decider/DeciderResult80211.h"
+#include "MIXIM_veins/nic/phy/PhyToMacControlInfo.h"
 #include "AddressingInterface.h"
 #include "MacToNetwControlInfo.h"
 #include "baseAppl/ApplToPhyControlInfo.h"

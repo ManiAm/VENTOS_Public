@@ -24,6 +24,12 @@ testMainWin: testTCP.o
 testTCP.o : testTCP.cc sockets.h
 	g++ -std=c++11 -c -o testTCP.o testTCP.cc
 	
+
+
+msgheaders:
+smheaders:
+
+
 clean:
 	rm -rf main.o
 	rm -rf mainWindow.o

@@ -10,7 +10,7 @@
 #ifndef DECIDERRESULT80211_H_
 #define DECIDERRESULT80211_H_
 
-#include "MiXiMDefs.h"
+#include "global/MiXiMDefs.h"
 
 /**
  * @brief A class to represent the result of a processed packet (that is not

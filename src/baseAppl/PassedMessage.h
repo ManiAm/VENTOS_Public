@@ -4,7 +4,7 @@
 #define PASSED_MESSAGE_H
 
 #include <omnetpp.h>
-#include "MiXiMDefs.h"
+#include "global/MiXiMDefs.h"
 
 class MIXIM_API PassedMessage : public omnetpp::cObject
 {

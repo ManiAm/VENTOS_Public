@@ -2,8 +2,8 @@
 #define BREAKPOINTPATHLOSSMODEL_H_
 
 #include <cstdlib>
-#include "MiXiMDefs.h"
-#include "AnalogueModel.h"
+#include "global/MiXiMDefs.h"
+#include "MIXIM_veins/nic/phy/AnalogueModel.h"
 
 /**
  * @brief Basic implementation of a BreakpointPathlossModel.

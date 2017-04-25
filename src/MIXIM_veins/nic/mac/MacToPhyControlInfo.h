@@ -1,8 +1,8 @@
 #ifndef MACTOPHYCONTROLINFO_H_
 #define MACTOPHYCONTROLINFO_H_
 
-#include "MiXiMDefs.h"
-#include "Signal_.h"
+#include "global/MiXiMDefs.h"
+#include "MIXIM_veins/nic/phy/Signal_.h"
 #include "ConstsPhy.h"
 
 

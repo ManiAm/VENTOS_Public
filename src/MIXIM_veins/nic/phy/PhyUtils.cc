@@ -1,5 +1,5 @@
 
-#include "src/msg/AirFrame_serial.h"
+#include "msg/AirFrame_serial.h"
 #include "PhyUtils.h"
 
 void RadioStateAnalogueModel::filterSignal(AirFrame *frame, const Coord& sendersPos, const Coord& receiverPos)

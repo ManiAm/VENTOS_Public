@@ -28,7 +28,7 @@
 #ifndef APPLRSUCRL_H_
 #define APPLRSUCRL_H_
 
-#include <rsu/04_AID.h>
+#include "nodes/rsu/04_AID.h"
 #include "msg/CRL_Piece_m.h"
 
 namespace VENTOS {

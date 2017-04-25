@@ -31,7 +31,7 @@
 #undef ev
 #include "boost/filesystem.hpp"
 
-#include <rsu/02_Monitor.h>
+#include "nodes/rsu/02_Monitor.h"
 
 namespace VENTOS {
 
@@ -410,8 +410,8 @@ void ApplRSUMonitor::save_VehApproach_toFile()
         // get the current run number
         int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
 
-        // get all iteration variables
-        std::vector<std::string> iterVar = omnetpp::getEnvir()->getConfigEx()->unrollConfig(configName.c_str(), false);
+        // get configuration name
+        std::vector<std::string> iterVar = omnetpp::getEnvir()->getConfigEx()->getConfigChain(configName.c_str());
 
         // write to file
         fprintf (filePtr, "configName      %s\n", configName.c_str());
@@ -420,7 +420,7 @@ void ApplRSUMonitor::save_VehApproach_toFile()
         fprintf (filePtr, "runID           %s\n", runID.c_str());
         fprintf (filePtr, "totalRun        %d\n", totalRun);
         fprintf (filePtr, "currentRun      %d\n", currentRun);
-        fprintf (filePtr, "currentConfig   %s\n", iterVar[currentRun].c_str());
+        fprintf (filePtr, "currentConfig   %s\n", iterVar[0].c_str());
         fprintf (filePtr, "sim timeStep    %u ms\n", TraCI->simulationGetTimeStep());
         fprintf (filePtr, "startDateTime   %s\n", TraCI->simulationGetStartTime().c_str());
         fprintf (filePtr, "endDateTime     %s\n", TraCI->simulationGetEndTime().c_str());
@@ -493,8 +493,8 @@ void ApplRSUMonitor::save_VehApproachPerLane_toFile()
         // get the current run number
         int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
 
-        // get all iteration variables
-        std::vector<std::string> iterVar = omnetpp::getEnvir()->getConfigEx()->unrollConfig(configName.c_str(), false);
+        // get configuration name
+        std::vector<std::string> iterVar = omnetpp::getEnvir()->getConfigEx()->getConfigChain(configName.c_str());
 
         // write to file
         fprintf (filePtr, "configName      %s\n", configName.c_str());
@@ -503,7 +503,7 @@ void ApplRSUMonitor::save_VehApproachPerLane_toFile()
         fprintf (filePtr, "runID           %s\n", runID.c_str());
         fprintf (filePtr, "totalRun        %d\n", totalRun);
         fprintf (filePtr, "currentRun      %d\n", currentRun);
-        fprintf (filePtr, "currentConfig   %s\n", iterVar[currentRun].c_str());
+        fprintf (filePtr, "currentConfig   %s\n", iterVar[0].c_str());
         fprintf (filePtr, "sim timeStep    %u ms\n", TraCI->simulationGetTimeStep());
         fprintf (filePtr, "startDateTime   %s\n", TraCI->simulationGetStartTime().c_str());
         fprintf (filePtr, "endDateTime     %s\n", TraCI->simulationGetEndTime().c_str());

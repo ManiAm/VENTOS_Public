@@ -23,7 +23,7 @@
 
 #include <stdint.h>
 #include <cmath>
-#include "ConstsPhy.h"
+#include "MIXIM_veins/nic/mac/ConstsPhy.h"
 
 namespace Veins {
 

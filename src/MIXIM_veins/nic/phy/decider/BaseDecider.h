@@ -8,10 +8,10 @@
 #ifndef BASEDECIDER_H_
 #define BASEDECIDER_H_
 
-#include "MiXiMDefs.h"
-#include "DeciderToPhyInterface.h"
-#include "src/msg/AirFrame_serial.h"
-#include "src/msg/MacToPhyCSR_m.h"
+#include "global/MiXiMDefs.h"
+#include "MIXIM_veins/nic/phy/DeciderToPhyInterface.h"
+#include "msg/AirFrame_serial.h"
+#include "msg/MacToPhyCSR_m.h"
 
 class Mapping;
 

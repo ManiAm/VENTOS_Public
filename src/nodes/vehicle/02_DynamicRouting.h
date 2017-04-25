@@ -29,7 +29,7 @@
 #ifndef ApplVDYNAMICROUTING_H
 #define ApplVDYNAMICROUTING_H
 
-#include <vehicle/01_Beacon.h>
+#include "nodes/vehicle/01_Beacon.h"
 #include "router/Router.h"
 #include "router/Hypertree.h"
 

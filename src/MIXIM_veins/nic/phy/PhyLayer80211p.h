@@ -21,16 +21,16 @@
 #ifndef PHYLAYER80211P_H_
 #define PHYLAYER80211P_H_
 
-#include "BaseWorldUtility.h"
-#include "BaseConnectionManager.h"
-#include "ConstsPhy.h"
-#include "Move.h"
+#include "global/BaseWorldUtility.h"
+#include "MIXIM_veins/connectionManager/BaseConnectionManager.h"
+#include "MIXIM_veins/nic/mac/ConstsPhy.h"
+#include "mobility/Move.h"
 #include "ChannelAccess.h"
 #include "ChannelInfo.h"
-#include "Decider80211p.h"
-#include "SNRThresholdDecider.h"
-#include "MacToPhyInterface.h"
-#include "DeciderToPhyInterface.h"
+#include "MIXIM_veins/nic/phy/decider/Decider80211p.h"
+#include "MIXIM_veins/nic/phy/decider/SNRThresholdDecider.h"
+#include "MIXIM_veins/nic/phy/MacToPhyInterface.h"
+#include "MIXIM_veins/nic/phy/DeciderToPhyInterface.h"
 #include "global/Statistics.h"
 
 #ifndef DBG

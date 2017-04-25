@@ -23,7 +23,7 @@
 
 #include <sstream>
 #include <omnetpp.h>
-#include "MiXiMDefs.h"
+#include "global/MiXiMDefs.h"
 #include "HostState.h"
 
 #ifndef debugEV

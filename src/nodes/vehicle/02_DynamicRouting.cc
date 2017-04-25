@@ -26,7 +26,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <vehicle/02_DynamicRouting.h>
+#include "nodes/vehicle/02_DynamicRouting.h"
 #include "global/SignalObj.h"
 
 namespace VENTOS {

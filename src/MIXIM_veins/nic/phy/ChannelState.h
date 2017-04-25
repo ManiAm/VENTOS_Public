@@ -2,7 +2,7 @@
 #define _CHANNELSTATE_H_
 
 #include <sstream>
-#include "MiXiMDefs.h"
+#include "global/MiXiMDefs.h"
 
 /**
  * @brief Provides information about the current state of the channel:

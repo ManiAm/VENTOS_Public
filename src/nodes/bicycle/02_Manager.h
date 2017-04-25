@@ -28,7 +28,7 @@
 #ifndef ApplBIKEMANAGER_H
 #define ApplBIKEMANAGER_H
 
-#include <bicycle/01_Beacon.h>
+#include "nodes/bicycle/01_Beacon.h"
 #include "msg/BeaconVehicle_m.h"
 #include "msg/BeaconRSU_m.h"
 #include "msg/PlatoonMsg_m.h"

@@ -22,8 +22,8 @@
 #define OBSTACLE_OBSTACLE_H
 
 #include <vector>
-#include "Coord.h"
-#include "AnnotationManager.h"
+#include "mobility/Coord.h"
+#include "MIXIM_veins/annotations/AnnotationManager.h"
 
 /**
  * stores information about an Obstacle for ObstacleControl

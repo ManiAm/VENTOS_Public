@@ -28,7 +28,7 @@
 #ifndef ApplVMANAGER_H
 #define ApplVMANAGER_H
 
-#include <vehicle/06_PlatoonCoordinator.h>
+#include "nodes/vehicle/06_PlatoonCoordinator.h"
 
 namespace VENTOS {
 

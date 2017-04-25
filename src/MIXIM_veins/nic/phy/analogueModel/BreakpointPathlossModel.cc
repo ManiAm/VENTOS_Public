@@ -1,5 +1,5 @@
 
-#include "src/msg/AirFrame_serial.h"
+#include "msg/AirFrame_serial.h"
 #include "BreakpointPathlossModel.h"
 
 #define debugEV EV << "PhyLayer(BreakpointPathlossModel): "

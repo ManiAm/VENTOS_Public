@@ -2,7 +2,7 @@
 #define PHYTOMACCONTROLINFO_H_
 
 #include <omnetpp.h>
-#include "MiXiMDefs.h"
+#include "global/MiXiMDefs.h"
 
 
 /**

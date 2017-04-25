@@ -17,7 +17,7 @@
 #include <boost/serialization/map.hpp>
 #include <boost/serialization/utility.hpp>
 
-#include "MiXiMDefs.h"
+#include "global/MiXiMDefs.h"
 #include "Interpolation.h"
 
 /**

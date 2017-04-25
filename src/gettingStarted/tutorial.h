@@ -29,7 +29,7 @@
 #define TUTORIAL_H
 
 #include "baseAppl/03_BaseApplLayer.h"  // base class for all programs
-#include "TraCICommands.h"  // header that defines TraCI commands
+#include "traci/TraCICommands.h"  // header that defines TraCI commands
 
 // program is in the VENTOS namespace
 namespace VENTOS {

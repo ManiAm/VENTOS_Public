@@ -28,8 +28,8 @@
 #ifndef APPLRSUAID_H_
 #define APPLRSUAID_H_
 
-#include <rsu/03_Classify.h>
 #include <eigen3/Eigen/Dense>
+#include "nodes/rsu/03_Classify.h"
 
 namespace VENTOS {
 

@@ -26,8 +26,8 @@
 //
 
 cplusplus {{
-        #include "WaveShortMessage_m.h"
-        #include <TraCICoord.h>
+        #include "msg/WaveShortMessage_m.h"
+        #include "mobility/TraCICoord.h"
 }}
 
 class Veins::WaveShortMessage;

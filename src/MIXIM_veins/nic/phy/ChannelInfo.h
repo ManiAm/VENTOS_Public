@@ -4,8 +4,8 @@
 #include <list>
 #include <omnetpp.h>
 
-#include "src/msg/AirFrame_serial.h"
-#include "MiXiMDefs.h"
+#include "msg/AirFrame_serial.h"
+#include "global/MiXiMDefs.h"
 
 /**
  * @brief This class is used by the BasePhyLayer to keep track of the AirFrames

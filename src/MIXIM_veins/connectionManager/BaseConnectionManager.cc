@@ -4,8 +4,8 @@
 #include "BaseConnectionManager.h"
 #include "NicEntryDebug.h"
 #include "NicEntryDirect.h"
-#include "BaseWorldUtility.h"
-#include "FindModule.h"
+#include "global/BaseWorldUtility.h"
+#include "global/FindModule.h"
 
 #ifndef ccEV
 #define ccEV EV << getName() << ": "

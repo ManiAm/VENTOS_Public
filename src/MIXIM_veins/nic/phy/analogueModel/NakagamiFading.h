@@ -22,10 +22,10 @@
 #ifndef ANALOGUEMODEL_NAKAGAMIFADING_H
 #define ANALOGUEMODEL_NAKAGAMIFADING_H
 
-#include "src/msg/AirFrame_serial.h"
-#include "AnalogueModel.h"
-#include "BaseWorldUtility.h"
-#include "MappingBase.h"
+#include "msg/AirFrame_serial.h"
+#include "MIXIM_veins/nic/phy/AnalogueModel.h"
+#include "global/BaseWorldUtility.h"
+#include "MIXIM_veins/nic/phy/MappingBase.h"
 
 /**
  * @brief

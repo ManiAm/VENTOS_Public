@@ -28,7 +28,7 @@
 #ifndef ApplVAID_H
 #define ApplVAID_H
 
-#include <vehicle/02_DynamicRouting.h>
+#include "nodes/vehicle/02_DynamicRouting.h"
 #include "msg/PlatoonMsg_m.h"
 
 namespace VENTOS {

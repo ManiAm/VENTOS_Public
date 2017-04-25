@@ -23,10 +23,10 @@
 #define BASE_MOBILITY_H
 
 #include "baseAppl/01_BaseModule.h"
-#include "MiXiMDefs.h"
+#include "global/MiXiMDefs.h"
 #include "Coord.h"
 #include "Move.h"
-#include "BaseWorldUtility.h"
+#include "global/BaseWorldUtility.h"
 
 /**
  * @brief Base module for all mobility modules.

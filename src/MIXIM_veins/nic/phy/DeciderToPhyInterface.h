@@ -11,9 +11,9 @@
 #include <list>
 #include <omnetpp.h>
 
-#include "MiXiMDefs.h"
-#include "PhyToMacReport_m.h"
-#include "DeciderResult80211.h"
+#include "global/MiXiMDefs.h"
+#include "msg/PhyToMacReport_m.h"
+#include "MIXIM_veins/nic/phy/decider/DeciderResult80211.h"
 
 class AirFrame;
 class BaseWorldUtility;

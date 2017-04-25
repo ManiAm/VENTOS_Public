@@ -20,7 +20,7 @@
 
 #include <baseAppl/01_BaseModule.h>
 #include <cassert>
-#include "FindModule.h"
+#include "global/FindModule.h"
 
 // Could not initialize simsignal_t it here!? I got the POST_MODEL_CHANGE id!?
 const simsignalwrap_t BaseModule::catHostStateSignal = simsignalwrap_t(MIXIM_SIGNAL_HOSTSTATE_NAME);

@@ -1,8 +1,8 @@
 #ifndef ANALOGUEMODEL_
 #define ANALOGUEMODEL_
 
-#include "MiXiMDefs.h"
-#include "Coord.h"
+#include "global/MiXiMDefs.h"
+#include "mobility/Coord.h"
 
 class AirFrame;
 

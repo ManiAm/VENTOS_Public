@@ -21,8 +21,8 @@
 #ifndef BASE_WORLD_UTIL_H
 #define BASE_WORLD_UTIL_H
 
-#include "MiXiMDefs.h"
-#include "Coord.h"
+#include "global/MiXiMDefs.h"
+#include "mobility/Coord.h"
 
 /**
  * @brief Provides information and utility methods for the whole simulation.

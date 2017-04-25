@@ -21,7 +21,7 @@
 #define SIMPLEADDRESS_H
 
 #include <omnetpp.h>
-#include "MiXiMDefs.h"
+#include "global/MiXiMDefs.h"
 
 /** @brief Layer address handling helper function.
  *

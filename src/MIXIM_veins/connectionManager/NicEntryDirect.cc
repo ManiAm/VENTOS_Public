@@ -21,7 +21,7 @@
 
 
 #include "NicEntryDirect.h"
-#include "ChannelAccess.h"
+#include "MIXIM_veins/nic/phy/ChannelAccess.h"
 
 #ifndef nicEV
 #define nicEV EV << "NicEntry: "

@@ -19,8 +19,8 @@
  **************************************************************************/
 
 #include "BaseWorldUtility.h"
-#include "FindModule.h"
-#include "BaseConnectionManager.h"
+#include "global/FindModule.h"
+#include "MIXIM_veins/connectionManager/BaseConnectionManager.h"
 
 Define_Module(BaseWorldUtility);
 

@@ -28,7 +28,7 @@
 #ifndef APPLRSUMONITOR_H_
 #define APPLRSUMONITOR_H_
 
-#include <rsu/01_Beacon.h>
+#include "nodes/rsu/01_Beacon.h"
 #include "msg/BeaconVehicle_m.h"
 #include "msg/BeaconBicycle_m.h"
 #include "msg/BeaconPedestrian_m.h"

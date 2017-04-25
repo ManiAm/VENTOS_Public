@@ -5,7 +5,7 @@
 #include <omnetpp.h>
 #include <boost/serialization/access.hpp>
 
-#include "MiXiMDefs.h"
+#include "global/MiXiMDefs.h"
 #include "Mapping.h"
 
 

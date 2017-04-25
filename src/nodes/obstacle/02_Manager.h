@@ -28,7 +28,7 @@
 #ifndef ApplOBSTACLEMANAGER_H
 #define ApplOBSTACLEMANAGER_H
 
-#include <obstacle/01_Beacon.h>
+#include "nodes/obstacle/01_Beacon.h"
 #include "msg/BeaconVehicle_m.h"
 #include "msg/BeaconRSU_m.h"
 #include "msg/PlatoonMsg_m.h"

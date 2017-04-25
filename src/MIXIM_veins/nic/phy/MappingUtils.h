@@ -8,7 +8,7 @@
 #ifndef SIGNALINTERFACES_H_
 #define SIGNALINTERFACES_H_
 
-#include "MiXiMDefs.h"
+#include "global/MiXiMDefs.h"
 #include "MappingBase.h"
 
 class FilledUpMapping;

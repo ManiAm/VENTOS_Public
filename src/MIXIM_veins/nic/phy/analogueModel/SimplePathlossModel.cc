@@ -1,5 +1,5 @@
 
-#include "src/msg/AirFrame_serial.h"
+#include "msg/AirFrame_serial.h"
 #include "SimplePathlossModel.h"
 
 #define splmEV EV << "PhyLayer(SimplePathlossModel): "

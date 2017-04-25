@@ -27,9 +27,9 @@
 #include <vector>
 
 #include "baseAppl/01_BaseModule.h"
-#include "MiXiMDefs.h"
-#include "FindModule.h"
-#include "BaseMobility.h"
+#include "global/MiXiMDefs.h"
+#include "global/FindModule.h"
+#include "mobility/BaseMobility.h"
 #include "global/Statistics.h"
 
 typedef AccessModuleWrap<BaseMobility> ChannelMobilityAccessType;

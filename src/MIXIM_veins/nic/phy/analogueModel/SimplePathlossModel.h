@@ -3,10 +3,10 @@
 
 #include <cstdlib>
 
-#include "MiXiMDefs.h"
-#include "AnalogueModel.h"
-#include "Mapping.h"
-#include "BaseWorldUtility.h"
+#include "global/MiXiMDefs.h"
+#include "MIXIM_veins/nic/phy/AnalogueModel.h"
+#include "MIXIM_veins/nic/phy/Mapping.h"
+#include "global/BaseWorldUtility.h"
 
 class SimplePathlossModel;
 

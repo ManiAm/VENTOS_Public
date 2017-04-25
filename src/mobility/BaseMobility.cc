@@ -19,14 +19,15 @@
  * part of:     framework implementation developed by tkn
  **************************************************************************/
 
-#include "src/msg/BorderMsg_m.h"
 #include <sstream>
 
 #include "BaseMobility.h"
-#include "Coord.h"
-#include "FindModule.h"
-#include "BaseWorldUtility.h"
-#include "TraCICommands.h"
+#include "mobility/Coord.h"
+#include "global/FindModule.h"
+#include "global/BaseWorldUtility.h"
+#include "traci/TraCICommands.h"
+#include "msg/BorderMsg_m.h"
+
 
 Define_Module(BaseMobility);
 

@@ -3,8 +3,8 @@
 
 #include <omnetpp.h>
 
-#include "ConstsPhy.h"
-#include "MiXiMDefs.h"
+#include "MIXIM_veins/nic/mac/ConstsPhy.h"
+#include "global/MiXiMDefs.h"
 #include "Signal_.h"
 #include "ChannelState.h"
 #include "PhyUtils.h"

@@ -21,9 +21,9 @@
 #ifndef ANALOGUEMODEL_TWORAYINTERFERENCEMODEL_H
 #define ANALOGUEMODEL_TWORAYINTERFERENCEMODEL_H
 
-#include "AnalogueModel.h"
-#include "BaseWorldUtility.h"
-#include "MappingBase.h"
+#include "MIXIM_veins/nic/phy/AnalogueModel.h"
+#include "global/BaseWorldUtility.h"
+#include "MIXIM_veins/nic/phy/MappingBase.h"
 
 /**
  * @brief

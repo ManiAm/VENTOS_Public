@@ -28,8 +28,8 @@
 #define _COORD_H
 
 #include <omnetpp.h>
-#include "MiXiMDefs.h"
-#include "FWMath.h"
+#include "global/MiXiMDefs.h"
+#include "global/FWMath.h"
 
 
 /**

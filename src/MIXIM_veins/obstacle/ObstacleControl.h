@@ -22,9 +22,9 @@
 
 #include <list>
 #include <omnetpp.h>
-#include "Coord.h"
+#include "mobility/Coord.h"
 #include "Obstacle.h"
-#include "AnnotationManager.h"
+#include "MIXIM_veins/annotations/AnnotationManager.h"
 
 /**
  * ObstacleControl models obstacles that block radio transmissions.

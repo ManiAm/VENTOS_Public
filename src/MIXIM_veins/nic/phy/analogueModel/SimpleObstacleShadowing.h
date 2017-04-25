@@ -1,14 +1,16 @@
 #ifndef SIMPLEOBSTACLEFADING_H_
 #define SIMPLEOBSTACLEFADING_H_
 
-#include "src/msg/AirFrame_serial.h"
-#include "AnalogueModel.h"
-#include "Mapping.h"
-#include "BaseWorldUtility.h"
-#include "ObstacleControl.h"
-#include "Move.h"
-#include "Signal_.h"
 #include <cstdlib>
+
+#include "msg/AirFrame_serial.h"
+#include "MIXIM_veins/nic/phy/AnalogueModel.h"
+#include "MIXIM_veins/nic/phy/Mapping.h"
+#include "global/BaseWorldUtility.h"
+#include "MIXIM_veins/obstacle/ObstacleControl.h"
+#include "mobility/Move.h"
+#include "MIXIM_veins/nic/phy/Signal_.h"
+
 
 /**
  * @brief Basic implementation of a SimpleObstacleShadowing that uses

@@ -24,8 +24,8 @@
 
 #include <omnetpp.h>
 #include <map>
-#include "MiXiMDefs.h"
-#include "Coord.h"
+#include "global/MiXiMDefs.h"
+#include "mobility/Coord.h"
 
 class ChannelAccess;
 

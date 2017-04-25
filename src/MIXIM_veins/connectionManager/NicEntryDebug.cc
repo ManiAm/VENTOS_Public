@@ -21,8 +21,8 @@
 
 #include <cassert>
 #include "NicEntryDebug.h"
-#include "ChannelAccess.h"
-#include "FindModule.h"
+#include "MIXIM_veins/nic/phy/ChannelAccess.h"
+#include "global/FindModule.h"
 
 #ifndef nicEV
 #define nicEV EV << "NicEntry: "

@@ -5,7 +5,7 @@
 #include <list>
 #include <omnetpp.h>
 
-#include "MiXiMDefs.h"
+#include "global/MiXiMDefs.h"
 #include "AnalogueModel.h"
 #include "Mapping.h"
 

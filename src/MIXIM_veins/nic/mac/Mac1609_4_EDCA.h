@@ -22,8 +22,8 @@
 #define ___MAC1609_4_ECDA_H_
 
 #include <queue>
-#include "WaveShortMessage_m.h"
-#include "Consts80211p.h"
+#include "msg/WaveShortMessage_m.h"
+#include "MIXIM_veins/nic/Consts80211p.h"
 
 namespace Veins {
 

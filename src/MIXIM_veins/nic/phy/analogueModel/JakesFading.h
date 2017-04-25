@@ -16,9 +16,9 @@
 #ifndef JAKESFADING_H_
 #define JAKESFADING_H_
 
-#include "MiXiMDefs.h"
-#include "AnalogueModel.h"
-#include "Mapping.h"
+#include "global/MiXiMDefs.h"
+#include "MIXIM_veins/nic/phy/AnalogueModel.h"
+#include "MIXIM_veins/nic/phy/Mapping.h"
 
 class JakesFading;
 

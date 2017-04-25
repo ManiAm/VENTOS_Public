@@ -28,7 +28,7 @@
 #ifndef ApplPEDMANAGER_H
 #define ApplPEDMANAGER_H
 
-#include <pedestrian/01_Beacon.h>
+#include "nodes/pedestrian/01_Beacon.h"
 #include "msg/BeaconVehicle_m.h"
 #include "msg/BeaconRSU_m.h"
 #include "msg/PlatoonMsg_m.h"

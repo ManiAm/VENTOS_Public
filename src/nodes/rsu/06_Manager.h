@@ -28,7 +28,7 @@
 #ifndef APPLRSUMANAGER_H_
 #define APPLRSUMANAGER_H_
 
-#include <rsu/05_CRL.h>
+#include "nodes/rsu/05_CRL.h"
 
 namespace VENTOS {
 

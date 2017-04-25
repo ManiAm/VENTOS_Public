@@ -27,7 +27,7 @@
 
 #include <iostream>
 #include <sstream>
-#include <ApplToPhyControlInfo.h>
+#include "baseAppl/ApplToPhyControlInfo.h"
 
 namespace VENTOS {
 

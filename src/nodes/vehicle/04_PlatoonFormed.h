@@ -28,7 +28,7 @@
 #ifndef APPLVPLATOONFORMED_H
 #define APPLVPLATOONFORMED_H
 
-#include <vehicle/03_AID.h>
+#include "nodes/vehicle/03_AID.h"
 
 namespace VENTOS {
 

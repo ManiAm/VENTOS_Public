@@ -1,7 +1,7 @@
 #ifndef SNRTHRESHOLDDECIDER_H_
 #define SNRTHRESHOLDDECIDER_H_
 
-#include "MiXiMDefs.h"
+#include "global/MiXiMDefs.h"
 #include "BaseDecider.h"
 
 /**

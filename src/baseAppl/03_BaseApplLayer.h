@@ -25,8 +25,8 @@
 #include <assert.h>
 #include <baseAppl/02_BaseLayer.h>
 
-#include "MiXiMDefs.h"
-#include "SimpleAddress.h"
+#include "global/MiXiMDefs.h"
+#include "MIXIM_veins/nic/mac/SimpleAddress.h"
 
 /**
  * @brief Base class for the application layer

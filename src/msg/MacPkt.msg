@@ -20,7 +20,7 @@
 // **************************************************************************/
 
 cplusplus {{
-#include "SimpleAddress.h"
+#include "MIXIM_veins/nic/mac/SimpleAddress.h"
 }}
 
 class LAddress::L2Type extends void;

@@ -18,7 +18,7 @@
 // **************************************************************************/
 
 cplusplus {{
-#include "Coord.h"
+#include "mobility/Coord.h"
 }}
 
 class noncobject Coord;

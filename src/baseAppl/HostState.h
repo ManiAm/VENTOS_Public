@@ -15,7 +15,7 @@
 #define HOSTSTATE_H
 
 #include <omnetpp.h>
-#include "MiXiMDefs.h"
+#include "global/MiXiMDefs.h"
 
 /**
  * @brief HostState is published by the battery to announce host failure

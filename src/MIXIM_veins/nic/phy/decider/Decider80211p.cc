@@ -26,11 +26,11 @@
 
 #include "Decider80211p.h"
 #include "DeciderResult80211.h"
-#include "Mac80211Pkt_m.h"
-#include "Signal_.h"
-#include "AirFrame11p_serial.h"
+#include "msg/Mac80211Pkt_m.h"
+#include "MIXIM_veins/nic/phy/Signal_.h"
+#include "msg/AirFrame11p_serial.h"
 #include "NistErrorRate.h"
-#include "ConstsPhy.h"
+#include "MIXIM_veins/nic/mac/ConstsPhy.h"
 
 namespace Veins {
 

@@ -1,6 +1,6 @@
 
 cplusplus {{
-#include "Signal_.h"
+#include "MIXIM_veins/nic/phy/Signal_.h"
 }}
 
 class noncobject Signal;

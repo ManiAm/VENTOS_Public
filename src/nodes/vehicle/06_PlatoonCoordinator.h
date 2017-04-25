@@ -28,7 +28,7 @@
 #ifndef APPLVCOORDINATOR_H
 #define APPLVCOORDINATOR_H
 
-#include <vehicle/05_PlatoonMg.h>
+#include "nodes/vehicle/05_PlatoonMg.h"
 
 namespace VENTOS {
 

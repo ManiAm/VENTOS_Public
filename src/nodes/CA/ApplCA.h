@@ -28,9 +28,9 @@
 #ifndef APPLCA_H_
 #define APPLCA_H_
 
-#include <CA/Certificate.h>
 #include <eigen3/Eigen/Dense>
 
+#include "nodes/CA/Certificate.h"
 #include "baseAppl/04_BaseWaveApplLayer.h"
 #include "msg/CRL_Piece_m.h"
 
