@@ -112,6 +112,10 @@ install_LIB_linux ()
         if [ "" == "$PKG_OK" ]; then
             echo "installing"
             echo $sudoPass | sudo -S apt-get --force-yes --yes install $i > /dev/null
+            # check if everything went well?
+            if [[ $? -ne 0 ]]; then
+                exit 1
+            fi
         else
             echo "ok"
         fi
