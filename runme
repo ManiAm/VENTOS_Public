@@ -86,6 +86,10 @@ elif [[ ("$OSTYPE" == "darwin"* && "$OS" == "Mac OS X" && "$VER_major" == "10" &
 elif [[ ("$OSTYPE" == "darwin"* && "$OS" == "Mac OS X" && "$VER_major" == "10" && "$VER_minor" == "11") ]]; then
     echo "Starting script ..."
 
+# Sierra (Mac OS 10.12)
+elif [[ ("$OSTYPE" == "darwin"* && "$OS" == "Mac OS X" && "$VER_major" == "10" && "$VER_minor" == "12") ]]; then
+    echo "Starting script ..."
+
 else
     echo -n "This OS is not supported (yet)! Do you want to continue anyway? (y/n) "
     read answer
@@ -370,6 +374,7 @@ if [[ "$OS" == "Mac OS X" ]]; then
     which brew
     if [[ $? != 0 ]] ; then
         # Install Homebrew
+        echo ""
         echo "installing homebrew ..."
         echo $sudoPass | sudo -S -v
         # note the <
@@ -453,7 +458,7 @@ if [[ "$result" == "2" ]]; then
     elif [[ "$OS" == "Mac OS X" ]]; then
         # we have already requested to install java
         echo "requesting to install java ..."
-        printf "\e[1;32mChoose the More Info button in the window that pops up and install the latest JDK. After completion, run the script again.\e[0m \n\n"
+        printf "\e[1;32mGo to the following URL and install the latest JDK: http://www.oracle.com/technetwork/java/javase/downloads. After completion, run the script again.\e[0m \n\n"
         exit 1
     fi
 fi
@@ -510,7 +515,7 @@ fi
 echo ""
 echo "Preparing to install OMNET++"
 echo "============================"
-ver=$(opp_run -v 2> /dev/null | grep 'Build:' | awk '{print $2}')
+ver=$(opp_msgc 2>&1 | grep 'Version:' | awk '{print $2}' | awk -F "," '{print $1}')
 verNum=$(echo $ver | sed 's/^.*-//g')
 targetVer="5.1"
 omnetDIR="omnetpp-"$targetVer
@@ -520,7 +525,7 @@ vercomp "$verNum" $targetVer
 result=$?
 # if version < $targetVer
 if ! [[ "$result" == "2" ]]; then
-    loc=$(which opp_run)
+    loc=$(which opp_msgc)
     echo "found $ver in"
     echo "    $loc"
     echo "skip downloading/making omnet++" 
@@ -531,7 +536,7 @@ else
 if [[ "$ver" == "" ]]; then
     echo "no previous omnet++ installation found!"
 else
-    loc=$(which opp_run)
+    loc=$(which opp_msgc)
     echo "found $ver in"
     echo "    $loc"
     echo "downloading a newer version of omnet++"
@@ -585,9 +590,27 @@ if [[ $? -ne 0 ]]; then
     exit 1
 fi
 
+omnetFULLPATH=$(pwd)
+
 # run configure
 confOut=$( { ./configure > /tmp/VENTOS_tmp/out.zvapoq; } 2>&1 )
 printf "%s \n" "$confOut"
+
+# Qt error occurs in MAC
+if [[ "$OS" == "Mac OS X" ]]; then
+
+    check=$(echo "$confOut" | grep "configure: error: Qtenv")
+    if [ "" != "$check" ]; then
+        help="Add the following lines to the ~/.bash_profile:
+        export PATH=\$PATH:$omnetFULLPATH/bin
+        export PATH=\$PATH:$omnetFULLPATH/tools/macosx/bin
+        export QT_PLUGIN_PATH=$omnetFULLPATH/tools/macosx/plugins"
+        printf "\n\e[1;32m$help\e[0m \n"
+        echo ""
+        exit 1
+    fi
+    
+fi
 
 # terminate script on error
 check=$(echo "$confOut" | grep "configure: error")
@@ -653,7 +676,7 @@ if [ "" != "$check" ]; then
     exit 1
 fi
 
-ver=$(opp_run -v 2> /dev/null | grep 'Build:' | awk '{print $2}')
+ver=$(opp_msgc 2>&1 | grep 'Version:' | awk '{print $2}' | awk -F "," '{print $1}')
 verNum=$(echo $ver | sed 's/^.*-//g')
 
 # make sure omnet version is correct
@@ -751,16 +774,16 @@ distinguished_name = my dn
 [ my dn ]
 # The bare minimum is probably a commonName
 commonName = VENTOS
-countryName = XX
-localityName = Fun Land
-organizationName = MyCo LLC LTD INC (d.b.a. OurCo)
-organizationalUnitName = SSL Dept.
-stateOrProvinceName = YY
-emailAddress = ssl-admin@example.com
-name = John Doe
-surname = Doe
-givenName = John
-initials = JXD
+countryName = USA
+localityName = VENTOS
+organizationName = University of California, Davis
+organizationalUnitName = EEC
+stateOrProvinceName = California
+emailAddress = maniam@ucdavis.edu
+name = Mani
+surname = Amoozadeh
+givenName = Mani
+initials = MA
 dnQualifier = some
 
 [ my server exts ]
@@ -824,7 +847,7 @@ EOF
             echo $sudoPass | sudo -S security import server.pfx -k /Library/Keychains/System.keychain -P foobar
             
             # add-trusted-cer supports DER or PEM format (its not possible to import both cer and private key)
-            #sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain server.pem
+            sudo security add-trusted-cert -d -r trustRoot -p codeSign -k /Library/Keychains/System.keychain server.pem
 
             if [[ $? -ne 0 ]]; then
                 exit 1
@@ -838,6 +861,7 @@ EOF
         else
             echo ""
             echo "change trust of certificate VENTOS ..."
+            echo ""
             printf "\e[1;32mIn Keychain Access window, select 'System' keychains from top left and 'Certificates' category from bottom left. Right-click on certificate VENTOS and select 'Get Info'. Open the Trust item and set Code Signing to 'Always Trust'. Close Keychain Access window and re-run this script. \e[0m \n\n"
             open -a 'Keychain Access'
             exit 1
