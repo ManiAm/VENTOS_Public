@@ -774,7 +774,7 @@ distinguished_name = my dn
 [ my dn ]
 # The bare minimum is probably a commonName
 commonName = VENTOS
-countryName = USA
+countryName = US
 localityName = VENTOS
 organizationName = University of California, Davis
 organizationalUnitName = EEC
