@@ -42,9 +42,10 @@
 					</folderInfo>
 					<folderInfo id="org.omnetpp.cdt.gnu.config.debug.1181511094.1750854169" name="/" resourcePath="src">
 						<toolChain id="org.omnetpp.cdt.gnu.toolchain.debug.1830125640" name="C++ Toolchain for OMNeT++" superClass="org.omnetpp.cdt.gnu.toolchain.debug" unusedChildren="">
+							<targetPlatform binaryParser="org.eclipse.cdt.core.ELF;org.eclipse.cdt.core.MachO64;org.eclipse.cdt.core.PE" id="org.omnetpp.cdt.targetPlatform" isAbstract="false" name="Windows, Linux, Mac" osList="win32,linux,macosx" superClass="org.omnetpp.cdt.targetPlatform"/>
 							<tool id="cdt.managedbuild.tool.gnu.archiver.base.1952268473" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base.319999884"/>
 							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.base.784151936" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base.13888097">
-								<option id="gnu.cpp.compiler.option.include.paths.1952025022" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+								<option id="gnu.cpp.compiler.option.include.paths.1952025022" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/VENTOS/rapidxml-1.13}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/VENTOS/UFT}&quot;"/>
 								</option>
@@ -108,9 +109,10 @@
 					</folderInfo>
 					<folderInfo id="org.omnetpp.cdt.gnu.config.release.1371407674.198092300" name="/" resourcePath="src">
 						<toolChain id="org.omnetpp.cdt.gnu.toolchain.release.261101130" name="C++ Toolchain for OMNeT++" superClass="org.omnetpp.cdt.gnu.toolchain.release" unusedChildren="">
+							<targetPlatform binaryParser="org.eclipse.cdt.core.ELF;org.eclipse.cdt.core.MachO64;org.eclipse.cdt.core.PE" id="org.omnetpp.cdt.targetPlatform" isAbstract="false" name="Windows, Linux, Mac" osList="win32,linux,macosx" superClass="org.omnetpp.cdt.targetPlatform"/>
 							<tool id="cdt.managedbuild.tool.gnu.archiver.base.1936766297" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base.628142687"/>
 							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.base.1289843834" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base.1438167855">
-								<option id="gnu.cpp.compiler.option.include.paths.646295690" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+								<option id="gnu.cpp.compiler.option.include.paths.646295690" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/VENTOS/rapidxml-1.13}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/VENTOS/UFT}&quot;"/>
 								</option>

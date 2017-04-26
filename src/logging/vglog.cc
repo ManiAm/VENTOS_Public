@@ -28,6 +28,10 @@
 #define WANT_WINSOCK2
 #include <platdep/sockets.h>
 
+#ifdef __APPLE__
+#define MSG_NOSIGNAL 0x4000
+#endif
+
 #if defined(_WIN32) || defined(__WIN32__) || defined(WIN32) || defined(__CYGWIN__) || defined(_WIN64)
 #include <ws2tcpip.h>
 #else

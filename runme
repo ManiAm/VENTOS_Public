@@ -1065,7 +1065,9 @@ if [[ "$OS" == "Ubuntu" ]]; then
 
 elif [[ "$OS" == "Mac OS X" ]]; then
 
-    libs=("boost")
+    echo $sudoPass | sudo -S chown -R $(whoami) /usr/local/share/pkgconfig
+    brew link shared-mime-info
+    libs=("boost" "gtkmm3")
     install_LIB_Mac libs[@]
 fi
 

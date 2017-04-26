@@ -30,6 +30,7 @@
 
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
+#include <random>
 
 #include "addNode/AddNode.h"
 #include "MIXIM_veins/connectionManager/ConnectionManager.h"

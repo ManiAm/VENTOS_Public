@@ -36,7 +36,7 @@
 #include <shark/ObjectiveFunctions/Loss/ZeroOneLoss.h>
 
 #include <shark/LinAlg/Base.h>
-#include <shark/Models/Converter.h>
+//#include <shark/Models/Converter.h>
 #include <shark/Models/Kernels/GaussianRbfKernel.h>
 #include <shark/Algorithms/Trainers/CSvmTrainer.h>
 

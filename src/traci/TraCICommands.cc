@@ -3215,7 +3215,7 @@ void TraCI_Commands::addMapping(std::string SUMOID, std::string OMNETID)
     // save mapping of OMNET++ id and SUMO id
     auto i2 = OMNETid_SUMOid_mapping.find(OMNETID);
     if(i2 != OMNETid_SUMOid_mapping.end())
-        throw omnetpp::cRuntimeError("OMNET++ id %s already exists in the network!", OMNETID);
+        throw omnetpp::cRuntimeError("OMNET++ id %s already exists in the network!", OMNETID.c_str());
     OMNETid_SUMOid_mapping[OMNETID] = SUMOID;
 }
 
@@ -3231,7 +3231,7 @@ void TraCI_Commands::removeMapping(std::string SUMOID, std::string OMNETID)
     // remove mapping of OMNET++ id and SUMO id
     auto i2 = OMNETid_SUMOid_mapping.find(OMNETID);
     if(i2 == OMNETid_SUMOid_mapping.end())
-        throw omnetpp::cRuntimeError("OMNET++ id %s does not exist in the network!", OMNETID);
+        throw omnetpp::cRuntimeError("OMNET++ id %s does not exist in the network!", OMNETID.c_str());
     OMNETid_SUMOid_mapping.erase(i2);
 }
 

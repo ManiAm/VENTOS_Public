@@ -33,6 +33,10 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+#ifdef __APPLE__
+#define MSG_NOSIGNAL 0x4000
+#endif
+
 #include "boost/filesystem.hpp"
 
 #include "mainWindow.h"
