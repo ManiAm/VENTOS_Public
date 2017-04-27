@@ -57,6 +57,10 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
     OS=$(sw_vers -productName)
     VER=$(sw_vers -productVersion)
     ARCH=$(uname -m)
+elif [[ "$OSTYPE" == "msys" ]]; then
+	OS=$(uname -s)
+	VER=$(uname -r)
+	ARCH=$(uname -m)	
 fi
 
 echo "Detected OS:" $OSTYPE $OS $VER "("$CODENAME")", $ARCH
@@ -88,6 +92,10 @@ elif [[ ("$OSTYPE" == "darwin"* && "$OS" == "Mac OS X" && "$VER_major" == "10" &
 
 # Sierra (Mac OS 10.12)
 elif [[ ("$OSTYPE" == "darwin"* && "$OS" == "Mac OS X" && "$VER_major" == "10" && "$VER_minor" == "12") ]]; then
+    echo "Starting script ..."
+	
+# MINGW (Git bash)
+elif [[ "$OSTYPE" == "msys" ]]; then
     echo "Starting script ..."
 
 else
@@ -157,6 +165,24 @@ install_LIB_Mac ()
     done
 }
 
+unpack_archive ()
+{
+	declare -a argAry=("${!1}")
+    for i in "${argAry[@]}"
+    do
+	    archiveName=$(basename $i)
+		if [ -f $i ]; then
+            echo -n "unpacking "$archiveName "..."
+		    tools/7za x -y $i > /dev/null
+		    if [[ $? -ne 0 ]]; then
+                exit 1
+            fi
+			echo "ok"
+		    rm -rf $i
+        fi	
+	done	
+}
+
 # wget --progress=bar:force -O gnuplot.tar.gz URL.tar.gz 2>&1 | progressfilt
 progressfilt ()
 {
@@ -214,6 +240,53 @@ vercomp ()
         fi
     done
     return 0
+}
+
+install_java_ubuntu ()
+{
+    echo "java version should be >= 1.7"
+    echo "[1] install OpenJDK 1.7/1.8"
+    echo "[2] install Oracle Java 1.8"
+    echo -n "your selection? [1] "
+    read answer
+    if [[ ("$answer" == "") || ("$answer" == "1") ]]; then
+        # check if openjdk-8-jre has any candidates
+        check=$(apt-cache policy openjdk-8-jre | grep 'Candidate:' | awk '{print $2}')
+        if [[ "" != "$check" && "(none)" != "$check" ]]; then
+            echo $sudoPass | sudo -S apt-get --force-yes --yes install openjdk-8-jre
+            if [[ $? -ne 0 ]]; then
+                exit 1
+            fi
+        else
+            # check if openjdk-7-jre has any candidates
+            check=$(apt-cache policy openjdk-7-jre | grep 'Candidate:' | awk '{print $2}')
+            if [[ "" != "$check" && "(none)" != "$check" ]]; then
+                echo $sudoPass | sudo -S apt-get --force-yes --yes install openjdk-7-jre
+                if [[ $? -ne 0 ]]; then
+                    exit 1
+                fi
+            else
+                echo "openjdk-8-jre and openjdk-7-jre do not have any candidates for installation!"
+                exit 1
+            fi
+        fi
+    elif [[ "$answer" == "2" ]]; then
+        echo $sudoPass | sudo -S add-apt-repository -y ppa:webupd8team/java > /dev/null
+        echo $sudoPass | sudo -S apt-get update > /dev/null
+        if [[ $? -ne 0 ]]; then
+            exit 1
+        fi
+        # accept the Oracle JDK8 license automatically 
+        echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
+        echo $sudoPass | sudo -S apt-get --force-yes --yes install oracle-java8-installer
+        # set the Java environment variables
+        echo $sudoPass | sudo -S apt-get install oracle-java8-set-default > /dev/null  
+        if [[ $? -ne 0 ]]; then
+            exit 1
+        fi     
+    else
+        exit 1;
+    fi
 }
 
 # 0: found
@@ -292,59 +365,6 @@ getLibVersions_Mac ()
 ## Starting point ##
 ####################
 
-# ask for sudo password only once
-while true; do 
-    unset sudoPass
-    prompt="[sudo] password for $USER: "
-    while IFS= read -p "$prompt" -r -s -n 1 char
-    do
-        if [[ $char == $'\0' ]]
-        then
-            break
-        fi
-        prompt='*'
-        sudoPass+="$char"
-    done
-    echo ""
-
-    # now check if we have sudo access?
-    echo $sudoPass | sudo -k -S -v > /dev/null 2> /dev/null
-    if [[ $? -eq 0 ]]; then
-        break;
-    else
-        echo "sudo password is not correct!"
-    fi
-done
-
-: <<'END'
-# ask for github username/pass
-while true; do
-    unset gitUsername 
-    read -p "github username: " gitUsername
-
-    unset gitPass
-    prompt="github password: "
-    while IFS= read -p "$prompt" -r -s -n 1 char
-    do
-        if [[ $char == $'\0' ]]
-        then
-            break
-        fi
-        prompt='*'
-        gitPass+="$char"
-    done
-    echo ""
-
-    # now check if username/pass is correct
-    git ls-remote https://$gitUsername:$gitPass@github.com/ManiAm/VENTOS > /dev/null 2> /dev/null
-    if [[ $? -eq 0 ]]; then
-        break;
-    else
-        echo "github username/password is not correct!"
-    fi
-done
-END
-
 # get current directory
 VENTOS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # change directory to VENTOS
@@ -353,6 +373,35 @@ cd $VENTOS_DIR
 cd ..
 # make directory in tmp to store all downloaded files
 mkdir -p /tmp/VENTOS_tmp
+
+# ask for sudo password and save it in sudoPass
+if [[ ("$OS" == "Ubuntu") || ("$OS" == "Mac OS X") ]]; then
+
+    # ask for sudo password only once
+    while true; do 
+        unset sudoPass
+        prompt="[sudo] password for $USER: "
+        while IFS= read -p "$prompt" -r -s -n 1 char
+        do
+            if [[ $char == $'\0' ]]
+            then
+                break
+            fi
+            prompt='*'
+            sudoPass+="$char"
+        done
+        echo ""
+
+        # now check if we have sudo access?
+        echo $sudoPass | sudo -k -S -v > /dev/null 2> /dev/null
+        if [[ $? -eq 0 ]]; then
+            break;
+        else
+            echo "sudo password is not correct!"
+        fi
+    done
+
+fi
 
 if [[ "$OS" == "Mac OS X" ]]; then
 
@@ -400,11 +449,12 @@ if [[ "$OS" == "Ubuntu" ]]; then
     echo $sudoPass | sudo -S apt-get update > /dev/null 2> /dev/null
 fi
 
-# check java version
+# get java version (if installed)
 version=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}')
 if [[ "" != "$version" ]]; then
     echo "java version is" $version
 fi
+
 # should we install java?
 version=$(echo $version | sed 's/_.*$//') # remove the _
 vercomp "$version" "1.7"
@@ -412,49 +462,7 @@ result=$?
 if [[ "$result" == "2" ]]; then
 
     if [[ "$OS" == "Ubuntu" ]]; then
-        echo "java version should be >= 1.7"
-        echo "[1] install OpenJDK 1.7/1.8"
-        echo "[2] install Oracle Java 1.8"
-        echo -n "your selection? [1] "
-        read answer
-        if [[ ("$answer" == "") || ("$answer" == "1") ]]; then
-            # check if openjdk-8-jre has any candidates
-            check=$(apt-cache policy openjdk-8-jre | grep 'Candidate:' | awk '{print $2}')
-            if [[ "" != "$check" && "(none)" != "$check" ]]; then
-                echo $sudoPass | sudo -S apt-get --force-yes --yes install openjdk-8-jre
-                if [[ $? -ne 0 ]]; then
-                    exit 1
-                fi
-            else
-                # check if openjdk-7-jre has any candidates
-                check=$(apt-cache policy openjdk-7-jre | grep 'Candidate:' | awk '{print $2}')
-                if [[ "" != "$check" && "(none)" != "$check" ]]; then
-                    echo $sudoPass | sudo -S apt-get --force-yes --yes install openjdk-7-jre
-                    if [[ $? -ne 0 ]]; then
-                        exit 1
-                    fi
-                else
-                    echo "openjdk-8-jre and openjdk-7-jre do not have any candidates for installation!"
-                    exit 1
-                fi
-            fi
-        elif [[ "$answer" == "2" ]]; then
-            echo $sudoPass | sudo -S add-apt-repository -y ppa:webupd8team/java > /dev/null
-            echo $sudoPass | sudo -S apt-get update > /dev/null
-            if [[ $? -ne 0 ]]; then
-                exit 1
-            fi
-            # accept the Oracle JDK8 license automatically 
-            echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
-            echo $sudoPass | sudo -S apt-get --force-yes --yes install oracle-java8-installer
-            # set the Java environment variables
-            echo $sudoPass | sudo -S apt-get install oracle-java8-set-default > /dev/null  
-            if [[ $? -ne 0 ]]; then
-                exit 1
-            fi     
-        else
-            exit 1;
-        fi
+	    install_java_ubuntu
     elif [[ "$OS" == "Mac OS X" ]]; then
         # we have already requested to install java
         echo "requesting to install java ..."
@@ -469,14 +477,16 @@ libs=("Caskroom/versions/java6")
     install_LIB_Mac libs[@]
 fi
 
-echo ""
-echo "Checking downloaders"
-echo "===================="
-libs=("lftp" "curl")  # curl is prefered over wget since Mac OS X has curl by default
-if [[ "$OS" == "Ubuntu" ]]; then
-    install_LIB_linux libs[@]
-elif [[ "$OS" == "Mac OS X" ]]; then
-    install_LIB_Mac libs[@]
+if [[ ("$OS" == "Ubuntu") || ("$OS" == "Mac OS X") ]]; then
+    echo ""
+    echo "Checking downloaders"
+    echo "===================="
+    libs=("lftp" "curl")  # curl is prefered over wget since Mac OS X has curl by default
+    if [[ "$OS" == "Ubuntu" ]]; then
+        install_LIB_linux libs[@]
+    elif [[ "$OS" == "Mac OS X" ]]; then
+        install_LIB_Mac libs[@]
+    fi
 fi
 
 
@@ -548,7 +558,7 @@ echo "==================="
 # check if omnet directory exists
 if [ ! -d $omnetDIR ]; then
     # searching for omnet++ archive (# xargs: remove all whitespaces)
-    findings=$(find /tmp/VENTOS_tmp -name "omnetpp*.tgz" -o -name "omnetpp*.tar" | wc -l | xargs)
+    findings=$(find /tmp/VENTOS_tmp -name "omnetpp*.tgz" -o -name "omnetpp*.tar" -o -name "omnetpp*.zip" | wc -l | xargs)
     if [[ "$findings" = "0" ]]; then        
         echo "downloading omnet++"
 
@@ -556,27 +566,75 @@ if [ ! -d $omnetDIR ]; then
             omnetURL="omnetpp-5.1-src-linux.tgz"
         elif [[ "$OS" == "Mac OS X" ]]; then
             omnetURL="omnetpp-5.1-src-macosx.tgz"
+		elif [[ "$OSTYPE" == "msys" ]]; then
+            omnetURL="omnetpp-5.1-src-windows.zip"
         fi
 
-        lftp -e "pget -n 5 $omnetURL -o /tmp/VENTOS_tmp/omnetpp.tgz; bye" -p 28 -u userftp,userftp ftp://rubinet.ece.ucdavis.edu/download
-        if [[ $? -ne 0 ]]; then
+        if [[ "$OS" == "Ubuntu" || "$OS" == "Mac OS X" ]]; then
+            lftp -e "pget -n 5 $omnetURL -o /tmp/VENTOS_tmp/omnetpp.tgz; bye" -p 28 -u userftp,userftp ftp://rubinet.ece.ucdavis.edu/download
+        elif [[ "$OSTYPE" == "msys" ]]; then
+		    # curl is installed in MIGW by default
+            curl -u userftp:userftp "ftp://rubinet.ece.ucdavis.edu:28/download/$omnetURL" -o /tmp/VENTOS_tmp/omnetpp.zip
+        fi
+		
+		# check if omnet archive is downloaded correctly
+		if [[ $? -ne 0 ]]; then
             exit 1
         fi
 
     elif [[ "$findings" > "1" ]]; then
         echo "ERROR: more than one omnet++ archive file exists!"
-        exit 1
+        #exit 1
+		
     fi
     
     # now that we have the file, we can extract!
-    omnetFile=$(find /tmp/VENTOS_tmp -name "omnetpp*.tgz" -o -name "omnetpp*.tar")
+    omnetFile=$(find /tmp/VENTOS_tmp -name "omnetpp*.tgz" -o -name "omnetpp*.tar" -o -name "omnetpp*.zip")
     echo "found" $omnetFile
-    echo -n "extracting omnet ..."
-    tar zxf $omnetFile  
+	echo -n "extracting omnet ..."
+	if [[ "$OS" == "Ubuntu" || "$OS" == "Mac OS X" ]]; then
+        tar zxf $omnetFile > /dev/null
+    elif [[ "$OSTYPE" == "msys" ]]; then
+        unzip $omnetFile > /dev/null            
+    fi	
     echo "done!"
 else
     echo $omnetDIR" folder already exists!"
 fi
+
+
+if [[ "$OSTYPE" == "msys" ]]; then
+
+    echo ""
+    echo "Unpacking the MinGW toolchain"
+    echo "============================="
+
+    # go to the omnet directory
+    cd $omnetDIR
+    # make sure we are on the right folder
+    if [[ $? -ne 0 ]]; then
+        exit 1
+    fi
+	
+    omnetFULLPATH=$(pwd)
+	
+	arch=("tools/opp-tools-win64-msys.7z" "tools/opp-tools-win64-msys.7z" "tools/opp-tools-win64-extra.7z" "tools/opp-tools-win64-visualc.7z" "tools/opp-tools-win64-mingw64.7z")
+    unpack_archive arch[@]
+	
+	echo -n "running QtBinPatcher... "
+	tools/win64/mingw64/bin/qtbinpatcher.exe '--qt-dir=tools\win64\mingw64' > /dev/null
+	echo "ok"
+	
+	# convert bash path to cmd path -- note the backslash at the end
+	omnetFULLPATH_CMD=$(cygpath -w $omnetFULLPATH)'\'
+	# run the script -- no space before/after &&
+	cmd //c "set HOME=$omnetFULLPATH_CMD&&call tools\win64\msys2_shell.cmd -mingw64"
+fi
+
+
+	# >>>
+	exit 0
+	
 
 echo ""
 echo "Running OMNET++ configure"
