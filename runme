@@ -170,10 +170,9 @@ unpack_archive ()
 	declare -a argAry=("${!1}")
     for i in "${argAry[@]}"
     do
-	    archiveName=$(basename $i)
 		if [ -f $i ]; then
-            echo -n "unpacking "$archiveName "..."
-		    tools/7za x -y $i > /dev/null
+            echo -n "unpacking "$i "..."
+		    ./7za x -y $i > /dev/null
 		    if [[ $? -ne 0 ]]; then
                 exit 1
             fi
@@ -481,7 +480,9 @@ if [[ ("$OS" == "Ubuntu") || ("$OS" == "Mac OS X") ]]; then
     echo ""
     echo "Checking downloaders"
     echo "===================="
-    libs=("lftp" "curl")  # curl is prefered over wget since Mac OS X has curl by default
+	# curl is prefered over wget since Mac OS X has curl by default
+	# curl does not support parallel download
+    libs=("lftp" "curl")
     if [[ "$OS" == "Ubuntu" ]]; then
         install_LIB_linux libs[@]
     elif [[ "$OS" == "Mac OS X" ]]; then
@@ -523,34 +524,47 @@ elif [[ "$OS" == "Mac OS X" ]]; then
 fi
 
 echo ""
-echo "Preparing to install OMNET++"
+echo "Looking for previous OMNET++"
 echo "============================"
-ver=$(opp_msgc 2>&1 | grep 'Version:' | awk '{print $2}' | awk -F "," '{print $1}')
-verNum=$(echo $ver | sed 's/^.*-//g')
+
 targetVer="5.1"
 omnetDIR="omnetpp-"$targetVer
 
-# should we install a newer version?
-vercomp "$verNum" $targetVer
-result=$?
-# if version < $targetVer
-if ! [[ "$result" == "2" ]]; then
-    loc=$(which opp_msgc)
-    echo "found $ver in"
-    echo "    $loc"
-    echo "skip downloading/making omnet++" 
+# check if we can find omnet from the path variable
+ver=$(opp_msgc 2>&1 | grep 'Version:' | awk '{print $2}' | awk -F "," '{print $1}')
+loc=$(which opp_msgc 2> /dev/null)
 
-else
-# we need to install omnet
+# (in windows) if omnet is not in the path then
+# we will try to look into the omnet folder
+if [[ "$ver" == "" && "$OSTYPE" == "msys" ]]; then
+    ver=$($omnetDIR/bin/opp_msgc 2>&1 | grep 'Version:' | awk '{print $2}' | awk -F "," '{print $1}')
+    loc=$(which $omnetDIR/bin/opp_msgc 2> /dev/null)
+fi
 
 if [[ "$ver" == "" ]]; then
     echo "no previous omnet++ installation found!"
 else
-    loc=$(which opp_msgc)
-    echo "found $ver in"
+    echo "found omnet++ $ver in"
     echo "    $loc"
-    echo "downloading a newer version of omnet++"
 fi
+
+# (in windows) if omnet still not found, then ask the user!
+if [[ "$ver" == "" && "$OSTYPE" == "msys" ]]; then
+    echo -n "Do you want to install omnet++? (y/n) "
+    read answer
+    if ! echo "$answer" | grep -iq "^y" ; then
+        WIN_OMNET_DO_NOT_INSTALL=1
+    fi	
+fi
+
+# should we install a newer version?
+vercomp "$ver" $targetVer
+result=$?
+if ! [[ "$result" == "2" ]]; then
+    echo "latest omnet++ is already installed!" 
+	# jump to OMNET_FINISHED:
+elif [[ $WIN_OMNET_DO_NOT_INSTALL != "1" ]]; then
+# we need to install omnet
 
 echo ""
 echo "Downloading OMNET++"
@@ -560,7 +574,7 @@ if [ ! -d $omnetDIR ]; then
     # searching for omnet++ archive (# xargs: remove all whitespaces)
     findings=$(find /tmp/VENTOS_tmp -name "omnetpp*.tgz" -o -name "omnetpp*.tar" -o -name "omnetpp*.zip" | wc -l | xargs)
     if [[ "$findings" = "0" ]]; then        
-        echo "downloading omnet++"
+        echo "downloading omnet++ version" $targetVer
 
         if [[ "$OS" == "Ubuntu" ]]; then
             omnetURL="omnetpp-5.1-src-linux.tgz"
@@ -618,23 +632,89 @@ if [[ "$OSTYPE" == "msys" ]]; then
 	
     omnetFULLPATH=$(pwd)
 	
-	arch=("tools/opp-tools-win64-msys.7z" "tools/opp-tools-win64-msys.7z" "tools/opp-tools-win64-extra.7z" "tools/opp-tools-win64-visualc.7z" "tools/opp-tools-win64-mingw64.7z")
+	cd tools
+	arch=("opp-tools-win64-msys.7z" "opp-tools-win64-msys.7z" "opp-tools-win64-extra.7z" "opp-tools-win64-visualc.7z" "opp-tools-win64-mingw64.7z")
     unpack_archive arch[@]
 	
 	echo -n "running QtBinPatcher... "
-	tools/win64/mingw64/bin/qtbinpatcher.exe '--qt-dir=tools\win64\mingw64' > /dev/null
+	win64/mingw64/bin/qtbinpatcher.exe '--qt-dir=win64\mingw64' > /dev/null
 	echo "ok"
 	
-	# convert bash path to cmd path -- note the backslash at the end
+	echo ""
+    echo "Running OMNET++ configure/make"
+    echo "=============================="	
+	
+	# go back to OMNET folder
+	cd ..
+	
+	# convert 'bash path' to 'cmd path' -- note the backslash at the end
 	omnetFULLPATH_CMD=$(cygpath -w $omnetFULLPATH)'\'
-	# run the script -- no space before/after &&
-	cmd //c "set HOME=$omnetFULLPATH_CMD&&call tools\win64\msys2_shell.cmd -mingw64"
+
+	minttyPATH=$omnetFULLPATH/tools/win64/usr/bin/
+	
+	# removing previous copies of scripts
+	rm -rf $minttyPATH/bash_script
+	rm -rf cmd_script.cmd
+
+# create a bash script to be run by mintty
+cat > $minttyPATH/bash_script << EOF
+
+#!/bin/bash
+
+# update PATH variable
+export PATH=$omnetFULLPATH/bin:/mingw64/bin:$PATH
+
+echo ""
+echo "Running OMNET++ configure"
+echo "========================="
+
+./configure > /dev/null
+
+echo ""
+echo "Making OMNET++"
+echo "=============="
+
+printf "\e[1;32mcompiling takes some time, so relax, grab a cup of coffee and \nwatch: https://www.youtube.com/watch?v=A6XUVjK9W4o \e[0m \n"
+echo " "
+make -j4 > /dev/null
+if [[ $? -ne 0 ]]; then
+    echo ""
+	echo "make encountered an error."
+    read -n1 -r -p "Press space to continue..." key
+    exit 1
+fi
+echo "make is finished!"
+
+
+
+read -n1 -r -p "Press space to continue..." key
+
+EOF
+
+cat > cmd_script.cmd << EOF
+
+@echo off
+set HOME=$omnetFULLPATH_CMD
+
+:: environment changes made after this line are local to the batch file
+setlocal
+
+:: "WD=$omnetFULLPATH_CMD
+set "WD=%__CD__%"
+if NOT EXIST "%WD%msys-2.0.dll" set "WD=%WD%\tools\win64\usr\bin\"
+
+:: mintty is Cygwin's terminal emulator
+start /wait "MinGW x64" "%WD%mintty" -d -i /msys2.ico /usr/bin/bash --login -c bash_script
+
+EOF
+
+    cmd //c call cmd_script.cmd	
+	
+	echo $?
+	
 fi
 
-
-	# >>>
-	exit 0
-	
+if [[ ("$OS" == "Ubuntu") || ("$OS" == "Mac OS X") ]]; then
 
 echo ""
 echo "Running OMNET++ configure"
@@ -734,19 +814,21 @@ if [ "" != "$check" ]; then
     exit 1
 fi
 
-ver=$(opp_msgc 2>&1 | grep 'Version:' | awk '{print $2}' | awk -F "," '{print $1}')
-verNum=$(echo $ver | sed 's/^.*-//g')
-
 # make sure omnet version is correct
-vercomp "$verNum" $targetVer
+ver=$(opp_msgc 2>&1 | grep 'Version:' | awk '{print $2}' | awk -F "," '{print $1}')
+vercomp "$ver" $targetVer
 result=$?
-if [[ ("" != "$verNum") && ("$result" != "0") ]]; then
+if [[ ("" != "$ver") && ("$result" != "0") ]]; then
     echo ""
     echo "ERROR: The PATH variable contains an old version of OMNET"
     echo "Open .bashrc file and remove the old OMNET path"
     echo "Then open a NEW terminal and execute the runme script again!"
     exit 1 
 fi
+
+fi # end of omnet configure
+
+if [[ ("$OS" == "Ubuntu") || ("$OS" == "Mac OS X") ]]; then
 
 echo ""
 echo "Making OMNET++"
@@ -761,30 +843,38 @@ if [[ $? -ne 0 ]]; then
 fi
 echo "make is finished!"
 
+fi # end of omnet make
+
 echo ""
 echo "Creating shortcut"
 echo "================="
 
-# Running OMNET++ each time from command line might not be desirable for you. You can create a shortcut or launcher to OMNET++ on your desktop.
+# Running OMNET++ each time from command line might not be desirable for you. 
+# You can create a shortcut or launcher to OMNET++ on your desktop.
 
-echo -n "creating desktop shortcut ... "
-make install-desktop-icon > /dev/null 2> /dev/null
-echo "done!"
+if [[ ("$OS" == "Ubuntu") || ("$OS" == "Mac OS X") ]]; then
+    echo -n "creating desktop shortcut ... "
+    make install-desktop-icon > /dev/null 2> /dev/null
+    echo "done!"
 
-echo -n "creating application launcher ... "
-echo $sudoPass | sudo -S make install-menu-item > /dev/null 2> /dev/null
-echo "done!"
+    echo -n "creating application launcher ... "
+    echo $sudoPass | sudo -S make install-menu-item > /dev/null 2> /dev/null
+    echo "done!"
+fi
 
 # go out of omnetpp folder
 cd ..
 
-fi  # end of omnetpp installation
+# OMNET_FINISHED:
+fi
+
+if [[ ("$OS" == "Ubuntu") || ("$OS" == "Mac OS X") ]]; then
 
 echo ""
 echo "Check gdb"
 echo "========="
 
-which gdb
+which gdb 2> /dev/null
 if [[ $? != 0 ]] ; then
     # install gdb for debugging in eclipse
     if [[ "$OS" == "Ubuntu" ]]; then
@@ -944,6 +1034,8 @@ EOF
     printf "\e[1;32mDo not forget to modify 'GDB debugger' in OMNET++ Eclipse to \e[0m \n"
     printf "\e[1;32m    "$(which gdb)" \e[0m \n"
 fi
+
+fi # end of gdb check
 
 
 ################################
