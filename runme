@@ -535,10 +535,12 @@ ver=$(opp_msgc 2>&1 | grep 'Version:' | awk '{print $2}' | awk -F "," '{print $1
 loc=$(which opp_msgc 2> /dev/null)
 
 # (in windows) if omnet is not in the path then
-# we will try to look into the omnet folder
+# we will try to look into the Version file in omnet folder
 if [[ "$ver" == "" && "$OSTYPE" == "msys" ]]; then
-    ver=$($omnetDIR/bin/opp_msgc 2>&1 | grep 'Version:' | awk '{print $2}' | awk -F "," '{print $1}')
-    loc=$(which $omnetDIR/bin/opp_msgc 2> /dev/null)
+    if [ -f "$omnetDIR/bin/opp_run" ]; then
+        ver=$(cat $omnetDIR/Version | sed 's/omnetpp-//')
+        loc=$(realpath $omnetDIR)
+	fi
 fi
 
 if [[ "$ver" == "" ]]; then
@@ -640,17 +642,25 @@ if [[ "$OSTYPE" == "msys" ]]; then
 	win64/mingw64/bin/qtbinpatcher.exe '--qt-dir=win64\mingw64' > /dev/null
 	echo "ok"
 	
+	# go back to OMNET folder
+	cd ..
+	
 	echo ""
     echo "Running OMNET++ configure/make"
     echo "=============================="	
 	
-	# go back to OMNET folder
-	cd ..
+	echo "please wait..."
 	
 	# convert 'bash path' to 'cmd path' -- note the backslash at the end
-	omnetFULLPATH_CMD=$(cygpath -w $omnetFULLPATH)'\'
-
-	minttyPATH=$omnetFULLPATH/tools/win64/usr/bin/
+	omnetFULLPATH_CMD=$(cygpath -w ${omnetFULLPATH})'\'
+	
+	# define new environment variables (from omnet/tools/win64/etc/bash.bashrc)
+    OMNETPP_ROOT=${omnetFULLPATH}
+    TCL_LIBRARY=/mingw64/lib/tcl8.6
+    TERM=xterm-256color	
+	
+	# path to mintty
+	minttyPATH=${omnetFULLPATH}/tools/win64/usr/bin/
 	
 	# removing previous copies of scripts
 	rm -rf $minttyPATH/bash_script
@@ -661,8 +671,8 @@ cat > $minttyPATH/bash_script << EOF
 
 #!/bin/bash
 
-# update PATH variable
-export PATH=$omnetFULLPATH/bin:/mingw64/bin:$PATH
+# adding omnet's bin folder to path 
+export PATH=${OMNETPP_ROOT}/bin:$PATH
 
 echo ""
 echo "Running OMNET++ configure"
@@ -708,9 +718,7 @@ start /wait "MinGW x64" "%WD%mintty" -d -i /msys2.ico /usr/bin/bash --login -c b
 
 EOF
 
-    cmd //c call cmd_script.cmd	
-	
-	echo $?
+    cmd //c call cmd_script.cmd
 	
 fi
 
@@ -828,6 +836,7 @@ fi
 
 fi # end of omnet configure
 
+
 if [[ ("$OS" == "Ubuntu") || ("$OS" == "Mac OS X") ]]; then
 
 echo ""
@@ -845,6 +854,7 @@ echo "make is finished!"
 
 fi # end of omnet make
 
+
 echo ""
 echo "Creating shortcut"
 echo "================="
@@ -853,6 +863,7 @@ echo "================="
 # You can create a shortcut or launcher to OMNET++ on your desktop.
 
 if [[ ("$OS" == "Ubuntu") || ("$OS" == "Mac OS X") ]]; then
+
     echo -n "creating desktop shortcut ... "
     make install-desktop-icon > /dev/null 2> /dev/null
     echo "done!"
@@ -860,6 +871,11 @@ if [[ ("$OS" == "Ubuntu") || ("$OS" == "Mac OS X") ]]; then
     echo -n "creating application launcher ... "
     echo $sudoPass | sudo -S make install-menu-item > /dev/null 2> /dev/null
     echo "done!"
+	
+elif [[ "$OSTYPE" == "msys" ]]; then
+	
+	echo "To open OMNET++ run mingwenv.cmd and type omnetpp"
+	
 fi
 
 # go out of omnetpp folder
