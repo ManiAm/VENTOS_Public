@@ -699,7 +699,7 @@ set HOME=$omnetFULLPATH_CMD
 :: environment changes made after this line are local to the batch file
 setlocal
 
-:: "WD=$omnetFULLPATH_CMD
+:: "WD=C:\Users\ManiAm\Desktop\omnetpp-5.1\"
 set "WD=%__CD__%"
 if NOT EXIST "%WD%msys-2.0.dll" set "WD=%WD%\tools\win64\usr\bin\"
 
