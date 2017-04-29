@@ -3100,7 +3100,7 @@ std::string TraCI_Commands::getFullPath_SUMOExe(std::string sumoAppl)
     char output[10000];
     memset (output, 0, sizeof(output));
     if (!fgets(output, sizeof(output), pip))
-        throw omnetpp::cRuntimeError("SUMO application can not be found: %s. Check 'SUMOapplication' parameter", sumoAppl.c_str());
+        throw omnetpp::cRuntimeError("'%s' application cannot be found. Check 'SUMOapplication' parameter", sumoAppl.c_str());
 
     std::string SUMOexeFullPath = std::string(output);
     // remove new line character at the end
