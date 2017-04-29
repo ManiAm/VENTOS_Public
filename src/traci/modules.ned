@@ -15,7 +15,7 @@ simple TraCIStart
                 
         string SUMOapplication = default("sumo-guiD");   // sumoD: command-line interface    sumo-guiD: graphical interface
         string SUMOconfig = default("");     // relative path to the SUMO configure file
-        string SUMOcommandLine = default("--start --no-step-log --seed 0");
+        string SUMOcommandLine = default("--start --no-step-log --quit-on-end --seed 0");
         
         bool record_TraCI_activity = default(false);   // logging all exchanged TraCI commands
         
