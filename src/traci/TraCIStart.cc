@@ -165,6 +165,7 @@ void TraCI_Start::handleMessage(omnetpp::cMessage *msg)
 
 void TraCI_Start::init_traci()
 {
+    // make sure the sumo application is correct
     std::string appl = par("SUMOapplication").stringValue();
     if(appl != "sumo" && appl != "sumoD" && appl != "sumo-gui" && appl != "sumo-guiD")
         throw omnetpp::cRuntimeError("SUMOapplication parameter is not set correctly!: %s", appl.c_str());
@@ -175,14 +176,22 @@ void TraCI_Start::init_traci()
 
     int remotePort = par("remotePort").longValue();
 
+    int port = 0;
+    if(remotePort == -1)
+        port = TraCIConnection::getFreeEphemeralPort();
+    else if(remotePort > 0)
+        port = remotePort;
+    else
+        throw omnetpp::cRuntimeError("Remote port %d is invalid!", remotePort);
+
     std::string SUMOcommandLine = par("SUMOcommandLine").stringValue();
-    bool forkSUMO = par("forkSUMO").boolValue();
 
     // start 'SUMO TraCI server' first
-    int port = TraCIConnection::startSUMO(getFullPath_SUMOExe(appl), getFullPath_SUMOConfig(), SUMOcommandLine, remotePort, forkSUMO);
+    if(par("forkSUMO").boolValue())
+        TraCIConnection::startSUMO(getFullPath_SUMOExe(appl), getFullPath_SUMOConfig(), SUMOcommandLine, port);
 
     // then connect to the 'SUMO TraCI server'
-    connection = TraCIConnection::connect("localhost", port, forkSUMO);
+    connection = TraCIConnection::connect("localhost", port);
 
     // get the version of SUMO TraCI API
     std::pair<uint32_t, std::string> versionS = getVersion();

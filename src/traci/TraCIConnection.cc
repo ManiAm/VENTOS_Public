@@ -83,34 +83,13 @@ TraCIConnection::~TraCIConnection()
 }
 
 
-int TraCIConnection::startSUMO(std::string SUMOapplication, std::string SUMOconfig, std::string SUMOcommandLine, int remotePort, bool forkSUMO)
+void TraCIConnection::startSUMO(std::string SUMOapplication, std::string SUMOconfig, std::string SUMOcommandLine, int port)
 {
-    int port = 0;
-    if(remotePort == -1)
-        port = TraCIConnection::getFreeEphemeralPort();
-    else if(remotePort > 0)
-        port = remotePort;
-    else
-        throw omnetpp::cRuntimeError("Remote port %d is invalid!", remotePort);
-
     // assemble command line options
     std::ostringstream fullOptions;
     fullOptions << " --remote-port " << port
             << " --configuration-file " << SUMOconfig
             << (" " + SUMOcommandLine);
-
-    // assemble full command
-    std::ostringstream fullCommand;
-    fullCommand << SUMOapplication << fullOptions.str();
-
-    if(!forkSUMO)
-    {
-        LOG_INFO << "\n>>> Run SUMO application with the following arguments... \n";
-        LOG_INFO << boost::format("    %1% \n") % fullOptions.str();
-        LOG_FLUSH;
-
-        return port;
-    }
 
     LOG_INFO << "\n>>> Starting SUMO process ... \n";
     LOG_INFO << boost::format("    Executable file: %1% \n") % SUMOapplication;
@@ -118,6 +97,10 @@ int TraCIConnection::startSUMO(std::string SUMOapplication, std::string SUMOconf
     LOG_INFO << boost::format("    Switches: %1% \n") % SUMOcommandLine;
     LOG_INFO << boost::format("    TraCI server is listening on port %1% \n") % port;
     LOG_FLUSH;
+
+    // assemble full command
+    std::ostringstream fullCommand;
+    fullCommand << SUMOapplication << fullOptions.str();
 
 #if defined(_WIN32) || defined(__WIN32__) || defined(WIN32) || defined(__CYGWIN__) || defined(_WIN64)
     STARTUPINFO si;
@@ -196,8 +179,6 @@ int TraCIConnection::startSUMO(std::string SUMOapplication, std::string SUMOconf
     }
 
 #endif
-
-    return port;
 }
 
 
@@ -233,7 +214,7 @@ int TraCIConnection::getFreeEphemeralPort()
 }
 
 
-TraCIConnection* TraCIConnection::connect(const char* host, int port, bool forkSUMO)
+TraCIConnection* TraCIConnection::connect(const char* host, int port)
 {
     if(socketPtr)
         throw omnetpp::cRuntimeError("There is already an active connection to SUMO! Why calling 'connect' twice ?!");
@@ -264,17 +245,8 @@ TraCIConnection* TraCIConnection::connect(const char* host, int port, bool forkS
     if (*socketPtr < 0)
         throw omnetpp::cRuntimeError("Could not create socket to connect to TraCI server");
 
-    // do not run SUMO automatically
-    if(!forkSUMO)
-    {
-        do
-        {
-            std::cout << "\nPress ENTER to connect to SUMO ...";
-        } while (std::cin.get() != '\n');
-    }
-    else
-        // wait for 1 second and then try connecting to TraCI server
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+    // wait for 1 second and then try connecting to TraCI server
+    std::this_thread::sleep_for(std::chrono::seconds(1));
 
     LOG_INFO << boost::format("\n>>> Connecting to TraCI server on port %1% ... \n") % port << std::flush;
 
