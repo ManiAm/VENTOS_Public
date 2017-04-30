@@ -173,11 +173,13 @@ void TraCI_Start::init_traci()
     if(!omnetpp::cSimulation::getActiveEnvir()->isGUI())
         appl = "sumo";
 
+    int remotePort = par("remotePort").longValue();
+
     std::string SUMOcommandLine = par("SUMOcommandLine").stringValue();
     bool forkSUMO = par("forkSUMO").boolValue();
 
     // start 'SUMO TraCI server' first
-    int port = TraCIConnection::startSUMO(getFullPath_SUMOExe(appl), getFullPath_SUMOConfig(), SUMOcommandLine, forkSUMO);
+    int port = TraCIConnection::startSUMO(getFullPath_SUMOExe(appl), getFullPath_SUMOConfig(), SUMOcommandLine, remotePort, forkSUMO);
 
     // then connect to the 'SUMO TraCI server'
     connection = TraCIConnection::connect("localhost", port, forkSUMO);

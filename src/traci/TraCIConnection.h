@@ -43,7 +43,7 @@ private:
     static pid_t child_pid;
 
 public:
-    static int startSUMO(std::string SUMOexe, std::string SUMOconfig, std::string SUMOswitches, bool forkSUMO);
+    static int startSUMO(std::string SUMOexe, std::string SUMOconfig, std::string SUMOswitches, int remotePort, bool forkSUMO);
     static int getFreeEphemeralPort();
     static TraCIConnection* connect(const char* host, int port, bool forkSUMO);
     ~TraCIConnection();

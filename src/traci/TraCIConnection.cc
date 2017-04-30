@@ -83,13 +83,15 @@ TraCIConnection::~TraCIConnection()
 }
 
 
-int TraCIConnection::startSUMO(std::string SUMOapplication, std::string SUMOconfig, std::string SUMOcommandLine, bool forkSUMO)
+int TraCIConnection::startSUMO(std::string SUMOapplication, std::string SUMOconfig, std::string SUMOcommandLine, int remotePort, bool forkSUMO)
 {
     int port = 0;
-    if(!forkSUMO)
-        port = 45585; // using a fix port number
-    else
+    if(remotePort == -1)
         port = TraCIConnection::getFreeEphemeralPort();
+    else if(remotePort > 0)
+        port = remotePort;
+    else
+        throw omnetpp::cRuntimeError("Remote port %d is invalid!", remotePort);
 
     // assemble command line options
     std::ostringstream fullOptions;
