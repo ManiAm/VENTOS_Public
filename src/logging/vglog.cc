@@ -240,7 +240,7 @@ void vglog::openLogWindow()
         if (WEXITSTATUS(r) != 0)
             throw omnetpp::cRuntimeError("logWindow exited with code %d", WEXITSTATUS(r));
 
-        exit(0);
+        _exit(0);
     }
     else
     {
@@ -288,13 +288,13 @@ void vglog::connect_to_TCP_server()
 
         int sleepDuration = tries * .25 + 1;
 
-        INFO(__FILE__, __LINE__) << boost::format("    Could not connect to the TCP server: %1% -- retry in %2% seconds. \n") % strerror(sock_errno()) % sleepDuration << std::flush;
+        INFO(__FILE__, __LINE__) << boost::format("    Could not connect to the logWindow server: %1% -- retry in %2% seconds. \n") % strerror(sock_errno()) % sleepDuration << std::flush;
 
         std::this_thread::sleep_for(std::chrono::seconds(sleepDuration));
     }
 
     if(tries == 11)
-        throw omnetpp::cRuntimeError("Could not connect to the TCP server after 10 retries!");
+        throw omnetpp::cRuntimeError("Could not connect to the logWindow server after 10 retries!");
 
     // TCP_NODELAY: disable the Nagle algorithm. This means that segments are always
     // sent as soon as possible, even if there is only a small amount of data.
