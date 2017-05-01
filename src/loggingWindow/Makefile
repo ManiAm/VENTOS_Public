@@ -9,10 +9,10 @@ mainWin: main.o mainWindow.o
 
 # compile
 main.o : main.cc mainWindow.h
-	g++ -std=c++11 -g -c -o main.o main.cc -I. `pkg-config gtkmm-3.0 --cflags`
+	g++ -std=c++11 -O2 -c -o main.o main.cc -I. `pkg-config gtkmm-3.0 --cflags`
 
 mainWindow.o : mainWindow.cc mainWindow.h debugStream.h
-	g++ -std=c++11 -g -c -o mainWindow.o mainWindow.cc -I. `pkg-config gtkmm-3.0 --cflags`
+	g++ -std=c++11 -O2 -c -o mainWindow.o mainWindow.cc -I. `pkg-config gtkmm-3.0 --cflags`
 
 
 
@@ -32,6 +32,6 @@ smheaders:
 clean:
 	-rm -rf main.o
 	-rm -rf mainWindow.o
-	-rm -rf testTCP.o
 	-rm -rf mainWindow
+	-rm -rf testTCP.o
 	-rm -rf testTCP
