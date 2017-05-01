@@ -116,7 +116,10 @@ void TraCI_Start::finish()
     while (hosts.begin() != hosts.end())
         deleteManagedModule(hosts.begin()->first);
 
-    cancelAndDelete(executeOneTimestepTrigger);
+    // todo: for some reasons canceling this message when
+    // TraCI is not active throws exception!
+    if(active)
+        cancelAndDelete(executeOneTimestepTrigger);
 
     delete connection;
     connection = NULL;
