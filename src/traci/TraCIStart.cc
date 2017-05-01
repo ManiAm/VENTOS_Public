@@ -63,8 +63,6 @@ void TraCI_Start::initialize(int stage)
         if(!active)
         {
             updateInterval = 1;
-            executeOneTimestepTrigger = new omnetpp::cMessage("step");
-            scheduleAt(updateInterval, executeOneTimestepTrigger);
         }
         else
         {
@@ -95,10 +93,10 @@ void TraCI_Start::initialize(int stage)
 
             // should be called after 'init_traci'
             init_roi();
-
-            executeOneTimestepTrigger = new omnetpp::cMessage("step");
-            scheduleAt(updateInterval, executeOneTimestepTrigger);
         }
+
+        executeOneTimestepTrigger = new omnetpp::cMessage("step");
+        scheduleAt(updateInterval, executeOneTimestepTrigger);
     }
 }
 
