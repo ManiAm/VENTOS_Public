@@ -738,6 +738,18 @@ fi
 
 omnetFULLPATH=$(pwd)
 
+# before running configure make sure there is not previous omnet installation in path
+ver=$(opp_msgc 2>&1 | grep 'Version:' | awk '{print $2}' | awk -F "," '{print $1}')
+vercomp "$ver" $targetVer
+result=$?
+if [[ ("" != "$ver") && ("$result" == "2") ]]; then
+help="ERROR: The PATH variable contains an old version of OMNET ($ver)
+Open .bashrc file and remove the old OMNET path. Then CLOSE this terminal 
+and open a new terminal and execute the runme script again!"
+    printf "\n\e[1;31m$help\e[0m \n\n"
+    exit 1 
+fi
+
 # run configure
 confOut=$( { ./configure > /tmp/VENTOS_tmp/out.zvapoq; } 2>&1 )
 printf "%s \n" "$confOut"
@@ -801,7 +813,8 @@ help="follow these steps to add OMNET++ bin folder to PATH:
        gedit ~/.bashrc
 2. Append the above export command into .bashrc
 3. Use source to reload .bashrc:
-       source ~/.bashrc"
+       source ~/.bashrc
+* Note: Remove any old OMNET installation from PATH."
         printf "\n\e[1;32m$help\e[0m \n"
 
     elif [[ "$OS" == "Mac OS X" ]]; then
@@ -810,7 +823,8 @@ help="follow these steps to add OMNET++ bin folder to PATH:
        nano ~/.bash_profile
 2. Append the above export command into .bash_profile
 3. Use source to reload .bash_profile:
-       source ~/.bash_profile"
+       source ~/.bash_profile
+* Note: Remove any old OMNET installation from PATH."
         printf "\n\e[1;32m$help\e[0m \n"
     fi
 fi
@@ -820,18 +834,6 @@ check=$(echo "$confOut" | grep -e "configure: WARNING: JAVA_HOME" -e "WARNING: y
 if [ "" != "$check" ]; then
     printf "\n\e[1;31mAfter applying the changes, run the script again!\e[0m \n\n"
     exit 1
-fi
-
-# make sure omnet version is correct
-ver=$(opp_msgc 2>&1 | grep 'Version:' | awk '{print $2}' | awk -F "," '{print $1}')
-vercomp "$ver" $targetVer
-result=$?
-if [[ ("" != "$ver") && ("$result" != "0") ]]; then
-    echo ""
-    echo "ERROR: The PATH variable contains an old version of OMNET"
-    echo "Open .bashrc file and remove the old OMNET path"
-    echo "Then open a NEW terminal and execute the runme script again!"
-    exit 1 
 fi
 
 fi # end of omnet configure
