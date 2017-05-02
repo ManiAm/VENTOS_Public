@@ -813,8 +813,7 @@ help="follow these steps to add OMNET++ bin folder to PATH:
        gedit ~/.bashrc
 2. Append the above export command into .bashrc
 3. Use source to reload .bashrc:
-       source ~/.bashrc
-* Note: Remove any old OMNET installation from PATH."
+       source ~/.bashrc"
         printf "\n\e[1;32m$help\e[0m \n"
 
     elif [[ "$OS" == "Mac OS X" ]]; then
@@ -823,8 +822,7 @@ help="follow these steps to add OMNET++ bin folder to PATH:
        nano ~/.bash_profile
 2. Append the above export command into .bash_profile
 3. Use source to reload .bash_profile:
-       source ~/.bash_profile
-* Note: Remove any old OMNET installation from PATH."
+       source ~/.bash_profile"
         printf "\n\e[1;32m$help\e[0m \n"
     fi
 fi
@@ -876,7 +874,7 @@ if [[ ("$OS" == "Ubuntu") || ("$OS" == "Mac OS X") ]]; then
 	
 elif [[ "$OSTYPE" == "msys" ]]; then
 	
-	echo "To open OMNET++ run mingwenv.cmd and type omnetpp"
+    echo "To open OMNET++ run mingwenv.cmd and type omnetpp"
 	
 fi
 
@@ -1098,6 +1096,7 @@ else
 echo ""
 echo "Cloning SUMO git repository"
 echo "==========================="
+
 # check if SUMO directory exists
 if [ ! -d "VENTOS_SUMO" ]; then
     # cloning git
