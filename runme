@@ -540,7 +540,7 @@ if [[ "$ver" == "" && "$OSTYPE" == "msys" ]]; then
     if [ -f "$omnetDIR/bin/opp_run" ]; then
         ver=$(cat $omnetDIR/Version | sed 's/omnetpp-//')
         loc=$(realpath $omnetDIR)
-	fi
+    fi
 fi
 
 if [[ "$ver" == "" ]]; then
@@ -582,19 +582,19 @@ if [ ! -d $omnetDIR ]; then
             omnetURL="omnetpp-5.1-src-linux.tgz"
         elif [[ "$OS" == "Mac OS X" ]]; then
             omnetURL="omnetpp-5.1-src-macosx.tgz"
-		elif [[ "$OSTYPE" == "msys" ]]; then
+	elif [[ "$OSTYPE" == "msys" ]]; then
             omnetURL="omnetpp-5.1-src-windows.zip"
         fi
 
         if [[ "$OS" == "Ubuntu" || "$OS" == "Mac OS X" ]]; then
             lftp -e "pget -n 5 $omnetURL -o /tmp/VENTOS_tmp/omnetpp.tgz; bye" -p 28 -u userftp,userftp ftp://rubinet.ece.ucdavis.edu/download
         elif [[ "$OSTYPE" == "msys" ]]; then
-		    # curl is installed in MIGW by default
+            # curl is installed in MIGW by default
             curl -u userftp:userftp "ftp://rubinet.ece.ucdavis.edu:28/download/$omnetURL" -o /tmp/VENTOS_tmp/omnetpp.zip
         fi
 		
-		# check if omnet archive is downloaded correctly
-		if [[ $? -ne 0 ]]; then
+	# check if omnet archive is downloaded correctly
+	if [[ $? -ne 0 ]]; then
             exit 1
         fi
 
@@ -1094,7 +1094,7 @@ elif [[ "$OS" == "Mac OS X" ]]; then
 fi
 
 echo ""
-echo "Preparing to install SUMO"
+echo "Looking for previous SUMO"
 echo "========================="
 
 ver=$(sumo 2> /dev/null | grep 'SUMO Version' | awk '{print $3}')
@@ -1104,6 +1104,7 @@ if [[ "" != "$ver" ]]; then
     echo "    $loc"
     echo "skip downloading/making SUMO"    
 else
+    echo "no previous SUMO installation found!"
 
 echo ""
 echo "Cloning SUMO git repository"
