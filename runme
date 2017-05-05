@@ -1193,7 +1193,7 @@ else
 
                     echo "export PATH=\$PATH:$SUMO_BIN_DIR" >> ~/.bash_profile 
 
-                    export PATH=\$PATH:$SUMO_BIN_DIR
+                    export PATH=$PATH:$SUMO_BIN_DIR
                 fi
 
                 # removing the prob file
