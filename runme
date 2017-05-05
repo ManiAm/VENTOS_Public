@@ -634,37 +634,37 @@ if [[ "$OSTYPE" == "msys" ]]; then
 	
     omnetFULLPATH=$(pwd)
 	
-	cd tools
-	arch=("opp-tools-win64-msys.7z" "opp-tools-win64-msys.7z" "opp-tools-win64-extra.7z" "opp-tools-win64-visualc.7z" "opp-tools-win64-mingw64.7z")
+    cd tools
+    arch=("opp-tools-win64-msys.7z" "opp-tools-win64-msys.7z" "opp-tools-win64-extra.7z" "opp-tools-win64-visualc.7z" "opp-tools-win64-mingw64.7z")
     unpack_archive arch[@]
 	
-	echo -n "running QtBinPatcher... "
-	win64/mingw64/bin/qtbinpatcher.exe '--qt-dir=win64\mingw64' > /dev/null
-	echo "ok"
+    echo -n "running QtBinPatcher... "
+    win64/mingw64/bin/qtbinpatcher.exe '--qt-dir=win64\mingw64' > /dev/null
+    echo "ok"
 	
-	# go back to OMNET folder
-	cd ..
+    # go back to OMNET folder
+    cd ..
 	
-	echo ""
+    echo ""
     echo "Running OMNET++ configure/make"
     echo "=============================="	
 	
-	echo "please wait..."
+    echo "please wait..."
 	
-	# convert 'bash path' to 'cmd path' -- note the backslash at the end
-	omnetFULLPATH_CMD=$(cygpath -w ${omnetFULLPATH})'\'
+    # convert 'bash path' to 'cmd path' -- note the backslash at the end
+    omnetFULLPATH_CMD=$(cygpath -w ${omnetFULLPATH})'\'
 	
-	# define new environment variables (from omnet/tools/win64/etc/bash.bashrc)
+    # define new environment variables (from omnet/tools/win64/etc/bash.bashrc)
     OMNETPP_ROOT=${omnetFULLPATH}
     TCL_LIBRARY=/mingw64/lib/tcl8.6
     TERM=xterm-256color	
 	
-	# path to mintty
-	minttyPATH=${omnetFULLPATH}/tools/win64/usr/bin/
+    # path to mintty
+    minttyPATH=${omnetFULLPATH}/tools/win64/usr/bin/
 	
-	# removing previous copies of scripts
-	rm -rf $minttyPATH/bash_script
-	rm -rf cmd_script.cmd
+    # removing previous copies of scripts
+    rm -rf $minttyPATH/bash_script
+    rm -rf cmd_script.cmd
 
 # create a bash script to be run by mintty
 cat > $minttyPATH/bash_script << EOF
@@ -750,6 +750,8 @@ and open a new terminal and execute the runme script again!"
     exit 1 
 fi
 
+while true; do
+
 # run configure
 confOut=$( { ./configure > /tmp/VENTOS_tmp/out.zvapoq; } 2>&1 )
 printf "%s \n" "$confOut"
@@ -759,13 +761,20 @@ if [[ "$OS" == "Mac OS X" ]]; then
 
     check=$(echo "$confOut" | grep "configure: error: Qtenv")
     if [ "" != "$check" ]; then
-        help="Add the following lines to the ~/.bash_profile:
-        export PATH=\$PATH:$omnetFULLPATH/bin
-        export PATH=\$PATH:$omnetFULLPATH/tools/macosx/bin
-        export QT_PLUGIN_PATH=$omnetFULLPATH/tools/macosx/plugins"
+        help="Updating variables in ~/.bash_profile for QT:"
         printf "\n\e[1;32m$help\e[0m \n"
         echo ""
-        exit 1
+
+        # append to bash_profile
+        echo "export PATH=\$PATH:$omnetFULLPATH/bin" >> ~/.bash_profile
+        echo "export PATH=\$PATH:$omnetFULLPATH/tools/macosx/bin" >> ~/.bash_profile
+        echo "export QT_PLUGIN_PATH=$omnetFULLPATH/tools/macosx/plugins" >> ~/.bash_profile
+
+        export PATH=$PATH:$omnetFULLPATH/bin
+        export PATH=$PATH:$omnetFULLPATH/tools/macosx/bin
+        export QT_PLUGIN_PATH=$omnetFULLPATH/tools/macosx/plugins
+
+        continue # run configure again
     fi
     
 fi
@@ -777,62 +786,65 @@ if [ "" != "$check" ]; then
     exit 1
 fi
 
-# show instruction on setting java_path
+# setting java_path
 check=$(echo "$confOut" | grep "configure: WARNING: JAVA_HOME")
 if [ "" != "$check" ]; then
 
     if [[ "$OS" == "Ubuntu" ]]; then
-help="follow these steps to set JAVA_HOME: 
-1. Open ~/.bashrc in any text editor:
-       gedit ~/.bashrc
-2. Append the following line (change <java_folder> accordingly):
-       export JAVA_HOME=/usr/lib/jvm/<java_folder>
-3. Use source to reload .bashrc:
-       source ~/.bashrc"
-        printf "\n\e[1;32m$help\e[0m \n"
+        help="Adding JAVA_HOME to bashrc ..."
+        printf "\n\e[1;32m$help\e[0m \n\n"
+         
+        # append java path to .bashrc
+        JAVAHOME=$(dirname $(dirname $(dirname $(readlink -f $(which java)))))
+        echo "export JAVA_HOME=$JAVAHOME" >> ~/.bashrc 
+
+        # source ~/.bashrc does not work here
+        # because a shell that runs a script is not interactive.
+        export JAVA_HOME=$JAVAHOME
 
     elif [[ "$OS" == "Mac OS X" ]]; then
-help="follow these steps to set JAVA_HOME: 
-1. Open ~/.bash_profile in any text editor:
-       nano ~/.bash_profile
-2. Append the following line:
-       export JAVA_HOME=`/usr/libexec/java_home`
-3. Use source to reload .bashrc:
-       source ~/.bash_profile"
-        printf "\n\e[1;32m$help\e[0m \n"
+        help="Adding JAVA_HOME to bash_profile ..." 
+        printf "\n\e[1;32m$help\e[0m \n\n"
+        echo "export JAVA_HOME=/usr/libexec/java_home" >> ~/.bash_profile 
+        source ~/.bashrc
+
     fi
+
+    continue # run configure again
 fi
 
-# show instruction on setting omnet path
+# setting omnet path
 check=$(echo "$confOut" | grep "WARNING: your PATH doesn't contain")
 if [ "" != "$check" ]; then
 
     if [[ "$OS" == "Ubuntu" ]]; then
-help="follow these steps to add OMNET++ bin folder to PATH: 
-1. Open ~/.bashrc in any text editor:
-       gedit ~/.bashrc
-2. Append the above export command into .bashrc
-3. Use source to reload .bashrc:
-       source ~/.bashrc"
-        printf "\n\e[1;32m$help\e[0m \n"
+        help="Adding OMNET++ bin folder to PATH ..."
+        printf "\n\e[1;32m$help\e[0m \n\n"
+         
+        OMNET_BIN=$(pwd)/bin
+        echo "export PATH=\$PATH:$OMNET_BIN" >> ~/.bashrc 
+
+        # source ~/.bashrc does not work here
+        # because a shell that runs a script is not interactive.
+        export PATH=$PATH:$OMNET_BIN
 
     elif [[ "$OS" == "Mac OS X" ]]; then
-help="follow these steps to add OMNET++ bin folder to PATH: 
-1. Open ~/.bash_profile in any text editor:
-       nano ~/.bash_profile
-2. Append the above export command into .bash_profile
-3. Use source to reload .bash_profile:
-       source ~/.bash_profile"
-        printf "\n\e[1;32m$help\e[0m \n"
+        help="Adding OMNET++ bin folder to PATH ..." 
+        printf "\n\e[1;32m$help\e[0m \n\n"
+
+        OMNET_BIN=$(pwd)/bin
+        echo "export PATH=\$PATH:$OMNET_BIN" >> ~/.bash_profile 
+
+        source ~/.bashrc
+
     fi
+
+    continue # run configure again
 fi
 
-# terminate script on java_home and omnet bin path warning
-check=$(echo "$confOut" | grep -e "configure: WARNING: JAVA_HOME" -e "WARNING: your PATH doesn't contain")
-if [ "" != "$check" ]; then
-    printf "\n\e[1;31mAfter applying the changes, run the script again!\e[0m \n\n"
-    exit 1
-fi
+break # break out of the while loop
+
+done # infinite for
 
 fi # end of omnet configure
 
@@ -1130,6 +1142,8 @@ fi
 echo "generating configure file ..."
 make -f Makefile.cvs > /dev/null
 
+while true; do
+
 echo "running configure ..."
 confOut=$( { ./configure --enable-debug --with-proj-gdal=/usr > /tmp/VENTOS_tmp/out.xzevap; } 2>&1 )
 printf "%s \n" "$confOut"
@@ -1154,40 +1168,40 @@ else
   chmod +x  $SUMO_BIN_DIR/$probefile
 
   if ($probefile) >/dev/null 2>/dev/null; then
-    echo "Your PATH contains $SUMO_BIN_DIR. Good!"
+      echo "Your PATH contains $SUMO_BIN_DIR. Good!"
   else
-      printf "WARNING: your PATH doesn't contain $SUMO_BIN_DIR! \nAdd the following line to your .profile or .bash_profile (provided you use bash): \nexport PATH=\$PATH:$SUMO_BIN_DIR \n"
-
-      # show instruction on setting sumo path
+      # setting sumo path
       if [[ "$OS" == "Ubuntu" ]]; then
-help="follow these steps to add SUMO bin folder to PATH: 
-1. Open ~/.bashrc in any text editor:
-       gedit ~/.bashrc
-2. Append the above export command into .bashrc
-3. Use source to reload .bashrc:
-       source ~/.bashrc"
-          printf "\n\e[1;32m$help\e[0m \n"
+          help="Adding SUMO bin folder to PATH ..."
+          printf "\e[1;32m$help\e[0m \n\n"
+         
+          echo "export PATH=\$PATH:$SUMO_BIN_DIR" >> ~/.bashrc 
+
+          # source ~/.bashrc does not work here
+          # because a shell that runs a script is not interactive.
+          export PATH=$PATH:$SUMO_BIN_DIR
 
       elif [[ "$OS" == "Mac OS X" ]]; then
-help="follow these steps to add SUMO bin folder to PATH: 
-1. Open ~/.bash_profile in any text editor:
-       nano ~/.bash_profile
-2. Append the above export command into .bash_profile
-3. Use source to reload .bash_profile:
-       source ~/.bash_profile"
-          printf "\n\e[1;32m$help\e[0m \n"
-      fi
+          help="Adding SUMO bin folder to PATH ..." 
+          printf "\e[1;32m$help\e[0m \n\n"
 
-      printf "\n\e[1;31mAfter applying the changes, run the script again!\e[0m \n"
+          echo "export PATH=\$PATH:$SUMO_BIN_DIR" >> ~/.bash_profile 
+
+          source ~/.bashrc
+      fi
 
       # removing the prob file
       rm $SUMO_BIN_DIR/$probefile
-      exit 1
+      continue
   fi
 
   # removing the prob file
   rm $SUMO_BIN_DIR/$probefile
 fi
+
+break
+
+done # end of while loop (sumo configure)
 
 echo ""
 echo "Making SUMO"
