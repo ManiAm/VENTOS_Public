@@ -465,7 +465,7 @@ if [[ "$result" == "2" ]]; then
     elif [[ "$OS" == "Mac OS X" ]]; then
         # we have already requested to install java
         echo "requesting to install java ..."
-        printf "\e[1;32mGo to the following URL and install the latest JDK: http://www.oracle.com/technetwork/java/javase/downloads. After completion, run the script again.\e[0m \n\n"
+        printf "\n\e[1;32mGo to the following URL and install the latest JDK: \nhttp://www.oracle.com/technetwork/java/javase/downloads\nAfter completion, run the script again.\e[0m \n\n"
         exit 1
     fi
 fi
@@ -766,13 +766,11 @@ if [[ "$OS" == "Mac OS X" ]]; then
         echo ""
 
         # append to bash_profile
-        echo "export PATH=\$PATH:$omnetFULLPATH/bin" >> ~/.bash_profile
-        echo "export PATH=\$PATH:$omnetFULLPATH/tools/macosx/bin" >> ~/.bash_profile
         echo "export QT_PLUGIN_PATH=$omnetFULLPATH/tools/macosx/plugins" >> ~/.bash_profile
+        echo "export PATH=\$PATH:$omnetFULLPATH/tools/macosx/bin" >> ~/.bash_profile
 
-        export PATH=$PATH:$omnetFULLPATH/bin
-        export PATH=$PATH:$omnetFULLPATH/tools/macosx/bin
         export QT_PLUGIN_PATH=$omnetFULLPATH/tools/macosx/plugins
+        export PATH=$PATH:$omnetFULLPATH/tools/macosx/bin
 
         continue # run configure again
     fi
@@ -805,8 +803,9 @@ if [ "" != "$check" ]; then
     elif [[ "$OS" == "Mac OS X" ]]; then
         help="Adding JAVA_HOME to bash_profile ..." 
         printf "\n\e[1;32m$help\e[0m \n\n"
+        
         echo "export JAVA_HOME=/usr/libexec/java_home" >> ~/.bash_profile 
-        source ~/.bashrc
+        export JAVA_HOME=/usr/libexec/java_home
 
     fi
 
@@ -821,8 +820,7 @@ if [ "" != "$check" ]; then
         help="Adding OMNET++ bin folder to PATH ..."
         printf "\n\e[1;32m$help\e[0m \n\n"
          
-        OMNET_BIN=$(pwd)/bin
-        echo "export PATH=\$PATH:$OMNET_BIN" >> ~/.bashrc 
+        echo "export PATH=\$PATH:$omnetFULLPATH/bin" >> ~/.bashrc 
 
         # source ~/.bashrc does not work here
         # because a shell that runs a script is not interactive.
@@ -832,10 +830,9 @@ if [ "" != "$check" ]; then
         help="Adding OMNET++ bin folder to PATH ..." 
         printf "\n\e[1;32m$help\e[0m \n\n"
 
-        OMNET_BIN=$(pwd)/bin
-        echo "export PATH=\$PATH:$OMNET_BIN" >> ~/.bash_profile 
-
-        source ~/.bashrc
+        echo "export PATH=\$PATH:$omnetFULLPATH/bin" >> ~/.bash_profile 
+        
+        export PATH=$PATH:$omnetFULLPATH/bin
 
     fi
 
@@ -1188,7 +1185,7 @@ else
 
           echo "export PATH=\$PATH:$SUMO_BIN_DIR" >> ~/.bash_profile 
 
-          source ~/.bashrc
+          export PATH=\$PATH:$SUMO_BIN_DIR
       fi
 
       # removing the prob file
