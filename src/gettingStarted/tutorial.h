@@ -39,7 +39,7 @@ class tutorial : public BaseApplLayer
 {
 private:
     // You can access the TraCI interface using this pointer
-    TraCI_Commands *TraCI;
+    TraCI_Commands *TraCI = NULL;
     // Controls if the module should be active or not
     bool active;
     // This module is subscribed to the following two signals.

@@ -61,6 +61,9 @@ void tutorial::initialize(int stage)
 
 void tutorial::finish()
 {
+    if(!active)
+        return;
+
     // unsubscribe from initialize_withTraCI signal
     if(omnetpp::getSimulation()->getSystemModule()->isSubscribed("initialize_withTraCI", this))
         omnetpp::getSimulation()->getSystemModule()->unsubscribe("initialize_withTraCI", this);

@@ -582,7 +582,7 @@ uint32_t TraCI_Commands::vehicleGetRouteIndex(std::string nodeId)
 {
     record_TraCI_activity_func("commandStart", CMD_GET_VEHICLE_VARIABLE, VAR_ROUTE_INDEX, "vehicleGetRouteIndex");
 
-    int32_t result = genericGetInt(CMD_GET_VEHICLE_VARIABLE, nodeId, 0x69, RESPONSE_GET_VEHICLE_VARIABLE);
+    int32_t result = genericGetInt(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_ROUTE_INDEX, RESPONSE_GET_VEHICLE_VARIABLE);
 
     record_TraCI_activity_func("commandComplete", CMD_GET_VEHICLE_VARIABLE, VAR_ROUTE_INDEX, "vehicleGetRouteIndex");
     return result;
