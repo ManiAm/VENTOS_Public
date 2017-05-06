@@ -439,7 +439,7 @@ void TraCIConnection::terminateSimulation(std::string err)
     LOG_ERROR << "\n" << err << std::flush;
 
     // get a pointer to the TraCI module
-    TraCI = TraCI_Commands::getTraCI();
+    auto TraCI = TraCI_Commands::getTraCI();
 
     // end the simulation
     TraCI->simulationTerminate(true /*TraCIclosed?*/);

@@ -49,7 +49,7 @@ void BaseWaveApplLayer::initialize(int stage)
         TraCI = TraCI_Commands::getTraCI();
 
         // get a pointer to the mobility module
-        module = this->getParentModule()->getSubmodule("mobility");
+        cModule *module = this->getParentModule()->getSubmodule("mobility");
         mobility = static_cast<BaseMobility *>(module);
         ASSERT(mobility);
 

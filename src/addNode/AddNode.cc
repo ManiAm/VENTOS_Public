@@ -59,7 +59,7 @@ void AddNode::initialize(int stage)
         // get a pointer to the TraCI module
         TraCI = TraCI_Commands::getTraCI();
 
-        terminateTime = module->par("terminateTime").doubleValue();
+        terminateTime = TraCI->par("terminateTime").doubleValue();
 
         Signal_initialize_withTraCI = registerSignal("initialize_withTraCI");
         omnetpp::getSimulation()->getSystemModule()->subscribe("initialize_withTraCI", this);
