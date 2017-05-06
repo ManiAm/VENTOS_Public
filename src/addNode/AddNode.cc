@@ -57,9 +57,7 @@ void AddNode::initialize(int stage)
             return;
 
         // get a pointer to the TraCI module
-        omnetpp::cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
-        TraCI = static_cast<TraCI_Commands *>(module);
-        ASSERT(TraCI);
+        TraCI = TraCI_Commands::getTraCI();
 
         terminateTime = module->par("terminateTime").doubleValue();
 

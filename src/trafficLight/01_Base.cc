@@ -45,9 +45,7 @@ void TrafficLightBase::initialize(int stage)
     if(stage == 0)
 	{
         // get a pointer to the TraCI module
-        cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
-        TraCI = static_cast<TraCI_Commands *>(module);
-        ASSERT(TraCI);
+        TraCI = TraCI_Commands::getTraCI();
 
         TLControlMode = par("TLControlMode").longValue();
 

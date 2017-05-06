@@ -217,6 +217,8 @@ public:
     virtual void handleMessage(omnetpp::cMessage *msg);
     virtual void finish();
 
+    static TraCI_Commands * getTraCI();
+
     // ################################################################
     //                          subscription
     // ################################################################

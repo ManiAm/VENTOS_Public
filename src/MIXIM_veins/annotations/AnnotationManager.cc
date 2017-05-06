@@ -308,9 +308,7 @@ void AnnotationManager::show(const Annotation* annotation)
         nameBuilder << o->text << " " << omnetpp::getEnvir()->getUniqueNumber();
 
         // get a pointer to the TraCI module
-        omnetpp::cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
-        VENTOS::TraCI_Commands *TraCI = static_cast<VENTOS::TraCI_Commands *>(module);
-        ASSERT(TraCI);
+        TraCI = TraCI_Commands::getTraCI();
         TraCI->poiAdd(nameBuilder.str(), "Annotation", VENTOS::Color::colorNameToRGB(o->color), 6, o->pos);
         annotation->traciPoiIds.push_back(nameBuilder.str());
     }
@@ -327,9 +325,7 @@ void AnnotationManager::show(const Annotation* annotation)
         }
 
         // get a pointer to the TraCI module
-        cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
-        VENTOS::TraCI_Commands *TraCI = static_cast<VENTOS::TraCI_Commands *>(module);
-        ASSERT(TraCI);
+        TraCI = TraCI_Commands::getTraCI();
         std::list<Coord> coords; coords.push_back(l->p1); coords.push_back(l->p2);
         std::stringstream nameBuilder;
         nameBuilder << "Annotation" << omnetpp::getEnvir()->getUniqueNumber();
@@ -355,9 +351,7 @@ void AnnotationManager::show(const Annotation* annotation)
         }
 
         // get a pointer to the TraCI module
-        cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
-        VENTOS::TraCI_Commands *TraCI = static_cast<VENTOS::TraCI_Commands *>(module);
-        ASSERT(TraCI);
+        TraCI = TraCI_Commands::getTraCI();
         std::stringstream nameBuilder;
         nameBuilder << "Annotation" << omnetpp::getEnvir()->getUniqueNumber();
         TraCI->polygonAdd(nameBuilder.str(), "Annotation", VENTOS::Color::colorNameToRGB(p->color), false, 4, p->coords);

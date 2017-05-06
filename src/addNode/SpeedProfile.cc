@@ -65,9 +65,7 @@ void SpeedProfile::initialize(int stage)
         trajectoryPath = par("trajectoryPath").stringValue();
 
         // get a pointer to the TraCI module
-        module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
-        TraCI = static_cast<TraCI_Commands *>(module);
-        ASSERT(TraCI);
+        TraCI = TraCI_Commands::getTraCI();
 
         Signal_executeEachTS = registerSignal("executeEachTS");
         omnetpp::getSimulation()->getSystemModule()->subscribe("executeEachTS", this);

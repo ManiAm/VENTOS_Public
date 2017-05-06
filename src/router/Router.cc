@@ -94,9 +94,7 @@ void Router::initialize(int stage)
     if(stage == 0)
     {
         // get a pointer to the TraCI module
-        omnetpp::cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
-        TraCI = static_cast<TraCI_Commands *>(module);
-        ASSERT(TraCI);
+        TraCI = TraCI_Commands::getTraCI();
 
         debugLevel = omnetpp::getSimulation()->getSystemModule()->par("debugLevel").longValue();
 

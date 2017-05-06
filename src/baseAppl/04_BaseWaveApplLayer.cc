@@ -46,9 +46,7 @@ void BaseWaveApplLayer::initialize(int stage)
     if (stage == 0)
     {
         // get a pointer to the TraCI module
-        omnetpp::cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
-        TraCI = static_cast<TraCI_Commands *>(module);
-        ASSERT(TraCI);
+        TraCI = TraCI_Commands::getTraCI();
 
         // get a pointer to the mobility module
         module = this->getParentModule()->getSubmodule("mobility");

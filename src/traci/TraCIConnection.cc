@@ -438,11 +438,8 @@ void TraCIConnection::terminateSimulation(std::string err)
 {
     LOG_ERROR << "\n" << err << std::flush;
 
-    // get a pointer to TraCI module
-    omnetpp::cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
-    ASSERT(module);
-    TraCI_Commands *TraCI = static_cast<TraCI_Commands *>(module);
-    ASSERT(TraCI);
+    // get a pointer to the TraCI module
+    TraCI = TraCI_Commands::getTraCI();
 
     // end the simulation
     TraCI->simulationTerminate(true /*TraCIclosed?*/);

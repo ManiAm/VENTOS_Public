@@ -56,9 +56,7 @@ public:
         setp(base, base + buffer_.size() - 1); // -1 to make overflow() easier
 
         // get a pointer to the TraCI module
-        omnetpp::cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
-        TraCI = static_cast<VENTOS::TraCI_Commands *>(module);
-        ASSERT(TraCI);
+        TraCI = TraCI_Commands::getTraCI();
     }
 
     debugStreamLog(const debugStreamLog &);

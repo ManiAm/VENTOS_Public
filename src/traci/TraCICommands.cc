@@ -94,6 +94,22 @@ void TraCI_Commands::handleMessage(omnetpp::cMessage *msg)
 }
 
 
+TraCI_Commands * TraCI_Commands::getTraCI()
+{
+    // get a pointer to the TraCI module
+    omnetpp::cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
+    // make sure module TraCI exists
+    ASSERT(module);
+
+    // get a pointer to TraCI class
+    TraCI_Commands *TraCI = static_cast<TraCI_Commands *>(module);
+    // make sure the TraCI pointer is not null
+    ASSERT(TraCI);
+
+    return TraCI;
+}
+
+
 // ################################################################
 //                            subscription
 // ################################################################

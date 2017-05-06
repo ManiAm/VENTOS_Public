@@ -52,9 +52,7 @@ void AddMobileNode::initialize(int stage)
         submode = par("submode").longValue();
 
         // get a pointer to the TraCI module
-        omnetpp::cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
-        TraCI = static_cast<TraCI_Commands *>(module);
-        ASSERT(TraCI);
+        TraCI = TraCI_Commands::getTraCI();
 
         terminateTime = TraCI->par("terminateTime").doubleValue();
         // if user specifies no termination time, set it to a big value
