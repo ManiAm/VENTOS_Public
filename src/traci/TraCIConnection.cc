@@ -170,12 +170,10 @@ void TraCIConnection::startSUMO(std::string SUMOapplication, std::string SUMOcon
     }
     else
     {
-        LOG_INFO << boost::format("    SUMO has started successfully in process %1%  \n") % child_pid;
+        LOG_INFO << boost::format("    SUMO has started successfully in process %1%  \n") % child_pid << std::flush;
 
         // show SUMO version
-        LOG_INFO << boost::format("    %1%  \n") % getSUMOversion(SUMOapplication);
-
-        LOG_FLUSH;
+        LOG_INFO << boost::format("    %1%  \n") % getSUMOversion(SUMOapplication) << std::flush;
     }
 
 #endif
