@@ -45,8 +45,8 @@ void ApplVManager::initialize(int stage)
 
     if (stage == 0)
     {
-        SUMOControllerType = TraCI->vehicleGetControllerType(SUMOID);
-        SUMOControllerNumber = TraCI->vehicleGetControllerNumber(SUMOID);
+        carFollowingModelNumber = TraCI->vehicleGetCarFollowingModelNumber(SUMOID);
+        carFollowingSubModelNumber = TraCI->vehicleGetCarFollowingSubModelNumber(SUMOID);
 
         // NED variables (packet loss ratio)
         droppT = par("droppT").doubleValue();
@@ -252,17 +252,17 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
     super::onBeaconVehicle(wsm);
 
     // model is Krauss (TypeManual)
-    if(SUMOControllerType == SUMO_TAG_CF_KRAUSS || SUMOControllerType == SUMO_TAG_CF_KRAUSS_ORIG1)
+    if(carFollowingModelNumber == SUMO_CF_KRAUSS || carFollowingModelNumber == SUMO_CF_KRAUSS_ORIG1)
     {
         // we ignore all received BeaconVehicles
     }
     // model is ACC with controllerNumber = 1 (TypeACC1)
-    else if(SUMOControllerType == SUMO_TAG_CF_ACC && SUMOControllerNumber == 1)
+    else if(carFollowingModelNumber == SUMO_CF_ACC && carFollowingSubModelNumber == 1)
     {
         // we ignore all received BeaconVehicles
     }
     // model is CACC with one-vehicle look-ahead communication (TypeCACC1)
-    else if(SUMOControllerType == SUMO_TAG_CF_CACC && SUMOControllerNumber == 1)
+    else if(carFollowingModelNumber == SUMO_CF_CACC && carFollowingSubModelNumber == 1)
     {
         if( isBeaconFromLeading(wsm) )
         {
@@ -272,7 +272,7 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
         }
     }
     // model is CACC with platoon leader communication (TypeCACC2)
-    else if(SUMOControllerType == SUMO_TAG_CF_CACC && SUMOControllerNumber == 2)
+    else if(carFollowingModelNumber == SUMO_CF_CACC && carFollowingSubModelNumber == 2)
     {
         if(plnMode == platoonOff)
             throw omnetpp::cRuntimeError("no platoon leader is present! check plnMode!");

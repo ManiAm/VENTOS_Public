@@ -1023,39 +1023,6 @@ double TraCI_Commands::vehicleGetCurrentAccel(std::string nodeId)
 }
 
 
-CFMODES_t TraCI_Commands::vehicleGetCarFollowingMode(std::string nodeId)
-{
-    record_TraCI_activity_func("commandStart", CMD_GET_VEHICLE_VARIABLE, 0x75, "vehicleGetCarFollowingMode");
-
-    int result = genericGetInt(CMD_GET_VEHICLE_VARIABLE, nodeId, 0x75, RESPONSE_GET_VEHICLE_VARIABLE);
-
-    record_TraCI_activity_func("commandComplete", CMD_GET_VEHICLE_VARIABLE, 0x75, "vehicleGetCarFollowingMode");
-    return (CFMODES_t) result;
-}
-
-
-int TraCI_Commands::vehicleGetControllerType(std::string nodeId)
-{
-    record_TraCI_activity_func("commandStart", CMD_GET_VEHICLE_VARIABLE, 0x72, "vehicleTypeGetControllerType");
-
-    int result = genericGetInt(CMD_GET_VEHICLE_VARIABLE, nodeId, 0x72, RESPONSE_GET_VEHICLE_VARIABLE);
-
-    record_TraCI_activity_func("commandComplete", CMD_GET_VEHICLE_VARIABLE, 0x72, "vehicleTypeGetControllerType");
-    return result;
-}
-
-
-int TraCI_Commands::vehicleGetControllerNumber(std::string nodeId)
-{
-    record_TraCI_activity_func("commandStart", CMD_GET_VEHICLE_VARIABLE, 0x73, "vehicleTypeGetControllerNumber");
-
-    int result = genericGetInt(CMD_GET_VEHICLE_VARIABLE, nodeId, 0x73, RESPONSE_GET_VEHICLE_VARIABLE);
-
-    record_TraCI_activity_func("commandComplete", CMD_GET_VEHICLE_VARIABLE, 0x73, "vehicleTypeGetControllerNumber");
-    return result;
-}
-
-
 double TraCI_Commands::vehicleGetDepartureTime(std::string nodeId)
 {
     auto it = departureArrival.find(nodeId);
@@ -1075,6 +1042,71 @@ double TraCI_Commands::vehicleGetArrivalTime(std::string nodeId)
         return -1;
     else
         return it->second.arrival;
+}
+
+
+std::string TraCI_Commands::vehicleGetCarFollowingModelName(std::string nodeId)
+{
+    carFollowingModel_t number = vehicleGetCarFollowingModelNumber(nodeId);
+
+    static std::map<carFollowingModel_t, std::string> carFollowingModelName = {
+            {SUMO_CF_KRAUSS, "SUMO_CF_KRAUSS"},
+            {SUMO_CF_KRAUSS_PLUS_SLOPE, "SUMO_CF_KRAUSS_PLUS_SLOPE"},
+            {SUMO_CF_KRAUSS_ORIG1, "SUMO_CF_KRAUSS_ORIG1"},
+            {SUMO_CF_SMART_SK, "SUMO_CF_SMART_SK"},
+            {SUMO_CF_DANIEL1, "SUMO_CF_DANIEL1"},
+            {SUMO_CF_IDM, "SUMO_CF_IDM"},
+            {SUMO_CF_IDMM, "SUMO_CF_IDMM"},
+            {SUMO_CF_PWAGNER2009, "SUMO_CF_PWAGNER2009"},
+            {SUMO_CF_BKERNER, "SUMO_CF_BKERNER"},
+            {SUMO_CF_WIEDEMANN, "SUMO_CF_WIEDEMANN"},
+            {SUMO_CF_OPTIMALSPEED, "SUMO_CF_OPTIMALSPEED"},
+            {SUMO_CF_KRAUSSFIXED, "SUMO_CF_KRAUSSFIXED"},
+            {SUMO_CF_ACC, "SUMO_CF_ACC"},
+            {SUMO_CF_CACC, "SUMO_CF_CACC"}
+    };
+
+    auto it = carFollowingModelName.find(number);
+    if(it == carFollowingModelName.end())
+        throw omnetpp::cRuntimeError("Invalid car-following model number %d", (int)number);
+
+    return it->second;
+}
+
+
+carFollowingModel_t TraCI_Commands::vehicleGetCarFollowingModelNumber(std::string nodeId)
+{
+    record_TraCI_activity_func("commandStart", CMD_GET_VEHICLE_VARIABLE, 0x72, "vehicleGetCarFollowingModelNumber");
+
+    int result = genericGetInt(CMD_GET_VEHICLE_VARIABLE, nodeId, 0x72, RESPONSE_GET_VEHICLE_VARIABLE);
+
+    if(result < 0 || result >= (int)SUMO_CF_MAX)
+        throw omnetpp::cRuntimeError("Invalid car-following model number %d", result);
+
+    record_TraCI_activity_func("commandComplete", CMD_GET_VEHICLE_VARIABLE, 0x72, "vehicleGetCarFollowingModelNumber");
+    return (carFollowingModel_t)result;
+}
+
+
+int TraCI_Commands::vehicleGetCarFollowingSubModelNumber(std::string nodeId)
+{
+    record_TraCI_activity_func("commandStart", CMD_GET_VEHICLE_VARIABLE, 0x73, "vehicleGetCarFollowingSubModelNumber");
+
+    int result = genericGetInt(CMD_GET_VEHICLE_VARIABLE, nodeId, 0x73, RESPONSE_GET_VEHICLE_VARIABLE);
+
+    record_TraCI_activity_func("commandComplete", CMD_GET_VEHICLE_VARIABLE, 0x73, "vehicleGetCarFollowingSubModelNumber");
+    return result;
+}
+
+
+CFMODES_t TraCI_Commands::vehicleGetCarFollowingModelMode(std::string nodeId)
+{
+    record_TraCI_activity_func("commandStart", CMD_GET_VEHICLE_VARIABLE, 0x75, "vehicleGetCarFollowingModelMode");
+
+    int result = genericGetInt(CMD_GET_VEHICLE_VARIABLE, nodeId, 0x75, RESPONSE_GET_VEHICLE_VARIABLE);
+
+    record_TraCI_activity_func("commandComplete", CMD_GET_VEHICLE_VARIABLE, 0x75, "vehicleGetCarFollowingModelMode");
+    return (CFMODES_t) result;
 }
 
 

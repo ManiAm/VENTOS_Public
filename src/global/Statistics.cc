@@ -1007,7 +1007,7 @@ void Statistics::record_Veh_data(std::string SUMOID, bool arrived)
             entry.drivingDistance = TraCI->vehicleGetDrivingDistance(SUMOID);
         else if(record == "cfmode")
         {
-            CFMODES_t CFMode_Enum = TraCI->vehicleGetCarFollowingMode(SUMOID);
+            CFMODES_t CFMode_Enum = TraCI->vehicleGetCarFollowingModelMode(SUMOID);
             switch(CFMode_Enum)
             {
             case Mode_Undefined:

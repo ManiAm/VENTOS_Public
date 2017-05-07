@@ -96,6 +96,27 @@ typedef struct leader
     double distance2Leader;
 } leader_t;
 
+typedef enum carFollowingModel {
+    SUMO_CF_KRAUSS = 0,
+    SUMO_CF_KRAUSS_PLUS_SLOPE,
+    SUMO_CF_KRAUSS_ORIG1,
+    SUMO_CF_SMART_SK,
+    SUMO_CF_DANIEL1,
+    SUMO_CF_IDM,
+    SUMO_CF_IDMM,
+    SUMO_CF_PWAGNER2009,
+    SUMO_CF_BKERNER,
+    SUMO_CF_WIEDEMANN,
+
+    SUMO_CF_OPTIMALSPEED,
+    SUMO_CF_KRAUSSFIXED,
+    SUMO_CF_ACC,
+    SUMO_CF_CACC,
+
+    SUMO_CF_MAX
+} carFollowingModel_t;
+
+
 typedef enum CFMODES {
     Mode_Undefined,
     Mode_NoData,
@@ -286,12 +307,13 @@ public:
     double vehicleGetNoiseEmission(std::string);
     double vehicleGetFuelConsumption(std::string);
     std::string vehicleGetEmissionClass(std::string);
-    double vehicleGetCurrentAccel(std::string);          // new command [returns the current acceleration of the vehicle]
-    CFMODES_t vehicleGetCarFollowingMode(std::string);   // new command [returns the current ACC/CACC car following mode]
-    int vehicleGetControllerType(std::string);           // new command [returns the car-following model type -- ACC/CACC]
-    int vehicleGetControllerNumber(std::string);         // new command [returns the car-following model sub-type -- CACC 1, CACC 2]
+    double vehicleGetCurrentAccel(std::string);          // new command
     double vehicleGetDepartureTime(std::string);         // new command
     double vehicleGetArrivalTime(std::string);           // new command
+    std::string vehicleGetCarFollowingModelName(std::string);            // new command [returns the car-following model name -- ACC/CACC]
+    carFollowingModel_t vehicleGetCarFollowingModelNumber(std::string);  // new command [returns the car-following model number -- 0(ACC)/1(CACC)]
+    int vehicleGetCarFollowingSubModelNumber(std::string);               // new command [returns the car-following model sub-type -- CACC 1, CACC 2]
+    CFMODES_t vehicleGetCarFollowingModelMode(std::string);              // new command [returns the current ACC/CACC car following mode]
 
     // CMD_SET_VEHICLE_VARIABLE
     void vehicleSetStop(std::string, std::string, double, uint8_t, int32_t, uint8_t);  // adds or modifies a stop with the given parameters
