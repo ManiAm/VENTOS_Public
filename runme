@@ -75,14 +75,6 @@ VER_minor=${arrIN[1]}
 if [[ ("$OSTYPE" == "linux-gnu" && "$OS" == "Ubuntu" && "$VER_major" == "16" && "$VER_minor" == "04") ]]; then
     echo "Starting script ..."
 
-# Ubuntu 15.10
-elif [[ ("$OSTYPE" == "linux-gnu" && "$OS" == "Ubuntu" && "$VER_major" == "15" && "$VER_minor" == "10") ]]; then
-    echo "Starting script ..."
-
-# Ubuntu 14.04
-elif [[ ("$OSTYPE" == "linux-gnu" && "$OS" == "Ubuntu" && "$VER_major" == "14" && "$VER_minor" == "04") ]]; then
-    echo "Starting script ..."
-
 # Yosemiti (Mac OS 10.10)
 elif [[ ("$OSTYPE" == "darwin"* && "$OS" == "Mac OS X" && "$VER_major" == "10" && "$VER_minor" == "10") ]]; then
     echo "Starting script ..."
