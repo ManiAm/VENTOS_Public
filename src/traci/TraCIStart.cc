@@ -84,6 +84,12 @@ void TraCI_Start::initialize(int stage)
             STAT = static_cast<Statistics*>(module);
             ASSERT(STAT);
 
+            Signal_departed_vehs = registerSignal("vehicleDepartedSignal");
+            this->subscribe("vehicleDepartedSignal", this);
+
+            Signal_arrived_vehs = registerSignal("vehicleArrivedSignal");
+            this->subscribe("vehicleArrivedSignal", this);
+
             autoTerminate = par("autoTerminate");
             equilibrium_vehicle = par("equilibrium_vehicle").boolValue();
 
@@ -161,6 +167,55 @@ void TraCI_Start::handleMessage(omnetpp::cMessage *msg)
     }
     else
         super::handleMessage(msg);
+}
+
+
+void TraCI_Start::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t signalID, const char *SUMOID, cObject* details)
+{
+    Enter_Method_Silent();
+
+    if(signalID == Signal_departed_vehs)
+    {
+        recordDeparture(SUMOID);
+
+        if(equilibrium_vehicle)
+        {
+            // saving information for later use
+            departedNodes node = {};
+
+            node.vehicleId = SUMOID;
+            node.vehicleTypeId = vehicleGetTypeID(SUMOID);
+            node.routeId = vehicleGetRouteID(SUMOID);
+            node.pos = 0; /*vehicleGetLanePosition(SUMOID)*/  // todo
+            node.speed = 0; /*vehicleGetSpeed(SUMOID)*/       // todo
+            node.lane = vehicleGetLaneIndex(SUMOID);
+
+            auto it = departedVehicles.find(SUMOID);
+            if(it != departedVehicles.end())
+                throw omnetpp::cRuntimeError("%s was added before!", SUMOID);
+            else
+                departedVehicles.insert(std::make_pair(SUMOID, node));
+        }
+    }
+    else if(signalID == Signal_arrived_vehs)
+    {
+        recordArrival(SUMOID);
+
+        if(equilibrium_vehicle)
+        {
+            auto it = departedVehicles.find(SUMOID);
+            if(it == departedVehicles.end())
+                throw omnetpp::cRuntimeError("cannot find %s in the departedVehicles map!", SUMOID);
+
+            departedNodes node = it->second;
+
+            LOG_INFO << boost::format("t=%1%: %2% of type %3% arrived. Inserting it again on edge %4% in pos %5% with entrySpeed of %6% from lane %7% \n")
+            % omnetpp::simTime().dbl() % node.vehicleId % node.vehicleTypeId % node.routeId % node.pos % node.speed % node.lane << std::flush;
+
+            departedVehicles.erase(it);  // remove this entry before adding
+            vehicleAdd(node.vehicleId, node.vehicleTypeId, node.routeId, (omnetpp::simTime().dbl() * 1000)+1, node.pos, node.speed, node.lane);
+        }
+    }
 }
 
 
@@ -429,30 +484,9 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
                 std::string idstring; buf >> idstring;
                 // adding modules is handled on the fly when entering/leaving the ROI
 
-                recordDeparture(idstring);
-
                 // signal to those interested that this vehicle has departed
                 omnetpp::simsignal_t Signal_departed = registerSignal("vehicleDepartedSignal");
                 this->emit(Signal_departed, idstring.c_str());
-
-                if(equilibrium_vehicle)
-                {
-                    // saving information for later use
-                    departedNodes node = {};
-
-                    node.vehicleId = idstring;
-                    node.vehicleTypeId = vehicleGetTypeID(idstring);
-                    node.routeId = vehicleGetRouteID(idstring);
-                    node.pos = 0; /*vehicleGetLanePosition(idstring)*/  // todo
-                    node.speed = 0; /*vehicleGetSpeed(idstring)*/       // todo
-                    node.lane = vehicleGetLaneIndex(idstring);
-
-                    auto it = departedVehicles.find(idstring);
-                    if(it != departedVehicles.end())
-                        throw omnetpp::cRuntimeError("%s was added before!", idstring.c_str());
-                    else
-                        departedVehicles.insert(std::make_pair(idstring, node));
-                }
             }
 
             STAT->departedVehicleCount += count;
@@ -478,26 +512,9 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
                     ASSERT(buf.eof());
                 }
 
-                recordArrival(idstring);
-
                 // signal to those interested that this vehicle has arrived
                 omnetpp::simsignal_t Signal_arrived = registerSignal("vehicleArrivedSignal");
                 this->emit(Signal_arrived, idstring.c_str());
-
-                if(equilibrium_vehicle)
-                {
-                    auto it = departedVehicles.find(idstring);
-                    if(it == departedVehicles.end())
-                        throw omnetpp::cRuntimeError("cannot find %s in the departedVehicles map!", idstring.c_str());
-
-                    departedNodes node = it->second;
-
-                    LOG_INFO << boost::format("t=%1%: %2% of type %3% arrived. Inserting it again on edge %4% in pos %5% with entrySpeed of %6% from lane %7% \n")
-                    % omnetpp::simTime().dbl() % node.vehicleId % node.vehicleTypeId % node.routeId % node.pos % node.speed % node.lane << std::flush;
-
-                    departedVehicles.erase(it);  // remove this entry before adding
-                    vehicleAdd(node.vehicleId, node.vehicleTypeId, node.routeId, (omnetpp::simTime().dbl() * 1000)+1, node.pos, node.speed, node.lane);
-                }
 
                 // check if this object has been deleted already (e.g. because it was outside the ROI)
                 cModule* mod = getManagedModule(idstring);

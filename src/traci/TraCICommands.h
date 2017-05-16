@@ -35,6 +35,7 @@
 #undef ev
 #include "boost/filesystem.hpp"
 
+#include "baseAppl/03_BaseApplLayer.h"
 #include "traci/TraCIConnection.h"
 #include "traci/TraCIBuffer.h"
 #include "mobility/TraCICoord.h"
@@ -173,7 +174,7 @@ typedef struct colorVal
 } colorVal_t;
 
 
-class TraCI_Commands : public omnetpp::cSimpleModule
+class TraCI_Commands : public BaseApplLayer
 {
 public:
     // list of vehicles removed from the simulation with vehicleRemove method
