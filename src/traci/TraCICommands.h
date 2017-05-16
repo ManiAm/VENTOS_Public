@@ -568,9 +568,9 @@ protected:
     std::pair<TraCIBuffer, uint32_t> simulationTimeStep(uint32_t targetTime);
 
     void addMapping(std::string SUMOID, std::string OMNETID);
-    void removeMapping(std::string SUMOID, std::string OMNETID);
+    void removeMapping(std::string SUMOID);
 
-    std::string addMapping_emulated(std::string SUMOID, std::string OMNETID);
+    void addMapping_emulated(std::string SUMOID, std::string OMNETID);
     void removeMapping_emulated(std::string SUMOID);
 
     void recordDeparture(std::string SUMOID);

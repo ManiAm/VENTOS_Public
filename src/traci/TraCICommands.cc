@@ -3254,12 +3254,13 @@ void TraCI_Commands::addMapping(std::string SUMOID, std::string OMNETID)
 }
 
 
-void TraCI_Commands::removeMapping(std::string SUMOID, std::string OMNETID)
+void TraCI_Commands::removeMapping(std::string SUMOID)
 {
     // remove mapping of SUMO id and OMNET++ id
     auto i1 = SUMOid_OMNETid_mapping.find(SUMOID);
     if(i1 == SUMOid_OMNETid_mapping.end())
         throw omnetpp::cRuntimeError("SUMO id %s does not exist in the network!", SUMOID.c_str());
+    std::string OMNETID = i1->second; // save omnet id before deleting
     SUMOid_OMNETid_mapping.erase(i1);
 
     // remove mapping of OMNET++ id and SUMO id
@@ -3270,40 +3271,33 @@ void TraCI_Commands::removeMapping(std::string SUMOID, std::string OMNETID)
 }
 
 
-std::string TraCI_Commands::addMapping_emulated(std::string SUMOID, std::string OMNETID)
+void TraCI_Commands::addMapping_emulated(std::string SUMOID, std::string OMNETID)
 {
-    std::string IPaddress_val = "";
     auto ii = SUMOid_ipv4_mapping.find(SUMOID);
     if(ii != SUMOid_ipv4_mapping.end())
     {
-        IPaddress_val = ii->second;
-
         // save ipAddress <--> omnetId mapping
         auto jj = ipv4_OMNETid_mapping.find(ii->second);
         if(jj != ipv4_OMNETid_mapping.end())
             throw omnetpp::cRuntimeError("IP address '%s' is not unique!", ii->second.c_str());
         ipv4_OMNETid_mapping[ii->second] = OMNETID;
     }
-
-    return IPaddress_val;
 }
 
 
 void TraCI_Commands::removeMapping_emulated(std::string SUMOID)
 {
-    // remove mapping of SUMO id and IPv4 -- for emulated vehicle
-    auto i3 = SUMOid_ipv4_mapping.find(SUMOID);
-    // if this vehicle is emulated
-    if(i3 != SUMOid_ipv4_mapping.end())
+    auto ii = SUMOid_ipv4_mapping.find(SUMOID);
+    if(ii != SUMOid_ipv4_mapping.end())
     {
-        std::string ipv4 = i3->second;
-        SUMOid_ipv4_mapping.erase(i3);
+        std::string ipv4 = ii->second;
+        SUMOid_ipv4_mapping.erase(ii);
 
         // then remove mapping of IPv4 and OMNET id
-        auto i4 = ipv4_OMNETid_mapping.find(ipv4);
-        if(i4 == ipv4_OMNETid_mapping.end())
+        auto jj = ipv4_OMNETid_mapping.find(ipv4);
+        if(jj == ipv4_OMNETid_mapping.end())
             throw omnetpp::cRuntimeError("IP address '%s' does not exist in the map!", ipv4.c_str());
-        ipv4_OMNETid_mapping.erase(i4);
+        ipv4_OMNETid_mapping.erase(jj);
     }
 }
 

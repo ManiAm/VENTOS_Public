@@ -57,6 +57,8 @@ private:
 
     omnetpp::simsignal_t Signal_departed_vehs;
     omnetpp::simsignal_t Signal_arrived_vehs;
+    omnetpp::simsignal_t Signal_module_added;
+    omnetpp::simsignal_t Signal_module_deleted;
 
     std::set<std::string> subscribedVehicles;    // all vehicles we have already subscribed to
     std::set<std::string> subscribedPedestrians; // all pedestrians we have already subscribed to
@@ -95,6 +97,7 @@ public:
     virtual void finish();
     virtual void handleMessage(omnetpp::cMessage *msg);
     virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, const char *, cObject *);
+    virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, cObject *, cObject *);
 
 private:
     // initialize TraCI connection

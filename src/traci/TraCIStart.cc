@@ -90,6 +90,12 @@ void TraCI_Start::initialize(int stage)
             Signal_arrived_vehs = registerSignal("vehicleArrivedSignal");
             this->subscribe("vehicleArrivedSignal", this);
 
+            Signal_module_added = registerSignal("vehicleModuleAddedSignal");
+            omnetpp::getSimulation()->getSystemModule()->subscribe("vehicleModuleAddedSignal", this);
+
+            Signal_module_deleted = registerSignal("vehicleModuleDeletedSignal");
+            omnetpp::getSimulation()->getSystemModule()->subscribe("vehicleModuleDeletedSignal", this);
+
             autoTerminate = par("autoTerminate");
             equilibrium_vehicle = par("equilibrium_vehicle").boolValue();
 
@@ -215,6 +221,37 @@ void TraCI_Start::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_
             departedVehicles.erase(it);  // remove this entry before adding
             vehicleAdd(node.vehicleId, node.vehicleTypeId, node.routeId, (omnetpp::simTime().dbl() * 1000)+1, node.pos, node.speed, node.lane);
         }
+    }
+}
+
+
+void TraCI_Start::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t signalID, cObject *obj, cObject *details)
+{
+    Enter_Method_Silent();
+
+    // note that this signal can be emitted more than once for a vehicle
+    // when that vehicle enters/exits ROI (region of interest)
+    if(signalID == Signal_module_added)
+    {
+        omnetpp::cModule *vehModule = static_cast<omnetpp::cModule *>(obj);
+        ASSERT(vehModule);
+
+        std::string SUMOID = vehModule->par("SUMOID");
+        ASSERT(SUMOID != "");
+
+        addMapping(SUMOID, vehModule->getFullName());
+        addMapping_emulated(SUMOID, vehModule->getFullName());
+    }
+    else if(signalID == Signal_module_deleted)
+    {
+        omnetpp::cModule *vehModule = static_cast<omnetpp::cModule *>(obj);
+        ASSERT(vehModule);
+
+        std::string SUMOID = vehModule->par("SUMOID");
+        ASSERT(SUMOID != "");
+
+        removeMapping(SUMOID);
+        removeMapping_emulated(SUMOID);
     }
 }
 
@@ -844,16 +881,13 @@ void TraCI_Start::deleteManagedModule(std::string nodeId /*sumo id*/)
             cc->unregisterNic(nic);
     }
 
-    removeMapping(nodeId, mod->getFullName());
-    removeMapping_emulated(nodeId);
+    // signal to those interested that a module is deleted
+    omnetpp::simsignal_t Signal_module_deleted = registerSignal("vehicleModuleDeletedSignal");
+    this->emit(Signal_module_deleted, mod);
 
     hosts.erase(nodeId);
     mod->callFinish();
     mod->deleteModule();
-
-    // signal to those interested that a module is deleted
-    omnetpp::simsignal_t Signal_module_deleted = registerSignal("vehicleModuleDeletedSignal");
-    this->emit(Signal_module_deleted, nodeId.c_str());
 }
 
 
@@ -943,7 +977,7 @@ omnetpp::cModule* TraCI_Start::addVehicle(std::string SUMOID, std::string type, 
     mod->par("SUMOType") = vehicleGetTypeID(SUMOID);
     mod->par("vehicleClass") = vClass;
 
-    std::string IPaddress_val = addMapping_emulated(SUMOID, mod->getFullName());
+    std::string IPaddress_val = vehicleId2ip(SUMOID);
     mod->par("hasOBU") = (IPaddress_val != "") ? true : false;
     mod->par("IPaddress") = IPaddress_val;
 
@@ -997,8 +1031,6 @@ omnetpp::cModule* TraCI_Start::addVehicle(std::string SUMOID, std::string type, 
         if (!mm) continue;
         mm->changePosition();
     }
-
-    addMapping(SUMOID, mod->getFullName());
 
     return mod;
 }
