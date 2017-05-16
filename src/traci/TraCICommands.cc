@@ -1047,23 +1047,23 @@ double TraCI_Commands::vehicleGetArrivalTime(std::string nodeId)
 
 std::string TraCI_Commands::vehicleGetCarFollowingModelName(std::string nodeId)
 {
-    carFollowingModel_t number = vehicleGetCarFollowingModelNumber(nodeId);
+    carFollowingModel_t number = vehicleGetCarFollowingModelID(nodeId);
 
     static std::map<carFollowingModel_t, std::string> carFollowingModelName = {
-            {SUMO_CF_KRAUSS, "SUMO_CF_KRAUSS"},
-            {SUMO_CF_KRAUSS_PLUS_SLOPE, "SUMO_CF_KRAUSS_PLUS_SLOPE"},
-            {SUMO_CF_KRAUSS_ORIG1, "SUMO_CF_KRAUSS_ORIG1"},
-            {SUMO_CF_SMART_SK, "SUMO_CF_SMART_SK"},
-            {SUMO_CF_DANIEL1, "SUMO_CF_DANIEL1"},
-            {SUMO_CF_IDM, "SUMO_CF_IDM"},
-            {SUMO_CF_IDMM, "SUMO_CF_IDMM"},
-            {SUMO_CF_PWAGNER2009, "SUMO_CF_PWAGNER2009"},
-            {SUMO_CF_BKERNER, "SUMO_CF_BKERNER"},
-            {SUMO_CF_WIEDEMANN, "SUMO_CF_WIEDEMANN"},
-            {SUMO_CF_OPTIMALSPEED, "SUMO_CF_OPTIMALSPEED"},
-            {SUMO_CF_KRAUSSFIXED, "SUMO_CF_KRAUSSFIXED"},
-            {SUMO_CF_ACC, "SUMO_CF_ACC"},
-            {SUMO_CF_CACC, "SUMO_CF_CACC"}
+            {SUMO_CF_KRAUSS, "KRAUSS"},
+            {SUMO_CF_KRAUSS_PLUS_SLOPE, "KRAUSS_PLUS_SLOPE"},
+            {SUMO_CF_KRAUSS_ORIG1, "KRAUSS_ORIG1"},
+            {SUMO_CF_SMART_SK, "SMART_SK"},
+            {SUMO_CF_DANIEL1, "DANIEL1"},
+            {SUMO_CF_IDM, "IDM"},
+            {SUMO_CF_IDMM, "IDMM"},
+            {SUMO_CF_PWAGNER2009, "PWAGNER2009"},
+            {SUMO_CF_BKERNER, "BKERNER"},
+            {SUMO_CF_WIEDEMANN, "WIEDEMANN"},
+            {SUMO_CF_OPTIMALSPEED, "OPTIMALSPEED"},
+            {SUMO_CF_KRAUSSFIXED, "KRAUSS_FIXED"},
+            {SUMO_CF_ACC, "ACC"},
+            {SUMO_CF_CACC, "CACC"}
     };
 
     auto it = carFollowingModelName.find(number);
@@ -1074,7 +1074,7 @@ std::string TraCI_Commands::vehicleGetCarFollowingModelName(std::string nodeId)
 }
 
 
-carFollowingModel_t TraCI_Commands::vehicleGetCarFollowingModelNumber(std::string nodeId)
+carFollowingModel_t TraCI_Commands::vehicleGetCarFollowingModelID(std::string nodeId)
 {
     record_TraCI_activity_func("commandStart", CMD_GET_VEHICLE_VARIABLE, 0x72, "vehicleGetCarFollowingModelNumber");
 
@@ -1088,7 +1088,7 @@ carFollowingModel_t TraCI_Commands::vehicleGetCarFollowingModelNumber(std::strin
 }
 
 
-int TraCI_Commands::vehicleGetCarFollowingSubModelNumber(std::string nodeId)
+int TraCI_Commands::vehicleGetCarFollowingSubModelID(std::string nodeId)
 {
     record_TraCI_activity_func("commandStart", CMD_GET_VEHICLE_VARIABLE, 0x73, "vehicleGetCarFollowingSubModelNumber");
 
@@ -3136,10 +3136,12 @@ std::string TraCI_Commands::vehicleId2ip(std::string id) const
 //                       SUMO directory
 // ################################################################
 
-std::string TraCI_Commands::getFullPath_SUMOExe(std::string sumoAppl)
+boost::filesystem::path TraCI_Commands::getFullPath_SUMOApplication()
 {
+    std::string sumoAppl = par("SUMOapplication").stringValue();
+
     std::ostringstream str;
-    str << boost::format("exec bash -c 'which %1%'") % sumoAppl;
+    str << boost::format("exec bash -c 'readlink -f $(which %1%)'") % sumoAppl;
 
     FILE* pip = popen(str.str().c_str(), "r");
     if (!pip)
@@ -3162,7 +3164,7 @@ std::string TraCI_Commands::getFullPath_SUMOExe(std::string sumoAppl)
 }
 
 
-std::string TraCI_Commands::getFullPath_SUMOConfig()
+boost::filesystem::path TraCI_Commands::getFullPath_SUMOConfig()
 {
     boost::filesystem::path VENTOS_FullPath = omnetpp::getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
     std::string SUMOconfig = par("SUMOconfig").stringValue();
@@ -3171,23 +3173,7 @@ std::string TraCI_Commands::getFullPath_SUMOConfig()
     if( !boost::filesystem::exists(SUMOconfigFullPath) || !boost::filesystem::is_regular_file(SUMOconfigFullPath) )
         throw omnetpp::cRuntimeError("SUMO configure file is not found in %s", SUMOconfigFullPath.string().c_str());
 
-    return SUMOconfigFullPath.string();
-}
-
-
-std::string TraCI_Commands::getDir_SUMOConfig()
-{
-    boost::filesystem::path VENTOS_FullPath = omnetpp::getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-    std::string SUMOconfig = par("SUMOconfig").stringValue();
-    boost::filesystem::path SUMOconfigFullPath = VENTOS_FullPath / SUMOconfig;
-
-    // get the directory
-    boost::filesystem::path dir = SUMOconfigFullPath.parent_path();
-
-    if( !boost::filesystem::exists( dir ) )
-        throw omnetpp::cRuntimeError("SUMO directory is not found in %s", dir.string().c_str());
-
-    return dir.string();
+    return SUMOconfigFullPath;
 }
 
 
@@ -3325,11 +3311,16 @@ void TraCI_Commands::removeMapping_emulated(std::string SUMOID)
 void TraCI_Commands::recordDeparture(std::string SUMOID)
 {
     auto it = departureArrival.find(SUMOID);
-    if(it != departureArrival.end())
-        throw omnetpp::cRuntimeError("%s was added before!", SUMOID.c_str());
-
-    departureArrivalEntry_t entry = {omnetpp::simTime().dbl(), -1};
-    departureArrival[SUMOID] = entry;
+    if(it == departureArrival.end())
+    {
+        departureArrivalEntry_t entry = {omnetpp::simTime().dbl(), -1};
+        departureArrival[SUMOID] = entry;
+    }
+    else // newly departed vehicle might have the same name as one of the previous arrived vehicles (equilibrium is on?)
+    {
+        it->second.departure = omnetpp::simTime().dbl();
+        it->second.arrival = -1;
+    }
 }
 
 

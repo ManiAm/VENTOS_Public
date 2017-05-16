@@ -120,18 +120,21 @@ void Router::initialize(int stage)
         Signal_system = registerSignal("system");
         omnetpp::getSimulation()->getSystemModule()->subscribe("system", this);
 
-        Signal_executeEachTS = registerSignal("executeEachTS");
-        omnetpp::getSimulation()->getSystemModule()->subscribe("executeEachTS", this);
+        Signal_executeEachTS = registerSignal("executeEachTimeStepSignal");
+        omnetpp::getSimulation()->getSystemModule()->subscribe("executeEachTimeStepSignal", this);
 
-        // get the file paths
-        SUMO_FullPath = TraCI->getDir_SUMOConfig();
-        if( !boost::filesystem::exists( SUMO_FullPath ) )
+        // get the location of SUMO config files
+        SUMOConfigDirectory = TraCI->getFullPath_SUMOConfig().parent_path().string();
+        if( !boost::filesystem::exists( SUMOConfigDirectory ) )
             throw omnetpp::cRuntimeError("SUMO directory is not valid! Check it again.");
 
         if(UseAccidents)
         {
-            std::string AccidentFile = SUMO_FullPath.string() + "/EdgeRemovals.txt";
+            std::string AccidentFile = SUMOConfigDirectory.string() + "/EdgeRemovals.txt";
             std::ifstream edgeRemovals(AccidentFile.c_str());
+            if(!edgeRemovals.is_open())
+                throw omnetpp::cRuntimeError("Cannot open file at %s", AccidentFile.c_str());
+
             std::string line;
             while(getline(edgeRemovals, line))
             {
@@ -161,7 +164,7 @@ void Router::initialize(int stage)
         int rtc = par("rightTurnCost").doubleValue();
         int stc = par("straightCost").doubleValue();
         int utc = par("uTurnCost").doubleValue();
-        net = new Net(SUMO_FullPath.string(), this->getParentModule(), ltc, rtc, stc, utc);
+        net = new Net(SUMOConfigDirectory.string(), this->getParentModule(), ltc, rtc, stc, utc);
     }
     else if (stage == 1)
     {
@@ -171,7 +174,7 @@ void Router::initialize(int stage)
 
             std::ostringstream filePrefixNoTL;
             filePrefixNoTL << totalVehicleCount << "_" << nonReroutingVehiclePercent;
-            std::string NonReroutingFileName = VENTOS_FullPath.string() + "results/router/" + filePrefixNoTL.str() + "_nonRerouting" + ".txt";
+            std::string NonReroutingFileName = "results/" + filePrefixNoTL.str() + "_nonRerouting" + ".txt";
             if( boost::filesystem::exists( NonReroutingFileName ) )
             {
                 nonReroutingVehicles = new std::set<std::string>();
@@ -189,6 +192,8 @@ void Router::initialize(int stage)
                 nonReroutingVehicles = randomUniqueVehiclesInRange(numNonRerouting, 0, totalVehicleCount);
                 std::ofstream NonReroutingFile;
                 NonReroutingFile.open(NonReroutingFileName.c_str());
+                if(!NonReroutingFile.is_open())
+                    throw omnetpp::cRuntimeError("Cannot open file at %s", NonReroutingFileName.c_str());
                 for(std::string veh : *nonReroutingVehicles)
                     NonReroutingFile << veh << std::endl;
                 NonReroutingFile.close();
@@ -204,20 +209,21 @@ void Router::initialize(int stage)
         std::ostringstream filePrefix;
         filePrefix << totalVehicleCount << "_" << nonReroutingVehiclePercent << "_" << TLMode;
 
-        // set the veh_stat_file
-        TraCI->par("veh_stat_file") = filePrefix.str() + "_vehicleData.txt";
-
-        std::string endTimeFile = VENTOS_FullPath.string() + "results/router/" + filePrefix.str() + "_endTimes.txt";
+        std::string endTimeFile = "results/" + filePrefix.str() + "_endTimes.txt";
         vehicleEndTimesFile.open(endTimeFile.c_str());
+        if(!vehicleEndTimesFile.is_open())
+            throw omnetpp::cRuntimeError("Cannot open file at %s", endTimeFile.c_str());
 
         if(collectVehicleTimeData)
         {
-            std::string TravelTimesFileName = VENTOS_FullPath.string() + "results/router/" + filePrefix.str() + ".txt";
+            std::string TravelTimesFileName = "results/" + filePrefix.str() + ".txt";
 
             if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 1)
                 std::cout << "Opened edge-weights file at " << TravelTimesFileName << std::endl << std::flush;
 
             vehicleTravelTimesFile.open(TravelTimesFileName.c_str());  // Open the edgeWeights file
+            if(!vehicleTravelTimesFile.is_open())
+                throw omnetpp::cRuntimeError("Cannot open file at %s", endTimeFile.c_str());
         }
 
         parseLaneCostsFile();
@@ -231,7 +237,7 @@ void Router::finish()
         LaneCostsToFile();
 
     // unsubscribe
-    omnetpp::getSimulation()->getSystemModule()->unsubscribe("executeEachTS", this);
+    omnetpp::getSimulation()->getSystemModule()->unsubscribe("executeEachTimeStepSignal", this);
 }
 
 
@@ -346,8 +352,10 @@ void Router::receiveDoneRequest(std::string sender)
             std::ostringstream filePrefix;
             filePrefix << totalVehicleCount << "_" << nonReroutingVehiclePercent << "_" << TLMode;
             std::ofstream outfile;
-            std::string fileName = VENTOS_FullPath.string() + "results/router/AverageTravelTimes.txt";
+            std::string fileName = "results/AverageTravelTimes.txt";
             outfile.open(fileName.c_str(), std::ofstream::app);  //Open the edgeWeights file
+            if(!outfile.is_open())
+                throw omnetpp::cRuntimeError("Cannot open file at %s", fileName.c_str());
             outfile << filePrefix.str() <<": " << avg << " " << omnetpp::simTime().dbl() << std::endl;
             outfile.close();
         }
@@ -476,8 +484,10 @@ void Router::checkEdgeRemovals()
 void Router::parseLaneCostsFile()
 {
     std::ifstream inFile;
-    std::string fileName = SUMO_FullPath.string() + "/edgeWeights.txt";
+    std::string fileName = SUMOConfigDirectory.string() + "/edgeWeights.txt";
     inFile.open(fileName.c_str());  //Open the edgeWeights file
+    if(!inFile.is_open())
+        return;
 
     std::string edgeName;
     while(inFile >> edgeName)   //While there are more edges to read
@@ -509,7 +519,7 @@ void Router::parseLaneCostsFile()
 void Router::LaneCostsToFile()
 {
     std::ofstream outFile;
-    std::string fileName = SUMO_FullPath.string() + "/edgeWeights.txt";
+    std::string fileName = SUMOConfigDirectory.string() + "/edgeWeights.txt";
     outFile.open(fileName.c_str()); //Open the edgeWeights file
 
     for(auto& pair : net->edges)

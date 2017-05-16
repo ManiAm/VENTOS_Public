@@ -7,8 +7,8 @@ simple TraCIStart
         @display("i=block/network2");
         @class(VENTOS::TraCI_Start);
         
-        @signal[initialize_withTraCI]();        
-        @signal[executeEachTS]();
+        @signal[initializeWithTraCISignal]();        
+        @signal[executeEachTimeStepSignal]();
         
         bool active = default(false);
         int remotePort = default(-1);

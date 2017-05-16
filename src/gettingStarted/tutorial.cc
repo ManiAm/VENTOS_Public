@@ -48,13 +48,13 @@ void tutorial::initialize(int stage)
             // get a pointer to the TraCI module
             TraCI = TraCI_Commands::getTraCI();
 
-            // register and subscribe to Signal_initialize_withTraCI
-            Signal_initialize_withTraCI = registerSignal("initialize_withTraCI");
-            omnetpp::getSimulation()->getSystemModule()->subscribe("initialize_withTraCI", this);
+            // subscribe to initializeWithTraCISignal
+            Signal_initialize_withTraCI = registerSignal("initializeWithTraCISignal");
+            omnetpp::getSimulation()->getSystemModule()->subscribe("initializeWithTraCISignal", this);
 
-            // register and subscribe to Signal_executeEachTS
-            Signal_executeEachTS = registerSignal("executeEachTS");
-            omnetpp::getSimulation()->getSystemModule()->subscribe("executeEachTS", this);
+            // subscribe to executeEachTimeStepSignal
+            Signal_executeEachTS = registerSignal("executeEachTimeStepSignal");
+            omnetpp::getSimulation()->getSystemModule()->subscribe("executeEachTimeStepSignal", this);
         }
     }
 }
@@ -64,13 +64,13 @@ void tutorial::finish()
     if(!active)
         return;
 
-    // unsubscribe from initialize_withTraCI signal
-    if(omnetpp::getSimulation()->getSystemModule()->isSubscribed("initialize_withTraCI", this))
-        omnetpp::getSimulation()->getSystemModule()->unsubscribe("initialize_withTraCI", this);
+    // unsubscribe from initializeWithTraCISignal
+    if(omnetpp::getSimulation()->getSystemModule()->isSubscribed("initializeWithTraCISignal", this))
+        omnetpp::getSimulation()->getSystemModule()->unsubscribe("initializeWithTraCISignal", this);
 
-    // unsubscribe from executeEachTS signal
-    if(omnetpp::getSimulation()->getSystemModule()->isSubscribed("executeEachTS", this))
-        omnetpp::getSimulation()->getSystemModule()->unsubscribe("executeEachTS", this);
+    // unsubscribe from executeEachTimeStepSignal
+    if(omnetpp::getSimulation()->getSystemModule()->isSubscribed("executeEachTimeStepSignal", this))
+        omnetpp::getSimulation()->getSystemModule()->unsubscribe("executeEachTimeStepSignal", this);
 }
 
 void tutorial::handleMessage(omnetpp::cMessage *msg)

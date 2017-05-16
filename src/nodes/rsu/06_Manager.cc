@@ -44,8 +44,8 @@ void ApplRSUManager::initialize(int stage)
     if (stage==0)
     {
         // register signal
-        Signal_executeEachTS = registerSignal("executeEachTS");
-        omnetpp::getSimulation()->getSystemModule()->subscribe("executeEachTS", this);
+        Signal_executeEachTS = registerSignal("executeEachTimeStepSignal");
+        omnetpp::getSimulation()->getSystemModule()->subscribe("executeEachTimeStepSignal", this);
     }
 }
 
@@ -55,7 +55,7 @@ void ApplRSUManager::finish()
     super::finish();
 
     // unsubscribe
-    omnetpp::getSimulation()->getSystemModule()->unsubscribe("executeEachTS", this);
+    omnetpp::getSimulation()->getSystemModule()->unsubscribe("executeEachTimeStepSignal", this);
     omnetpp::getSimulation()->getSystemModule()->unsubscribe("beaconSignaling", this);
 }
 

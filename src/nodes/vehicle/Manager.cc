@@ -45,8 +45,8 @@ void ApplVManager::initialize(int stage)
 
     if (stage == 0)
     {
-        carFollowingModelNumber = TraCI->vehicleGetCarFollowingModelNumber(SUMOID);
-        carFollowingSubModelNumber = TraCI->vehicleGetCarFollowingSubModelNumber(SUMOID);
+        carFollowingModelNumber = TraCI->vehicleGetCarFollowingModelID(SUMOID);
+        carFollowingSubModelNumber = TraCI->vehicleGetCarFollowingSubModelID(SUMOID);
 
         // NED variables (packet loss ratio)
         droppT = par("droppT").doubleValue();

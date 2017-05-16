@@ -76,9 +76,7 @@ public:
     std::ofstream vehicleEndTimesFile; //File of when each vehicle completes its trip
 
 protected:
-    boost::filesystem::path VENTOS_FullPath;
-    boost::filesystem::path SUMO_Path;
-    boost::filesystem::path SUMO_FullPath;
+    boost::filesystem::path SUMOConfigDirectory;
 
     //Edge-removal Algo
     omnetpp::cMessage* routerMsg = NULL;
@@ -115,7 +113,7 @@ protected:
     std::map<std::string, int> dijkstraTimes;
 
     // Message passing
-    TraCI_Commands* TraCI;
+    TraCI_Commands* TraCI = NULL;
     omnetpp::simsignal_t Signal_system;
     omnetpp::simsignal_t Signal_executeEachTS;
 

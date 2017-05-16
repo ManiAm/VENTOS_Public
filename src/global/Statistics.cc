@@ -59,17 +59,17 @@ void Statistics::initialize(int stage)
 
         // register signals
 
-        Signal_initialize_withTraCI = registerSignal("initialize_withTraCI");
-        omnetpp::getSimulation()->getSystemModule()->subscribe("initialize_withTraCI", this);
+        Signal_initialize_withTraCI = registerSignal("initializeWithTraCISignal");
+        omnetpp::getSimulation()->getSystemModule()->subscribe("initializeWithTraCISignal", this);
 
-        Signal_executeEachTS = registerSignal("executeEachTS");
-        omnetpp::getSimulation()->getSystemModule()->subscribe("executeEachTS", this);
+        Signal_executeEachTS = registerSignal("executeEachTimeStepSignal");
+        omnetpp::getSimulation()->getSystemModule()->subscribe("executeEachTimeStepSignal", this);
 
-        Signal_module_added = registerSignal("module_added");
-        omnetpp::getSimulation()->getSystemModule()->subscribe("module_added", this);
+        Signal_module_added = registerSignal("vehicleModuleAddedSignal");
+        omnetpp::getSimulation()->getSystemModule()->subscribe("vehicleModuleAddedSignal", this);
 
-        Signal_arrived = registerSignal("arrived");
-        omnetpp::getSimulation()->getSystemModule()->subscribe("arrived", this);
+        Signal_arrived = registerSignal("vehicleArrivedSignal");
+        omnetpp::getSimulation()->getSystemModule()->subscribe("vehicleArrivedSignal", this);
     }
 }
 
@@ -94,7 +94,7 @@ void Statistics::finish()
     save_Veh_emission_toFile();
 
     // unsubscribe
-    omnetpp::getSimulation()->getSystemModule()->unsubscribe("initialize_withTraCI", this);
+    omnetpp::getSimulation()->getSystemModule()->unsubscribe("initializeWithTraCISignal", this);
 }
 
 
@@ -923,28 +923,26 @@ void Statistics::record_Veh_data(std::string SUMOID, bool arrived)
     if(!it->second.active)
         return;
 
-    for(auto i = collected_veh_data.rbegin(); i != collected_veh_data.rend(); i++)
+    // if vehicle has arrived
+    // Note that we cannot call any TraCI commands on this vehicle any more!
+    if(arrived)
     {
-        // looking for the last entry of SUMOID
-        if(i->vehId == SUMOID)
+        // iterate backward over collected_veh_data
+        for(auto i = collected_veh_data.rbegin(); i != collected_veh_data.rend(); i++)
         {
-            // if vehicle has arrived
-            if(arrived)
+            // looking for the last time that we have collected data from this vehicle
+            if(i->vehId == SUMOID)
             {
                 // then update the arrival/route duration
                 i->arrival = (omnetpp::simTime()-updateInterval).dbl();
                 i->routeDuration = i->arrival - i->departure;
-                return;
-            }
-            else
-            {
-                // make sure that the arrival time is -1
-                if(i->arrival == -1)
-                    break;
 
-                throw omnetpp::cRuntimeError("veh '%s' has already arrived!", SUMOID.c_str());
+                // break out of for loop
+                break;
             }
         }
+
+        return;
     }
 
     veh_data_entry entry = {};

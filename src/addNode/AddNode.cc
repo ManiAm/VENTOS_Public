@@ -61,8 +61,8 @@ void AddNode::initialize(int stage)
 
         terminateTime = TraCI->par("terminateTime").doubleValue();
 
-        Signal_initialize_withTraCI = registerSignal("initialize_withTraCI");
-        omnetpp::getSimulation()->getSystemModule()->subscribe("initialize_withTraCI", this);
+        Signal_initialize_withTraCI = registerSignal("initializeWithTraCISignal");
+        omnetpp::getSimulation()->getSystemModule()->subscribe("initializeWithTraCISignal", this);
     }
 }
 
@@ -107,7 +107,7 @@ void AddNode::finish()
     }
 
     // unsubscribe
-    omnetpp::getSimulation()->getSystemModule()->unsubscribe("initialize_withTraCI", this);
+    omnetpp::getSimulation()->getSystemModule()->unsubscribe("initializeWithTraCISignal", this);
 }
 
 

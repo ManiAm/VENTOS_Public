@@ -150,7 +150,7 @@ void TraCI_Start::handleMessage(omnetpp::cMessage *msg)
         }
 
         // notify other modules to run one simulation TS
-        omnetpp::simsignal_t Signal_executeEachTS = registerSignal("executeEachTS");
+        omnetpp::simsignal_t Signal_executeEachTS = registerSignal("executeEachTimeStepSignal");
         this->emit(Signal_executeEachTS, 0);
 
         // we reached max simtime and should terminate OMNET++ simulation
@@ -166,14 +166,14 @@ void TraCI_Start::handleMessage(omnetpp::cMessage *msg)
 
 void TraCI_Start::init_traci()
 {
+    // always use sumo in the command-line mode
+    if(!omnetpp::cSimulation::getActiveEnvir()->isGUI())
+        par("SUMOapplication").setStringValue("sumo");
+
     // make sure the sumo application is correct
     std::string appl = par("SUMOapplication").stringValue();
     if(appl != "sumo" && appl != "sumoD" && appl != "sumo-gui" && appl != "sumo-guiD")
         throw omnetpp::cRuntimeError("SUMOapplication parameter is not set correctly!: %s", appl.c_str());
-
-    // always use sumo in the command-line mode
-    if(!omnetpp::cSimulation::getActiveEnvir()->isGUI())
-        appl = "sumo";
 
     int remotePort = par("remotePort").longValue();
 
@@ -189,7 +189,7 @@ void TraCI_Start::init_traci()
 
     // start 'SUMO TraCI server' first
     if(par("forkSUMO").boolValue())
-        TraCIConnection::startSUMO(getFullPath_SUMOExe(appl), getFullPath_SUMOConfig(), SUMOcommandLine, port);
+        TraCIConnection::startSUMO(getFullPath_SUMOApplication().string(), getFullPath_SUMOConfig().string(), SUMOcommandLine, port);
 
     // then connect to the 'SUMO TraCI server'
     connection = TraCIConnection::connect("localhost", port);
@@ -249,7 +249,7 @@ void TraCI_Start::init_traci()
 
     LOG_INFO << "    Initializing modules with TraCI support ... \n\n" << std::flush;
 
-    omnetpp::simsignal_t Signal_initialize_withTraCI = registerSignal("initialize_withTraCI");
+    omnetpp::simsignal_t Signal_initialize_withTraCI = registerSignal("initializeWithTraCISignal");
     this->emit(Signal_initialize_withTraCI, 1);
 }
 
@@ -432,7 +432,7 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
                 recordDeparture(idstring);
 
                 // signal to those interested that this vehicle has departed
-                omnetpp::simsignal_t Signal_departed = registerSignal("departed");
+                omnetpp::simsignal_t Signal_departed = registerSignal("vehicleDepartedSignal");
                 this->emit(Signal_departed, idstring.c_str());
 
                 if(equilibrium_vehicle)
@@ -481,7 +481,7 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
                 recordArrival(idstring);
 
                 // signal to those interested that this vehicle has arrived
-                omnetpp::simsignal_t Signal_arrived = registerSignal("arrived");
+                omnetpp::simsignal_t Signal_arrived = registerSignal("vehicleArrivedSignal");
                 this->emit(Signal_arrived, idstring.c_str());
 
                 if(equilibrium_vehicle)
@@ -835,7 +835,7 @@ void TraCI_Start::deleteManagedModule(std::string nodeId /*sumo id*/)
     mod->deleteModule();
 
     // signal to those interested that a module is deleted
-    omnetpp::simsignal_t Signal_module_deleted = registerSignal("module_deleted");
+    omnetpp::simsignal_t Signal_module_deleted = registerSignal("vehicleModuleDeletedSignal");
     this->emit(Signal_module_deleted, nodeId.c_str());
 }
 
@@ -900,7 +900,7 @@ void TraCI_Start::addModule(std::string nodeId /*sumo id*/, const Coord& positio
         throw omnetpp::cRuntimeError("Unknown vClass '%s' for vehicle '%s'", vClass.c_str(), nodeId.c_str());
 
     // signal to those interested that a new module is interested
-    omnetpp::simsignal_t Signal_module_added = registerSignal("module_added");
+    omnetpp::simsignal_t Signal_module_added = registerSignal("vehicleModuleAddedSignal");
     this->emit(Signal_module_added, addedModule);
 }
 

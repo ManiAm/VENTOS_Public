@@ -67,8 +67,8 @@ void SpeedProfile::initialize(int stage)
         // get a pointer to the TraCI module
         TraCI = TraCI_Commands::getTraCI();
 
-        Signal_executeEachTS = registerSignal("executeEachTS");
-        omnetpp::getSimulation()->getSystemModule()->subscribe("executeEachTS", this);
+        Signal_executeEachTS = registerSignal("executeEachTimeStepSignal");
+        omnetpp::getSimulation()->getSystemModule()->subscribe("executeEachTimeStepSignal", this);
 
         IsWarmUpFinished = false;
 
@@ -87,7 +87,7 @@ void SpeedProfile::finish()
 {
     // unsubscribe
     if(active)
-        omnetpp::getSimulation()->getSystemModule()->unsubscribe("executeEachTS", this);
+        omnetpp::getSimulation()->getSystemModule()->unsubscribe("executeEachTimeStepSignal", this);
 }
 
 

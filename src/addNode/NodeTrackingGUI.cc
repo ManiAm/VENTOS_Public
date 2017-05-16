@@ -50,8 +50,8 @@ void Tracking::initialize(int stage)
         // get a pointer to the TraCI module
         TraCI = TraCI_Commands::getTraCI();
 
-        Signal_initialize_withTraCI = registerSignal("initialize_withTraCI");
-        omnetpp::getSimulation()->getSystemModule()->subscribe("initialize_withTraCI", this);
+        Signal_initialize_withTraCI = registerSignal("initializeWithTraCISignal");
+        omnetpp::getSimulation()->getSystemModule()->subscribe("initializeWithTraCISignal", this);
 
         zoom = par("zoom").doubleValue();
         if(zoom < 100)
@@ -81,8 +81,8 @@ void Tracking::initialize(int stage)
 void Tracking::finish()
 {
     // unsubscribe
-    omnetpp::getSimulation()->getSystemModule()->unsubscribe("initialize_withTraCI", this);
-    omnetpp::getSimulation()->getSystemModule()->unsubscribe("executeEachTS", this);
+    omnetpp::getSimulation()->getSystemModule()->unsubscribe("initializeWithTraCISignal", this);
+    omnetpp::getSimulation()->getSystemModule()->unsubscribe("executeEachTimeStepSignal", this);
 }
 
 

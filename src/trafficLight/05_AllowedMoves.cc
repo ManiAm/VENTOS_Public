@@ -83,7 +83,7 @@ std::vector<std::vector<int>>& TrafficLightAllowedMoves::getMovements(std::strin
     if(LINKSIZE == 0)
         throw omnetpp::cRuntimeError("LINKSIZE can not be zero for this TL!");
 
-    boost::filesystem::path dir (TraCI->getDir_SUMOConfig());
+    boost::filesystem::path dir (TraCI->getFullPath_SUMOConfig().parent_path());
     movementsFilePath = dir / "allMovements.txt";
 
     // check if this file exists?

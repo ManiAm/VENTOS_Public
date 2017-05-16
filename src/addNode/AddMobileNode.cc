@@ -59,8 +59,8 @@ void AddMobileNode::initialize(int stage)
         if(terminateTime == -1)
             terminateTime = 10000;
 
-        Signal_initialize_withTraCI = registerSignal("initialize_withTraCI");
-        omnetpp::getSimulation()->getSystemModule()->subscribe("initialize_withTraCI", this);
+        Signal_initialize_withTraCI = registerSignal("initializeWithTraCISignal");
+        omnetpp::getSimulation()->getSystemModule()->subscribe("initializeWithTraCISignal", this);
     }
 }
 
@@ -68,8 +68,8 @@ void AddMobileNode::initialize(int stage)
 void AddMobileNode::finish()
 {
     // unsubscribe
-    omnetpp::getSimulation()->getSystemModule()->unsubscribe("initialize_withTraCI", this);
-    omnetpp::getSimulation()->getSystemModule()->unsubscribe("executeEachTS", this);
+    omnetpp::getSimulation()->getSystemModule()->unsubscribe("initializeWithTraCISignal", this);
+    omnetpp::getSimulation()->getSystemModule()->unsubscribe("executeEachTimeStepSignal", this);
 }
 
 
@@ -225,11 +225,11 @@ void AddMobileNode::Scenario8()
     Router *r = static_cast< Router* >(module);
 
     std::string vehFile = ("/Vehicles" + std::to_string(r->totalVehicleCount) + ".xml");
-    std::string xmlFileName = TraCI->getDir_SUMOConfig();
+    std::string xmlFileName = TraCI->getFullPath_SUMOConfig().parent_path().string();
     xmlFileName += vehFile;
 
     if( !boost::filesystem::exists(xmlFileName) )
-        generateVehicles(TraCI->getDir_SUMOConfig(), r);
+        generateVehicles(TraCI->getFullPath_SUMOConfig().parent_path().string(), r);
 
     rapidxml::file<> xmlFile( xmlFileName.c_str() );          // Convert our file to a rapid-xml readable object
     rapidxml::xml_document<> doc;                             // Build a rapidxml doc

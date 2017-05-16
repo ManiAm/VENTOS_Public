@@ -32,6 +32,9 @@
 #include <ctime>
 #include <ratio>
 
+#undef ev
+#include "boost/filesystem.hpp"
+
 #include "traci/TraCIConnection.h"
 #include "traci/TraCIBuffer.h"
 #include "mobility/TraCICoord.h"
@@ -311,8 +314,8 @@ public:
     double vehicleGetDepartureTime(std::string);         // new command
     double vehicleGetArrivalTime(std::string);           // new command
     std::string vehicleGetCarFollowingModelName(std::string);            // new command [returns the car-following model name -- ACC/CACC]
-    carFollowingModel_t vehicleGetCarFollowingModelNumber(std::string);  // new command [returns the car-following model number -- 0(ACC)/1(CACC)]
-    int vehicleGetCarFollowingSubModelNumber(std::string);               // new command [returns the car-following model sub-type -- CACC 1, CACC 2]
+    carFollowingModel_t vehicleGetCarFollowingModelID(std::string);      // new command [returns the car-following model number -- 0(ACC)/1(CACC)]
+    int vehicleGetCarFollowingSubModelID(std::string);                   // new command [returns the car-following model sub-type -- CACC 1, CACC 2]
     CFMODES_t vehicleGetCarFollowingModelMode(std::string);              // new command [returns the current ACC/CACC car following mode]
 
     // CMD_SET_VEHICLE_VARIABLE
@@ -550,9 +553,8 @@ public:
     //                       SUMO directory
     // ################################################################
 
-    std::string getFullPath_SUMOExe(std::string);
-    std::string getFullPath_SUMOConfig();
-    std::string getDir_SUMOConfig();
+    boost::filesystem::path getFullPath_SUMOApplication();
+    boost::filesystem::path getFullPath_SUMOConfig();
 
     std::map<std::string, omnetpp::cModule*> simulationGetManagedModules();
 

@@ -52,11 +52,11 @@ void LoopDetectors::initialize(int stage)
         // get a pointer to the TraCI module
         TraCI = TraCI_Commands::getTraCI();
 
-        Signal_initialize_withTraCI = registerSignal("initialize_withTraCI");
-        omnetpp::getSimulation()->getSystemModule()->subscribe("initialize_withTraCI", this);
+        Signal_initialize_withTraCI = registerSignal("initializeWithTraCISignal");
+        omnetpp::getSimulation()->getSystemModule()->subscribe("initializeWithTraCISignal", this);
 
-        Signal_executeEachTS = registerSignal("executeEachTS");
-        omnetpp::getSimulation()->getSystemModule()->subscribe("executeEachTS", this);
+        Signal_executeEachTS = registerSignal("executeEachTimeStepSignal");
+        omnetpp::getSimulation()->getSystemModule()->subscribe("executeEachTimeStepSignal", this);
     }
 }
 
@@ -66,8 +66,8 @@ void LoopDetectors::finish()
     saveLDsData();
 
     // unsubscribe
-    omnetpp::getSimulation()->getSystemModule()->unsubscribe("initialize_withTraCI", this);
-    omnetpp::getSimulation()->getSystemModule()->unsubscribe("executeEachTS", this);
+    omnetpp::getSimulation()->getSystemModule()->unsubscribe("initializeWithTraCISignal", this);
+    omnetpp::getSimulation()->getSystemModule()->unsubscribe("executeEachTimeStepSignal", this);
 }
 
 

@@ -64,7 +64,7 @@ void ApplVDynamicRouting::initialize(int stage)
         // get the rootFilePath
         omnetpp::cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("router");
         router = static_cast< Router* >(module);
-        std::string rootFilePath = TraCI->getDir_SUMOConfig();
+        std::string rootFilePath = TraCI->getFullPath_SUMOConfig().parent_path().string();
         rootFilePath += "/Vehicles" + std::to_string(router->totalVehicleCount) + ".xml";
         router->net->vehicles[SUMOID]->maxAccel = TraCI->vehicleGetMaxAccel(SUMOID);
 
