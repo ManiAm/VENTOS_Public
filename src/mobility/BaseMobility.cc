@@ -592,7 +592,7 @@ BaseMobility::BorderHandling BaseMobility::checkIfOutside( Coord targetPos, Coor
         }
     }
 
-    coreEV << "checkIfOutside, outside="<<outside<<" borderStep: " << borderStep.info() << std::endl;
+    // coreEV << "checkIfOutside, outside="<<outside<<" borderStep: " << borderStep.info() << std::endl;
 
     return outside;
 }

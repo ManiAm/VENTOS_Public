@@ -215,7 +215,7 @@ void BaseConnectionManager::checkGrid(BaseConnectionManager::GridCoord& oldCell,
     GridCoord *c = gridUnion.next();
     while(c != 0)
     {
-        ccEV << "Update cons in [" << c->info() << "]" << std::endl;
+        //ccEV << "Update cons in [" << c->info() << "]" << std::endl;
         updateNicConnections(getCellEntries(*c), nic);
         c = gridUnion.next();
     }
@@ -377,7 +377,7 @@ bool BaseConnectionManager::unregisterNic(cModule* nicModule)
     GridCoord* c = gridUnion.next();
     while(c != 0)
     {
-        ccEV << "Update cons in [" << c->info() << "]" << std::endl;
+        //ccEV << "Update cons in [" << c->info() << "]" << std::endl;
         NicEntries& nmap = getCellEntries(*c);
         for(NicEntries::iterator i = nmap.begin(); i != nmap.end(); ++i)
         {
