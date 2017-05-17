@@ -4,21 +4,6 @@
   <!-- Manual driving vehicle -Krauss Model (tau here is T_g and not controller delay!) -->
   <vType id="TypeManual" length="5.0" minGap="2.0" maxSpeed="30.0" vClass="passenger">
       <carFollowing-Krauss accel="3.0" decel="5.0" sigma="0" tau="1.64" />
-  </vType>  
-
-  <!-- Manual driving vehicle -KraussFixed Model -->
-  <vType id="TypeManual2" length="5.0" minGap="2.0" maxSpeed="30.0" vClass="passenger" >
-      <carFollowing-KraussFixed MaxAccel="3.0" MaxDecel="5.0" T_g="1.64" sigma="0" tau="1" />
-  </vType>
-  
-  <!-- Manual driving vehicle -KraussOrig1 Model -->
-  <vType id="TypeManual3" length="5.0" minGap="2" maxSpeed="28.0" vClass="passenger" >
-      <carFollowing-KraussOrig1 accel="2.0" decel="5.0" sigma="0" tau="1.64" />
-  </vType>
-  
-  <!-- Manual driving vehicle -OptimalSpeed Model -->
-  <vType id="TypeManual4" length="5.0" minGap="2" maxSpeed="28.0" vClass="passenger" >
-      <carFollowing-OptimalSpeed accel="100" decel="100" sigma="0" tau="1.64" sensitivity="1.21" DesTimeGap="1.64" />
   </vType>
   
   <!-- ACC vehicle -->
