@@ -3114,8 +3114,8 @@ void TraCI_Commands::add2Emulated(std::string id, std::string ipAddress)
 
 std::string TraCI_Commands::ip2vehicleId(std::string ipAddress) const
 {
-    auto ii = ipv4_OMNETid_mapping.find(ipAddress);
-    if(ii != ipv4_OMNETid_mapping.end())
+    auto ii = ipv4_SUMOid_mapping.find(ipAddress);
+    if(ii != ipv4_SUMOid_mapping.end())
         return ii->second;
     else
         return "";
@@ -3271,16 +3271,16 @@ void TraCI_Commands::removeMapping(std::string SUMOID)
 }
 
 
-void TraCI_Commands::addMapping_emulated(std::string SUMOID, std::string OMNETID)
+void TraCI_Commands::addMapping_emulated(std::string SUMOID)
 {
     auto ii = SUMOid_ipv4_mapping.find(SUMOID);
     if(ii != SUMOid_ipv4_mapping.end())
     {
         // save ipAddress <--> omnetId mapping
-        auto jj = ipv4_OMNETid_mapping.find(ii->second);
-        if(jj != ipv4_OMNETid_mapping.end())
+        auto jj = ipv4_SUMOid_mapping.find(ii->second);
+        if(jj != ipv4_SUMOid_mapping.end())
             throw omnetpp::cRuntimeError("IP address '%s' is not unique!", ii->second.c_str());
-        ipv4_OMNETid_mapping[ii->second] = OMNETID;
+        ipv4_SUMOid_mapping[ii->second] = SUMOID;
     }
 }
 
@@ -3294,10 +3294,10 @@ void TraCI_Commands::removeMapping_emulated(std::string SUMOID)
         SUMOid_ipv4_mapping.erase(ii);
 
         // then remove mapping of IPv4 and OMNET id
-        auto jj = ipv4_OMNETid_mapping.find(ipv4);
-        if(jj == ipv4_OMNETid_mapping.end())
+        auto jj = ipv4_SUMOid_mapping.find(ipv4);
+        if(jj == ipv4_SUMOid_mapping.end())
             throw omnetpp::cRuntimeError("IP address '%s' does not exist in the map!", ipv4.c_str());
-        ipv4_OMNETid_mapping.erase(jj);
+        ipv4_SUMOid_mapping.erase(jj);
     }
 }
 

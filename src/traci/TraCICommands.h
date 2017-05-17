@@ -234,7 +234,7 @@ private:
 
     // storing the mapping between emulated vehicle ids and the corresponding HIL board ipv4 address
     std::map<std::string /*veh SUMO id*/, std::string /*ip address*/> SUMOid_ipv4_mapping;
-    std::map<std::string /*ip address*/, std::string /*veh OMNET++ id*/> ipv4_OMNETid_mapping;
+    std::map<std::string /*ip address*/, std::string /*veh SUMO id*/> ipv4_SUMOid_mapping;
 
 public:
     virtual ~TraCI_Commands();
@@ -547,7 +547,7 @@ public:
     // ################################################################
 
     void add2Emulated(std::string vID, std::string ip);
-    std::string ip2vehicleId(std::string ip) const;   // HIL ipv4 address --> OMNET++ id of emulated vehicle
+    std::string ip2vehicleId(std::string ip) const;   // HIL ipv4 address --> SUMO id of emulated vehicle
     std::string vehicleId2ip(std::string vID) const;  // SUMO id of emulated vehicle --> HIL ipv4 address
 
     // ################################################################
@@ -570,7 +570,7 @@ protected:
     void addMapping(std::string SUMOID, std::string OMNETID);
     void removeMapping(std::string SUMOID);
 
-    void addMapping_emulated(std::string SUMOID, std::string OMNETID);
+    void addMapping_emulated(std::string SUMOID);
     void removeMapping_emulated(std::string SUMOID);
 
     void recordDeparture(std::string SUMOID);

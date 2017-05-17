@@ -240,7 +240,7 @@ void TraCI_Start::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_
         ASSERT(SUMOID != "");
 
         addMapping(SUMOID, vehModule->getFullName());
-        addMapping_emulated(SUMOID, vehModule->getFullName());
+        addMapping_emulated(SUMOID);
     }
     else if(signalID == Signal_module_deleted)
     {
