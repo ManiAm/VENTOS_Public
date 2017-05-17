@@ -164,7 +164,15 @@ void TraCIConnection::startSUMO(std::string SUMOapplication, std::string SUMOcon
             throw omnetpp::cRuntimeError("Running \"%s\" failed during system()", fullCommand.str().c_str());
 
         if (WEXITSTATUS(r) != 0)
-            throw omnetpp::cRuntimeError("Error launching TraCI server (\"%s\"): exited with code %d.", fullCommand.str().c_str(), WEXITSTATUS(r));
+        {
+            LOG_INFO << boost::format("\nERROR in launching SUMO application. Exit code is '%d'. \n") % WEXITSTATUS(r);
+            LOG_INFO << boost::format("Command-line argument was: \n");
+            LOG_INFO << boost::format("  %s \n") % fullCommand.str();
+            LOG_INFO << "\n" << std::flush;
+
+            // stop the simulation
+            throw omnetpp::cRuntimeError("Error launching SUMO");
+        }
 
         exit(1);
     }
