@@ -48,7 +48,7 @@ private:
     double errorRelSpeed;
 
     carFollowingModel_t carFollowingModelNumber;
-    int carFollowingSubModelNumber;
+    int CACC_communicationType;
 
     bool record_beacon_stat;
 

@@ -1076,25 +1076,25 @@ std::string TraCI_Commands::vehicleGetCarFollowingModelName(std::string nodeId)
 
 carFollowingModel_t TraCI_Commands::vehicleGetCarFollowingModelID(std::string nodeId)
 {
-    record_TraCI_activity_func("commandStart", CMD_GET_VEHICLE_VARIABLE, 0x72, "vehicleGetCarFollowingModelNumber");
+    record_TraCI_activity_func("commandStart", CMD_GET_VEHICLE_VARIABLE, 0x72, "vehicleGetCarFollowingModelID");
 
     int result = genericGetInt(CMD_GET_VEHICLE_VARIABLE, nodeId, 0x72, RESPONSE_GET_VEHICLE_VARIABLE);
 
     if(result < 0 || result >= (int)SUMO_CF_MAX)
         throw omnetpp::cRuntimeError("Invalid car-following model number %d", result);
 
-    record_TraCI_activity_func("commandComplete", CMD_GET_VEHICLE_VARIABLE, 0x72, "vehicleGetCarFollowingModelNumber");
+    record_TraCI_activity_func("commandComplete", CMD_GET_VEHICLE_VARIABLE, 0x72, "vehicleGetCarFollowingModelID");
     return (carFollowingModel_t)result;
 }
 
 
-int TraCI_Commands::vehicleGetCarFollowingSubModelID(std::string nodeId)
+int TraCI_Commands::vehicleGetCACCCommunicationID(std::string nodeId)
 {
-    record_TraCI_activity_func("commandStart", CMD_GET_VEHICLE_VARIABLE, 0x73, "vehicleGetCarFollowingSubModelNumber");
+    record_TraCI_activity_func("commandStart", CMD_GET_VEHICLE_VARIABLE, 0x73, "vehicleGetCACCCommunicationID");
 
     int result = genericGetInt(CMD_GET_VEHICLE_VARIABLE, nodeId, 0x73, RESPONSE_GET_VEHICLE_VARIABLE);
 
-    record_TraCI_activity_func("commandComplete", CMD_GET_VEHICLE_VARIABLE, 0x73, "vehicleGetCarFollowingSubModelNumber");
+    record_TraCI_activity_func("commandComplete", CMD_GET_VEHICLE_VARIABLE, 0x73, "vehicleGetCACCCommunicationID");
     return result;
 }
 

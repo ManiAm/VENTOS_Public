@@ -314,10 +314,10 @@ public:
     double vehicleGetCurrentAccel(std::string);          // new command
     double vehicleGetDepartureTime(std::string);         // new command
     double vehicleGetArrivalTime(std::string);           // new command
-    std::string vehicleGetCarFollowingModelName(std::string);            // new command [returns the car-following model name -- ACC/CACC]
-    carFollowingModel_t vehicleGetCarFollowingModelID(std::string);      // new command [returns the car-following model number -- 0(ACC)/1(CACC)]
-    int vehicleGetCarFollowingSubModelID(std::string);                   // new command [returns the car-following model sub-type -- CACC 1, CACC 2]
-    CFMODES_t vehicleGetCarFollowingModelMode(std::string);              // new command [returns the current ACC/CACC car following mode]
+    std::string vehicleGetCarFollowingModelName(std::string);         // new command [returns the car-following model name -- ACC/CACC]
+    carFollowingModel_t vehicleGetCarFollowingModelID(std::string);   // new command [returns the car-following model number -- 0(ACC)/1(CACC)]
+    int vehicleGetCACCCommunicationID(std::string);                   // new command [returns the CACC communication type]
+    CFMODES_t vehicleGetCarFollowingModelMode(std::string);           // new command [returns the current ACC/CACC car following mode]
 
     // CMD_SET_VEHICLE_VARIABLE
     void vehicleSetStop(std::string, std::string, double, uint8_t, int32_t, uint8_t);  // adds or modifies a stop with the given parameters
