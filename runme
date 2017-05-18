@@ -873,7 +873,7 @@ EOF
 
         omnetFULLPATH=$(pwd)
 
-        # before running configure make sure there is not previous omnet installation in path
+        # before running configure make sure there is no previous omnet installation in path
         ver=$(opp_msgc 2>&1 | grep 'Version:' | awk '{print $2}' | awk -F "," '{print $1}')
         vercomp "$ver" $targetVer
         result=$?
@@ -958,7 +958,7 @@ EOF
 
                     # source ~/.bashrc does not work here
                     # because a shell that runs a script is not interactive.
-                    export PATH=$PATH:$OMNET_BIN
+                    export PATH=$PATH:$omnetFULLPATH/bin
 
                 elif [[ "$OS" == "Mac OS X" ]]; then
                     help="Adding OMNET++ bin folder to PATH ..." 
