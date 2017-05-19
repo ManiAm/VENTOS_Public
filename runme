@@ -878,9 +878,9 @@ EOF
         vercomp "$ver" $targetVer
         result=$?
         if [[ ("" != "$ver") && ("$result" == "2") ]]; then
-            help="ERROR: The PATH variable contains an old version of OMNET ($ver)
-            Open .bashrc file and remove the old OMNET path. Then CLOSE this terminal 
-            and open a new terminal and execute the runme script again!"
+            help="ERROR: The PATH variable contains an old version of OMNET ($ver).
+Open .bashrc file and remove the old OMNET path. Then CLOSE this terminal
+and open a new terminal and execute the runme script again!"
             printf "\n\e[1;31m$help\e[0m \n\n"
             exit 1 
         fi
@@ -1098,6 +1098,17 @@ if [[ "" != "$ver" ]]; then
     loc=$(which sumo)
     echo "found SUMO $ver in"
     echo "    $loc"
+
+    SUMO_BIN_DIR=$(dirname "${loc}")
+    if [[ ! -d $SUMO_BIN_DIR/VENTOS_SUMO ]]; then
+
+        help="ERROR: The installed SUMO version interferes with VENTOS_SUMO.
+Open .bashrc file and remove the current SUMO path. Then CLOSE this terminal
+and open a new terminal and execute the runme script again!"
+        printf "\n\e[1;31m$help\e[0m \n\n"
+        exit 1 
+    fi
+
     echo "skip downloading/making SUMO"    
 else
     echo "no previous SUMO installation found!"
