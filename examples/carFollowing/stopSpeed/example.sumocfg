@@ -1,0 +1,24 @@
+
+<configuration>
+ 
+    <input>
+        <net-file value="example.net.xml"/>
+        <route-files value="example.rou.xml"/>
+    </input>
+
+    <time>
+        <begin value="0"/>
+        <end value="-1"/>
+        <step-length value="1" />
+    </time>
+    
+    <processing>
+        <time-to-teleport value="0" />
+        <xml-validation value="never" />
+    </processing>
+
+    <report>
+        <verbose value="true"/>
+    </report>
+
+</configuration>

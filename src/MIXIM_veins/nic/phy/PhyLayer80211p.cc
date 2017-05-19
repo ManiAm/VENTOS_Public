@@ -359,7 +359,9 @@ Radio* PhyLayer80211p::initializeRadio()
 // load all the analog models listed in the xml file
 void PhyLayer80211p::initializeAnalogueModels()
 {
-    omnetpp::cXMLElement* xmlConfig = par("analogueModels").xmlValue();
+    boost::filesystem::path VENTOS_FullPath = omnetpp::getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
+    boost::filesystem::path configFullPath = VENTOS_FullPath / "config.xml";
+    omnetpp::cXMLElement* xmlConfig = omnetpp::getEnvir()->getXMLDocument(configFullPath.c_str());
     if(xmlConfig == 0)
         throw omnetpp::cRuntimeError("No analogue models configuration file specified.");
 
@@ -721,7 +723,9 @@ void PhyLayer80211p::getParametersFromXML(omnetpp::cXMLElement* xmlData, Paramet
 // load all deciders listed in the xml file
 void PhyLayer80211p::initializeDecider()
 {
-    omnetpp::cXMLElement* xmlConfig = par("decider").xmlValue();
+    boost::filesystem::path VENTOS_FullPath = omnetpp::getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
+    boost::filesystem::path configFullPath = VENTOS_FullPath / "config.xml";
+    omnetpp::cXMLElement* xmlConfig = omnetpp::getEnvir()->getXMLDocument(configFullPath.c_str());
     if(xmlConfig == 0)
         throw omnetpp::cRuntimeError("No decider configuration file specified.");
 

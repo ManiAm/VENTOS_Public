@@ -294,6 +294,10 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
             }
         }
     }
+    else if(carFollowingModelNumber == SUMO_CF_CACC && CACC_communicationType == 3)
+    {
+        // not yet implemented!
+    }
     else
     {
         throw omnetpp::cRuntimeError("not a valid control type or control number!");

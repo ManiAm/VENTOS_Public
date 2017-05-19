@@ -1,0 +1,7 @@
+
+<edges>
+
+    <edge id="street1" from="1" to="2" numLanes="1" speed="20"/>
+    <edge id="street2" from="2" to="3" numLanes="1" speed="20"/>
+    
+</edges>

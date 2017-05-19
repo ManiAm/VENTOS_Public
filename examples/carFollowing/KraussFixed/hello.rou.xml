@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<routes>
+
+  <vType id="Type1" length="5.0" minGap="2.0" maxSpeed="30.0" vClass="passenger" >
+      <carFollowing-KraussFixed MaxAccel="3.0" MaxDecel="5.0" T_g="1.64" sigma="0" tau="1" />
+  </vType>  
+  
+  <route id="route1" edges="1to2 2to3 3to4 4to6" />
+
+  <vehicle id="veh0" type="Type1" route="route1" depart="1" />
+  <vehicle id="veh1" type="Type1" route="route1" depart="5" />
+  <vehicle id="veh2" type="Type1" route="route1" depart="10" />
+
+</routes>
