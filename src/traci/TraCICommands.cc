@@ -3177,6 +3177,24 @@ boost::filesystem::path TraCI_Commands::getFullPath_SUMOConfig()
 }
 
 
+bool TraCI_Commands::IsGUI()
+{
+    if(!omnetpp::cSimulation::getActiveEnvir()->isGUI())
+        return false;
+    else
+    {
+        std::string sumo_application = this->par("SUMOapplication").stdstringValue();
+
+        if(sumo_application == "sumo" || sumo_application == "sumoD")
+            return false;
+        else if(sumo_application == "sumo-gui" || sumo_application == "sumo-guiD")
+            return true;
+        else
+            throw omnetpp::cRuntimeError("SUMO application %s is not recognized", sumo_application.c_str());
+    }
+}
+
+
 std::map<std::string, omnetpp::cModule*> TraCI_Commands::simulationGetManagedModules()
 {
     return hosts;

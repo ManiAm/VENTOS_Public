@@ -40,7 +40,7 @@ Tracking::~Tracking()
 
 void Tracking::initialize(int stage)
 {
-    if(stage ==0)
+    if(stage == 0)
     {
         mode = par("mode").longValue();
 
@@ -49,6 +49,9 @@ void Tracking::initialize(int stage)
 
         // get a pointer to the TraCI module
         TraCI = TraCI_Commands::getTraCI();
+
+        if(!TraCI->IsGUI())
+            return;
 
         Signal_initialize_withTraCI = registerSignal("initializeWithTraCISignal");
         omnetpp::getSimulation()->getSystemModule()->subscribe("initializeWithTraCISignal", this);

@@ -53,7 +53,8 @@ void TraCI_Start::initialize(int stage)
 {
     super::initialize(stage);
 
-    if (stage == 1)
+    // this code should be initialized at the last last stage
+    if (stage == 2)
     {
         active = par("active").boolValue();
         debug = par("debug");

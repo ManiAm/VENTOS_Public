@@ -557,6 +557,7 @@ public:
     boost::filesystem::path getFullPath_SUMOApplication();
     boost::filesystem::path getFullPath_SUMOConfig();
 
+    bool IsGUI();
     std::map<std::string, omnetpp::cModule*> simulationGetManagedModules();
 
 protected:

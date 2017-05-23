@@ -92,7 +92,7 @@ public:
     virtual void initialize(int stage);
     virtual int numInitStages() const
     {
-        return std::max(cSimpleModule::numInitStages(), 2);
+        return std::max(cSimpleModule::numInitStages(), 3);
     }
     virtual void finish();
     virtual void handleMessage(omnetpp::cMessage *msg);
