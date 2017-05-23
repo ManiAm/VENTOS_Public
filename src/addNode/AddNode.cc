@@ -148,17 +148,9 @@ void AddNode::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t si
     if(signalID == Signal_initialize_withTraCI)
     {
         updateInterval = (double)TraCI->simulationGetTimeStep() / 1000.;
-
-        boost::filesystem::path sumoFull = TraCI->getFullPath_SUMOConfig();
-        boost::filesystem::path sumoDir = sumoFull.parent_path();
-        boost::filesystem::path addNodePath = sumoDir / "traci_addNode.xml";
-
-        if ( !boost::filesystem::exists(addNodePath) )
-            throw omnetpp::cRuntimeError("File '%s' does not exist!", addNodePath.c_str());
-
         SUMO_timeStep = TraCI->simulationGetTimeStep() / 1000.;
 
-        readInsertion(addNodePath.string());
+        readInsertion("addNode.xml");
     }
 }
 
@@ -194,7 +186,7 @@ void AddNode::readInsertion(std::string addNodePath)
         {
             pNode = pNode->next_sibling();
             if(!pNode)
-                throw omnetpp::cRuntimeError("Cannot find id '%s' in the traci_addNode.xml file!", this->id.c_str());
+                throw omnetpp::cRuntimeError("Cannot find id '%s' in the addNode.xml file!", this->id.c_str());
         }
     }
 
