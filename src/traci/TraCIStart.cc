@@ -136,6 +136,10 @@ void TraCI_Start::finish()
 
     delete connection;
     connection = NULL;
+
+    // flush all output buffer
+    LOG_FLUSH;
+    GLOG_FLUSH_ALL;
 }
 
 
