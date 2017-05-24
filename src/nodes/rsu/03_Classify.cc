@@ -41,7 +41,7 @@ void ApplRSUCLASSIFY::initialize(int stage)
 {
     super::initialize(stage);
 
-    if (stage==0)
+    if (stage == 0)
     {
         classifier = par("classifier").boolValue();
         if(!classifier)
@@ -67,7 +67,7 @@ void ApplRSUCLASSIFY::initialize(int stage)
         fileName << boost::format("%03d_trainData_%0.3f.txt") % currentRun % trainError;
         trainingFilePath = boost::filesystem::path("results") / fileName.str();
 
-        // for each incoming lane in this TL
+        // get incoming lane in this TL
         auto lan = TraCI->TLGetControlledLanes(myTLid);
 
         // remove duplicate entries
@@ -250,13 +250,13 @@ void ApplRSUCLASSIFY::loadTrainer()
     fileName << boost::format("%03d_%s_%s_%0.3f.model") % currentRun % trainer->name() % (trainer->trainOffset() ? "withOffset" : "withoutOffset") % trainError;
     boost::filesystem::path filePath = boost::filesystem::path("results") / fileName.str();
 
-    std::cout << "\n>>> Looking for '" << fileName.str() << "'... ";
+    LOG_INFO << "\n>>> Looking for '" << fileName.str() << "'... ";
 
     // check if this model was trained before
     std::ifstream ifs(filePath.string());
     if(!ifs.fail())
     {
-        std::cout << "found! \n";
+        LOG_INFO << "found! \n" << std::flush;
 
         shark::TextInArchive ia(ifs);
         kc_model->read(ia);
@@ -266,12 +266,12 @@ void ApplRSUCLASSIFY::loadTrainer()
         return;
     }
 
-    std::cout << "not found! \n";
+    LOG_INFO << "not found! \n" << std::flush;
 
     // read training data
     if(trainingData.elements().empty())
     {
-        std::cout << "\n>>> Reading training samples... " << std::flush;
+        LOG_INFO << boost::format("\n>>> Reading training samples from '%s'... ") % trainingFilePath.string() << std::flush;
         readTrainingSamples();
     }
 
@@ -279,7 +279,7 @@ void ApplRSUCLASSIFY::loadTrainer()
     if(trainingData.elements().empty())
     {
         collectTrainingData = true;
-        std::cout << "No training data exists! Keep running the simulation to collect training data. \n";
+        LOG_INFO << "\nNo training data exists! Keep running the simulation to collect training data. \n" << std::flush;
         return;
     }
     else
@@ -288,7 +288,7 @@ void ApplRSUCLASSIFY::loadTrainer()
 
         trainClassifier(trainer);
 
-        std::cout << ">>> Saving the training model to file for future runs! \n";
+        LOG_INFO << ">>> Saving the training model to file for future runs! \n";
 
         // save the model to file for future runs
         std::ofstream ofs(filePath.string());
@@ -308,51 +308,55 @@ void ApplRSUCLASSIFY::readTrainingSamples()
     }
     catch (std::exception& e)
     {
-        std::cout << e.what() << std::endl;
+        LOG_INFO << "not found! \n";
+        LOG_INFO << "    " << e.what() << std::endl;
         return;
     }
 
-    std::cout << "done! \n";
-    std::cout << trainingData.elements().size() << " samples fetched! \n" << std::flush;
+    LOG_INFO << "done! \n\n";
 
-    std::cout << "number of classes: " << numberOfClasses(trainingData) << std::endl;
+    // printing some info about the training data
+
+    LOG_INFO << trainingData.elements().size() << " samples fetched! \n" << std::flush;
+
+    LOG_INFO << "number of classes: " << numberOfClasses(trainingData) << std::endl;
     int classCount = 0;
     for(auto i : classSizes(trainingData))
     {
-        std::printf("  class %-2d: %-5lu, ", classCount, i);
+        LOG_INFO << boost::format("  class %-2d: %-5lu, ") % classCount % i;
         classCount++;
 
         if(classCount % 3 == 0)
-            std::cout << std::endl;
+            LOG_INFO << std::endl;
     }
 
-    std::cout << "shuffling training samples... " << std::flush;
-    trainingData.shuffle();   // shuffle trainingData
-    std::cout << "done! \n\n" << std::flush;
+    LOG_INFO << "\n>>> Shuffling training samples... " << std::flush;
+    trainingData.shuffle();
+    LOG_INFO << "done! \n\n" << std::flush;
 }
 
 
 void ApplRSUCLASSIFY::trainClassifier(shark::CSvmTrainer<shark::RealVector, unsigned int> *trainer)
 {
-    std::cout << ">>> Training the model... Please wait \n" << std::flush;
+    LOG_INFO << ">>> Training the model... Please wait \n" << std::flush;
 
     // start training --- on Mars server, the training takes around 20 min for 29162 training samples collected
     // during 300s with training error 0m. For training error of 3m, training takes around 50 min!
     trainer->train(*kc_model, trainingData);
 
-    std::printf("  iterations= %d, accuracy= %f, time= %g seconds \n",
-            (int)trainer->solutionProperties().iterations,
-            trainer->solutionProperties().accuracy,
-            trainer->solutionProperties().seconds);
+    LOG_INFO << boost::format("  iterations= %d, accuracy= %f, time= %g seconds \n") %
+            (int)trainer->solutionProperties().iterations %
+            trainer->solutionProperties().accuracy %
+            trainer->solutionProperties().seconds;
 
-    std::cout << "  training error= " << std::flush;
+    LOG_INFO << "  training error= " << std::flush;
 
     // evaluate the model on training set
     shark::ZeroOneLoss<unsigned int> loss; // 0-1 loss
     shark::Data<unsigned int> output = (*kc_model)(trainingData.inputs());
     double train_error = loss.eval(trainingData.labels(), output);
 
-    std::cout << train_error << "\n\n" << std::flush;
+    LOG_INFO << train_error << "\n\n" << std::flush;
 }
 
 
@@ -360,10 +364,15 @@ void ApplRSUCLASSIFY::trainClassifier(shark::CSvmTrainer<shark::RealVector, unsi
 template <typename beaconGeneral>
 void ApplRSUCLASSIFY::onBeaconAny(beaconGeneral wsm)
 {
-    std::string lane = wsm->getLane();
+    // make a copy of the wsm and do not
+    // modify the original wsm message
+    beaconGeneral wsm_dup = wsm->dup();
 
-    auto it = lanesTL.find(lane);
+    // current lane of the vehicle
+    std::string lane = wsm_dup->getLane();
+
     // return if this vehicle is not on any incoming lanes
+    auto it = lanesTL.find(lane);
     if(it == lanesTL.end())
         return;
 
@@ -376,10 +385,10 @@ void ApplRSUCLASSIFY::onBeaconAny(beaconGeneral wsm)
     {
         // add trainError to beacon
         if(trainError != 0)
-            addError(wsm, trainError);
+            addError(wsm_dup, trainError);
 
         // make an instance and push it to samples
-        sample_t m = {TraCICoord(wsm->getPos().x, wsm->getPos().y), wsm->getSpeed(), wsm->getAccel(), wsm->getAngle()};
+        sample_t m = {TraCICoord(wsm_dup->getPos().x, wsm_dup->getPos().y), wsm_dup->getSpeed(), wsm_dup->getAccel(), wsm_dup->getAngle()};
         samples.push_back(m);
 
         // get class label
@@ -395,10 +404,10 @@ void ApplRSUCLASSIFY::onBeaconAny(beaconGeneral wsm)
 
     // add GPSerror to beacon
     if(GPSerror != 0)
-        addError(wsm, GPSerror);
+        addError(wsm_dup, GPSerror);
 
     // get the predicted label
-    unsigned int predicted_label = makePrediction(wsm);
+    unsigned int predicted_label = makePrediction(wsm_dup);
 
     // get the real label
     auto re = classLabel.find(lane);
@@ -407,19 +416,19 @@ void ApplRSUCLASSIFY::onBeaconAny(beaconGeneral wsm)
     unsigned int real_label = re->second;
 
     // print debug information
-    std::string sender = wsm->getSender();
+    std::string sender = wsm_dup->getSender();
     if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 1)
     {
-        printf("%0.3f, %0.3f, %06.3f, %0.3f --> predicted label: %2d, true label: %2d, sender: %s \n",
-                wsm->getPos().x,
-                wsm->getPos().y,
-                wsm->getSpeed(),
-                wsm->getAngle(),
-                predicted_label,
-                real_label,
-                sender.c_str());
+        LOG_INFO << boost::format("%0.3f, %0.3f, %06.3f, %0.3f --> predicted label: %2d, true label: %2d, sender: %s \n") %
+                wsm_dup->getPos().x %
+                wsm_dup->getPos().y %
+                wsm_dup->getSpeed() %
+                wsm_dup->getAngle() %
+                predicted_label %
+                real_label %
+                sender.c_str();
 
-        std::cout.flush();
+        LOG_INFO << std::flush;
     }
 
     // save classification results for each entity
@@ -435,7 +444,7 @@ void ApplRSUCLASSIFY::onBeaconAny(beaconGeneral wsm)
 
     // draw samples on West direction in Gnuplot
     if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && lane.find("WC") != std::string::npos)
-        draw(wsm, real_label);
+        draw(wsm_dup, real_label);
 }
 
 
@@ -519,10 +528,11 @@ void ApplRSUCLASSIFY::addError(beaconGeneral &wsm, double maxError)
 
 void ApplRSUCLASSIFY::saveTrainingDataToFile()
 {
-    printf("\nSaving collected training data into '%s' \n", trainingFilePath.c_str());
-    printf("Re-run the simulation to train the model ... \n");
+    LOG_INFO << boost::format("\nSaving collected training data into '%s' \n") % trainingFilePath.string();
+    LOG_INFO << boost::format("Re-run the simulation to train the model ... \n");
+    LOG_INFO << std::flush;
 
-    FILE *filePtr = fopen (trainingFilePath.string().c_str(), "w");
+    FILE *filePtr = fopen (trainingFilePath.c_str(), "w");
 
     for(unsigned int i = 0; i < samples.size(); ++i)
         fprintf (filePtr, "%0.3f  %0.3f  %0.3f  %0.3f  %0.3f  %d \n", samples[i].pos.x, samples[i].pos.y, samples[i].speed, samples[i].accel, samples[i].angle, labels[i]);
@@ -674,10 +684,10 @@ void ApplRSUCLASSIFY::draw(beaconGeneral &wsm, unsigned int real_label)
     {
         for(auto &i : dataBlockCounter)
         {
-            std::cout << "label: " << i.first << std::endl;
+            LOG_INFO << "label: " << i.first << std::endl;
             for(auto &j : i.second)
             {
-                std::cout << "    Id: " << j.first
+                LOG_INFO << "    Id: " << j.first
                         << ", blockNum: " << j.second.counter
                         << ", color: (" << j.second.color.hue << "," << j.second.color.saturation << "," << j.second.color.value << ")"
                         << std::endl;
@@ -688,7 +698,7 @@ void ApplRSUCLASSIFY::draw(beaconGeneral &wsm, unsigned int real_label)
             }
         }
 
-        std::cout << std::endl;
+        LOG_INFO << std::endl;
     }
 
     // merge all small datablocks

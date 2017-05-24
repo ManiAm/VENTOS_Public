@@ -41,7 +41,7 @@ void ApplRSUManager::initialize(int stage)
 {
     super::initialize(stage);
 
-    if (stage==0)
+    if (stage == 0)
     {
         // register signal
         Signal_executeEachTS = registerSignal("executeEachTimeStepSignal");

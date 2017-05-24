@@ -51,7 +51,7 @@ void ApplRSUAID::initialize(int stage)
 {
     super::initialize(stage);
 
-    if (stage==0)
+    if (stage == 0)
     {
         enableAID = par("enableAID").boolValue();
         printIncidentDetection = par("printIncidentDetection").boolValue();
