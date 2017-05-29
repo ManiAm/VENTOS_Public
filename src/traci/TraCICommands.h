@@ -323,6 +323,7 @@ public:
     void vehicleSetStop(std::string, std::string, double, uint8_t, int32_t, uint8_t);  // adds or modifies a stop with the given parameters
     void vehicleResume(std::string);
     void vehicleSetSpeed(std::string, double);
+    void vehicleSetSpeedMode(std::string, uint32_t bitset);
     int32_t vehicleBuildLaneChangeMode(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t);
     void vehicleSetLaneChangeMode(std::string, int32_t);
     void vehicleChangeLane(std::string, uint8_t, double);

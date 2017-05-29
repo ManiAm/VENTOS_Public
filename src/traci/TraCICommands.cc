@@ -1174,6 +1174,20 @@ void TraCI_Commands::vehicleSetSpeed(std::string nodeId, double speed)
 }
 
 
+void TraCI_Commands::vehicleSetSpeedMode(std::string nodeId, uint32_t bitset)
+{
+    record_TraCI_activity_func("commandStart", CMD_SET_VEHICLE_VARIABLE, VAR_SPEEDSETMODE, "vehicleSetSpeedMode");
+
+    uint8_t variableId = VAR_SPEEDSETMODE;
+    uint8_t variableType = TYPE_INTEGER;
+    TraCIBuffer buf = connection->query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << bitset);
+
+    ASSERT(buf.eof());
+
+    record_TraCI_activity_func("commandComplete", CMD_SET_VEHICLE_VARIABLE, VAR_SPEEDSETMODE, "vehicleSetSpeedMode");
+}
+
+
 int32_t TraCI_Commands::vehicleBuildLaneChangeMode(uint8_t TraciLaneChangePriority, uint8_t RightDriveLC, uint8_t SpeedGainLC, uint8_t CooperativeLC, uint8_t StrategicLC)
 {
     // only two less-significant bits are needed
