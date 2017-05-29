@@ -158,7 +158,7 @@ void Statistics::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t
 
             if(vClass == "pedestrian")
                 init_Ped_data(m->par("SUMOID").stringValue(), m);
-            else if(vClass != "custom1")
+            else // obstacle, bikes, cars, trucks, etc.
                 init_Veh_data(m->par("SUMOID").stringValue(), m);
         }
 

@@ -9,6 +9,9 @@ module obstacle
     parameters:
         @signal[beaconSignaling]();
         
+        bool record_stat = default(false);
+        string record_list = default("vehId | lane | lanePos | speed");
+        
         string SUMOID = default("");
         string SUMOType = default("");
         string vehicleClass = default("");
