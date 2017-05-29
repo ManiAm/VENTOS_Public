@@ -529,6 +529,25 @@ public:
     // CMD_SET_PERSON
     void personAdd(std::string, std::string, double, int, std::string);
 
+    // ################################################################
+    //                              RSU
+    // ################################################################
+
+    std::vector<std::string> rsuGetIDList();
+    uint32_t rsuGetIDCount();
+    TraCICoord rsuGetPosition(std::string);
+
+    // ################################################################
+    //                              Obstacle
+    // ################################################################
+
+    std::vector<std::string> obstacleGetIDList();
+    uint32_t obstacleGetIDCount();
+    TraCICoord obstacleGetPosition(std::string);
+    std::string obstacleGetEdgeID(std::string);
+    std::string obstacleGetLaneID(std::string);
+    uint32_t obstacleGetLaneIndex(std::string);
+    double obstacleGetLanePosition(std::string);
 
     // ################################################################
     //                      SUMO-OMNET conversion
@@ -561,6 +580,16 @@ public:
     bool IsGUI();
     std::map<std::string, omnetpp::cModule*> simulationGetManagedModules();
 
+    // ################################################################
+    //                            Mapping
+    // ################################################################
+
+    void addMapping(std::string SUMOID, std::string OMNETID);
+    void removeMapping(std::string SUMOID);
+
+    void addMapping_emulated(std::string SUMOID);
+    void removeMapping_emulated(std::string SUMOID);
+
 protected:
 
     // these methods are not meant to be exposed to the user!
@@ -568,12 +597,6 @@ protected:
     std::pair<uint32_t, std::string> getVersion();
     void close_TraCI_connection();
     std::pair<TraCIBuffer, uint32_t> simulationTimeStep(uint32_t targetTime);
-
-    void addMapping(std::string SUMOID, std::string OMNETID);
-    void removeMapping(std::string SUMOID);
-
-    void addMapping_emulated(std::string SUMOID);
-    void removeMapping_emulated(std::string SUMOID);
 
     void recordDeparture(std::string SUMOID);
     void recordArrival(std::string SUMOID);

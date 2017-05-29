@@ -3039,6 +3039,194 @@ void TraCI_Commands::personAdd(std::string pId, std::string edgeId, double pos, 
 
 
 // ################################################################
+//                              RSU
+// ################################################################
+
+std::vector<std::string> TraCI_Commands::rsuGetIDList()
+{
+    omnetpp::cModule *add_node_module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("addNode");
+    ASSERT(add_node_module);
+
+    std::string rsu_name = add_node_module->par("RSU_ModuleName");
+
+    // get a pointer to the first RSU
+    cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule(rsu_name.c_str(), 0);
+    if(module == NULL)
+        return std::vector<std::string> ();  // empty string
+
+    std::vector<std::string> result;
+    for(int i = 0; i < module->getVectorSize(); i++)
+    {
+        std::string omnetID = omnetpp::getSimulation()->getSystemModule()->getSubmodule(rsu_name.c_str(), i)->getFullName();
+        std::string sumoId = convertId_omnet2traci(omnetID);
+        ASSERT(sumoId != "");
+        result.push_back(sumoId);
+    }
+
+    return result;
+}
+
+
+uint32_t TraCI_Commands::rsuGetIDCount()
+{
+    omnetpp::cModule *add_node_module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("addNode");
+    ASSERT(add_node_module);
+
+    std::string rsu_name = add_node_module->par("RSU_ModuleName");
+
+    // get a pointer to the first RSU
+    cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule(rsu_name.c_str(), 0);
+    if(module == NULL)
+        return 0;
+
+    // how many RSUs are in the network?
+    return module->getVectorSize();
+}
+
+
+TraCICoord TraCI_Commands::rsuGetPosition(std::string rsuId)
+{
+    std::vector<std::string> rsu_list = rsuGetIDList();
+
+    for(auto &rsu : rsu_list)
+    {
+        if(rsu == rsuId)
+        {
+            // get omnet id
+            std::string omnetId = convertId_traci2omnet(rsuId);
+
+            cModule *module = omnetpp::getSimulation()->getSystemModule()->getModuleByPath(omnetId.c_str());
+            ASSERT(module);
+
+            // get x-y coordinates of the rsu
+            double xPos = std::atof( module->getDisplayString().getTagArg("p",0) );
+            double yPos = std::atof( module->getDisplayString().getTagArg("p",1) );
+
+            return convertCoord_omnet2traci(Coord(xPos, yPos));
+        }
+    }
+
+    throw omnetpp::cRuntimeError("Cannot find RSU '%s'", rsuId.c_str());
+}
+
+
+// ################################################################
+//                              Obstacle
+// ################################################################
+
+std::vector<std::string> TraCI_Commands::obstacleGetIDList()
+{
+    omnetpp::cModule *add_node_module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("addNode");
+    ASSERT(add_node_module);
+
+    std::string obstacle_name = add_node_module->par("obstacle_ModuleName");
+
+    // get a pointer to the first obstacle
+    cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule(obstacle_name.c_str(), 0);
+    if(module == NULL)
+        return std::vector<std::string> ();  // empty string
+
+    std::vector<std::string> result;
+    for(int i = 0; i < module->getVectorSize(); i++)
+    {
+        std::string omnetID = omnetpp::getSimulation()->getSystemModule()->getSubmodule(obstacle_name.c_str(), i)->getFullName();
+        std::string sumoId = convertId_omnet2traci(omnetID);
+        ASSERT(sumoId != "");
+        result.push_back(sumoId);
+    }
+
+    return result;
+}
+
+
+uint32_t TraCI_Commands::obstacleGetIDCount()
+{
+    omnetpp::cModule *add_node_module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("addNode");
+    ASSERT(add_node_module);
+
+    std::string obstacle_name = add_node_module->par("obstacle_ModuleName");
+
+    // get a pointer to the first obstacle
+    cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule(obstacle_name.c_str(), 0);
+    if(module == NULL)
+        return 0;
+
+    // how many obstacles are in the network?
+    return module->getVectorSize();
+}
+
+
+TraCICoord TraCI_Commands::obstacleGetPosition(std::string obstacleId)
+{
+    std::vector<std::string> obstacle_list = obstacleGetIDList();
+
+    for(auto &obstacle : obstacle_list)
+    {
+        if(obstacle == obstacleId)
+        {
+            // get omnet id
+            std::string omnetId = convertId_traci2omnet(obstacle);
+
+            cModule *module = omnetpp::getSimulation()->getSystemModule()->getModuleByPath(omnetId.c_str());
+            ASSERT(module);
+
+            // get x-y coordinates of the obstacle
+            double xPos = std::atof( module->getDisplayString().getTagArg("p",0) );
+            double yPos = std::atof( module->getDisplayString().getTagArg("p",1) );
+
+            return convertCoord_omnet2traci(Coord(xPos, yPos));
+        }
+    }
+
+    throw omnetpp::cRuntimeError("Cannot find Obstacle '%s'", obstacleId.c_str());
+}
+
+
+std::string TraCI_Commands::obstacleGetEdgeID(std::string nodeId)
+{
+    record_TraCI_activity_func("commandStart", CMD_GET_VEHICLE_VARIABLE, VAR_ROAD_ID, "obstacleGetEdgeID");
+
+    std::string result = genericGetString(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_ROAD_ID, RESPONSE_GET_VEHICLE_VARIABLE);
+
+    record_TraCI_activity_func("commandComplete", CMD_GET_VEHICLE_VARIABLE, VAR_ROAD_ID, "obstacleGetEdgeID");
+    return result;
+}
+
+
+std::string TraCI_Commands::obstacleGetLaneID(std::string nodeId)
+{
+    record_TraCI_activity_func("commandStart", CMD_GET_VEHICLE_VARIABLE, VAR_LANE_ID, "obstacleGetLaneID");
+
+    std::string result = genericGetString(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_LANE_ID, RESPONSE_GET_VEHICLE_VARIABLE);
+
+    record_TraCI_activity_func("commandComplete", CMD_GET_VEHICLE_VARIABLE, VAR_LANE_ID, "obstacleGetLaneID");
+    return result;
+}
+
+
+uint32_t TraCI_Commands::obstacleGetLaneIndex(std::string nodeId)
+{
+    record_TraCI_activity_func("commandStart", CMD_GET_VEHICLE_VARIABLE, VAR_LANE_INDEX, "obstacleGetLaneIndex");
+
+    int32_t result = genericGetInt(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_LANE_INDEX, RESPONSE_GET_VEHICLE_VARIABLE);
+
+    record_TraCI_activity_func("commandComplete", CMD_GET_VEHICLE_VARIABLE, VAR_LANE_INDEX, "obstacleGetLaneIndex");
+    return result;
+}
+
+
+double TraCI_Commands::obstacleGetLanePosition(std::string nodeId)
+{
+    record_TraCI_activity_func("commandStart", CMD_GET_VEHICLE_VARIABLE, VAR_LANEPOSITION, "obstacleGetLanePosition");
+
+    double result = genericGetDouble(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_LANEPOSITION, RESPONSE_GET_VEHICLE_VARIABLE);
+
+    record_TraCI_activity_func("commandComplete", CMD_GET_VEHICLE_VARIABLE, VAR_LANEPOSITION, "obstacleGetLanePosition");
+    return result;
+}
+
+
+// ################################################################
 //                      SUMO-OMNET conversion
 // ################################################################
 
@@ -3216,59 +3404,8 @@ std::map<std::string, omnetpp::cModule*> TraCI_Commands::simulationGetManagedMod
 
 
 // ################################################################
-//                     protected methods!
+//                            Mapping
 // ################################################################
-
-std::pair<uint32_t, std::string> TraCI_Commands::getVersion()
-{
-    record_TraCI_activity_func("commandStart", CMD_GETVERSION, 0xff, "getVersion");
-
-    bool success = false;
-    TraCIBuffer buf = connection->queryOptional(CMD_GETVERSION, TraCIBuffer(), success);
-
-    if (!success)
-    {
-        ASSERT(buf.eof());
-        return std::make_pair(0, "(unknown)");
-    }
-
-    uint8_t cmdLength; buf >> cmdLength;
-    uint8_t commandResp; buf >> commandResp;
-    ASSERT(commandResp == CMD_GETVERSION);
-    uint32_t apiVersion; buf >> apiVersion;
-    std::string serverVersion; buf >> serverVersion;
-    ASSERT(buf.eof());
-
-    record_TraCI_activity_func("commandComplete", CMD_GETVERSION, 0xff, "getVersion");
-
-    return std::make_pair(apiVersion, serverVersion);
-}
-
-
-void TraCI_Commands::close_TraCI_connection()
-{
-    record_TraCI_activity_func("commandStart", CMD_CLOSE, 0xff, "simulationTerminate");
-
-    TraCIBuffer buf = connection->query(CMD_CLOSE, TraCIBuffer());
-
-    record_TraCI_activity_func("commandComplete", CMD_CLOSE, 0xff, "simulationTerminate");
-}
-
-
-// proceed SUMO simulation to targetTime
-std::pair<TraCIBuffer, uint32_t> TraCI_Commands::simulationTimeStep(uint32_t targetTime)
-{
-    record_TraCI_activity_func("commandStart", CMD_SIMSTEP2, 0xff, "simulationTimeStep");
-
-    TraCIBuffer buf = connection->query(CMD_SIMSTEP2, TraCIBuffer() << targetTime);
-    uint32_t count;
-    buf >> count;  // count: number of subscription results
-
-    record_TraCI_activity_func("commandComplete", CMD_SIMSTEP2, 0xff, "simulationTimeStep");
-
-    return std::make_pair(buf, count);
-}
-
 
 void TraCI_Commands::addMapping(std::string SUMOID, std::string OMNETID)
 {
@@ -3331,6 +3468,61 @@ void TraCI_Commands::removeMapping_emulated(std::string SUMOID)
             throw omnetpp::cRuntimeError("IP address '%s' does not exist in the map!", ipv4.c_str());
         ipv4_SUMOid_mapping.erase(jj);
     }
+}
+
+
+// ################################################################
+//                     protected methods!
+// ################################################################
+
+std::pair<uint32_t, std::string> TraCI_Commands::getVersion()
+{
+    record_TraCI_activity_func("commandStart", CMD_GETVERSION, 0xff, "getVersion");
+
+    bool success = false;
+    TraCIBuffer buf = connection->queryOptional(CMD_GETVERSION, TraCIBuffer(), success);
+
+    if (!success)
+    {
+        ASSERT(buf.eof());
+        return std::make_pair(0, "(unknown)");
+    }
+
+    uint8_t cmdLength; buf >> cmdLength;
+    uint8_t commandResp; buf >> commandResp;
+    ASSERT(commandResp == CMD_GETVERSION);
+    uint32_t apiVersion; buf >> apiVersion;
+    std::string serverVersion; buf >> serverVersion;
+    ASSERT(buf.eof());
+
+    record_TraCI_activity_func("commandComplete", CMD_GETVERSION, 0xff, "getVersion");
+
+    return std::make_pair(apiVersion, serverVersion);
+}
+
+
+void TraCI_Commands::close_TraCI_connection()
+{
+    record_TraCI_activity_func("commandStart", CMD_CLOSE, 0xff, "simulationTerminate");
+
+    TraCIBuffer buf = connection->query(CMD_CLOSE, TraCIBuffer());
+
+    record_TraCI_activity_func("commandComplete", CMD_CLOSE, 0xff, "simulationTerminate");
+}
+
+
+// proceed SUMO simulation to targetTime
+std::pair<TraCIBuffer, uint32_t> TraCI_Commands::simulationTimeStep(uint32_t targetTime)
+{
+    record_TraCI_activity_func("commandStart", CMD_SIMSTEP2, 0xff, "simulationTimeStep");
+
+    TraCIBuffer buf = connection->query(CMD_SIMSTEP2, TraCIBuffer() << targetTime);
+    uint32_t count;
+    buf >> count;  // count: number of subscription results
+
+    record_TraCI_activity_func("commandComplete", CMD_SIMSTEP2, 0xff, "simulationTimeStep");
+
+    return std::make_pair(buf, count);
 }
 
 
