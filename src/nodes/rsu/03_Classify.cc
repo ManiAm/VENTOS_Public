@@ -180,9 +180,9 @@ void ApplRSUCLASSIFY::initializeGnuPlot()
     fprintf(plotterPtr, "set title 'Sample Points' \n");
 
     // set axis labels
-    fprintf(plotterPtr, "set xlabel 'X pos' offset -5 \n");
-    fprintf(plotterPtr, "set ylabel 'Y pos' offset 3 \n");
-    fprintf(plotterPtr, "set zlabel 'Speed' offset -2 rotate left \n");
+    fprintf(plotterPtr, "set xlabel 'X Pos' offset -5 \n");
+    fprintf(plotterPtr, "set ylabel 'Y Pos' offset 3 \n");
+    fprintf(plotterPtr, "set zlabel 'Approach Speed' offset -2 rotate left \n");
 
     // change ticks
     // fprintf(pipe, "set xtics 20 \n");
