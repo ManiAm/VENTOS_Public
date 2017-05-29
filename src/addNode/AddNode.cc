@@ -50,7 +50,7 @@ void AddNode::initialize(int stage)
 {
     super::initialize(stage);
 
-    if(stage ==0)
+    if(stage == 0)
     {
         id = par("id").stringValue();
         if(id == "")
@@ -82,6 +82,8 @@ void AddNode::finish()
         cc->unregisterNic(mod->getSubmodule("nic"));
         mod->callFinish();
         mod->deleteModule();
+
+        TraCI->removeMapping(i.second.id_str);
     }
 
     // delete all RSU modules in omnet
@@ -93,6 +95,8 @@ void AddNode::finish()
         cc->unregisterNic(mod->getSubmodule("nic"));
         mod->callFinish();
         mod->deleteModule();
+
+        TraCI->removeMapping(i.second.id_str);
     }
 
     // delete all CA modules in omnet
@@ -104,6 +108,8 @@ void AddNode::finish()
         cc->unregisterNic(mod->getSubmodule("nic"));
         mod->callFinish();
         mod->deleteModule();
+
+        TraCI->removeMapping(i.second.id_str);
     }
 
     // unsubscribe
@@ -117,7 +123,8 @@ void AddNode::handleMessage(omnetpp::cMessage *msg)
     {
         std::string vehID = msg->getName();
 
-        // remove the obstacle vehicle from SUMO
+        // we ask SUMO to remove the obstacle from SUMO.
+        // TraCIStart class will automatically remove the cModule
         TraCI->vehicleRemove(vehID, 2);
     }
     else if(msg->isSelfMessage() && msg->getKind() == TYPE_TIMER_STOPPED_VEHICLE)
@@ -310,6 +317,8 @@ void AddNode::addAdversary()
         mod->getDisplayString().parse(par("adversary_ModuleDisplayString"));
         mod->buildInside();
 
+        TraCI->addMapping(entry.second.id_str, mod->getFullName());
+
         Coord co = TraCI->convertCoord_traci2omnet(entry.second.pos);
 
         mod->getSubmodule("mobility")->par("x") = co.x;
@@ -426,6 +435,8 @@ void AddNode::addRSU()
         mod->finalizeParameters();
         mod->getDisplayString().parse(par("RSU_ModuleDisplayString"));
         mod->buildInside();
+
+        TraCI->addMapping(entry.second.id_str, mod->getFullName());
 
         Coord co = TraCI->convertCoord_traci2omnet(entry.second.pos);
 
@@ -1784,6 +1795,8 @@ void AddNode::addCA()
         mod->finalizeParameters();
         mod->getDisplayString().parse(par("adversary_ModuleDisplayString"));
         mod->buildInside();
+
+        TraCI->addMapping(entry.second.id_str, mod->getFullName());
 
         Coord co = TraCI->convertCoord_traci2omnet(entry.second.pos);
 
