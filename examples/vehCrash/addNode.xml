@@ -2,44 +2,31 @@
 
 <addNode id="add_0">
 
-  <vehicle_flow id="veh" type="TypeManual" route="route1" begin="0" number="10" distribution="deterministic" period="1" />
+  <obstacle id="my_OBS" edge="1to2" lane="0" lanePos="200" color="red" />
+  <vehicle_flow id="veh" type="TypeKrauss" route="route1" begin="0" number="100" distribution="deterministic" period="3" />
   
 </addNode>
 
 
 <addNode id="add_1">
 
-  <vehicle_flow id="veh" type="TypeACC1" route="route1" begin="0" number="10" distribution="deterministic" period="1" />
+  <obstacle id="my_OBS" edge="1to2" lane="0" lanePos="200" begin="10" duration="20" color="red" />
+  <vehicle_flow id="veh" type="TypeKrauss" route="route1" begin="0" number="100" distribution="deterministic" period="3" />
   
 </addNode>
 
 
 <addNode id="add_2">
 
-  <vehicle_flow id="veh" type="TypeCACC1" route="route1" begin="0" number="10" distribution="deterministic" period="1" />
+  <obstacle id="my_OBS" edge="1to2" lane="0" lanePos="200" color="red" />
+  <vehicle_flow id="veh" type="TypeKrauss" route="route1" begin="0" number="40" distribution="deterministic" period="1" />
   
 </addNode>
 
 
 <addNode id="add_3">
 
-  <vehicle_flow id="veh" type="TypeCACC2" route="route1" begin="0" number="10" distribution="deterministic" period="1" />
-  
+  <vehicle id="veh0" type="TypeKrauss" route="route1" depart="0" departLane="0" />
+  <vehicle id="veh1" type="TypeKrauss" route="route1" depart="1" departLane="0" departSpeed="20" />
+    
 </addNode>
-
-
-
-<addNode id="add_4">
-
-  <vehicle_flow id="veh" type="TypeCACC3" route="route1" begin="0" number="10" distribution="deterministic" period="1" />
-  
-</addNode>
-
-
-
-<addNode id="add_5">
-
-  <vehicle_flow id="veh" type="TypeManual" route="route1" begin="0" number="30" distribution="deterministic" period="1" />
-  
-</addNode>
-
