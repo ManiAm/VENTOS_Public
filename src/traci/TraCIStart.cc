@@ -529,11 +529,11 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
                 // signal to those interested that this vehicle has departed
                 omnetpp::simsignal_t Signal_departed = registerSignal("vehicleDepartedSignal");
                 this->emit(Signal_departed, idstring.c_str());
-            }
 
-            STAT->departedVehicleCount += count;
-            STAT->activeVehicleCount += count;
-            STAT->drivingVehicleCount += count;
+                STAT->departedVehicleCount++;
+                STAT->activeVehicleCount++;
+                STAT->drivingVehicleCount++;
+            }
         }
         else if (variable1_resp == VAR_ARRIVED_VEHICLES_IDS)
         {
@@ -561,11 +561,11 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
                 // check if this object has been deleted already (e.g. because it was outside the ROI)
                 cModule* mod = getManagedModule(idstring);
                 if (mod) deleteManagedModule(idstring);
-            }
 
-            STAT->arrivedVehicleCount += count;
-            STAT->activeVehicleCount -= count;
-            STAT->drivingVehicleCount -= count;
+                STAT->arrivedVehicleCount++;
+                STAT->activeVehicleCount--;
+                STAT->drivingVehicleCount--;
+            }
 
             // should we stop simulation?
             if(autoTerminate)
@@ -598,11 +598,18 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
 
                 // check if this object has been deleted already (e.g. because it was outside the ROI)
                 cModule* mod = getManagedModule(idstring);
-                if (mod) deleteManagedModule(idstring);
-            }
+                if (mod)
+                {
+                    deleteManagedModule(idstring);
 
-            STAT->activeVehicleCount -= count;
-            STAT->drivingVehicleCount -= count;
+                    STAT->activeVehicleCount--;
+                    STAT->drivingVehicleCount--;
+                }
+
+                LOG_WARNING << boost::format(">>> WARNING: '%s' started teleporting at '%.3f'. \n") %
+                        idstring %
+                        (omnetpp::simTime().dbl() - updateInterval) << std::flush;
+            }
         }
         else if (variable1_resp == VAR_TELEPORT_ENDING_VEHICLES_IDS)
         {
@@ -613,10 +620,13 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
             {
                 std::string idstring; buf >> idstring;
                 // adding modules is handled on the fly when entering/leaving the ROI
-            }
 
-            STAT->activeVehicleCount += count;
-            STAT->drivingVehicleCount += count;
+                STAT->activeVehicleCount++;
+                STAT->drivingVehicleCount++;
+
+                // we do not create omnet++ module here once teleporting is finished.
+                // we let processVehicleSubscription to take care of this!
+            }
         }
         else if (variable1_resp == VAR_PARKING_STARTING_VEHICLES_IDS)
         {
@@ -635,10 +645,10 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
                     if (!mm) continue;
                     mm->changeParkingState(true);
                 }
-            }
 
-            STAT->parkingVehicleCount += count;
-            STAT->drivingVehicleCount -= count;
+                STAT->parkingVehicleCount++;
+                STAT->drivingVehicleCount--;
+            }
         }
         else if (variable1_resp == VAR_PARKING_ENDING_VEHICLES_IDS)
         {
@@ -657,10 +667,10 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
                     if (!mm) continue;
                     mm->changeParkingState(false);
                 }
-            }
 
-            STAT->parkingVehicleCount -= count;
-            STAT->drivingVehicleCount += count;
+                STAT->parkingVehicleCount--;
+                STAT->drivingVehicleCount++;
+            }
         }
         else
             throw omnetpp::cRuntimeError("Received unhandled sim subscription result");
