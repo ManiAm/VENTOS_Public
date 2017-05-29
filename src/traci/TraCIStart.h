@@ -64,7 +64,10 @@ private:
     std::set<std::string> subscribedPedestrians; // all pedestrians we have already subscribed to
     std::vector<std::string> allPedestrians;
 
-    size_t nextNodeVectorIndex = 0;   // next OMNeT++ module vector index to use
+    // next OMNeT++ module vector index to use
+    size_t nextMotorVectorIndex = 0;
+    size_t nextObstacleVectorIndex = 0;
+    size_t nextBikeVectorIndex = 0;
 
     omnetpp::cMessage* executeOneTimestepTrigger = NULL; // self-message scheduled for when to next call executeOneTimestep
 
@@ -112,7 +115,7 @@ private:
     void processVehicleSubscription(std::string objectId, TraCIBuffer& buf);
 
     void addModule(std::string nodeId, const Coord& position, std::string road_id = "", double speed = -1, double angle = -1);
-    omnetpp::cModule* addVehicle(std::string nodeId, std::string type, std::string name, std::string displayString, std::string vClass, const Coord& position, std::string road_id, double speed, double angle);
+    omnetpp::cModule* addVehicle(std::string nodeId, std::string type, std::string name, std::string displayString, int32_t nodeVectorIndex, std::string vClass, const Coord& position, std::string road_id, double speed, double angle);
     omnetpp::cModule* addPedestrian();
     void deleteManagedModule(std::string nodeId);
 

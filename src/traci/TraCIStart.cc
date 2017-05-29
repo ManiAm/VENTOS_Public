@@ -922,6 +922,7 @@ void TraCI_Start::addModule(std::string nodeId /*sumo id*/, const Coord& positio
                 ADDNODE->par("obstacle_ModuleType").stringValue(),
                 ADDNODE->par("obstacle_ModuleName").stdstringValue(),
                 ADDNODE->par("obstacle_ModuleDisplayString").stdstringValue(),
+                nextObstacleVectorIndex++,
                 vClass,
                 position,
                 road_id,
@@ -935,6 +936,7 @@ void TraCI_Start::addModule(std::string nodeId /*sumo id*/, const Coord& positio
                 ADDNODE->par("vehicle_ModuleType").stdstringValue(),
                 ADDNODE->par("vehicle_ModuleName").stdstringValue(),
                 ADDNODE->par("vehicle_ModuleDisplayString").stdstringValue(),
+                nextMotorVectorIndex++,
                 vClass,
                 position,
                 road_id,
@@ -947,6 +949,7 @@ void TraCI_Start::addModule(std::string nodeId /*sumo id*/, const Coord& positio
                 ADDNODE->par("bike_ModuleType").stringValue(),
                 ADDNODE->par("bike_ModuleName").stringValue(),
                 ADDNODE->par("bike_ModuleDisplayString").stringValue(),
+                nextBikeVectorIndex++,
                 vClass,
                 position,
                 road_id,
@@ -971,7 +974,7 @@ void TraCI_Start::addModule(std::string nodeId /*sumo id*/, const Coord& positio
 }
 
 
-omnetpp::cModule* TraCI_Start::addVehicle(std::string SUMOID, std::string type, std::string name, std::string displayString, std::string vClass, const Coord& position, std::string road_id, double speed, double angle)
+omnetpp::cModule* TraCI_Start::addVehicle(std::string SUMOID, std::string type, std::string name, std::string displayString, int32_t nodeVectorIndex, std::string vClass, const Coord& position, std::string road_id, double speed, double angle)
 {
     cModule* parentmod = getParentModule();
     if (!parentmod)
@@ -982,8 +985,7 @@ omnetpp::cModule* TraCI_Start::addVehicle(std::string SUMOID, std::string type, 
         throw omnetpp::cRuntimeError("Module Type \"%s\" not found", type.c_str());
 
     //TODO: this trashes the vectsize member of the cModule, although nobody seems to use it
-    int32_t nodeVectorIndex = nextNodeVectorIndex++;
-    cModule* mod = nodeType->create(name.c_str(), parentmod, nodeVectorIndex, nodeVectorIndex);
+    cModule* mod = nodeType->create(name.c_str(), parentmod, nodeVectorIndex+1 /*vector size*/, nodeVectorIndex);
     mod->finalizeParameters();
     mod->getDisplayString().parse(displayString.c_str());
     mod->buildInside();
