@@ -121,7 +121,7 @@ void ApplRSUCRL::handleSelfMsg(omnetpp::cMessage *msg)
     }
     else if(msg == Timer1)
     {
-        sendBeacon();
+        sendBeacon_CRL();
     }
     else if(msg == Timer3)
     {
@@ -559,7 +559,7 @@ void ApplRSUCRL::recieveBeacon(omnetpp::cMessage *msg)
 
 
 // send beacon (only in MPB and ICE)
-void ApplRSUCRL::sendBeacon()
+void ApplRSUCRL::sendBeacon_CRL()
 {
     //    EV << "**** " << this->getParentModule()->getFullName() << " is sending a broadcast beacon." << endl;
     //    if ( ev.isGUI() ) this->getParentModule()->bubble("Sending beacon");

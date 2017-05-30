@@ -90,7 +90,7 @@ private:
     void broadcastCRL_Maskv2();
 
     void recieveBeacon(omnetpp::cMessage *);
-    void sendBeacon();
+    void sendBeacon_CRL();
     int Maximum();
     int IsExist(int);
 };

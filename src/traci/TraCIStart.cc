@@ -307,6 +307,8 @@ void TraCI_Start::init_traci()
     if(updateInterval <= 0)
         throw omnetpp::cRuntimeError("step-length value should be >0");
 
+    LOG_INFO << boost::format("    Simulation time step is %f seconds \n") %  updateInterval << std::flush;
+
     // query road network boundaries from SUMO
     simBoundary_t boundaries = simulationGetNetBoundary();
 

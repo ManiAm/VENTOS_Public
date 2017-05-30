@@ -41,7 +41,7 @@ void ApplRSUBeacon::initialize(int stage)
 {
     super::initialize(stage);
 
-    if (stage==0)
+    if (stage == 0)
     {
         // get a pointer to the TrafficLight module
         TLptr = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TrafficLight");
