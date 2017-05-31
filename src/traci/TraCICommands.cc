@@ -1653,6 +1653,17 @@ double TraCI_Commands::vehicleTypeGetMaxSpeed(std::string nodeId)
 }
 
 
+double TraCI_Commands::vehicleTypeGetMinGap(std::string nodeId)
+{
+    record_TraCI_activity_func("commandStart", CMD_GET_VEHICLETYPE_VARIABLE, VAR_MINGAP, "vehicleTypeGetMinGap");
+
+    double result = genericGetDouble(CMD_GET_VEHICLETYPE_VARIABLE, nodeId, VAR_MINGAP, RESPONSE_GET_VEHICLETYPE_VARIABLE);
+
+    record_TraCI_activity_func("commandComplete", CMD_GET_VEHICLETYPE_VARIABLE, VAR_MINGAP, "vehicleTypeGetMinGap");
+    return result;
+}
+
+
 // ################################################################
 //                              route
 // ################################################################

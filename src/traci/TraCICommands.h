@@ -360,6 +360,7 @@ public:
     uint32_t vehicleTypeGetIDCount();
     double vehicleTypeGetLength(std::string);
     double vehicleTypeGetMaxSpeed(std::string);
+    double vehicleTypeGetMinGap(std::string);
 
     // ################################################################
     //                              route

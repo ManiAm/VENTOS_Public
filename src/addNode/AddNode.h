@@ -71,6 +71,7 @@ private:
     const std::string vehicle_tag = "vehicle";
     const std::string vehicle_flow_tag = "vehicle_flow";
     const std::string vehicle_multiFlow_tag = "vehicle_multiflow";
+    const std::string vehicle_platoon_tag = "vehicle_platoon";
     const std::string emulated_tag = "emulated";
     const std::string ca_tag = "ca";
 
@@ -179,6 +180,27 @@ private:
 
     std::map<std::string, vehicleMultiFlowEntry_t> allVehicleMultiFlow;
 
+    typedef struct vehiclePlatoonEntry
+    {
+        std::string id_str;
+        std::string type_str;
+        int size;
+        std::string routeID_str;
+        std::string from_str;
+        std::string to_str;
+        std::vector<std::string> via_str_tokenize;
+        std::string color_str;
+        double depart;
+        int departLane;
+        double departPos;
+        double platoonMaxSpeed;
+        bool fastCatchUp;
+        double interGap;
+        bool cooperation;
+    } vehiclePlatoonEntry_t;
+
+    std::map<std::string, vehiclePlatoonEntry_t> allVehiclePlatoon;
+
     typedef struct emulatedEntry
     {
         std::string id_str;
@@ -230,6 +252,10 @@ private:
     void parseVehicleMultiFlow(rapidxml::xml_node<> *);
     void addVehicleMultiFlow();
     std::string getVehRoute(vehicleMultiFlowEntry_t, double);
+
+    void parseVehiclePlatoon(rapidxml::xml_node<> *);
+    void addVehiclePlatoon();
+    std::string getOverlappedPlatoon(vehiclePlatoonEntry_t &, int, std::string);
 
     void parseCA(rapidxml::xml_node<> *);
     void addCA();
