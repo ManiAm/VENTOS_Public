@@ -132,3 +132,14 @@ simple Tracking
         string trackingLane = default("1to2_0");  // in mode 3
         double windowsOffset = default(400);      // in mode 3
 }
+
+
+simple TrafficControl
+{
+    parameters:
+        @class(VENTOS::TrafficControl);
+        @display("i=block/network2");    
+        
+        int headerLength = default(256bit) @unit(bit); //header length of the application 
+        string id = default(""); 
+}

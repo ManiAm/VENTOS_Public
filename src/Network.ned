@@ -15,7 +15,7 @@ network Network
         double playgroundSizeX @unit(m); // x size of the area the nodes are in (in meters)
         double playgroundSizeY @unit(m); // y size of the area the nodes are in (in meters)
         double playgroundSizeZ @unit(m); // z size of the area the nodes are in (in meters)
-        
+
         string statisticsType;
 
         // 0=no debug. 
@@ -50,7 +50,11 @@ network Network
         }
         addMobileNode: AddMobileNode {
             parameters:
-                @display("p=487,216;i=old/bwsink");
+                @display("p=48,300;i=old/bwsink");
+        }
+        trafficControl: TrafficControl {
+            parameters:
+                @display("p=436,135;i=block/app2");
         }
         speedprofile: SpeedProfile {
             parameters:
@@ -74,7 +78,7 @@ network Network
         }
         tutorial: tutorial {
             parameters:
-                @display("p=337,299;i=old/ring");
+                @display("p=245,216;i=old/ring");
         }
         // TraCI is the last module so that its finish method
         // is called after all other modules

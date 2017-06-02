@@ -35,6 +35,7 @@
 #include "addNode/AddNode.h"
 #include "MIXIM_veins/connectionManager/ConnectionManager.h"
 #include "logging/VENTOS_logging.h"
+#include "xmlUtil.h"
 
 namespace VENTOS {
 
@@ -162,12 +163,6 @@ void AddNode::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t si
 }
 
 
-std::vector<DSRC_val_t> AddNode::getVehsDSRCAttributeStatus()
-{
-    return this->vehs_DSRC_attribute_status;
-}
-
-
 void AddNode::readInsertion(std::string addNodePath)
 {
     rapidxml::file<> xmlFile(addNodePath.c_str());  // Convert our file to a rapid-xml readable object
@@ -176,6 +171,12 @@ void AddNode::readInsertion(std::string addNodePath)
 
     // Get the first applDependency node
     rapidxml::xml_node<> *pNode = doc.first_node("addNode");
+
+    if(pNode == NULL)
+    {
+        LOG_WARNING << boost::format("\nWARNING: There is no 'addNode' nodes in the addNode.xml file \n") << std::flush;
+        return;
+    }
 
     while(1)
     {
@@ -263,13 +264,13 @@ void AddNode::parseAdversary(rapidxml::xml_node<> *pNode)
             continue;
 
         std::vector<std::string> validAttr = {"id", "pos", "drawMaxIntfDist"};
-        validityCheck(cNode, validAttr);
+        xmlUtil::validityCheck(cNode, validAttr);
 
-        std::string id_str = getAttrValue_string(cNode, "id");
-        TraCICoord pos = getAttrValue_coord(cNode, "pos");
-        bool drawMaxIntfDist = getAttrValue_bool(cNode, "drawMaxIntfDist", false, true);
-        std::string color_str = getAttrValue_string(cNode, "color", false, "green");
-        bool filled = getAttrValue_bool(cNode, "filled", false, false);
+        std::string id_str = xmlUtil::getAttrValue_string(cNode, "id");
+        TraCICoord pos = xmlUtil::getAttrValue_coord(cNode, "pos");
+        bool drawMaxIntfDist = xmlUtil::getAttrValue_bool(cNode, "drawMaxIntfDist", false, true);
+        std::string color_str = xmlUtil::getAttrValue_string(cNode, "color", false, "green");
+        bool filled = xmlUtil::getAttrValue_bool(cNode, "filled", false, false);
 
         auto it = allAdversary.find(id_str);
         if(it == allAdversary.end())
@@ -368,13 +369,13 @@ void AddNode::parseRSU(rapidxml::xml_node<> *pNode)
             continue;
 
         std::vector<std::string> validAttr = {"id", "pos", "drawMaxIntfDist", "color", "filled"};
-        validityCheck(cNode, validAttr);
+        xmlUtil::validityCheck(cNode, validAttr);
 
-        std::string id_str = getAttrValue_string(cNode, "id");
-        TraCICoord pos = getAttrValue_coord(cNode, "pos");
-        bool drawMaxIntfDist = getAttrValue_bool(cNode, "drawMaxIntfDist", false, true);
-        std::string color_str = getAttrValue_string(cNode, "color", false, "green");
-        bool filled = getAttrValue_bool(cNode, "filled", false, false);
+        std::string id_str = xmlUtil::getAttrValue_string(cNode, "id");
+        TraCICoord pos = xmlUtil::getAttrValue_coord(cNode, "pos");
+        bool drawMaxIntfDist = xmlUtil::getAttrValue_bool(cNode, "drawMaxIntfDist", false, true);
+        std::string color_str = xmlUtil::getAttrValue_string(cNode, "color", false, "green");
+        bool filled = xmlUtil::getAttrValue_bool(cNode, "filled", false, false);
 
         auto it = allRSU.find(id_str);
         if(it == allRSU.end())
@@ -490,18 +491,18 @@ void AddNode::parseObstacle(rapidxml::xml_node<> *pNode)
             continue;
 
         std::vector<std::string> validAttr = {"id", "length", "edge", "lane", "lanePos", "onRoad", "color", "begin", "end", "duration"};
-        validityCheck(cNode, validAttr);
+        xmlUtil::validityCheck(cNode, validAttr);
 
-        std::string id_str = getAttrValue_string(cNode, "id");
-        int length = getAttrValue_int(cNode, "length", false, 5);
-        std::string edge_str = getAttrValue_string(cNode, "edge");
-        int lane = getAttrValue_int(cNode, "lane", false, -5 /*DEPART_LANE_BEST_FREE*/);
-        double lanePos = getAttrValue_double(cNode, "lanePos");
-        bool onRoad = getAttrValue_bool(cNode, "onRoad", false, true);
-        std::string color_str = getAttrValue_string(cNode, "color", false, "red");
-        double begin = getAttrValue_double(cNode, "begin", false, 0);
-        double end = getAttrValue_double(cNode, "end", false, -1);
-        double duration = getAttrValue_double(cNode, "duration", false, -1);
+        std::string id_str = xmlUtil::getAttrValue_string(cNode, "id");
+        int length = xmlUtil::getAttrValue_int(cNode, "length", false, 5);
+        std::string edge_str = xmlUtil::getAttrValue_string(cNode, "edge");
+        int lane = xmlUtil::getAttrValue_int(cNode, "lane", false, -5 /*DEPART_LANE_BEST_FREE*/);
+        double lanePos = xmlUtil::getAttrValue_double(cNode, "lanePos");
+        bool onRoad = xmlUtil::getAttrValue_bool(cNode, "onRoad", false, true);
+        std::string color_str = xmlUtil::getAttrValue_string(cNode, "color", false, "red");
+        double begin = xmlUtil::getAttrValue_double(cNode, "begin", false, 0);
+        double end = xmlUtil::getAttrValue_double(cNode, "end", false, -1);
+        double duration = xmlUtil::getAttrValue_double(cNode, "duration", false, -1);
 
         if(!onRoad && cNode->first_attribute("lane"))
             throw omnetpp::cRuntimeError("attribute 'lane' is redundant when 'onRoad' is false in element '%s'", obstacle_tag.c_str());
@@ -649,23 +650,23 @@ void AddNode::parseVehicle(rapidxml::xml_node<> *pNode)
 
         std::vector<std::string> validAttr = {"id", "type", "route", "from", "to", "via", "color",
                 "depart", "departLane", "departPos", "departSpeed", "laneChangeMode", "status", "duration", "DSRCprob"};
-        validityCheck(cNode, validAttr);
+        xmlUtil::validityCheck(cNode, validAttr);
 
-        std::string id_str = getAttrValue_string(cNode, "id");
-        std::string type_str = getAttrValue_string(cNode, "type");
-        std::string routeID_str = getAttrValue_string(cNode, "route", false, "");
-        std::string from_str = getAttrValue_string(cNode, "from", false, "");
-        std::string to_str = getAttrValue_string(cNode, "to", false, "");
-        std::vector<std::string> via_str_tokenize = getAttrValue_stringVector(cNode, "via", false, std::vector<std::string>());
-        std::string color_str = getAttrValue_string(cNode, "color", false, "yellow");
-        double depart = getAttrValue_double(cNode, "depart", false, 0);
-        int departLane = getAttrValue_int(cNode, "departLane", false, -5 /*DEPART_LANE_BEST_FREE*/);
-        double departPos = getAttrValue_double(cNode, "departPos", false, 0);
-        double departSpeed = getAttrValue_double(cNode, "departSpeed", false, 0);
-        int laneChangeMode = getAttrValue_int(cNode, "laneChangeMode", false, LANECHANGEMODE_DEFAULT);
-        std::string status_str = getAttrValue_string(cNode, "status", false, "");
-        double duration = getAttrValue_double(cNode, "duration", false, -1);
-        double DSRCprob = getAttrValue_double(cNode, "DSRCprob", false, -1);
+        std::string id_str = xmlUtil::getAttrValue_string(cNode, "id");
+        std::string type_str = xmlUtil::getAttrValue_string(cNode, "type");
+        std::string routeID_str = xmlUtil::getAttrValue_string(cNode, "route", false, "");
+        std::string from_str = xmlUtil::getAttrValue_string(cNode, "from", false, "");
+        std::string to_str = xmlUtil::getAttrValue_string(cNode, "to", false, "");
+        std::vector<std::string> via_str_tokenize = xmlUtil::getAttrValue_stringVector(cNode, "via", false, std::vector<std::string>());
+        std::string color_str = xmlUtil::getAttrValue_string(cNode, "color", false, "yellow");
+        double depart = xmlUtil::getAttrValue_double(cNode, "depart", false, 0);
+        int departLane = xmlUtil::getAttrValue_int(cNode, "departLane", false, -5 /*DEPART_LANE_BEST_FREE*/);
+        double departPos = xmlUtil::getAttrValue_double(cNode, "departPos", false, 0);
+        double departSpeed = xmlUtil::getAttrValue_double(cNode, "departSpeed", false, 0);
+        int laneChangeMode = xmlUtil::getAttrValue_int(cNode, "laneChangeMode", false, LANECHANGEMODE_DEFAULT);
+        std::string status_str = xmlUtil::getAttrValue_string(cNode, "status", false, "");
+        double duration = xmlUtil::getAttrValue_double(cNode, "duration", false, -1);
+        double DSRCprob = xmlUtil::getAttrValue_double(cNode, "DSRCprob", false, -1);
 
         if( !cNode->first_attribute("route") && !cNode->first_attribute("from") && !cNode->first_attribute("to") )
             throw omnetpp::cRuntimeError("either 'route' or 'from/to' attributes should be defined in element '%s'", vehicle_tag.c_str());
@@ -801,25 +802,22 @@ void AddNode::addVehicle()
         RGB newColor = Color::colorNameToRGB(entry.second.color_str);
         TraCI->vehicleSetColor(vehID, newColor);
 
+        int DSRC_status = -1;
         if(entry.second.DSRCprob != -1)
         {
             double rnd_type = DSRC_Dist(generator);
             if(rnd_type >= 0 && rnd_type < entry.second.DSRCprob)
-            {
-                DSRC_val_t entry = {vehID, 1};
-                vehs_DSRC_attribute_status.push_back(entry);
-            }
+                DSRC_status = 1;
             else
-            {
-                DSRC_val_t entry = {vehID, 0};
-                vehs_DSRC_attribute_status.push_back(entry);
-            }
+                DSRC_status = 0;
         }
-        else
-        {
-            DSRC_val_t entry = {vehID, -1};
-            vehs_DSRC_attribute_status.push_back(entry);
-        }
+
+        auto ii = vehs_deferred_attributes.find(vehID);
+        if(ii != vehs_deferred_attributes.end())
+            throw omnetpp::cRuntimeError("Vehicle '%s' was added previously! Make sure the vehicle IDs are unique.", vehID.c_str());
+        veh_deferred_attributes_t deferred_entry;
+        deferred_entry.DSRC_status = DSRC_status;
+        vehs_deferred_attributes[vehID] = deferred_entry;
     }
 }
 
@@ -893,29 +891,29 @@ void AddNode::parseVehicleFlow(rapidxml::xml_node<> *pNode)
         std::vector<std::string> validAttr = {"id", "type", "typeDist", "color", "route", "from", "to", "via", "departLane",
                 "departPos", "departSpeed", "laneChangeMode", "number", "begin", "end", "distribution",
                 "period", "lambda", "seed", "probability", "DSRCprob"};
-        validityCheck(cNode, validAttr);
+        xmlUtil::validityCheck(cNode, validAttr);
 
-        std::string id_str = getAttrValue_string(cNode, "id");
-        std::vector<std::string> type_str_tokenize = getAttrValue_stringVector(cNode, "type");
-        std::vector<double> typeDist_tokenize = getAttrValue_doubleVector(cNode, "typeDist", false, std::vector<double>());
-        std::string routeID_str = getAttrValue_string(cNode, "route", false, "");
-        std::string from_str = getAttrValue_string(cNode, "from", false, "");
-        std::string to_str = getAttrValue_string(cNode, "to", false, "");
-        std::vector<std::string> via_str_tokenize = getAttrValue_stringVector(cNode, "via", false, std::vector<std::string>());
-        std::string color_str = getAttrValue_string(cNode, "color", false, "yellow");
-        int departLane = getAttrValue_int(cNode, "departLane", false, -5 /*DEPART_LANE_BEST_FREE*/);
-        double departPos = getAttrValue_double(cNode, "departPos", false, 0);
-        double departSpeed = getAttrValue_double(cNode, "departSpeed", false, 0);
-        int laneChangeMode = getAttrValue_int(cNode, "laneChangeMode", false, LANECHANGEMODE_DEFAULT);
-        double begin = getAttrValue_double(cNode, "begin", false, 0);
-        int number = getAttrValue_int(cNode, "number", false, -1);
-        double end = getAttrValue_double(cNode, "end", false, -1);
-        int seed = getAttrValue_int(cNode, "seed", false, 0);
-        std::string distribution_str = getAttrValue_string(cNode, "distribution");
-        double period = getAttrValue_double(cNode, "period", false, -1);
-        double lambda = getAttrValue_double(cNode, "lambda", false, -1);
-        double probability = getAttrValue_double(cNode, "probability", false, -1);
-        double DSRCprob = getAttrValue_double(cNode, "DSRCprob", false, -1);
+        std::string id_str = xmlUtil::getAttrValue_string(cNode, "id");
+        std::vector<std::string> type_str_tokenize = xmlUtil::getAttrValue_stringVector(cNode, "type");
+        std::vector<double> typeDist_tokenize = xmlUtil::getAttrValue_doubleVector(cNode, "typeDist", false, std::vector<double>());
+        std::string routeID_str = xmlUtil::getAttrValue_string(cNode, "route", false, "");
+        std::string from_str = xmlUtil::getAttrValue_string(cNode, "from", false, "");
+        std::string to_str = xmlUtil::getAttrValue_string(cNode, "to", false, "");
+        std::vector<std::string> via_str_tokenize = xmlUtil::getAttrValue_stringVector(cNode, "via", false, std::vector<std::string>());
+        std::string color_str = xmlUtil::getAttrValue_string(cNode, "color", false, "yellow");
+        int departLane = xmlUtil::getAttrValue_int(cNode, "departLane", false, -5 /*DEPART_LANE_BEST_FREE*/);
+        double departPos = xmlUtil::getAttrValue_double(cNode, "departPos", false, 0);
+        double departSpeed = xmlUtil::getAttrValue_double(cNode, "departSpeed", false, 0);
+        int laneChangeMode = xmlUtil::getAttrValue_int(cNode, "laneChangeMode", false, LANECHANGEMODE_DEFAULT);
+        double begin = xmlUtil::getAttrValue_double(cNode, "begin", false, 0);
+        int number = xmlUtil::getAttrValue_int(cNode, "number", false, -1);
+        double end = xmlUtil::getAttrValue_double(cNode, "end", false, -1);
+        int seed = xmlUtil::getAttrValue_int(cNode, "seed", false, 0);
+        std::string distribution_str = xmlUtil::getAttrValue_string(cNode, "distribution");
+        double period = xmlUtil::getAttrValue_double(cNode, "period", false, -1);
+        double lambda = xmlUtil::getAttrValue_double(cNode, "lambda", false, -1);
+        double probability = xmlUtil::getAttrValue_double(cNode, "probability", false, -1);
+        double DSRCprob = xmlUtil::getAttrValue_double(cNode, "DSRCprob", false, -1);
 
         // we have multiple types
         if(type_str_tokenize.size() > 1)
@@ -1117,25 +1115,22 @@ void AddNode::addVehicleFlow()
 
                 depart += entry.second.period;
 
+                int DSRC_status = -1;
                 if(entry.second.DSRCprob != -1)
                 {
                     double rnd_type = DSRC_Dist(generator);
                     if(rnd_type >= 0 && rnd_type < entry.second.DSRCprob)
-                    {
-                        DSRC_val_t entry = {vehID, 1};
-                        vehs_DSRC_attribute_status.push_back(entry);
-                    }
+                        DSRC_status = 1;
                     else
-                    {
-                        DSRC_val_t entry = {vehID, 0};
-                        vehs_DSRC_attribute_status.push_back(entry);
-                    }
+                        DSRC_status = 0;
                 }
-                else
-                {
-                    DSRC_val_t entry = {vehID, -1};
-                    vehs_DSRC_attribute_status.push_back(entry);
-                }
+
+                auto ii = vehs_deferred_attributes.find(vehID);
+                if(ii != vehs_deferred_attributes.end())
+                    throw omnetpp::cRuntimeError("Vehicle '%s' was added previously! Make sure the vehicle IDs are unique.", vehID.c_str());
+                veh_deferred_attributes_t deferred_entry;
+                deferred_entry.DSRC_status = DSRC_status;
+                vehs_deferred_attributes[vehID] = deferred_entry;
             }
         }
         else if(entry.second.distribution_str == "poisson")
@@ -1177,25 +1172,22 @@ void AddNode::addVehicleFlow()
                     if(entry.second.laneChangeMode != LANECHANGEMODE_DEFAULT)
                         TraCI->vehicleSetLaneChangeMode(vehID, entry.second.laneChangeMode);
 
+                    int DSRC_status = -1;
                     if(entry.second.DSRCprob != -1)
                     {
                         double rnd_type = DSRC_Dist(generator);
                         if(rnd_type >= 0 && rnd_type < entry.second.DSRCprob)
-                        {
-                            DSRC_val_t entry = {vehID, 1};
-                            vehs_DSRC_attribute_status.push_back(entry);
-                        }
+                            DSRC_status = 1;
                         else
-                        {
-                            DSRC_val_t entry = {vehID, 0};
-                            vehs_DSRC_attribute_status.push_back(entry);
-                        }
+                            DSRC_status = 0;
                     }
-                    else
-                    {
-                        DSRC_val_t entry = {vehID, -1};
-                        vehs_DSRC_attribute_status.push_back(entry);
-                    }
+
+                    auto ii = vehs_deferred_attributes.find(vehID);
+                    if(ii != vehs_deferred_attributes.end())
+                        throw omnetpp::cRuntimeError("Vehicle '%s' was added previously! Make sure the vehicle IDs are unique.", vehID.c_str());
+                    veh_deferred_attributes_t deferred_entry;
+                    deferred_entry.DSRC_status = DSRC_status;
+                    vehs_deferred_attributes[vehID] = deferred_entry;
 
                     vehCount++;
 
@@ -1243,25 +1235,22 @@ void AddNode::addVehicleFlow()
                     if(entry.second.laneChangeMode != LANECHANGEMODE_DEFAULT)
                         TraCI->vehicleSetLaneChangeMode(vehID, entry.second.laneChangeMode);
 
+                    int DSRC_status = -1;
                     if(entry.second.DSRCprob != -1)
                     {
                         double rnd_type = DSRC_Dist(generator);
                         if(rnd_type >= 0 && rnd_type < entry.second.DSRCprob)
-                        {
-                            DSRC_val_t entry = {vehID, 1};
-                            vehs_DSRC_attribute_status.push_back(entry);
-                        }
+                            DSRC_status = 1;
                         else
-                        {
-                            DSRC_val_t entry = {vehID, 0};
-                            vehs_DSRC_attribute_status.push_back(entry);
-                        }
+                            DSRC_status = 0;
                     }
-                    else
-                    {
-                        DSRC_val_t entry = {vehID, -1};
-                        vehs_DSRC_attribute_status.push_back(entry);
-                    }
+
+                    auto ii = vehs_deferred_attributes.find(vehID);
+                    if(ii != vehs_deferred_attributes.end())
+                        throw omnetpp::cRuntimeError("Vehicle '%s' was added previously! Make sure the vehicle IDs are unique.", vehID.c_str());
+                    veh_deferred_attributes_t deferred_entry;
+                    deferred_entry.DSRC_status = DSRC_status;
+                    vehs_deferred_attributes[vehID] = deferred_entry;
 
                     vehCount++;
 
@@ -1313,29 +1302,29 @@ void AddNode::parseVehicleMultiFlow(rapidxml::xml_node<> *pNode)
         std::vector<std::string> validAttr = {"id", "type", "typeDist", "route", "routeDist", "color", "departLane",
                 "departPos", "departSpeed", "laneChangeMode", "begin", "number", "end", "distribution",
                 "period", "lambda", "seed", "probability", "DSRCprob"};
-        validityCheck(cNode, validAttr);
+        xmlUtil::validityCheck(cNode, validAttr);
 
-        std::string id_str = getAttrValue_string(cNode, "id");
-        std::vector<std::string> type_str_tokenize = getAttrValue_stringVector(cNode, "type");
-        std::vector<double> typeDist_tokenize = getAttrValue_doubleVector(cNode, "typeDist", false, std::vector<double>());
+        std::string id_str = xmlUtil::getAttrValue_string(cNode, "id");
+        std::vector<std::string> type_str_tokenize = xmlUtil::getAttrValue_stringVector(cNode, "type");
+        std::vector<double> typeDist_tokenize = xmlUtil::getAttrValue_doubleVector(cNode, "typeDist", false, std::vector<double>());
         // route is mandatory here
-        std::vector<std::string> routeID_str_tokenize = getAttrValue_stringVector(cNode, "route");
+        std::vector<std::string> routeID_str_tokenize = xmlUtil::getAttrValue_stringVector(cNode, "route");
         // we now have route distribution
-        std::vector<double> routeDist_tokenize = getAttrValue_doubleVector(cNode, "routeDist", false, std::vector<double>());
-        std::string color_str = getAttrValue_string(cNode, "color", false, "yellow");
-        int departLane = getAttrValue_int(cNode, "departLane", false, -5 /*DEPART_LANE_BEST_FREE*/);
-        double departPos = getAttrValue_double(cNode, "departPos", false, 0);
-        double departSpeed = getAttrValue_double(cNode, "departSpeed", false, 0);
-        int laneChangeMode = getAttrValue_int(cNode, "laneChangeMode", false, LANECHANGEMODE_DEFAULT);
-        double begin = getAttrValue_double(cNode, "begin", false, 0);
-        int number = getAttrValue_int(cNode, "number", false, -1);
-        double end = getAttrValue_double(cNode, "end", false, -1);
-        int seed = getAttrValue_int(cNode, "seed", false, 0);
-        std::string distribution_str = getAttrValue_string(cNode, "distribution");
-        double period = getAttrValue_double(cNode, "period", false, -1);
-        double lambda = getAttrValue_double(cNode, "lambda", false, -1);
-        double probability = getAttrValue_double(cNode, "probability", false, -1);
-        double DSRCprob = getAttrValue_double(cNode, "DSRCprob", false, -1);
+        std::vector<double> routeDist_tokenize = xmlUtil::getAttrValue_doubleVector(cNode, "routeDist", false, std::vector<double>());
+        std::string color_str = xmlUtil::getAttrValue_string(cNode, "color", false, "yellow");
+        int departLane = xmlUtil::getAttrValue_int(cNode, "departLane", false, -5 /*DEPART_LANE_BEST_FREE*/);
+        double departPos = xmlUtil::getAttrValue_double(cNode, "departPos", false, 0);
+        double departSpeed = xmlUtil::getAttrValue_double(cNode, "departSpeed", false, 0);
+        int laneChangeMode = xmlUtil::getAttrValue_int(cNode, "laneChangeMode", false, LANECHANGEMODE_DEFAULT);
+        double begin = xmlUtil::getAttrValue_double(cNode, "begin", false, 0);
+        int number = xmlUtil::getAttrValue_int(cNode, "number", false, -1);
+        double end = xmlUtil::getAttrValue_double(cNode, "end", false, -1);
+        int seed = xmlUtil::getAttrValue_int(cNode, "seed", false, 0);
+        std::string distribution_str = xmlUtil::getAttrValue_string(cNode, "distribution");
+        double period = xmlUtil::getAttrValue_double(cNode, "period", false, -1);
+        double lambda = xmlUtil::getAttrValue_double(cNode, "lambda", false, -1);
+        double probability = xmlUtil::getAttrValue_double(cNode, "probability", false, -1);
+        double DSRCprob = xmlUtil::getAttrValue_double(cNode, "DSRCprob", false, -1);
 
         // we have multiple types
         if(type_str_tokenize.size() > 1)
@@ -1540,25 +1529,22 @@ void AddNode::addVehicleMultiFlow()
 
                 depart += entry.second.period;
 
+                int DSRC_status = -1;
                 if(entry.second.DSRCprob != -1)
                 {
                     double rnd_type = DSRC_Dist(generator);
                     if(rnd_type >= 0 && rnd_type < entry.second.DSRCprob)
-                    {
-                        DSRC_val_t entry = {vehID, 1};
-                        vehs_DSRC_attribute_status.push_back(entry);
-                    }
+                        DSRC_status = 1;
                     else
-                    {
-                        DSRC_val_t entry = {vehID, 0};
-                        vehs_DSRC_attribute_status.push_back(entry);
-                    }
+                        DSRC_status = 0;
                 }
-                else
-                {
-                    DSRC_val_t entry = {vehID, -1};
-                    vehs_DSRC_attribute_status.push_back(entry);
-                }
+
+                auto ii = vehs_deferred_attributes.find(vehID);
+                if(ii != vehs_deferred_attributes.end())
+                    throw omnetpp::cRuntimeError("Vehicle '%s' was added previously! Make sure the vehicle IDs are unique.", vehID.c_str());
+                veh_deferred_attributes_t deferred_entry;
+                deferred_entry.DSRC_status = DSRC_status;
+                vehs_deferred_attributes[vehID] = deferred_entry;
             }
         }
         else if(entry.second.distribution_str == "poisson")
@@ -1607,25 +1593,22 @@ void AddNode::addVehicleMultiFlow()
                     if(entry.second.laneChangeMode != LANECHANGEMODE_DEFAULT)
                         TraCI->vehicleSetLaneChangeMode(vehID, entry.second.laneChangeMode);
 
+                    int DSRC_status = -1;
                     if(entry.second.DSRCprob != -1)
                     {
                         double rnd_type = DSRC_Dist(generator);
                         if(rnd_type >= 0 && rnd_type < entry.second.DSRCprob)
-                        {
-                            DSRC_val_t entry = {vehID, 1};
-                            vehs_DSRC_attribute_status.push_back(entry);
-                        }
+                            DSRC_status = 1;
                         else
-                        {
-                            DSRC_val_t entry = {vehID, 0};
-                            vehs_DSRC_attribute_status.push_back(entry);
-                        }
+                            DSRC_status = 0;
                     }
-                    else
-                    {
-                        DSRC_val_t entry = {vehID, -1};
-                        vehs_DSRC_attribute_status.push_back(entry);
-                    }
+
+                    auto ii = vehs_deferred_attributes.find(vehID);
+                    if(ii != vehs_deferred_attributes.end())
+                        throw omnetpp::cRuntimeError("Vehicle '%s' was added previously! Make sure the vehicle IDs are unique.", vehID.c_str());
+                    veh_deferred_attributes_t deferred_entry;
+                    deferred_entry.DSRC_status = DSRC_status;
+                    vehs_deferred_attributes[vehID] = deferred_entry;
 
                     vehCount++;
 
@@ -1680,25 +1663,22 @@ void AddNode::addVehicleMultiFlow()
                     if(entry.second.laneChangeMode != LANECHANGEMODE_DEFAULT)
                         TraCI->vehicleSetLaneChangeMode(vehID, entry.second.laneChangeMode);
 
+                    int DSRC_status = -1;
                     if(entry.second.DSRCprob != -1)
                     {
                         double rnd_type = DSRC_Dist(generator);
                         if(rnd_type >= 0 && rnd_type < entry.second.DSRCprob)
-                        {
-                            DSRC_val_t entry = {vehID, 1};
-                            vehs_DSRC_attribute_status.push_back(entry);
-                        }
+                            DSRC_status = 1;
                         else
-                        {
-                            DSRC_val_t entry = {vehID, 0};
-                            vehs_DSRC_attribute_status.push_back(entry);
-                        }
+                            DSRC_status = 0;
                     }
-                    else
-                    {
-                        DSRC_val_t entry = {vehID, -1};
-                        vehs_DSRC_attribute_status.push_back(entry);
-                    }
+
+                    auto ii = vehs_deferred_attributes.find(vehID);
+                    if(ii != vehs_deferred_attributes.end())
+                        throw omnetpp::cRuntimeError("Vehicle '%s' was added previously! Make sure the vehicle IDs are unique.", vehID.c_str());
+                    veh_deferred_attributes_t deferred_entry;
+                    deferred_entry.DSRC_status = DSRC_status;
+                    vehs_deferred_attributes[vehID] = deferred_entry;
 
                     vehCount++;
 
@@ -1748,27 +1728,32 @@ void AddNode::parseVehiclePlatoon(rapidxml::xml_node<> *pNode)
             continue;
 
         std::vector<std::string> validAttr = {"id", "type", "size", "route", "from", "to", "via", "color",
-                "depart", "departLane", "departPos", "platoonMaxSpeed", "fastCatchUp", "interGap", "cooperation"};
-        validityCheck(cNode, validAttr);
+                "depart", "departLane", "departPos", "platoonMaxSpeed", "fastCatchUp", "interGap", "pltMgmtProt", "maxSize", "optSize"};
+        xmlUtil::validityCheck(cNode, validAttr);
 
-        std::string id_str = getAttrValue_string(cNode, "id");
-        std::string type_str = getAttrValue_string(cNode, "type");
-        int size = getAttrValue_int(cNode, "size");
-        std::string routeID_str = getAttrValue_string(cNode, "route", false, "");
-        std::string from_str = getAttrValue_string(cNode, "from", false, "");
-        std::string to_str = getAttrValue_string(cNode, "to", false, "");
-        std::vector<std::string> via_str_tokenize = getAttrValue_stringVector(cNode, "via", false, std::vector<std::string>());
-        std::string color_str = getAttrValue_string(cNode, "color", false, "yellow");
-        double depart = getAttrValue_double(cNode, "depart", false, 0);
-        int departLane = getAttrValue_int(cNode, "departLane", false, -5 /*DEPART_LANE_BEST_FREE*/);
-        double departPos = getAttrValue_double(cNode, "departPos", false, 0);
-        double platoonMaxSpeed = getAttrValue_double(cNode, "platoonMaxSpeed", false, 10);
-        bool fastCatchUp = getAttrValue_bool(cNode, "fastCatchUp", false, false);
-        double interGap = getAttrValue_double(cNode, "interGap", false, 3.5);
-        bool cooperation = getAttrValue_bool(cNode, "cooperation", false, false);
+        std::string id_str = xmlUtil::getAttrValue_string(cNode, "id");
+        std::string type_str = xmlUtil::getAttrValue_string(cNode, "type");
+        int size = xmlUtil::getAttrValue_int(cNode, "size");
+        std::string routeID_str = xmlUtil::getAttrValue_string(cNode, "route", false, "");
+        std::string from_str = xmlUtil::getAttrValue_string(cNode, "from", false, "");
+        std::string to_str = xmlUtil::getAttrValue_string(cNode, "to", false, "");
+        std::vector<std::string> via_str_tokenize = xmlUtil::getAttrValue_stringVector(cNode, "via", false, std::vector<std::string>());
+        std::string color_str = xmlUtil::getAttrValue_string(cNode, "color", false, "yellow");
+        double depart = xmlUtil::getAttrValue_double(cNode, "depart", false, 0);
+        int departLane = xmlUtil::getAttrValue_int(cNode, "departLane", false, -5 /*DEPART_LANE_BEST_FREE*/);
+        double departPos = xmlUtil::getAttrValue_double(cNode, "departPos", false, 0);
+        double platoonMaxSpeed = xmlUtil::getAttrValue_double(cNode, "platoonMaxSpeed", false, 10);
+        bool fastCatchUp = xmlUtil::getAttrValue_bool(cNode, "fastCatchUp", false, false);
+        double interGap = xmlUtil::getAttrValue_double(cNode, "interGap", false, 3.5);
+        bool pltMgmtProt = xmlUtil::getAttrValue_bool(cNode, "pltMgmtProt", false, false);
+        int maxSize = xmlUtil::getAttrValue_int(cNode, "maxSize", false, -1);
+        int optSize = xmlUtil::getAttrValue_int(cNode, "optSize", false, -1);
 
         if(size < 1)
             throw omnetpp::cRuntimeError("attribute 'size' is invalid in element '%s': %d", vehicle_platoon_tag.c_str(), size);
+
+        if(maxSize != -1 && maxSize < size)
+            throw omnetpp::cRuntimeError("attribute 'maxSize' is smaller than 'size' in element '%s': %d", vehicle_platoon_tag.c_str(), maxSize);
 
         if( !cNode->first_attribute("route") && !cNode->first_attribute("from") && !cNode->first_attribute("to") )
             throw omnetpp::cRuntimeError("either 'route' or 'from/to' attributes should be defined in element '%s'", vehicle_platoon_tag.c_str());
@@ -1781,6 +1766,9 @@ void AddNode::parseVehiclePlatoon(rapidxml::xml_node<> *pNode)
 
         if(depart < 0)
             throw omnetpp::cRuntimeError("attribute 'depart' is negative in element '%s': %f", vehicle_platoon_tag.c_str(), depart);
+
+        if( (cNode->first_attribute("maxSize") || cNode->first_attribute("optSize")) && !cNode->first_attribute("pltMgmtProt") )
+            throw omnetpp::cRuntimeError("attribute 'maxSize/optSize' is only valid when 'pltMgmtProt' is defined in element '%s'", vehicle_platoon_tag.c_str());
 
         auto it = allVehiclePlatoon.find(id_str);
         if(it == allVehiclePlatoon.end())
@@ -1801,12 +1789,44 @@ void AddNode::parseVehiclePlatoon(rapidxml::xml_node<> *pNode)
             entry.platoonMaxSpeed = platoonMaxSpeed;
             entry.fastCatchUp = fastCatchUp;
             entry.interGap = interGap;
-            entry.cooperation = cooperation;
+            entry.pltMgmtProt = pltMgmtProt;
+            entry.optSize = optSize;
+            entry.maxSize = maxSize;
 
             allVehiclePlatoon.insert(std::make_pair(id_str, entry));
         }
         else
             throw omnetpp::cRuntimeError("Multiple '%s' with the same 'id' %s is not allowed!", vehicle_platoon_tag.c_str(), id_str.c_str());
+
+        // iterate over children nodes (if exist)
+        parseVehiclePlatoonChild(cNode);
+    }
+}
+
+
+void AddNode::parseVehiclePlatoonChild(rapidxml::xml_node<> *pNode)
+{
+    std::string platoonID = xmlUtil::getAttrValue_string(pNode, "id");
+    int platoonSize = xmlUtil::getAttrValue_int(pNode, "size");
+
+    for (rapidxml::xml_node<> *cNode = pNode->first_node(); cNode; cNode = cNode->next_sibling())
+    {
+        if(std::string(cNode->name()) != "member")
+            throw omnetpp::cRuntimeError("Invalid node name '%s' in element '%s'", cNode->name(), vehicle_platoon_tag.c_str());
+
+        std::vector<std::string> validAttr = {"index", "type"};
+        xmlUtil::validityCheck(cNode, validAttr);
+
+        int index = xmlUtil::getAttrValue_int(cNode, "index");
+        std::string type_str = xmlUtil::getAttrValue_string(cNode, "type");
+
+        if(index < 0 || index >= platoonSize)
+            throw omnetpp::cRuntimeError("attribute 'index' is invalid in element '%s': %d", vehicle_platoon_tag.c_str(), index);
+
+        auto it = allVehiclePlatoon.find(platoonID);
+        if(it == allVehiclePlatoon.end())
+            throw omnetpp::cRuntimeError("Cannot find platoon '%s' in the platoon map", platoonID.c_str());
+        it->second.platoonChild[index] = type_str;
     }
 }
 
@@ -1852,15 +1872,20 @@ void AddNode::addVehiclePlatoon()
 
         int platoonSize = entry.second.size;
 
-        std::string overlappedPlatoon = getOverlappedPlatoon(entry.second, platoonSize, vehRouteID);
+        // lane id that this platoon will be inserted
+        auto routeEdges = TraCI->routeGetEdges(vehRouteID);
+        std::string laneID = routeEdges[0] + "_" + std::to_string(entry.second.departLane);
+
+        // check for overlapped
+        std::string overlappedPlatoon = getOverlappedPlatoon(entry.second, platoonSize, laneID);
         if(overlappedPlatoon != "")
-            throw omnetpp::cRuntimeError("Platoon '%s' has overlap with platoon '%s'. Check departPos attribute.", platoonID.c_str(), overlappedPlatoon.c_str());
+            throw omnetpp::cRuntimeError("Platoon '%s' has overlap with platoon '%s' on lane '%s'. Check departPos attribute.", platoonID.c_str(), overlappedPlatoon.c_str(), laneID.c_str());
 
         std::string vehID = platoonID + ".0";
         std::string lastVehID = "";
         double departPos = entry.second.departPos;
 
-        // adding platooned vehicles
+        // adding platooned vehicles starting from leader
         for(int i = 0; i < platoonSize; i++)
         {
             // follower
@@ -1870,8 +1895,15 @@ void AddNode::addVehiclePlatoon()
                 departPos = -5; // DEPART_POS_LAST
             }
 
+            std::string vehType = entry.second.type_str;
+
+            // do we have a non-homogeneous platoon?
+            auto k = entry.second.platoonChild.find(i);
+            if(k != entry.second.platoonChild.end())
+                vehType = k->second;
+
             TraCI->vehicleAdd(vehID,
-                    entry.second.type_str,
+                    vehType,
                     vehRouteID,
                     (int32_t)((entry.second.depart)*1000),
                     departPos,
@@ -1896,13 +1928,32 @@ void AddNode::addVehiclePlatoon()
             {
                 if(entry.second.fastCatchUp)
                 {
+                    // for some reasons changing the speed mode does not work.
+                    // tested with stock SUMO map
+                    // as an alternative solution, we change the max acceleration directly
+
                     // the followers should be able to catch up
-                    double vehMaxSpeed = TraCI->vehicleGetMaxSpeed(vehID);
-                    TraCI->vehicleSetSpeed(vehID, vehMaxSpeed);
+                    //double vehMaxSpeed = TraCI->vehicleGetMaxSpeed(vehID);
+                    //TraCI->vehicleSetSpeed(vehID, vehMaxSpeed);
 
                     // disregard maximum acceleration limit
-                    TraCI->vehicleSetSpeedMode(vehID, 0b11101);
+                    //TraCI->vehicleSetSpeedMode(vehID, 0b11101);
+
+                    TraCI->vehicleSetMaxAccel(vehID, 200);
                 }
+            }
+
+            if(entry.second.pltMgmtProt)
+            {
+                auto ii = vehs_deferred_attributes.find(vehID);
+                if(ii != vehs_deferred_attributes.end())
+                    throw omnetpp::cRuntimeError("Vehicle '%s' was added previously! Make sure the vehicle IDs are unique.", vehID.c_str());
+
+                veh_deferred_attributes_t deferred_entry;
+                deferred_entry.plnMode = 3;
+                deferred_entry.maxSize = entry.second.maxSize;
+                deferred_entry.optSize = entry.second.optSize;
+                vehs_deferred_attributes[vehID] = deferred_entry;
             }
 
             lastVehID = vehID;
@@ -1911,7 +1962,7 @@ void AddNode::addVehiclePlatoon()
 }
 
 
-std::string AddNode::getOverlappedPlatoon(vehiclePlatoonEntry_t &platoonEntry, int platoonSize, std::string vehRouteID)
+std::string AddNode::getOverlappedPlatoon(vehiclePlatoonEntry_t &platoonEntry, int platoonSize, std::string laneID)
 {
     typedef struct platoonLengthEntry
     {
@@ -1922,8 +1973,6 @@ std::string AddNode::getOverlappedPlatoon(vehiclePlatoonEntry_t &platoonEntry, i
 
     static std::map<std::string /*laneID*/, std::vector<platoonLengthEntry_t>> platoonLength;
 
-    auto routeEdges = TraCI->routeGetEdges(vehRouteID);
-    std::string laneID = routeEdges[0] + "_" + std::to_string(platoonEntry.departLane); // lane id that this platoon will be inserted
     double vehLength = TraCI->vehicleTypeGetLength(platoonEntry.type_str);
     double minGap = TraCI->vehicleTypeGetMinGap(platoonEntry.type_str);
 
@@ -1975,10 +2024,10 @@ void AddNode::parseCA(rapidxml::xml_node<> *pNode)
             continue;
 
         std::vector<std::string> validAttr = {"id", "pos"};
-        validityCheck(cNode, validAttr);
+        xmlUtil::validityCheck(cNode, validAttr);
 
-        std::string id_str = getAttrValue_string(cNode, "id");
-        TraCICoord pos = getAttrValue_coord(cNode, "pos");
+        std::string id_str = xmlUtil::getAttrValue_string(cNode, "id");
+        TraCICoord pos = xmlUtil::getAttrValue_coord(cNode, "pos");
 
         auto it = allCA.find(id_str);
         if(it == allCA.end())
@@ -2055,11 +2104,11 @@ void AddNode::parseEmulated(rapidxml::xml_node<> *pNode)
             continue;
 
         std::vector<std::string> validAttr = {"id", "ip", "color"};
-        validityCheck(cNode, validAttr);
+        xmlUtil::validityCheck(cNode, validAttr);
 
-        std::string id_str = getAttrValue_string(cNode, "id");
-        std::string ip_str = getAttrValue_string(cNode, "ip");
-        std::string color_str = getAttrValue_string(cNode, "color", false, "yellow");
+        std::string id_str = xmlUtil::getAttrValue_string(cNode, "id");
+        std::string ip_str = xmlUtil::getAttrValue_string(cNode, "ip");
+        std::string color_str = xmlUtil::getAttrValue_string(cNode, "color", false, "yellow");
 
         auto it = allEmulated.find(id_str);
         if(it == allEmulated.end())
@@ -2203,243 +2252,6 @@ void AddNode::printLoadedStatistics()
     }
 
     LOG_DEBUG << "\n" << std::flush;
-}
-
-
-void AddNode::validityCheck(rapidxml::xml_node<> *cNode, std::vector<std::string> names)
-{
-    std::string tag = cNode->name();
-
-    // format checking: Iterate over all attributes in this node
-    for(rapidxml::xml_attribute<> *cAttr1 = cNode->first_attribute(); cAttr1; cAttr1 = cAttr1->next_attribute())
-    {
-        std::string attName = cAttr1->name();
-
-        if( std::find(names.begin(), names.end(), attName) == names.end() )
-            throw omnetpp::cRuntimeError("'%s' is not a valid attribute in element '%s'", attName.c_str(), tag.c_str());
-    }
-}
-
-
-std::string AddNode::getAttrValue_string(rapidxml::xml_node<> *cNode, std::string attr, bool mandatory, std::string defaultVal)
-{
-    std::string tag = cNode->name();
-
-    auto cAttr = cNode->first_attribute(attr.c_str());
-    if(!cAttr)
-    {
-        if(mandatory)
-            throw omnetpp::cRuntimeError("attribute '%s' is not found in element '%s'", attr.c_str(), tag.c_str());
-        else
-            return defaultVal;
-    }
-
-    std::string val_str = cAttr->value();
-    boost::trim(val_str);
-
-    return val_str;
-}
-
-
-TraCICoord AddNode::getAttrValue_coord(rapidxml::xml_node<> *cNode, std::string attr, bool mandatory, TraCICoord defaultVal)
-{
-    std::string tag = cNode->name();
-
-    auto cAttr = cNode->first_attribute(attr.c_str());
-    if(!cAttr)
-    {
-        if(mandatory)
-            throw omnetpp::cRuntimeError("attribute '%s' is not found in element '%s'", attr.c_str(), tag.c_str());
-        else
-            return defaultVal;
-    }
-
-    std::string coord_str = cAttr->value();
-    boost::trim(coord_str);
-
-    // coord_str are separated by ,
-    std::vector<std::string> pos;
-    boost::split(pos, coord_str, boost::is_any_of(","));
-
-    if(pos.size() != 3)
-        throw omnetpp::cRuntimeError("attribute '%s' in element '%s' should be in the \"x,y,z\" format", attr.c_str(), tag.c_str());
-
-    try
-    {
-        std::string pos_x_str = pos[0];
-        boost::trim(pos_x_str);
-        double pos_x = boost::lexical_cast<double>(pos_x_str);
-
-        std::string pos_y_str = pos[1];
-        boost::trim(pos_y_str);
-        double pos_y = boost::lexical_cast<double>(pos_y_str);
-
-        std::string pos_z_str = pos[2];
-        boost::trim(pos_z_str);
-        double pos_z = boost::lexical_cast<double>(pos_z_str);
-
-        return TraCICoord(pos_x, pos_y, pos_z);
-    }
-    catch (boost::bad_lexical_cast const&)
-    {
-        throw omnetpp::cRuntimeError("attribute '%s' is badly formatted in element %s: %s", attr.c_str(), tag.c_str(), coord_str.c_str());
-    }
-}
-
-
-bool AddNode::getAttrValue_bool(rapidxml::xml_node<> *cNode, std::string attr, bool mandatory, bool defaultVal)
-{
-    std::string tag = cNode->name();
-
-    auto cAttr = cNode->first_attribute(attr.c_str());
-    if(!cAttr)
-    {
-        if(mandatory)
-            throw omnetpp::cRuntimeError("attribute '%s' is not found in element '%s'", attr.c_str(), tag.c_str());
-        else
-            return defaultVal;
-    }
-
-    std::string val_str = cAttr->value();
-    boost::trim(val_str);
-
-    if(val_str == "true")
-        return true;
-    else if(val_str == "false")
-        return false;
-    else
-        throw omnetpp::cRuntimeError("attribute '%s' is badly formatted in element %s: %s", attr.c_str(), tag.c_str(), val_str.c_str());
-}
-
-
-int AddNode::getAttrValue_int(rapidxml::xml_node<> *cNode, std::string attr, bool mandatory, int defaultVal)
-{
-    std::string tag = cNode->name();
-
-    auto cAttr = cNode->first_attribute(attr.c_str());
-    if(!cAttr)
-    {
-        if(mandatory)
-            throw omnetpp::cRuntimeError("attribute '%s' is not found in element '%s'", attr.c_str(), tag.c_str());
-        else
-            return defaultVal;
-    }
-
-    std::string val_str = cAttr->value();
-    boost::trim(val_str);
-
-    try
-    {
-        return boost::lexical_cast<int>(val_str);
-    }
-    catch (boost::bad_lexical_cast const&)
-    {
-        throw omnetpp::cRuntimeError("attribute '%s' is badly formatted in element %s: %s", attr.c_str(), tag.c_str(), val_str.c_str());
-    }
-}
-
-
-double AddNode::getAttrValue_double(rapidxml::xml_node<> *cNode, std::string attr, bool mandatory, double defaultVal)
-{
-    std::string tag = cNode->name();
-
-    auto cAttr = cNode->first_attribute(attr.c_str());
-    if(!cAttr)
-    {
-        if(mandatory)
-            throw omnetpp::cRuntimeError("attribute '%s' is not found in element '%s'", attr.c_str(), tag.c_str());
-        else
-            return defaultVal;
-    }
-
-    std::string val_str = cAttr->value();
-    boost::trim(val_str);
-
-    try
-    {
-        return boost::lexical_cast<double>(val_str);
-    }
-    catch (boost::bad_lexical_cast const&)
-    {
-        throw omnetpp::cRuntimeError("attribute '%s' is badly formatted in element %s: %s", attr.c_str(), tag.c_str(), val_str.c_str());
-    }
-}
-
-
-std::vector<std::string> AddNode::getAttrValue_stringVector(rapidxml::xml_node<> *cNode, std::string attr, bool mandatory, std::vector<std::string> defaultVal)
-{
-    std::string tag = cNode->name();
-
-    auto cAttr = cNode->first_attribute(attr.c_str());
-    if(!cAttr)
-    {
-        if(mandatory)
-            throw omnetpp::cRuntimeError("attribute '%s' is not found in element '%s'", attr.c_str(), tag.c_str());
-        else
-            return defaultVal;
-    }
-
-    std::string val_str = cAttr->value();
-    boost::trim(val_str);
-
-    std::vector<std::string> val_str_tokenize;
-
-    // tokenize val_str
-    boost::split(val_str_tokenize, val_str, boost::is_any_of(","));
-
-    // remove leading/trailing space
-    for(auto &entry : val_str_tokenize)
-    {
-        boost::trim(entry);
-        if(entry == "")
-            throw omnetpp::cRuntimeError("attribute '%s' is not formatted correctly in element '%s'", attr.c_str(), tag.c_str());
-    }
-
-    return val_str_tokenize;
-}
-
-
-std::vector<double> AddNode::getAttrValue_doubleVector(rapidxml::xml_node<> *cNode, std::string attr, bool mandatory, std::vector<double> defaultVal)
-{
-    std::string tag = cNode->name();
-
-    auto cAttr = cNode->first_attribute(attr.c_str());
-    if(!cAttr)
-    {
-        if(mandatory)
-            throw omnetpp::cRuntimeError("attribute '%s' is not found in element '%s'", attr.c_str(), tag.c_str());
-        else
-            return defaultVal;
-    }
-
-    std::string val_str = cAttr->value();
-    boost::trim(val_str);
-
-    std::vector<std::string> val_str_tokenize;
-    std::vector<double> val_tokenize;
-
-    // tokenize val_str
-    boost::split(val_str_tokenize, val_str, boost::is_any_of(","));
-
-    for(auto &entry : val_str_tokenize)
-    {
-        // remove leading/trailing space
-        boost::trim(entry);
-        if(entry == "")
-            throw omnetpp::cRuntimeError("attribute '%s' is not formatted correctly in element '%s'", attr.c_str(), tag.c_str());
-
-        try
-        {
-            double val = boost::lexical_cast<double>(entry);
-            val_tokenize.push_back(val);
-        }
-        catch (boost::bad_lexical_cast const&)
-        {
-            throw omnetpp::cRuntimeError("attribute '%s' is badly formatted in element %s: %s", attr.c_str(), tag.c_str(), val_str.c_str());
-        }
-    }
-
-    return val_tokenize;
 }
 
 }

@@ -42,20 +42,20 @@
 
 namespace VENTOS {
 
-typedef struct DSRC_val
+typedef struct veh_deferred_attributes
 {
-    std::string SUMOID;
-    int DSRC_attribute_status; // -1: not defined, 0: without DSRC, 1: with DSRC
+    // -1 means not defined
 
-}DSRC_val_t;
+    int DSRC_status = -1; // 0: without DSRC, 1: with DSRC
+    int plnMode = -1;     // platooning mode
+    int maxSize = -1;     // maximum platoon size
+    int optSize = -1;     // optimal platoon size
+}veh_deferred_attributes_t;
 
 class AddNode : public BaseApplLayer
 {
 private:
     typedef BaseApplLayer super;
-
-    // list of all vehicles with attribute 'DSRCprob'
-    std::vector<DSRC_val_t> vehs_DSRC_attribute_status;
 
     TraCI_Commands *TraCI;
     omnetpp::simsignal_t Signal_initialize_withTraCI;
@@ -196,7 +196,10 @@ private:
         double platoonMaxSpeed;
         bool fastCatchUp;
         double interGap;
-        bool cooperation;
+        bool pltMgmtProt;
+        int maxSize;
+        int optSize;
+        std::map<int /*index*/, std::string /*veh type*/> platoonChild;
     } vehiclePlatoonEntry_t;
 
     std::map<std::string, vehiclePlatoonEntry_t> allVehiclePlatoon;
@@ -220,13 +223,15 @@ private:
     std::map<std::string, CAEntry_t> allCA;
 
 public:
+    // list of all deferred attributes for each vehicle
+    std::map<std::string /*SUMO id*/, veh_deferred_attributes_t> vehs_deferred_attributes;
+
+public:
     virtual ~AddNode();
     virtual void initialize(int stage);
     virtual void handleMessage(omnetpp::cMessage *msg);
     virtual void finish();
     virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, long, cObject* details);
-
-    std::vector<DSRC_val_t> getVehsDSRCAttributeStatus();
 
 private:
     void readInsertion(std::string);
@@ -254,6 +259,7 @@ private:
     std::string getVehRoute(vehicleMultiFlowEntry_t, double);
 
     void parseVehiclePlatoon(rapidxml::xml_node<> *);
+    void parseVehiclePlatoonChild(rapidxml::xml_node<> *);
     void addVehiclePlatoon();
     std::string getOverlappedPlatoon(vehiclePlatoonEntry_t &, int, std::string);
 
@@ -264,15 +270,6 @@ private:
     void addEmulated();
 
     void addCircle(std::string, std::string, const RGB, bool, TraCICoord, double);
-
-    void validityCheck(rapidxml::xml_node<> *, std::vector<std::string>);
-    std::string getAttrValue_string(rapidxml::xml_node<> *, std::string, bool = true, std::string = "");
-    TraCICoord getAttrValue_coord(rapidxml::xml_node<> *, std::string, bool = true, TraCICoord = TraCICoord(0,0,0));
-    bool getAttrValue_bool(rapidxml::xml_node<> *, std::string, bool = true, bool = false);
-    int getAttrValue_int(rapidxml::xml_node<> *, std::string, bool = true, int = 0);
-    double getAttrValue_double(rapidxml::xml_node<> *, std::string, bool = true, double = 0);
-    std::vector<std::string> getAttrValue_stringVector(rapidxml::xml_node<> *, std::string, bool = true, std::vector<std::string> = std::vector<std::string>());
-    std::vector<double> getAttrValue_doubleVector(rapidxml::xml_node<> *, std::string, bool = true, std::vector<double> = std::vector<double>());
 };
 
 }

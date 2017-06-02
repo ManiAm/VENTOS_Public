@@ -1007,24 +1007,33 @@ omnetpp::cModule* TraCI_Start::addVehicle(std::string SUMOID, std::string type, 
         mod->getSubmodule("mobility")->par("y") = position.y;
     }
 
-    // get the DSRC status of all vehicles inserted by the AddNode module
-    auto VehsDSRCStatus = ADDNODE->getVehsDSRCAttributeStatus();
-    // look for this vehicle
-    auto it = std::find_if(VehsDSRCStatus.begin(), VehsDSRCStatus.end(), [SUMOID](DSRC_val_t const& n)
-            {return (n.SUMOID == SUMOID);});
+    // get all deferred attributes in all vehicles
+    auto allDeferredAttributes = ADDNODE->vehs_deferred_attributes;
+    auto ii = allDeferredAttributes.find(SUMOID);
     // if the vehicle exists
-    if(it != VehsDSRCStatus.end())
+    if(ii != allDeferredAttributes.end())
     {
-        if(it->DSRC_attribute_status == 0)
+        // if an attribute is -1, then the attribute is not defined for this vehicle.
+        // So we do not touch the corresponding parameter!
+        // The configuration file determines the value of parameter
+
+        // set the 'DSRCenabled' parameter
+        if(ii->second.DSRC_status == 0)
             mod->par("DSRCenabled") = false;
-        else if(it->DSRC_attribute_status == 1)
+        else if(ii->second.DSRC_status == 1)
             mod->par("DSRCenabled") = true;
-        if(it->DSRC_attribute_status == -1)
-        {
-            // 'DSRCprob' attribute is not set for this vehicle.
-            // So we do not touch the 'DSRCenabled' parameter!
-            // The configuration file determines the value of 'DSRCenabled'
-        }
+
+        // set the 'plnMode' parameter
+        if(ii->second.plnMode != -1)
+            mod->getSubmodule("appl")->par("plnMode") = ii->second.plnMode;
+
+        // set the 'maxPlatoonSize' parameter
+        if(ii->second.maxSize != -1)
+            mod->getSubmodule("appl")->par("maxPlatoonSize") = ii->second.maxSize;
+
+        // set the 'optPlatoonSize' parameter
+        if(ii->second.optSize != -1)
+            mod->getSubmodule("appl")->par("optPlatoonSize") = ii->second.optSize;
     }
 
     mod->scheduleStart(omnetpp::simTime() + updateInterval);
