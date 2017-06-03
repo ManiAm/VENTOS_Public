@@ -61,6 +61,9 @@ void TrafficControl::initialize(int stage)
 
         Signal_initialize_withTraCI = registerSignal("initializeWithTraCISignal");
         omnetpp::getSimulation()->getSystemModule()->subscribe("initializeWithTraCISignal", this);
+
+        Signal_executeEachTS = registerSignal("executeEachTimeStepSignal");
+        omnetpp::getSimulation()->getSystemModule()->subscribe("executeEachTimeStepSignal", this);
     }
 }
 
@@ -69,6 +72,7 @@ void TrafficControl::finish()
 {
     // unsubscribe
     omnetpp::getSimulation()->getSystemModule()->unsubscribe("initializeWithTraCISignal", this);
+    omnetpp::getSimulation()->getSystemModule()->unsubscribe("executeEachTimeStepSignal", this);
 }
 
 
@@ -85,6 +89,20 @@ void TrafficControl::receiveSignal(omnetpp::cComponent *source, omnetpp::simsign
     if(signalID == Signal_initialize_withTraCI)
     {
         readInsertion("trafficControl.xml");
+    }
+    else if(signalID == Signal_executeEachTS)
+    {
+        if(!allSpeed.empty())
+            controlSpeed();
+
+        if(!allOptSize.empty())
+            controlOptSize();
+
+        if(!allPltMerge.empty())
+            controlPltMerge();
+
+        if(!allPltSplit.empty())
+            controlPltSplit();
     }
 }
 
@@ -129,111 +147,300 @@ void TrafficControl::readInsertion(std::string addNodePath)
     {
         std::string nodeName = cNode->name();
 
-        if(nodeName != adversary_tag)
-            throw omnetpp::cRuntimeError("'%s' is not a valid node in id '%s'", this->id.c_str());
+        if(nodeName != speed_tag &&
+                nodeName != optSize_tag &&
+                nodeName != pltMerge_tag &&
+                nodeName != pltSplit_tag)
+            throw omnetpp::cRuntimeError("'%s' is not a valid node in id '%s'", nodeName.c_str(), this->id.c_str());
     }
 
-    parseAdversary(pNode);
+    parseSpeed(pNode);
+    parseOptSize(pNode);
+    parsePltMerge(pNode);
+    parsePltSplit(pNode);
 
-    if(allAdversary.empty())
-        LOG_WARNING << boost::format("\nWARNING: Add node with id '%1%' is empty! \n") % this->id << std::flush;
-
-    addAdversary();
+    if(allSpeed.empty() && allOptSize.empty() && allPltMerge.empty() && allPltSplit.empty())
+        LOG_WARNING << boost::format("\nWARNING: Traffic control with id '%1%' is empty! \n") % this->id << std::flush;
 }
 
 
 
-void TrafficControl::parseAdversary(rapidxml::xml_node<> *pNode)
+void TrafficControl::parseSpeed(rapidxml::xml_node<> *pNode)
 {
-    // Iterate over all 'adversary' nodes
-    for(rapidxml::xml_node<> *cNode = pNode->first_node(adversary_tag.c_str()); cNode; cNode = cNode->next_sibling())
+    uint32_t speedNodeCount = 1;
+
+    // Iterate over all 'speed' nodes
+    for(rapidxml::xml_node<> *cNode = pNode->first_node(speed_tag.c_str()); cNode; cNode = cNode->next_sibling())
     {
-        if(std::string(cNode->name()) != adversary_tag)
+        if(std::string(cNode->name()) != speed_tag)
             continue;
 
-        std::vector<std::string> validAttr = {"id", "pos", "drawMaxIntfDist"};
+        std::vector<std::string> validAttr = {"id", "begin", "end", "duration", "edgeId", "edgePos", "laneId",
+                "lanePos", "value", "maxAccel", "maxDecel"};
         xmlUtil::validityCheck(cNode, validAttr);
 
         std::string id_str = xmlUtil::getAttrValue_string(cNode, "id");
-        TraCICoord pos = xmlUtil::getAttrValue_coord(cNode, "pos");
-        bool drawMaxIntfDist = xmlUtil::getAttrValue_bool(cNode, "drawMaxIntfDist", false, true);
-        std::string color_str = xmlUtil::getAttrValue_string(cNode, "color", false, "green");
-        bool filled = xmlUtil::getAttrValue_bool(cNode, "filled", false, false);
+        double begin = xmlUtil::getAttrValue_double(cNode, "begin");
+        double end = xmlUtil::getAttrValue_double(cNode, "end", false, -1);
+        double duration = xmlUtil::getAttrValue_double(cNode, "duration", false, -1);
+        std::string edgeId_str = xmlUtil::getAttrValue_string(cNode, "edgeId", false, "");
+        double edgePos = xmlUtil::getAttrValue_double(cNode, "edgePos", false, -1);
+        std::string laneId_str = xmlUtil::getAttrValue_string(cNode, "laneId", false, "");
+        double lanePos = xmlUtil::getAttrValue_double(cNode, "lanePos", false, -1);
+        std::string value_str = xmlUtil::getAttrValue_string(cNode, "value");
+        double maxAccel = xmlUtil::getAttrValue_double(cNode, "maxAccel", false, -1);
+        double maxDecel = xmlUtil::getAttrValue_double(cNode, "maxDecel", false, -1);
 
-        auto it = allAdversary.find(id_str);
-        if(it == allAdversary.end())
+        if(begin != -1 && begin < 0)
+            throw omnetpp::cRuntimeError("attribute 'begin' cannot be negative in element '%s'", speed_tag.c_str());
+
+        if(end != -1 && begin != -1 && end <= begin)
+            throw omnetpp::cRuntimeError("attribute 'end' cannot be lower than 'begin' in element '%s'", speed_tag.c_str());
+
+        if(duration != -1 && duration <= 0)
+            throw omnetpp::cRuntimeError("attribute 'duration' cannot be negative in element '%s'", speed_tag.c_str());
+
+        if(cNode->first_attribute("end") && cNode->first_attribute("duration"))
+            throw omnetpp::cRuntimeError("attribute 'duration' and 'end' cannot be present together in element '%s'", speed_tag.c_str());
+
+        if(maxAccel != -1 && maxAccel < 0)
+            throw omnetpp::cRuntimeError("attribute 'maxAccel' cannot be negative in element '%s'", speed_tag.c_str());
+
+        if(maxDecel != -1 && maxDecel < 0)
+            throw omnetpp::cRuntimeError("attribute 'maxDecel' cannot be negative in element '%s'", speed_tag.c_str());
+
+        if(cNode->first_attribute("edgeId") && (cNode->first_attribute("laneId") || cNode->first_attribute("begin")))
+            throw omnetpp::cRuntimeError("attribute 'laneId/begin' is redundant when 'edgeId' is present in element '%s'", speed_tag.c_str());
+
+        if(cNode->first_attribute("laneId") && (cNode->first_attribute("edgeId") || cNode->first_attribute("begin")))
+            throw omnetpp::cRuntimeError("attribute 'edgeId/begin' is redundant when 'laneId' is present in element '%s'", speed_tag.c_str());
+
+        if(cNode->first_attribute("begin") && (cNode->first_attribute("edgeId") || cNode->first_attribute("laneId")))
+            throw omnetpp::cRuntimeError("attribute 'edgeId/laneId' is redundant when 'begin' is present in element '%s'", speed_tag.c_str());
+
+        if(!cNode->first_attribute("begin") && !cNode->first_attribute("edgeId") && !cNode->first_attribute("laneId"))
+            throw omnetpp::cRuntimeError("One of 'begin', 'edgeId' or 'laneId' attributes should be defined in element '%s'", speed_tag.c_str());
+
+
+
+        auto it = allSpeed.find(speedNodeCount);
+        if(it == allSpeed.end())
         {
-            // check if the new node has overlap with any of the existing nodes
-            for(auto &entry : allAdversary)
-            {
-                if(entry.second.pos == pos)
-                    LOG_WARNING << boost::format("WARNING: Adversary '%s' is placed on top of '%s'. \n") % id_str % entry.second.id_str;
-            }
-
-            adversaryEntry_t entry = {};
+            speedEntry_t entry = {};
 
             entry.id_str = id_str;
-            entry.pos = pos;
-            entry.drawMaxIntfDist = drawMaxIntfDist;
-            entry.color_str = color_str;
-            entry.filled = filled;
+            entry.begin = begin;
+            entry.end = end;
+            entry.duration = duration;
+            entry.edgeId_str = edgeId_str;
+            entry.edgePos = edgePos;
+            entry.laneId_str = laneId_str;
+            entry.lanePos = lanePos;
+            entry.value_str = value_str;
+            entry.maxDecel = maxDecel;
+            entry.maxAccel = maxAccel;
 
-            allAdversary.insert(std::make_pair(id_str, entry));
+            entry.processingStarted = false;
+            entry.processingEnded = false;
+            entry.oldSpeed = -1;
+
+            allSpeed.insert(std::make_pair(speedNodeCount, entry));
         }
         else
-            throw omnetpp::cRuntimeError("Multiple %s with the same 'id' %s is not allowed!", adversary_tag.c_str(), id_str.c_str());
+            throw omnetpp::cRuntimeError("Multiple %s with the same 'id' %s is not allowed!", speed_tag.c_str(), id_str.c_str());
+
+        // todo: check for conflict.
+        // we can not apply two different speed at the same time
+
+        speedNodeCount++;
     }
 }
 
 
-void TrafficControl::addAdversary()
+void TrafficControl::controlSpeed()
 {
-    if(allAdversary.empty())
-        return;
-
-    unsigned int num = allAdversary.size();
-
-    LOG_DEBUG << boost::format("\n>>> AddNode is adding %1% adversary modules ... \n") % num << std::flush;
-
-    cModule* parentMod = getParentModule();
-    if (!parentMod)
-        throw omnetpp::cRuntimeError("Parent Module not found");
-
-    omnetpp::cModuleType* nodeType = omnetpp::cModuleType::get(par("adversary_ModuleType"));
-
-    int i = 0;
-    for(auto &entry : allAdversary)
+    for(auto &entry : allSpeed)
     {
-        // create an array of adversaries
-        cModule* mod = nodeType->create(par("adversary_ModuleName"), parentMod, num, i);
-        mod->finalizeParameters();
-        mod->getDisplayString().parse(par("adversary_ModuleDisplayString"));
-        mod->buildInside();
+        if(!entry.second.processingEnded)
+        {
+            // edgeId attribute is present
+            if(entry.second.edgeId_str != "")
+                controlSpeed_edgeId(entry.second);
+            // laneId attribute is present
+            else if(entry.second.laneId_str != "")
+                controlSpeed_laneId(entry.second);
+            // begin attribute is present
+            else
+                controlSpeed_begin(entry.second);
+        }
+    }
+}
 
-        TraCI->addMapping(entry.second.id_str, mod->getFullName());
 
-        Coord co = TraCI->convertCoord_traci2omnet(entry.second.pos);
-
-        mod->getSubmodule("mobility")->par("x") = co.x;
-        mod->getSubmodule("mobility")->par("y") = co.y;
-        mod->getSubmodule("mobility")->par("z") = co.z;
-
-        mod->getSubmodule("nic")->par("drawMaxIntfDist") = entry.second.drawMaxIntfDist;
-
-        mod->scheduleStart(omnetpp::simTime());
-        mod->callInitialize();
-
-        // store the cModule
-        entry.second.module = mod;
-
-        i++;
+void TrafficControl::controlSpeed_begin(speedEntry_t &speedEntry)
+{
+    // we need to wait for the vehicle to be inserted
+    if(speedEntry.begin == -1)
+    {
+        auto ii = TraCI->departureArrival.find(speedEntry.id_str);
+        if(ii == TraCI->departureArrival.end())
+            return;
+        else
+        {
+            if(ii->second.arrival != -1)
+            {
+                LOG_WARNING << boost::format("\nWARNING: Vehicle '%s' has already left the network at '%f'") % speedEntry.id_str % ii->second.arrival << std::flush;
+                speedEntry.processingEnded = true;
+                return;
+            }
+            else
+            {
+                speedEntry.begin = omnetpp::simTime().dbl();
+                // now begin has value and we fall to the next section
+            }
+        }
     }
 
-    // now we draw adversary modules in SUMO (using a circle to show radio coverage)
-    for(auto &entry : allAdversary)
+    if(speedEntry.begin != -1 && speedEntry.begin <= omnetpp::simTime().dbl())
     {
+        // Continuously check if the vehicle is in the network
+        auto ii = TraCI->departureArrival.find(speedEntry.id_str);
+        if(ii == TraCI->departureArrival.end())
+        {
+            // vehicle does not exist in the 'begin' time. Show a warning an terminate
+            LOG_WARNING << boost::format("\nWARNING: Vehicle '%s' does not exist at time '%f'") % speedEntry.id_str % speedEntry.begin << std::flush;
+            speedEntry.processingEnded = true;
+            return;
+        }
+        else if(ii->second.arrival != -1)
+        {
+            // vehicle has already left the network at the 'begin'
+            if(!speedEntry.processingStarted)
+            {
+                LOG_WARNING << boost::format("\nWARNING: Vehicle '%s' has already left the network at '%f'") % speedEntry.id_str % ii->second.arrival << std::flush;
+                speedEntry.processingEnded = true;
+                return;
+            }
+            // vehicle arrived while the traffic control is running
+            else
+            {
+                speedEntry.processingEnded = true;
+                return;
+            }
+        }
 
+        if(!speedEntry.processingStarted)
+        {
+            // save current params for future
+            speedEntry.oldSpeed = TraCI->vehicleGetSpeed(speedEntry.id_str);
+
+            // change the vehicle's speed
+            vehicleSetSpeed(speedEntry, speedEntry.value_str);
+
+            speedEntry.processingStarted = true;
+        }
+
+        // if neither 'end' or 'duration' is specified
+        if(speedEntry.end == -1 && speedEntry.duration == -1)
+        {
+            speedEntry.processingEnded = true;
+        }
+        // 'end' is specified
+        else if(speedEntry.end != -1)
+        {
+            if(speedEntry.end <= omnetpp::simTime().dbl())
+            {
+                // revert the vehicle's old speed
+                TraCI->vehicleSetSpeed(speedEntry.id_str, speedEntry.oldSpeed);
+                speedEntry.processingEnded = true;
+            }
+        }
+        // 'duration' is specified
+        else if(speedEntry.duration != -1)
+        {
+            if(speedEntry.begin + speedEntry.duration <= omnetpp::simTime().dbl())
+            {
+                // revert the vehicle's old speed
+                TraCI->vehicleSetSpeed(speedEntry.id_str, speedEntry.oldSpeed);
+                speedEntry.processingEnded = true;
+            }
+        }
     }
+}
+
+
+void TrafficControl::controlSpeed_edgeId(speedEntry_t &speedEntry)
+{
+
+}
+
+
+void TrafficControl::controlSpeed_laneId(speedEntry_t &speedEntry)
+{
+
+}
+
+
+void TrafficControl::vehicleSetSpeed(speedEntry_t &speedEntry, std::string speed_str)
+{
+    try
+    {
+        // convert string to double
+        std::string::size_type sz;  // alias of size_t
+        double speedValue = std::stod(speed_str, &sz);
+
+        // make sure the speed is not negative
+        ASSERT(speedValue >= 0);
+
+        // set vehicle's speed
+        TraCI->vehicleSetSpeed(speedEntry.id_str, speedValue);
+
+        if(speedEntry.maxAccel != -1)
+            TraCI->vehicleSetMaxAccel(speedEntry.id_str, speedEntry.maxAccel);
+
+        if(speedEntry.maxDecel != -1)
+            TraCI->vehicleSetMaxDecel(speedEntry.id_str, speedEntry.maxDecel);
+    }
+    catch(...)
+    {
+        throw omnetpp::cRuntimeError("The speed value is invalid in element '%s': %s", speed_tag.c_str(), speed_str.c_str());
+    }
+}
+
+
+void TrafficControl::parseOptSize(rapidxml::xml_node<> *pNode)
+{
+
+}
+
+
+void TrafficControl::controlOptSize()
+{
+
+}
+
+
+void TrafficControl::parsePltMerge(rapidxml::xml_node<> *pNode)
+{
+
+}
+
+
+void TrafficControl::controlPltMerge()
+{
+
+}
+
+
+void TrafficControl::parsePltSplit(rapidxml::xml_node<> *pNode)
+{
+
+}
+
+
+void TrafficControl::controlPltSplit()
+{
+
 }
 
 }

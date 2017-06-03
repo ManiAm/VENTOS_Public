@@ -45,22 +45,63 @@ private:
 
     TraCI_Commands *TraCI;
     omnetpp::simsignal_t Signal_initialize_withTraCI;
+    omnetpp::simsignal_t Signal_executeEachTS;
 
-    const std::string adversary_tag = "adversary";
+    const std::string speed_tag = "speed";
+    const std::string optSize_tag = "optSize";
+    const std::string pltMerge_tag = "pltMerge";
+    const std::string pltSplit_tag = "pltSplit";
 
     std::string id;
 
-    typedef struct adversaryEntry
+    typedef struct speedEntry
     {
         std::string id_str;
-        TraCICoord pos;
-        bool drawMaxIntfDist;
-        std::string color_str;
-        bool filled;
-        cModule* module;
-    } adversaryEntry_t;
+        double begin;
+        double end;
+        double duration;
+        std::string edgeId_str;
+        double edgePos;
+        std::string laneId_str;
+        double lanePos;
+        std::string value_str;
+        double maxDecel;
+        double maxAccel;
 
-    std::map<std::string, adversaryEntry_t> allAdversary;
+        bool processingStarted;
+        bool processingEnded;
+        double oldSpeed;
+    } speedEntry_t;
+
+    std::map<uint32_t, speedEntry_t> allSpeed;
+
+    typedef struct optSizeEntry
+    {
+        std::string pltId_str;
+        double begin;
+        int value;
+    } optSizeEntry_t;
+
+    std::map<uint32_t, optSizeEntry_t> allOptSize;
+
+    typedef struct pltMergeEntry
+    {
+        std::string pltId_str;
+        double begin;
+        std::string mode_str;
+    } pltMergeEntry_t;
+
+    std::map<uint32_t, pltMergeEntry_t> allPltMerge;
+
+    typedef struct pltSplitEntry
+    {
+        std::string pltId_str;
+        double begin;
+        int splitIndex;
+        std::string splitVehId_str;
+    } pltSplitEntry_t;
+
+    std::map<uint32_t, pltSplitEntry_t> allPltSplit;
 
 public:
     virtual ~TrafficControl();
@@ -73,8 +114,21 @@ private:
     void readInsertion(std::string);
     void printLoadedStatistics();
 
-    void parseAdversary(rapidxml::xml_node<> *);
-    void addAdversary();
+    void parseSpeed(rapidxml::xml_node<> *);
+    void vehicleSetSpeed(speedEntry_t &, std::string);
+    void controlSpeed();
+    void controlSpeed_begin(speedEntry_t &);
+    void controlSpeed_edgeId(speedEntry_t &);
+    void controlSpeed_laneId(speedEntry_t &);
+
+    void parseOptSize(rapidxml::xml_node<> *);
+    void controlOptSize();
+
+    void parsePltMerge(rapidxml::xml_node<> *);
+    void controlPltMerge();
+
+    void parsePltSplit(rapidxml::xml_node<> *);
+    void controlPltSplit();
 };
 
 }
