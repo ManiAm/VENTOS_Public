@@ -61,12 +61,7 @@ void Tracking::initialize(int stage)
             throw omnetpp::cRuntimeError("zoom value is not correct!");
 
         winOffsetX = par("winOffsetX").doubleValue();
-        if(winOffsetX < 0)
-            throw omnetpp::cRuntimeError("winOffsetX value is not correct!");
-
         winOffsetY = par("winOffsetY").doubleValue();
-        if(winOffsetY < 0)
-            throw omnetpp::cRuntimeError("winOffsetY value is not correct!");
 
         trackingInterval = par("trackingInterval").doubleValue();
         if(trackingInterval <= 0)
