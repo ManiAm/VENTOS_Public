@@ -183,6 +183,15 @@ public:
 
     bool TraCIclosed = true;
 
+    typedef struct departureArrivalEntry
+    {
+        double departure;
+        double arrival;
+    } departureArrivalEntry_t;
+
+    // record the departure and arrival time of each vehicle
+    std::map<std::string /*SUMOID*/, departureArrivalEntry_t> departureArrival;
+
 protected:
     double updateInterval = -1;
     TraCIConnection* connection = NULL;
@@ -204,15 +213,6 @@ private:
     std::string simEndDateTime = "";
     Htime_t simStartTime;
     Htime_t simEndTime;
-
-    typedef struct departureArrivalEntry
-    {
-        double departure;
-        double arrival;
-    } departureArrivalEntry_t;
-
-    // record the departure and arrival time of each vehicle
-    std::map<std::string /*SUMOID*/, departureArrivalEntry_t> departureArrival;
 
     // logging TraCI command exchange
     typedef struct TraCIcommandEntry
