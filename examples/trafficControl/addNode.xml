@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<addNode id="add_00">
+  
+  <vehicle id="veh.0" type="TypeManual" route="route0" departSpeed="20" />
+  
+</addNode>
