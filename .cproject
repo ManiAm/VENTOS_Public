@@ -48,6 +48,7 @@
 								<option id="gnu.cpp.compiler.option.include.paths.1952025022" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/VENTOS/libs/rapidxml-1.13}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/VENTOS/libs/UFT}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/VENTOS/libs/exprtk}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.2012468194" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
@@ -115,6 +116,7 @@
 								<option id="gnu.cpp.compiler.option.include.paths.646295690" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/VENTOS/libs/rapidxml-1.13}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/VENTOS/libs/UFT}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/VENTOS/libs/exprtk}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.501890714" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
