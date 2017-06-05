@@ -34,6 +34,7 @@
 
 #include "traci/TraCICommands.h"
 #include "baseAppl/03_BaseApplLayer.h"
+#include "exprtk.hpp"
 
 
 namespace VENTOS {
@@ -55,6 +56,10 @@ private:
     const std::string pltSplit_tag = "pltSplit";
 
     std::string id;
+
+    typedef exprtk::symbol_table<double> symbol_table_t;
+    typedef exprtk::expression<double>   expression_t;
+    typedef exprtk::parser<double>       parser_t;
 
     typedef struct speedEntry
     {
@@ -79,7 +84,11 @@ private:
         bool onPos = false;
         bool checkRouteLane = false;
         bool onLane = false;
+        // used for expression evaluation
         bool expressionEvaluationRequired = false;
+        double expressionVariable = 0;
+        symbol_table_t symbol_table;
+        expression_t expression;
     } speedEntry_t;
 
     std::map<uint32_t, speedEntry_t> allSpeed;

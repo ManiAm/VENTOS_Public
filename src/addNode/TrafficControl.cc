@@ -232,6 +232,17 @@ void TrafficControl::parseSpeed(rapidxml::xml_node<> *pNode)
         if(cNode->first_attribute("lanePos") && !cNode->first_attribute("laneId"))
             throw omnetpp::cRuntimeError("attribute 'lanePos' requires 'laneId' in element '%s'", speed_tag.c_str());
 
+        try
+        {
+            boost::lexical_cast<double>(value_str);
+        }
+        catch(...)
+        {
+            // speed value is a function
+            if(!cNode->first_attribute("end") && !cNode->first_attribute("duration"))
+                throw omnetpp::cRuntimeError("attribute 'end' or 'duration' is mandatory when speed is a function in element '%s'", speed_tag.c_str());
+        }
+
         if(edgeId_str != "")
         {
             auto ii = std::find(allEdges.begin(), allEdges.end(), edgeId_str);
@@ -298,6 +309,11 @@ void TrafficControl::parseSpeed(rapidxml::xml_node<> *pNode)
         }
         else
             throw omnetpp::cRuntimeError("Multiple %s with the same 'id' %s is not allowed!", speed_tag.c_str(), id_str.c_str());
+
+        // set symbol_table and expression
+        auto ii = allSpeed.find(speedNodeCount);
+        ii->second.symbol_table.add_variable("t", ii->second.expressionVariable);
+        ii->second.expression.register_symbol_table(ii->second.symbol_table);
 
         speedNodeCount++;
     }
@@ -752,11 +768,20 @@ void TrafficControl::vehicleSetSpeedOnce(speedEntry_t &speedEntry, std::string s
 }
 
 
-void TrafficControl::vehicleSetSpeedExpression(speedEntry_t &speedEntry, std::string expression)
+void TrafficControl::vehicleSetSpeedExpression(speedEntry_t &speedEntry, std::string expression_string)
 {
+    parser_t parser;
+    parser.compile(expression_string, speedEntry.expression);
 
-    TraCI->vehicleSetSpeed(speedEntry.id_str, 5.);
+    // evaluate the speed function at current point
+    speedEntry.expressionVariable = omnetpp::simTime().dbl();
+    double functionVal = speedEntry.expression.value();
 
+    // make sure the speed is not negative
+    functionVal = std::max(0., functionVal);
+
+    // set the speed
+    TraCI->vehicleSetSpeed(speedEntry.id_str, functionVal);
 }
 
 
