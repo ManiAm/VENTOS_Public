@@ -155,8 +155,7 @@ void AddNode::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t si
 
     if(signalID == Signal_initialize_withTraCI)
     {
-        updateInterval = (double)TraCI->simulationGetTimeStep() / 1000.;
-        SUMO_timeStep = TraCI->simulationGetTimeStep() / 1000.;
+        SUMO_timeStep = (double)TraCI->simulationGetTimeStep() / 1000.;
 
         readInsertion("addNode.xml");
     }
@@ -623,7 +622,7 @@ void AddNode::addObstacle()
                 throw omnetpp::cRuntimeError("'end' value (%f) is less than 'begin' value (%f) in element '%s'", end, begin, obstacle_tag.c_str());
 
             omnetpp::cMessage* evt = new omnetpp::cMessage(vehID.c_str(), TYPE_TIMER_OBSTACLE);
-            scheduleAt(omnetpp::simTime() + 2*updateInterval + end, evt);
+            scheduleAt(omnetpp::simTime() + 2*SUMO_timeStep + end, evt);
         }
         else if(duration != -1)
         {
@@ -634,7 +633,7 @@ void AddNode::addObstacle()
                 throw omnetpp::cRuntimeError("'duration' value (%f) cannot be bigger than the simulation time (%f) in element '%s'", duration, terminateTime, obstacle_tag.c_str());
 
             omnetpp::cMessage* evt = new omnetpp::cMessage(vehID.c_str(), TYPE_TIMER_OBSTACLE);
-            scheduleAt(omnetpp::simTime() + 2*updateInterval + begin + duration, evt);
+            scheduleAt(omnetpp::simTime() + 2*SUMO_timeStep + begin + duration, evt);
         }
     }
 }
@@ -779,7 +778,7 @@ void AddNode::addVehicle()
             if(entry.second.duration != -1)
             {
                 omnetpp::cMessage* evt = new omnetpp::cMessage(vehID.c_str(), TYPE_TIMER_STOPPED_VEHICLE);
-                scheduleAt(omnetpp::simTime() + 2*updateInterval + entry.second.depart + entry.second.duration, evt);
+                scheduleAt(omnetpp::simTime() + 2*SUMO_timeStep + entry.second.depart + entry.second.duration, evt);
             }
         }
         else if(entry.second.status_str == "parked")
@@ -2008,6 +2007,7 @@ std::string AddNode::getOverlappedPlatoon(vehiclePlatoonEntry_t &platoonEntry, i
         // there is no overlapp!
         platoonLengthEntry_t entry = {platoonEntry.id_str, fromPos, toPos};
         ii->second.push_back(entry);
+
         return "";
     }
 

@@ -61,8 +61,7 @@ private:
     omnetpp::simsignal_t Signal_initialize_withTraCI;
 
     double terminateTime = 0;
-    double updateInterval = -1;
-    double SUMO_timeStep = 0;
+    double SUMO_timeStep = -1;
     int routeCalculation = 0;
 
     const std::string adversary_tag = "adversary";
