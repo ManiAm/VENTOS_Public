@@ -47,6 +47,8 @@ private:
     omnetpp::simsignal_t Signal_initialize_withTraCI;
     omnetpp::simsignal_t Signal_executeEachTS;
 
+    double SUMO_timeStep = -1;
+
     const std::string speed_tag = "speed";
     const std::string optSize_tag = "optSize";
     const std::string pltMerge_tag = "pltMerge";
@@ -68,9 +70,16 @@ private:
         double maxDecel;
         double maxAccel;
 
-        bool processingStarted;
-        bool processingEnded;
-        double oldSpeed;
+        // for internal use
+        bool processingStarted = false;
+        bool processingEnded = false;
+        double oldSpeed = false;
+        bool checkRouteEdge = false;
+        bool onEdge = false;
+        bool onPos = false;
+        bool checkRouteLane = false;
+        bool onLane = false;
+        bool expressionEvaluationRequired = false;
     } speedEntry_t;
 
     std::map<uint32_t, speedEntry_t> allSpeed;
@@ -115,7 +124,12 @@ private:
     void printLoadedStatistics();
 
     void parseSpeed(rapidxml::xml_node<> *);
-    void vehicleSetSpeed(speedEntry_t &, std::string);
+    void checkSpeedConflicts(speedEntry_t &, uint32_t);
+    uint32_t checkSpeedConflicts_begin(speedEntry_t &, uint32_t);
+    uint32_t checkSpeedConflicts_edgeId(speedEntry_t &, uint32_t);
+    uint32_t checkSpeedConflicts_laneId(speedEntry_t &, uint32_t);
+    void vehicleSetSpeedOnce(speedEntry_t &, std::string);
+    void vehicleSetSpeedExpression(speedEntry_t &, std::string);
     void controlSpeed();
     void controlSpeed_begin(speedEntry_t &);
     void controlSpeed_edgeId(speedEntry_t &);
