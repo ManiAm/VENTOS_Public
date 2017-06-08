@@ -50,6 +50,8 @@ void ApplVPlatoonMg::initialize(int stage)
         if(!DSRCenabled)
             throw omnetpp::cRuntimeError("This vehicle is not DSRC-enabled!");
 
+        record_platoon_stat = par("record_platoon_stat").boolValue();
+
         maxPlnSize = par("maxPlatoonSize").longValue();
         optPlnSize = par("optPlatoonSize").longValue();
 
@@ -176,9 +178,6 @@ void ApplVPlatoonMg::onBeaconRSU(BeaconRSU* wsm)
 
 void ApplVPlatoonMg::onPlatoonMsg(PlatoonMsg* wsm)
 {
-    // pass it down!
-    super::onPlatoonMsg(wsm);
-
     if(plnMode != platoonManagement)
         return;
 
@@ -215,7 +214,7 @@ PlatoonMsg*  ApplVPlatoonMg::prepareData(std::string receiver, uCommand_t type, 
     wsm->setSender(SUMOID.c_str());
     wsm->setRecipient(receiver.c_str());
     wsm->setType(type);
-    wsm->setSendingPlatoonID(plnID.c_str());
+    wsm->setSendingPlatoonID(myPlnID.c_str());
     wsm->setReceivingPlatoonID(receivingPlatoonID.c_str());
     wsm->setDblValue(dblValue);
     wsm->setStrValue(strValue.c_str());
@@ -427,7 +426,7 @@ void ApplVPlatoonMg::common_DataFSM(PlatoonMsg* wsm)
 {
     if(vehicleState == state_platoonFollower)
     {
-        if ( wsm->getType() == CHANGE_PL && wsm->getSender() == plnID )
+        if ( wsm->getType() == CHANGE_PL && wsm->getSender() == myPlnID )
         {
             if( std::string(wsm->getRecipient()) == "multicast" || wsm->getRecipient() == SUMOID )
             {
@@ -438,16 +437,16 @@ void ApplVPlatoonMg::common_DataFSM(PlatoonMsg* wsm)
                 reportCommandToStat(dataMsg);
 
                 // save my current platoon ID
-                oldPlnID = plnID;
+                oldPlnID = myPlnID;
 
                 // these should be updated after sending ACK!
-                plnID = wsm->getStrValue();
+                myPlnID = wsm->getStrValue();
                 myPlnDepth = myPlnDepth + wsm->getDblValue();
             }
         }
         // if my old platoon leader asks me to change my leader to the current one
         // I have done it before, so I only ACK
-        else if( wsm->getType() == CHANGE_PL && wsm->getSender() == oldPlnID && wsm->getStrValue() == plnID )
+        else if( wsm->getType() == CHANGE_PL && wsm->getSender() == oldPlnID && wsm->getStrValue() == myPlnID )
         {
             if( std::string(wsm->getRecipient()) == "multicast" || wsm->getRecipient() == SUMOID )
             {
@@ -458,7 +457,7 @@ void ApplVPlatoonMg::common_DataFSM(PlatoonMsg* wsm)
                 reportCommandToStat(dataMsg);
             }
         }
-        else if(wsm->getType() == CHANGE_Tg && wsm->getSender() == plnID)
+        else if(wsm->getType() == CHANGE_Tg && wsm->getSender() == myPlnID)
         {
             TraCI->vehicleSetTimeGap(SUMOID, wsm->getDblValue());
         }
@@ -500,7 +499,7 @@ void ApplVPlatoonMg::entry_handleSelfMsg(omnetpp::cMessage* msg)
         if(TraCI->vehicleGetLaneIndex(SUMOID) == 1)
         {
             // make it a free agent
-            plnID = SUMOID;
+            myPlnID = SUMOID;
             myPlnDepth = 0;
             plnSize = 1;
             plnMembersList.push_back(SUMOID);
@@ -636,7 +635,7 @@ void ApplVPlatoonMg::merge_BeaconFSM(BeaconVehicle* wsm)
         // can we merge?
         if(!busy && plnSize < optPlnSize)
         {
-            if(isBeaconFromLeading(wsm))
+            if(isBeaconFromFrontVehicle(wsm))
             {
                 int finalPlnSize = wsm->getPlatoonDepth() + 1 + plnSize;
 
@@ -735,7 +734,7 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
     {
         // if we are in waitForCatchup and receive a
         // MERGE_REQ then we should reject it!
-        if (wsm->getType() == MERGE_REQ && wsm->getRecipient() == plnID)
+        if (wsm->getType() == MERGE_REQ && wsm->getRecipient() == myPlnID)
         {
             // send MERGE_REJECT
             PlatoonMsg* dataMsg = prepareData(wsm->getSender(), MERGE_REJECT, wsm->getSendingPlatoonID());
@@ -746,13 +745,13 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
     }
     else if(vehicleState == state_sendMergeDone)
     {
-        plnID = leadingPlnID;
+        myPlnID = leadingPlnID;
         myPlnDepth = leadingPlnDepth + 1;
         plnSize = -1;
         plnMembersList.clear();
 
         // send unicast MERGE_DONE
-        PlatoonMsg* dataMsg = prepareData(plnID, MERGE_DONE, plnID);
+        PlatoonMsg* dataMsg = prepareData(myPlnID, MERGE_DONE, myPlnID);
         EV << "### " << SUMOID << ": sent MERGE_DONE." << std::endl;
         send(dataMsg, lowerLayerOut);
         reportCommandToStat(dataMsg);
@@ -778,7 +777,7 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
     }
     else if(vehicleState == state_waitForAllAcks)
     {
-        if ( wsm->getType() == ACK && (wsm->getSendingPlatoonID() == plnID || wsm->getSendingPlatoonID() == leadingPlnID) )
+        if ( wsm->getType() == ACK && (wsm->getSendingPlatoonID() == myPlnID || wsm->getSendingPlatoonID() == leadingPlnID) )
         {
             std::string followerID = wsm->getSender();
             RemoveFollowerFromList_Merge(followerID);
@@ -796,7 +795,7 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
     }
     else if(vehicleState == state_platoonLeader)
     {
-        if (wsm->getType() == MERGE_REQ && wsm->getRecipient() == plnID)
+        if (wsm->getType() == MERGE_REQ && wsm->getRecipient() == myPlnID)
         {
             int finalPlnSize =  wsm->getQueueValue().size() + plnSize;
 
@@ -839,7 +838,7 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
     }
     else if(vehicleState == state_waitForMergeDone)
     {
-        if(wsm->getType() == MERGE_DONE && wsm->getRecipient() == plnID)
+        if(wsm->getType() == MERGE_DONE && wsm->getRecipient() == myPlnID)
         {
             vehicleState = state_mergeDone;
             reportStateToStat();
@@ -856,7 +855,7 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
         if( adaptiveTG && plnSize > (maxPlnSize / 2) )
         {
             // increase Tg
-            PlatoonMsg* dataMsg = prepareData("multicast", CHANGE_Tg, plnID, TG2);
+            PlatoonMsg* dataMsg = prepareData("multicast", CHANGE_Tg, myPlnID, TG2);
             EV << "### " << SUMOID << ": sent CHANGE_Tg with value " << TG2 << std::endl;
             send(dataMsg, lowerLayerOut);
             reportCommandToStat(dataMsg);
@@ -1057,7 +1056,7 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
             throw omnetpp::cRuntimeError("splitting vehicle is not known!");
 
         // send a unicast SPLIT_REQ to the follower
-        PlatoonMsg* dataMsg = prepareData(splittingVehicle, SPLIT_REQ, plnID);
+        PlatoonMsg* dataMsg = prepareData(splittingVehicle, SPLIT_REQ, myPlnID);
         EV << "### " << SUMOID << ": sent SPLIT_REQ." << std::endl;
         send(dataMsg, lowerLayerOut);
         reportCommandToStat(dataMsg);
@@ -1084,7 +1083,7 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
     else if(vehicleState == state_makeItFreeAgent)
     {
         // send CHANGE_PL to the splitting vehicle (last two parameters are data attached to this ucommand)
-        PlatoonMsg* dataMsg = prepareData(splittingVehicle, CHANGE_PL, plnID, (-splittingDepth), splittingVehicle);
+        PlatoonMsg* dataMsg = prepareData(splittingVehicle, CHANGE_PL, myPlnID, (-splittingDepth), splittingVehicle);
         EV << "### " << SUMOID << ": sent CHANGE_PL." << std::endl;
         send(dataMsg, lowerLayerOut);
         reportCommandToStat(dataMsg);
@@ -1131,7 +1130,7 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
         if( adaptiveTG && plnSize < (maxPlnSize / 2) )
         {
             // decrease Tg
-            PlatoonMsg* dataMsg = prepareData("multicast", CHANGE_Tg, plnID, TG1);
+            PlatoonMsg* dataMsg = prepareData("multicast", CHANGE_Tg, myPlnID, TG1);
             EV << "### " << SUMOID << ": sent CHANGE_Tg with value " << TG1 << std::endl;
             send(dataMsg, lowerLayerOut);
             reportCommandToStat(dataMsg);
@@ -1140,7 +1139,7 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
         // send unicast SPLIT_DONE
         // we send two data to our follower:
         // 1) splitCaller 2) our platoon member list
-        PlatoonMsg* dataMsg = prepareData(splittingVehicle, SPLIT_DONE, plnID, splitCaller, "", secondPlnMembersList);
+        PlatoonMsg* dataMsg = prepareData(splittingVehicle, SPLIT_DONE, myPlnID, splitCaller, "", secondPlnMembersList);
         EV << "### " << SUMOID << ": sent SPLIT_DONE." << std::endl;
         send(dataMsg, lowerLayerOut);
         reportCommandToStat(dataMsg);
@@ -1173,7 +1172,7 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
         for (std::deque<std::string>::iterator it=plnMembersList.begin()+splittingDepth+1; it!=plnMembersList.end(); ++it)
         {
             std::string targetVeh = *it;
-            PlatoonMsg* dataMsg = prepareData(targetVeh, CHANGE_PL, plnID, (-splittingDepth), splittingVehicle);
+            PlatoonMsg* dataMsg = prepareData(targetVeh, CHANGE_PL, myPlnID, (-splittingDepth), splittingVehicle);
             EV << "### " << SUMOID << ": sent CHANGE_PL." << std::endl;
             send(dataMsg, lowerLayerOut);
             reportCommandToStat(dataMsg);
@@ -1188,7 +1187,7 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
     }
     else if(vehicleState == state_waitForAllAcks2)
     {
-        if (wsm->getType() == ACK && wsm->getReceivingPlatoonID() == plnID)
+        if (wsm->getType() == ACK && wsm->getReceivingPlatoonID() == myPlnID)
         {
             std::string followerID = wsm->getSender();
             RemoveFollowerFromList_Split(followerID);
@@ -1215,7 +1214,7 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
         if (wsm->getType() == SPLIT_REQ && wsm->getRecipient() == SUMOID)
         {
             // send SPLIT_ACCEPT
-            PlatoonMsg* dataMsg = prepareData(plnID, SPLIT_ACCEPT, plnID);
+            PlatoonMsg* dataMsg = prepareData(myPlnID, SPLIT_ACCEPT, myPlnID);
             EV << "### " << SUMOID << ": sent SPLIT_ACCEPT." << std::endl;
             send(dataMsg, lowerLayerOut);
             reportCommandToStat(dataMsg);
@@ -1228,15 +1227,15 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
     }
     else if(vehicleState == state_waitForCHANGEPL)
     {
-        if (wsm->getType() == CHANGE_PL && wsm->getSender() == plnID && wsm->getRecipient() == SUMOID)
+        if (wsm->getType() == CHANGE_PL && wsm->getSender() == myPlnID && wsm->getRecipient() == SUMOID)
         {
             cancelEvent(plnTIMER5);
 
             // save my old platoon leader info for future use
-            oldPlnID = plnID;
+            oldPlnID = myPlnID;
 
             // I am a free agent now!
-            plnID = wsm->getStrValue();
+            myPlnID = wsm->getStrValue();
             myPlnDepth = myPlnDepth + wsm->getDblValue();
             plnSize = 1;
 
@@ -1253,7 +1252,7 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
     else if(vehicleState == state_sendingACK)
     {
         // send ACK
-        PlatoonMsg* dataMsg = prepareData(oldPlnID, ACK, plnID);
+        PlatoonMsg* dataMsg = prepareData(oldPlnID, ACK, myPlnID);
         EV << "### " << SUMOID << ": sent ACK." << std::endl;
         send(dataMsg, lowerLayerOut);
         reportCommandToStat(dataMsg);
@@ -1392,7 +1391,7 @@ void ApplVPlatoonMg::leaderLeave_DataFSM(PlatoonMsg *wsm)
     if(vehicleState == state_sendVoteLeader)
     {
         // send a multicast VOTE_LEADER to all followers
-        PlatoonMsg* dataMsg = prepareData("multicast", VOTE_LEADER, plnID);
+        PlatoonMsg* dataMsg = prepareData("multicast", VOTE_LEADER, myPlnID);
         EV << "### " << SUMOID << ": sent VOTE_LEADER." << std::endl;
         send(dataMsg, lowerLayerOut);
         reportCommandToStat(dataMsg);
@@ -1450,14 +1449,14 @@ void ApplVPlatoonMg::leaderLeave_DataFSM(PlatoonMsg *wsm)
     }
     else if(vehicleState == state_platoonFollower)
     {
-        if ( wsm->getType() == VOTE_LEADER && wsm->getSender() == plnID )
+        if ( wsm->getType() == VOTE_LEADER && wsm->getSender() == myPlnID )
         {
             // todo:
             // we assume the second vehicle in the platoon always replies
             if(myPlnDepth == 1)
             {
                 // send ELECTED_LEADER
-                PlatoonMsg* dataMsg = prepareData(plnID, ELECTED_LEADER, plnID, myPlnDepth);
+                PlatoonMsg* dataMsg = prepareData(myPlnID, ELECTED_LEADER, myPlnID, myPlnDepth);
                 EV << "### " << SUMOID << ": sent ELECTED_LEADER." << std::endl;
                 send(dataMsg, lowerLayerOut);
                 reportCommandToStat(dataMsg);
@@ -1534,7 +1533,7 @@ void ApplVPlatoonMg::followerLeave_DataFSM(PlatoonMsg *wsm)
     if(vehicleState == state_sendLeaveReq)
     {
         // send a unicast LEAVE_REQ to the leader
-        PlatoonMsg* dataMsg = prepareData(plnID, LEAVE_REQ, plnID, myPlnDepth);
+        PlatoonMsg* dataMsg = prepareData(myPlnID, LEAVE_REQ, myPlnID, myPlnDepth);
         EV << "### " << SUMOID << ": sent LEAVE_REQ." << std::endl;
         send(dataMsg, lowerLayerOut);
         reportCommandToStat(dataMsg);
@@ -1542,13 +1541,13 @@ void ApplVPlatoonMg::followerLeave_DataFSM(PlatoonMsg *wsm)
         vehicleState = state_waitForLeaveReply;
         reportStateToStat();
 
-        reportManeuverToStat(SUMOID, plnID, "FLeave_Request");
+        reportManeuverToStat(SUMOID, myPlnID, "FLeave_Request");
 
         scheduleAt(omnetpp::simTime() + 5., plnTIMER10);
     }
     else if(vehicleState == state_waitForLeaveReply)
     {
-        if(wsm->getType() == LEAVE_REJECT && wsm->getSender() == plnID)
+        if(wsm->getType() == LEAVE_REJECT && wsm->getSender() == myPlnID)
         {
             cancelEvent(plnTIMER10);
 
@@ -1557,7 +1556,7 @@ void ApplVPlatoonMg::followerLeave_DataFSM(PlatoonMsg *wsm)
             vehicleState = state_platoonFollower;
             reportStateToStat();
         }
-        else if(wsm->getType() == LEAVE_ACCEPT && wsm->getSender() == plnID)
+        else if(wsm->getType() == LEAVE_ACCEPT && wsm->getSender() == myPlnID)
         {
             cancelEvent(plnTIMER10);
 
@@ -1590,7 +1589,7 @@ void ApplVPlatoonMg::followerLeave_DataFSM(PlatoonMsg *wsm)
 
             // send LEAVE_ACCEPT
             // lastFollower notifies the leaving vehicle if it is the last follower or not!
-            PlatoonMsg* dataMsg = prepareData(wsm->getSender(), LEAVE_ACCEPT, plnID, lastFollower);
+            PlatoonMsg* dataMsg = prepareData(wsm->getSender(), LEAVE_ACCEPT, myPlnID, lastFollower);
             EV << "### " << SUMOID << ": sent LEAVE_ACCEPT." << std::endl;
             send(dataMsg, lowerLayerOut);
             reportCommandToStat(dataMsg);
@@ -1690,7 +1689,7 @@ void ApplVPlatoonMg::dissolve_DataFSM(PlatoonMsg* wsm)
         lastVeh = *it;
 
         // send a unicast DISSOLVE message my follower
-        PlatoonMsg* dataMsg = prepareData(lastVeh, DISSOLVE, plnID);
+        PlatoonMsg* dataMsg = prepareData(lastVeh, DISSOLVE, myPlnID);
         EV << "### " << SUMOID << ": sent DISSOLVE to followers." << std::endl;
         send(dataMsg, lowerLayerOut);
         reportCommandToStat(dataMsg);
@@ -1722,7 +1721,7 @@ void ApplVPlatoonMg::dissolve_DataFSM(PlatoonMsg* wsm)
     }
     else if(vehicleState == state_platoonFollower)
     {
-        if ( wsm->getType() == DISSOLVE && wsm->getSender() == plnID && wsm->getRecipient() == SUMOID )
+        if ( wsm->getType() == DISSOLVE && wsm->getSender() == myPlnID && wsm->getRecipient() == SUMOID )
         {
             // send ACK
             PlatoonMsg* dataMsg = prepareData(wsm->getSender(), ACK, wsm->getSendingPlatoonID());
@@ -1731,7 +1730,7 @@ void ApplVPlatoonMg::dissolve_DataFSM(PlatoonMsg* wsm)
             reportCommandToStat(dataMsg);
 
             // make it a free agent
-            plnID = SUMOID;
+            myPlnID = SUMOID;
             myPlnDepth = 0;
             plnSize = 1;
             plnMembersList.push_back(SUMOID);

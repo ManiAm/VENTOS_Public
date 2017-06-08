@@ -320,7 +320,7 @@ public:
     CFMODES_t vehicleGetCarFollowingModelMode(std::string);           // new command [returns the current ACC/CACC car following mode]
 
     // CMD_SET_VEHICLE_VARIABLE
-    void vehicleSetStop(std::string, std::string, double, uint8_t, int32_t, uint8_t);  // adds or modifies a stop with the given parameters
+    void vehicleSetStop(std::string, std::string, double, uint8_t, int32_t, uint8_t);
     void vehicleResume(std::string);
     void vehicleSetSpeed(std::string, double);
     void vehicleSetSpeedMode(std::string, uint32_t bitset);
@@ -342,14 +342,18 @@ public:
     void vehicleSetTimeGap(std::string, double);
     void vehicleAdd(std::string, std::string, std::string, int32_t, double, double, uint8_t);
     void vehicleRemove(std::string, uint8_t);
-
-    void vehicleSetControllerParameters(std::string, std::string);  // new command [set the controller's parameters for this vehicle]
     void vehicleSetErrorGap(std::string, double);                   // new command [set an error value for the gap]
     void vehicleSetErrorRelSpeed(std::string, double);              // new command [set an error value for relative speed]
     void vehicleSetDebug(std::string, bool);                        // new command [should the debug info be printed in the SUMO output console ?]
     void vehicleSetVint(std::string, double);                       // new command
     void vehicleSetComfAccel(std::string, double);                  // new command
     void vehicleSetComfDecel(std::string, double);                  // new command
+
+    // used by the protocol
+    void vehiclePlatoonInit(std::string, std::string, int, int);
+    void vehiclePlatoonJoin(std::string, std::string, int, int);
+    void vehiclePlatoonLeave(std::string);
+    void vehiclePlatoonViewUpdate(std::string, std::string);
 
     // ################################################################
     //                          vehicle type

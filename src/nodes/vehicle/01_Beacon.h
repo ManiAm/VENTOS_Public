@@ -43,11 +43,6 @@ private:
 protected:
     double sonarDist;
 
-    std::string plnID = "";
-    int myPlnDepth = -1;
-    int plnSize = -1;
-    std::deque<std::string> plnMembersList;
-
 public:
     ~ApplVBeacon();
     virtual void initialize(int stage);
@@ -57,8 +52,13 @@ protected:
     virtual void handleSelfMsg(omnetpp::cMessage*);
     virtual void sendBeacon();
 
-    bool isBeaconFromLeading(BeaconVehicle*);
+    bool isBeaconFromFrontVehicle(BeaconVehicle*);
+    bool isBeaconFromMyPlatoon(BeaconVehicle*);
     bool isBeaconFromMyPlatoonLeader(BeaconVehicle*);
+
+    virtual std::string getPlatoonId();
+    virtual int getPlatoonDepth();
+    virtual int getPlatoonSize();
 
 private:
     BeaconVehicle* generateBeacon();

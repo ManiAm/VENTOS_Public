@@ -72,7 +72,7 @@ simple ApplVDynamicRouting extends ApplVBeacon
     parameters:
         @class(VENTOS::ApplVDynamicRouting);
         @display("i=block/app2");
-                
+        
         bool requestRoutes = default(false); //tell the applayer to periodically send beacons
         volatile double requestInterval = default(60s) @unit(s); //the intervall between 2 beacon messages
         double maxSystemOffset = default(0.1s) @unit(s); //the maximum delay of messages sent down to avoid synchronous channel access
@@ -80,7 +80,7 @@ simple ApplVDynamicRouting extends ApplVBeacon
         int systemMsgPriority = default(2); //the access category of the beacon messages
         
         double hypertreeUpdateInterval = default(1);        
-		int routingMode = default(1);
+        int routingMode = default(1);
 }
 
 
@@ -94,26 +94,29 @@ simple ApplVAID extends ApplVDynamicRouting
 }
 
 
-simple ApplVPlatoonFormed extends ApplVAID
+simple ApplVPlatoon extends ApplVAID
 {
     parameters:
-        @class(VENTOS::ApplVPlatoonFormed); 
+        @class(VENTOS::ApplVPlatoon);        
+        
+        // parameters in this module are used internally
+        // Do not change them!
         
         // plnMode = 1: no platooning
-        // plnMode = 2: pre-defined platoon
+        // plnMode = 2: platoonin with no management protocol
         // plnMode = 3: platoon management is active
         int plnMode = default(1);
         
-        bool record_platoon_stat = default(false);
-        
-        string preDefinedPlatoonID = default("CACC1"); // only in plnMode = 2
+        string myPlnID = default("");
+        int myPlnDepth = default(-1);
+        int plnSize = default(-1);
 }
 
 
-simple ApplVPlatoonMg extends ApplVPlatoonFormed
+simple ApplVPlatoonMg extends ApplVPlatoon
 {
     parameters:
-        @class(VENTOS::ApplVPlatoonMg); 
+        @class(VENTOS::ApplVPlatoonMg);        
         
         int maxPlatoonSize = default(10);
         int optPlatoonSize = default(5);
@@ -130,6 +133,8 @@ simple ApplVPlatoonMg extends ApplVPlatoonFormed
         bool splitEnabled = default(true);
         bool followerLeaveEnabled = default(true);
         bool leaderLeaveEnabled = default(true);   
+        
+        bool record_platoon_stat = default(false);
 }
 
 

@@ -116,6 +116,7 @@ private:
 
     void addModule(std::string nodeId, const Coord& position, std::string road_id = "", double speed = -1, double angle = -1);
     omnetpp::cModule* addVehicle(std::string nodeId, std::string type, std::string name, std::string displayString, int32_t nodeVectorIndex, std::string vClass, const Coord& position, std::string road_id, double speed, double angle);
+    void applyDeferredAttributes(veh_deferred_attributes_t &, std::string SUMOID, omnetpp::cModule *mod);
     omnetpp::cModule* addPedestrian();
     void deleteManagedModule(std::string nodeId);
 

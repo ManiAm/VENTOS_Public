@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    Manager.h
+/// @file    04_Platoon.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    August 2013
@@ -25,66 +25,46 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef ApplVMANAGER_H
-#define ApplVMANAGER_H
+#ifndef APPLVPLATOONFORMED_H
+#define APPLVPLATOONFORMED_H
 
-#include "nodes/vehicle/06_PlatoonCoordinator.h"
+#include "nodes/vehicle/03_AID.h"
 
 namespace VENTOS {
 
-class ApplVManager : public ApplVCoordinator
+class ApplVPlatoon : public ApplV_AID
 {
+protected:
+    int plnMode;
+    std::string myPlnID = "";
+    int myPlnDepth = -1;
+    int plnSize = -1;
+
+    enum platooningMode
+    {
+        platoonOff = 1,
+        platoonNoManagement = 2,
+        platoonManagement = 3,
+    };
+
 private:
-    typedef ApplVCoordinator super;
-
-    // NED variables (packet loss ratio)
-    double droppT;
-    std::string droppV;
-    double plr;
-
-    // NED variables (measurement error)
-    bool measurementError;
-    double errorGap;
-    double errorRelSpeed;
-
-    carFollowingModel_t carFollowingModelId;
-
-    bool record_beacon_stat;
-
-    long BeaconVehCount;
-    long BeaconVehDropped;
-    long BeaconBikeCount;
-    long BeaconPedCount;
-    long BeaconRSUCount;
-    long PlatoonCount;
+    typedef ApplV_AID super;
 
 public:
-    ~ApplVManager();
+    ~ApplVPlatoon();
     virtual void initialize(int stage);
     virtual void finish();
-    virtual void receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, omnetpp::cObject* obj, cObject* details);
 
 protected:
-    virtual void handleLowerMsg(omnetpp::cMessage*);
     virtual void handleSelfMsg(omnetpp::cMessage*);
-    virtual void handlePositionUpdate(omnetpp::cObject*);
+    virtual void handlePositionUpdate(cObject*);
 
     virtual void onBeaconVehicle(BeaconVehicle*);
-    virtual void onBeaconBicycle(BeaconBicycle*);
-    virtual void onBeaconPedestrian(BeaconPedestrian*);
     virtual void onBeaconRSU(BeaconRSU*);
-    virtual void onPlatoonMsg(PlatoonMsg*);
 
-    void onMessageType(omnetpp::cMessage*);
-    bool dropBeacon(double time, std::string vehicle, double plr);
-
-    /**
-     * Returns the amount of CO2 emissions in grams/second, calculated for an average Car
-     * @param v speed in m/s
-     * @param a acceleration in m/s^2
-     * @returns emission in g/s
-     */
-    double calculateCO2emission(double v, double a);
+    std::string getPlatoonId() {return myPlnID;}
+    int getPlatoonDepth() {return myPlnDepth;}
+    int getPlatoonSize() {return plnSize;}
 };
 
 }

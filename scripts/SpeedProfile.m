@@ -9,11 +9,11 @@ addpath libs
 
 % X limit of each figure
 Xmin = 0;
-Xmax = 370;
+Xmax = 250;
 
 disp('reading and parsing the vehData.txt file ...');
 
-path = '../examples/trafficControl/results/000_vehicleData.txt';    
+path = '../examples/carFollowing/results/000_vehicleData.txt';    
 file_id = fopen(path);
 formatSpec = '%d %f %s %f %f %f';
 C_text = textscan(file_id, formatSpec, 'HeaderLines', 16);

@@ -44,10 +44,6 @@ void ApplVBeacon::initialize(int stage)
     if (stage == 0)
     {
         sonarDist = par("sonarDist").doubleValue();
-
-        WATCH(plnID);
-        WATCH(myPlnDepth);
-        WATCH(plnSize);
     }
 }
 
@@ -67,10 +63,6 @@ void ApplVBeacon::handleSelfMsg(omnetpp::cMessage* msg)
 void ApplVBeacon::sendBeacon()
 {
     BeaconVehicle* beaconMsg = generateBeacon();
-
-    // fill-in the related fields to platoon
-    beaconMsg->setPlatoonID(plnID.c_str());
-    beaconMsg->setPlatoonDepth(myPlnDepth);
 
     // broadcast the beacon wirelessly using IEEE 802.11p
     send(beaconMsg, lowerLayerOut);
@@ -117,6 +109,10 @@ BeaconVehicle*  ApplVBeacon::generateBeacon()
     // set current lane
     wsm->setLane( TraCI->vehicleGetLaneID(SUMOID).c_str() );
 
+    // fill-in the related fields to platoon
+    wsm->setPlatoonID(getPlatoonId().c_str());
+    wsm->setPlatoonDepth(getPlatoonDepth());
+
     // set heading -- used in rsu/classify beacons
     wsm->setAngle( TraCI->vehicleGetAngle(SUMOID) );
 
@@ -124,11 +120,20 @@ BeaconVehicle*  ApplVBeacon::generateBeacon()
 }
 
 
-bool ApplVBeacon::isBeaconFromLeading(BeaconVehicle* wsm)
+bool ApplVBeacon::isBeaconFromFrontVehicle(BeaconVehicle* wsm)
 {
     auto leader = TraCI->vehicleGetLeader(SUMOID, sonarDist);
 
     if( leader.leaderID == std::string(wsm->getSender()) )
+        return true;
+    else
+        return false;
+}
+
+
+bool ApplVBeacon::isBeaconFromMyPlatoon(BeaconVehicle* wsm)
+{
+    if( std::string(wsm->getPlatoonID()) == getPlatoonId())
         return true;
     else
         return false;
@@ -141,7 +146,7 @@ bool ApplVBeacon::isBeaconFromMyPlatoonLeader(BeaconVehicle* wsm)
     if( wsm->getPlatoonDepth() == 0 )
     {
         // check if this is my platoon leader
-        if( std::string(wsm->getPlatoonID()) == plnID)
+        if( std::string(wsm->getPlatoonID()) == getPlatoonId())
         {
             // note: we should not check myPlnDepth != 0
             // in predefined platoon, we do not use depth!
@@ -152,5 +157,22 @@ bool ApplVBeacon::isBeaconFromMyPlatoonLeader(BeaconVehicle* wsm)
     return false;
 }
 
+
+std::string ApplVBeacon::getPlatoonId()
+{
+    throw omnetpp::cRuntimeError("Platoon class should implement this method!");
 }
 
+
+int ApplVBeacon::getPlatoonDepth()
+{
+    throw omnetpp::cRuntimeError("Platoon class should implement this method!");
+}
+
+
+int ApplVBeacon::getPlatoonSize()
+{
+    throw omnetpp::cRuntimeError("Platoon class should implement this method!");
+}
+
+}

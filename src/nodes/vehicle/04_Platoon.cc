@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    ApplV_01_PlatoonFormed.h
+/// @file    04_Platoon.cc
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    August 2013
@@ -25,45 +25,69 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef APPLVPLATOONFORMED_H
-#define APPLVPLATOONFORMED_H
-
-#include "nodes/vehicle/03_AID.h"
+#include "nodes/vehicle/04_Platoon.h"
 
 namespace VENTOS {
 
-class ApplVPlatoonFormed : public ApplV_AID
+Define_Module(VENTOS::ApplVPlatoon);
+
+ApplVPlatoon::~ApplVPlatoon()
 {
-protected:
-    int plnMode;
-    std::string preDefinedPlatoonID;
-    bool record_platoon_stat;
-
-    enum platooningMode
-    {
-        platoonOff = 1,
-        platoonFormed = 2,
-        platoonManagement = 3,
-    };
-
-private:
-    typedef ApplV_AID super;
-
-public:
-    ~ApplVPlatoonFormed();
-    virtual void initialize(int stage);
-    virtual void finish();
-
-protected:
-    // Methods
-    virtual void handleSelfMsg(omnetpp::cMessage*);
-    virtual void handlePositionUpdate(cObject*);
-
-    virtual void onBeaconVehicle(BeaconVehicle*);
-    virtual void onBeaconRSU(BeaconRSU*);
-    virtual void onPlatoonMsg(PlatoonMsg* wsm);
-};
 
 }
 
-#endif
+
+void ApplVPlatoon::initialize(int stage)
+{
+    super::initialize(stage);
+
+    if (stage == 0)
+    {
+        plnMode = par("plnMode").longValue();
+        myPlnID = par("myPlnID").stringValue();
+        myPlnDepth = par("myPlnDepth").longValue();
+        plnSize = par("plnSize").longValue();
+
+        WATCH(plnMode);
+        WATCH(myPlnID);
+        WATCH(myPlnDepth);
+        WATCH(plnSize);
+    }
+}
+
+
+void ApplVPlatoon::finish()
+{
+    super::finish();
+}
+
+
+void ApplVPlatoon::handleSelfMsg(omnetpp::cMessage* msg)
+{
+    // pass it down!
+    super::handleSelfMsg(msg);
+}
+
+
+void ApplVPlatoon::onBeaconVehicle(BeaconVehicle* wsm)
+{
+    // pass it down!
+    super::onBeaconVehicle(wsm);
+}
+
+
+void ApplVPlatoon::onBeaconRSU(BeaconRSU* wsm)
+{
+    // pass it down!
+    super::onBeaconRSU(wsm);
+}
+
+
+// is called, every time the position of vehicle changes
+void ApplVPlatoon::handlePositionUpdate(cObject* obj)
+{
+    // pass it down!
+    super::handlePositionUpdate(obj);
+}
+
+}

@@ -64,6 +64,9 @@ void AddNode::initialize(int stage)
 
         Signal_initialize_withTraCI = registerSignal("initializeWithTraCISignal");
         omnetpp::getSimulation()->getSystemModule()->subscribe("initializeWithTraCISignal", this);
+
+        Signal_executeEachTS = registerSignal("executeEachTimeStepSignal");
+        omnetpp::getSimulation()->getSystemModule()->subscribe("executeEachTimeStepSignal", this);
     }
 }
 
@@ -115,6 +118,7 @@ void AddNode::finish()
 
     // unsubscribe
     omnetpp::getSimulation()->getSystemModule()->unsubscribe("initializeWithTraCISignal", this);
+    omnetpp::getSimulation()->getSystemModule()->unsubscribe("executeEachTimeStepSignal", this);
 }
 
 
@@ -158,6 +162,12 @@ void AddNode::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t si
         SUMO_timeStep = (double)TraCI->simulationGetTimeStep() / 1000.;
 
         readInsertion("addNode.xml");
+    }
+    else if(signalID == Signal_executeEachTS)
+    {
+        // platoons are added in run-time
+        if(!allVehiclePlatoon.empty())
+            addVehiclePlatoon();
     }
 }
 
@@ -241,7 +251,7 @@ void AddNode::readInsertion(std::string addNodePath)
     addVehicle();
     addVehicleFlow();
     addVehicleMultiFlow();
-    addVehiclePlatoon();
+    addVehiclePlatoon();  // our first attempt in adding platoons
     addCA();
     addEmulated(); // should be called last!
 
@@ -1739,8 +1749,8 @@ void AddNode::parseVehiclePlatoon(rapidxml::xml_node<> *pNode)
         std::vector<std::string> via_str_tokenize = xmlUtil::getAttrValue_stringVector(cNode, "via", false, std::vector<std::string>());
         std::string color_str = xmlUtil::getAttrValue_string(cNode, "color", false, "yellow");
         double depart = xmlUtil::getAttrValue_double(cNode, "depart", false, 0);
-        int departLane = xmlUtil::getAttrValue_int(cNode, "departLane", false, -5 /*DEPART_LANE_BEST_FREE*/);
-        double departPos = xmlUtil::getAttrValue_double(cNode, "departPos", false, 0);
+        int departLane = xmlUtil::getAttrValue_int(cNode, "departLane", false, 0); // default cannot be negative!
+        double departPos = xmlUtil::getAttrValue_double(cNode, "departPos", false, -1);
         double platoonMaxSpeed = xmlUtil::getAttrValue_double(cNode, "platoonMaxSpeed", false, 10);
         bool fastCatchUp = xmlUtil::getAttrValue_bool(cNode, "fastCatchUp", false, false);
         double interGap = xmlUtil::getAttrValue_double(cNode, "interGap", false, 3.5);
@@ -1765,6 +1775,9 @@ void AddNode::parseVehiclePlatoon(rapidxml::xml_node<> *pNode)
 
         if(depart < 0)
             throw omnetpp::cRuntimeError("attribute 'depart' is negative in element '%s': %f", vehicle_platoon_tag.c_str(), depart);
+
+        if(departPos != -1 && departPos < 0)
+            throw omnetpp::cRuntimeError("attribute 'departPos' is negative in element '%s': %f", vehicle_platoon_tag.c_str(), departPos);
 
         if( (cNode->first_attribute("maxSize") || cNode->first_attribute("optSize")) && !cNode->first_attribute("pltMgmtProt") )
             throw omnetpp::cRuntimeError("attribute 'maxSize/optSize' is only valid when 'pltMgmtProt' is defined in element '%s'", vehicle_platoon_tag.c_str());
@@ -1832,24 +1845,15 @@ void AddNode::parseVehiclePlatoonChild(rapidxml::xml_node<> *pNode)
 
 void AddNode::addVehiclePlatoon()
 {
-    if(allVehiclePlatoon.empty())
-        return;
-
-    unsigned int num = allVehiclePlatoon.size();
-
-    LOG_DEBUG << boost::format("\n>>> AddNode is adding %1% vehicle platoons ... \n") % num << std::flush;
-
-    const char* seed_s = omnetpp::getEnvir()->getConfigEx()->getVariable(CFGVAR_RUNNUMBER);
-    int seed = atoi(seed_s);
-
-    // mersenne twister engine -- choose a fix seed to make tests reproducible
-    std::mt19937 generator(seed);
-
-    // generating a random floating point number uniformly in [1,0)
-    std::uniform_real_distribution<> DSRC_Dist(0,1);
-
     for(auto &entry : allVehiclePlatoon)
     {
+        if(entry.second.processed)
+            continue;
+
+        // wait for the depart time for this platoon
+        if(entry.second.depart > omnetpp::simTime().dbl())
+            continue;
+
         std::string platoonID = entry.second.id_str;
         std::string route_str = entry.second.routeID_str;
         std::string from_str = entry.second.from_str;
@@ -1875,13 +1879,30 @@ void AddNode::addVehiclePlatoon()
         auto routeEdges = TraCI->routeGetEdges(vehRouteID);
         std::string laneID = routeEdges[0] + "_" + std::to_string(entry.second.departLane);
 
-        // check for overlapped
-        std::string overlappedPlatoon = getOverlappedPlatoon(entry.second, platoonSize, laneID);
-        if(overlappedPlatoon != "")
-            throw omnetpp::cRuntimeError("Platoon '%s' has overlap with platoon '%s' on lane '%s'. Check departPos attribute.", platoonID.c_str(), overlappedPlatoon.c_str(), laneID.c_str());
+        // if no departPos is specified, then find one!
+        if(entry.second.departPos == -1)
+            entry.second.departPos = getPlatoonStartingPosition(entry.second, platoonSize, laneID);
+
+        // check if we can insert this platoon now
+        bool possible = checkPlatoonInsertion(entry.second, platoonSize, laneID);
+        if(!possible)
+        {
+            // print this message only once
+            if(entry.second.retryCount == 0)
+                LOG_WARNING << boost::format("\n>>> WARNING: Platoon '%s' cannot be inserted at position '%d' of lane '%s' at time '%f', "
+                        "because the lane is occupied. Retrying in the next time-steps \n") %
+                        platoonID %
+                        entry.second.departPos %
+                        laneID %
+                        omnetpp::simTime().dbl() << std::flush;
+
+            entry.second.retryCount++;
+            continue;
+        }
+
+        LOG_DEBUG << boost::format("\n>>> AddNode is adding vehicle platoon '%s' ... \n") % platoonID << std::flush;
 
         std::string vehID = platoonID + ".0";
-        std::string lastVehID = "";
         double departPos = entry.second.departPos;
 
         // adding platooned vehicles starting from leader
@@ -1904,7 +1925,7 @@ void AddNode::addVehiclePlatoon()
             TraCI->vehicleAdd(vehID,
                     vehType,
                     vehRouteID,
-                    (int32_t)((entry.second.depart)*1000),
+                    (int32_t)((omnetpp::simTime().dbl())*1000), // we cannot use entry.second.depart, because it might be in the past
                     departPos,
                     0 /*depart speed*/,
                     entry.second.departLane);
@@ -1942,76 +1963,88 @@ void AddNode::addVehiclePlatoon()
                 }
             }
 
+            // adding some parameters into deferred attributes
+            auto ii = vehs_deferred_attributes.find(vehID);
+            if(ii != vehs_deferred_attributes.end())
+                throw omnetpp::cRuntimeError("Vehicle '%s' was added previously! Make sure the vehicle IDs are unique.", vehID.c_str());
+
+            veh_deferred_attributes_t deferred_entry;
+
+            deferred_entry.plnMode = 2;
+            deferred_entry.plnDepth = i;
+            deferred_entry.plnId = platoonID;
+            deferred_entry.plnSize = platoonSize;
+
             if(entry.second.pltMgmtProt)
             {
-                auto ii = vehs_deferred_attributes.find(vehID);
-                if(ii != vehs_deferred_attributes.end())
-                    throw omnetpp::cRuntimeError("Vehicle '%s' was added previously! Make sure the vehicle IDs are unique.", vehID.c_str());
-
-                veh_deferred_attributes_t deferred_entry;
                 deferred_entry.plnMode = 3;
                 deferred_entry.maxSize = entry.second.maxSize;
                 deferred_entry.optSize = entry.second.optSize;
-                vehs_deferred_attributes[vehID] = deferred_entry;
             }
 
-            lastVehID = vehID;
+            vehs_deferred_attributes[vehID] = deferred_entry;
         }
+
+        entry.second.processed = true;
     }
 }
 
 
-std::string AddNode::getOverlappedPlatoon(vehiclePlatoonEntry_t &platoonEntry, int platoonSize, std::string laneID)
+double AddNode::getPlatoonStartingPosition(vehiclePlatoonEntry_t &platoonEntry, int platoonSize, std::string laneID)
 {
-    typedef struct platoonLengthEntry
-    {
-        std::string platoonID;
-        double fromPos;
-        double toPos;
-    } platoonLengthEntry_t;
+    double vehLength = TraCI->vehicleTypeGetLength(platoonEntry.type_str);
+    double minGap = TraCI->vehicleTypeGetMinGap(platoonEntry.type_str);
 
-    static std::map<std::string /*laneID*/, std::vector<platoonLengthEntry_t>> platoonLength;
+    double safeStartPos = platoonSize*vehLength + (platoonSize-1)*minGap;
 
+    // get the lane length
+    double laneLength = TraCI->laneGetLength(laneID);
+
+    if(safeStartPos > laneLength)
+        throw omnetpp::cRuntimeError("Platoon '%s' does not fit on lane '%s'", platoonEntry.id_str.c_str(), laneID.c_str());
+
+    return safeStartPos;
+}
+
+
+bool AddNode::checkPlatoonInsertion(vehiclePlatoonEntry_t &platoonEntry, int platoonSize, std::string laneID)
+{
     double vehLength = TraCI->vehicleTypeGetLength(platoonEntry.type_str);
     double minGap = TraCI->vehicleTypeGetMinGap(platoonEntry.type_str);
 
     // get the length of this platoon
-    double fromPos = platoonEntry.departPos + minGap;
-    double toPos = platoonEntry.departPos - platoonSize*vehLength - (platoonSize-1)*minGap;
-    toPos = std::max(0., toPos);
+    double platoon_from = platoonEntry.departPos + minGap;
+    double platoon_to = platoonEntry.departPos - platoonSize*vehLength - (platoonSize-1)*minGap;
 
-    auto ii = platoonLength.find(laneID);
-    // this is the first platoon on this lane
-    if(ii == platoonLength.end())
-    {
-        platoonLengthEntry_t entry = {platoonEntry.id_str, fromPos, toPos};
-        std::vector<platoonLengthEntry_t> entry2 = {entry};
-        platoonLength[laneID] = entry2;
+    // get the lane length
+    double laneLength = TraCI->laneGetLength(laneID);
 
-        return "";
-    }
-    // there is an existing platoon on this lane
-    else
+    if(platoon_from > laneLength || platoon_to < 0)
+        throw omnetpp::cRuntimeError("departPos of platoon '%s' is invalid", platoonEntry.id_str.c_str());
+
+    // get all vehicles that are on this lane at this moment
+    auto vehicles = TraCI->laneGetLastStepVehicleIDs(laneID);
+
+    for(auto &veh : vehicles)
     {
-        // for each platoon on this lane
-        for(auto &platoon : ii->second)
+        double veh_lanePos = TraCI->vehicleGetLanePosition(veh);
+        double veh_minGap = TraCI->vehicleGetMinGap(veh);
+        double veh_length = TraCI->vehicleGetLength(veh);
+
+        double veh_from = veh_lanePos + veh_minGap;
+        // veh_to can be negative
+        double veh_to = veh_lanePos - veh_length;
+
+        // if the platoon space is occupied
+        if((platoon_to >= veh_to && platoon_to <= veh_from) ||
+                (platoon_from >= veh_to && platoon_from <= veh_from) ||
+                (platoon_to <= veh_to && platoon_from >= veh_from))
         {
-            // check for overlapp
-            if((toPos >= platoon.toPos && toPos <= platoon.fromPos) ||
-                    (fromPos >= platoon.toPos && fromPos <= platoon.fromPos))
-            {
-                return platoon.platoonID;
-            }
+            return false;
         }
-
-        // there is no overlapp!
-        platoonLengthEntry_t entry = {platoonEntry.id_str, fromPos, toPos};
-        ii->second.push_back(entry);
-
-        return "";
     }
 
-    return ""; // to shut the compiler up!
+    return true;
 }
 
 

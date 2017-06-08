@@ -46,10 +46,13 @@ typedef struct veh_deferred_attributes
 {
     // -1 means not defined
 
-    int DSRC_status = -1; // 0: without DSRC, 1: with DSRC
-    int plnMode = -1;     // platooning mode
-    int maxSize = -1;     // maximum platoon size
-    int optSize = -1;     // optimal platoon size
+    int DSRC_status = -1;    // 0: without DSRC, 1: with DSRC
+    int plnMode = -1;        // platooning mode
+    int plnDepth = -1;       // position of this vehicle in platoon
+    std::string plnId = "";  // platoon id
+    int plnSize = -1;        // platoon size
+    int maxSize = -1;        // maximum platoon size
+    int optSize = -1;        // optimal platoon size
 }veh_deferred_attributes_t;
 
 class AddNode : public BaseApplLayer
@@ -59,6 +62,7 @@ private:
 
     TraCI_Commands *TraCI;
     omnetpp::simsignal_t Signal_initialize_withTraCI;
+    omnetpp::simsignal_t Signal_executeEachTS;
 
     double terminateTime = 0;
     double SUMO_timeStep = -1;
@@ -199,6 +203,10 @@ private:
         int maxSize;
         int optSize;
         std::map<int /*index*/, std::string /*veh type*/> platoonChild;
+
+        // for internal use
+        bool processed = false;
+        uint32_t retryCount = 0;
     } vehiclePlatoonEntry_t;
 
     std::map<std::string, vehiclePlatoonEntry_t> allVehiclePlatoon;
@@ -260,7 +268,8 @@ private:
     void parseVehiclePlatoon(rapidxml::xml_node<> *);
     void parseVehiclePlatoonChild(rapidxml::xml_node<> *);
     void addVehiclePlatoon();
-    std::string getOverlappedPlatoon(vehiclePlatoonEntry_t &, int, std::string);
+    double getPlatoonStartingPosition(vehiclePlatoonEntry_t &, int, std::string);
+    bool checkPlatoonInsertion(vehiclePlatoonEntry_t &, int, std::string);
 
     void parseCA(rapidxml::xml_node<> *);
     void addCA();

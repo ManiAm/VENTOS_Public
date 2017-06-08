@@ -28,11 +28,11 @@
 #ifndef APPLVPLATOONMG_H
 #define APPLVPLATOONMG_H
 
-#include "nodes/vehicle/04_PlatoonFormed.h"
+#include "nodes/vehicle/04_Platoon.h"
 
 namespace VENTOS {
 
-class ApplVPlatoonMg : public ApplVPlatoonFormed
+class ApplVPlatoonMg : public ApplVPlatoon
 {
 protected:
     // NED variables
@@ -50,7 +50,8 @@ protected:
     bool followerLeaveEnabled;
     bool leaderLeaveEnabled;
 
-    // Variables
+    bool record_platoon_stat;
+
     typedef enum states_num
     {
         state_idle,             // 0
@@ -103,7 +104,9 @@ protected:
     states_num_t vehicleState = state_idle;
 
 private:
-    typedef ApplVPlatoonFormed super;
+    typedef ApplVPlatoon super;
+
+    std::deque<std::string> plnMembersList;
 
     bool busy = false;
 

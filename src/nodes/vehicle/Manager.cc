@@ -30,6 +30,7 @@
 
 namespace VENTOS {
 
+#define PARAMS_DELIM  "#"
 
 Define_Module(VENTOS::ApplVManager);
 
@@ -45,9 +46,6 @@ void ApplVManager::initialize(int stage)
 
     if (stage == 0)
     {
-        carFollowingModelNumber = TraCI->vehicleGetCarFollowingModelID(SUMOID);
-        CACC_communicationType = TraCI->vehicleGetCACCCommunicationID(SUMOID);
-
         // NED variables (packet loss ratio)
         droppT = par("droppT").doubleValue();
         droppV = par("droppV").stringValue();
@@ -65,7 +63,8 @@ void ApplVManager::initialize(int stage)
         BeaconRSUCount = 0;
         PlatoonCount = 0;
 
-        // set parameters in SUMO
+        carFollowingModelId = TraCI->vehicleGetCarFollowingModelID(SUMOID);
+
         TraCI->vehicleSetDebug(SUMOID, getParentModule()->par("SUMOvehicleDebug").boolValue());
 
         if(measurementError)
@@ -251,56 +250,31 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
     // pass it down
     super::onBeaconVehicle(wsm);
 
-    if(carFollowingModelNumber == SUMO_CF_KRAUSS || carFollowingModelNumber == SUMO_CF_KRAUSS_ORIG1 || carFollowingModelNumber == SUMO_CF_ACC)
+    // I am a CACC vehicle
+    if(carFollowingModelId == SUMO_CF_CACC)
     {
-        // we ignore all received BeaconVehicles
-    }
-    // model is CACC with one-vehicle look-ahead communication (TypeCACC1)
-    else if(carFollowingModelNumber == SUMO_CF_CACC && CACC_communicationType == 1)
-    {
-        if( isBeaconFromLeading(wsm) )
+        // I receive a beacon from a vehicle in my platoon
+        if(isBeaconFromMyPlatoon(wsm))
         {
-            char buffer [200];
-            sprintf (buffer, "%f#%f#%f#%f#%s#%s", (double)wsm->getSpeed(), (double)wsm->getAccel(), (double)wsm->getMaxDecel(), (omnetpp::simTime().dbl())*1000, wsm->getSender(), "preceding");
-            TraCI->vehicleSetControllerParameters(SUMOID, buffer);
-        }
-    }
-    // model is CACC with platoon leader communication (TypeCACC2)
-    else if(carFollowingModelNumber == SUMO_CF_CACC && CACC_communicationType == 2)
-    {
-        if(plnMode == platoonOff)
-            throw omnetpp::cRuntimeError("no platoon leader is present! check plnMode!");
+            std::ostringstream params;
 
-        // I am platoon leader
-        // get data from my leading vehicle
-        if(myPlnDepth == 0)
-        {
-            if( isBeaconFromLeading(wsm) )
-            {
-                char buffer [200];
-                sprintf (buffer, "%f#%f#%f#%f#%s#%s", (double)wsm->getSpeed(), (double)wsm->getAccel(), (double)wsm->getMaxDecel(), (omnetpp::simTime().dbl())*1000, wsm->getSender(), "preceding");
-                TraCI->vehicleSetControllerParameters(SUMOID, buffer);
-            }
+            // Note: DO NOT change the order of parameters
+
+            // parameters from the beacon
+            params << (omnetpp::simTime().dbl())*1000 << PARAMS_DELIM;
+            params << wsm->getSender() << PARAMS_DELIM;
+            params << (double)wsm->getSpeed() << PARAMS_DELIM;
+            params << (double)wsm->getAccel() << PARAMS_DELIM;
+            params << (double)wsm->getMaxDecel() << PARAMS_DELIM;
+
+            // my own parameters
+            params << myPlnID << PARAMS_DELIM;
+            params << myPlnDepth << PARAMS_DELIM;
+            params << plnSize;
+
+            // update my platoon view in SUMO
+            TraCI->vehiclePlatoonViewUpdate(SUMOID, params.str());
         }
-        // I am a follower
-        // get data from my platoon leader
-        else
-        {
-            if( isBeaconFromMyPlatoonLeader(wsm) )
-            {
-                char buffer [200];
-                sprintf (buffer, "%f#%f#%f#%f#%s#%s", (double)wsm->getSpeed(), (double)wsm->getAccel(), (double)wsm->getMaxDecel(), (omnetpp::simTime().dbl())*1000, wsm->getSender(), "leader");
-                TraCI->vehicleSetControllerParameters(SUMOID, buffer);
-            }
-        }
-    }
-    else if(carFollowingModelNumber == SUMO_CF_CACC && CACC_communicationType == 3)
-    {
-        // not yet implemented!
-    }
-    else
-    {
-        throw omnetpp::cRuntimeError("not a valid control type or control number!");
     }
 }
 
@@ -316,9 +290,6 @@ void ApplVManager::onBeaconPedestrian(BeaconPedestrian* wsm)
 {
     // pass it down
     //super::onBeaconPedestrian(wsm);
-
-    char buffer [200];
-    sprintf (buffer, "%f#%f#%f#%f#%s#%s", (double)wsm->getSpeed(), (double)wsm->getAccel(), (double)wsm->getMaxDecel(), (omnetpp::simTime().dbl())*1000, wsm->getSender(), "preceding");
 }
 
 
@@ -356,7 +327,7 @@ double ApplVManager::calculateCO2emission(double v, double a)
     double delta = 1.90e-06;
     double zeta = 0.252;
     double alpha1 = 0.985;
-    */
+     */
 
     // "Category 9 vehicle" (e.g. a '94 Dodge Spirit)
     double alpha = 1.11;
