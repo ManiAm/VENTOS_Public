@@ -9,7 +9,11 @@
 
 <addNode id="add_1">
 
-  <vehicle_platoon id="veh" type="TypeCACC1" size="10" route="route1" departPos="100" platoonMaxSpeed="0" />
+  <vehicle_platoon id="veh" type="TypeCACC1" size="10" route="route1" departPos="100" platoonMaxSpeed="0" >
+        <member index="0" type="TypeManual" />
+  </vehicle_platoon>
   
 </addNode>
+
+
 
