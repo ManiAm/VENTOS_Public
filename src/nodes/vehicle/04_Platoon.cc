@@ -44,9 +44,27 @@ void ApplVPlatoon::initialize(int stage)
     if (stage == 0)
     {
         plnMode = par("plnMode").longValue();
+        if(plnMode != 1 && plnMode != 2 && plnMode != 3)
+            throw omnetpp::cRuntimeError("plnMode is invalid in vehicle '%s'", SUMOID.c_str());
+
         myPlnID = par("myPlnID").stringValue();
         myPlnDepth = par("myPlnDepth").longValue();
         plnSize = par("plnSize").longValue();
+
+        if(plnMode == 2 || plnMode == 3)
+        {
+            if(myPlnID == "")
+                throw omnetpp::cRuntimeError("pltID is empty in vehicle '%s'", SUMOID.c_str());
+
+            if(plnSize <= 0)
+                throw omnetpp::cRuntimeError("pltSize is invalid in vehicle '%s'", SUMOID.c_str());
+
+            if(myPlnDepth < 0 || myPlnDepth >= plnSize)
+                throw omnetpp::cRuntimeError("pltDepth is invalid in vehicle '%s'", SUMOID.c_str());
+
+            // register this vehicle as a platoon member to SUMO
+            TraCI->vehiclePlatoonInit(SUMOID, myPlnID, plnSize, myPlnDepth);
+        }
 
         WATCH(plnMode);
         WATCH(myPlnID);

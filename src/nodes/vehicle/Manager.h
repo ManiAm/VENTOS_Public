@@ -42,11 +42,6 @@ private:
     std::string droppV;
     double plr;
 
-    // NED variables (measurement error)
-    bool measurementError;
-    double errorGap;
-    double errorRelSpeed;
-
     carFollowingModel_t carFollowingModelId;
 
     bool record_beacon_stat;

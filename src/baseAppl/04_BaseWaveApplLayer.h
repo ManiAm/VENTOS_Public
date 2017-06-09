@@ -60,10 +60,10 @@ protected:
     static const simsignalwrap_t mobilityStateChangedSignal;
     static const simsignalwrap_t parkingStateChangedSignal;
 
-    TraCI_Commands* TraCI;
-    BaseMobility* mobility;
-    Statistics* STAT;
-    Veins::Mac1609_4* mac;
+    TraCI_Commands* TraCI = NULL;
+    BaseMobility* mobility = NULL;
+    Statistics* STAT = NULL;
+    Veins::Mac1609_4* mac = NULL;
 
     /* BSM (beacon) settings */
     bool sendBeacons;

@@ -316,7 +316,7 @@ public:
     double vehicleGetArrivalTime(std::string);           // new command
     std::string vehicleGetCarFollowingModelName(std::string);         // new command [returns the car-following model name -- ACC/CACC]
     carFollowingModel_t vehicleGetCarFollowingModelID(std::string);   // new command [returns the car-following model number -- 0(ACC)/1(CACC)]
-    int vehicleGetCACCCommunicationID(std::string);                   // new command [returns the CACC communication type]
+    int vehicleGetCACCStrategy(std::string);                          // new command [returns the CACC strategy number]
     CFMODES_t vehicleGetCarFollowingModelMode(std::string);           // new command [returns the current ACC/CACC car following mode]
 
     // CMD_SET_VEHICLE_VARIABLE

@@ -8,17 +8,17 @@
 
   <!-- CACC vehicle with one-vehicle look-ahead communication -->
   <vType id="TypeCACC1" length="5.0" minGap="2.0" maxSpeed="30.0" vClass="passenger">
-      <carFollowing-CACC communicationType="1" accel="3.0" decel="5.0" T_g="0.71" tau="0.5" ComfAccel="2.0" ComfDecel="3.0" K_sc="0.4" K_v="0.99" K_g="4.08" K_a="0.66" V_int="30.0" degradeToACC="1" />
+      <carFollowing-CACC strategy="1" accel="3.0" decel="5.0" T_g="0.71" tau="0.5" ComfAccel="2.0" ComfDecel="3.0" K_sc="0.4" K_v="0.99" K_g="4.08" K_a="0.66" V_int="30.0" degradeToACC="1" />
   </vType>
   
   <!-- CACC vehicle with acceleration from platoon leader -->
   <vType id="TypeCACC2" length="5.0" minGap="3.0" maxSpeed="30.0" vClass="passenger">
-      <carFollowing-CACC communicationType="2" accel="3.0" decel="5.0" T_g="0.71" tau="0.5" ComfAccel="2.0" ComfDecel="3.0" K_sc="0.4" K_v="1.0" K_g="5.0" K_a="1.0" V_int="30.0" degradeToACC="1" />
+      <carFollowing-CACC strategy="2" accel="3.0" decel="5.0" T_g="0.71" tau="0.5" ComfAccel="2.0" ComfDecel="3.0" K_sc="0.4" K_v="1.0" K_g="5.0" K_a="1.0" V_int="30.0" degradeToACC="1" />
   </vType>
   
   <!-- CACC vehicle with bi-directional control -->
   <vType id="TypeCACC3" length="5.0" minGap="2.0" maxSpeed="30.0" vClass="passenger">
-      <carFollowing-CACC communicationType="3" accel="3.0" decel="5.0" T_g="0.6" tau="0.5" ComfAccel="2.0" ComfDecel="3.0" K_sc="0.4" K_v="1.0" K_g="5.0" K_a="1.0" V_int="30.0" degradeToACC="1" K_v_f="1.0" K_g_f="5.0" />
+      <carFollowing-CACC strategy="3" accel="3.0" decel="5.0" T_g="0.6" tau="0.5" ComfAccel="2.0" ComfDecel="3.0" K_sc="0.4" K_v="1.0" K_g="5.0" K_a="1.0" V_int="30.0" degradeToACC="1" K_v_f="1.0" K_g_f="5.0" />
   </vType>  
 
   <route id="route1" edges="1to2" />  

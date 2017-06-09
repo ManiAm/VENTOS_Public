@@ -43,6 +43,9 @@ void ApplVBeacon::initialize(int stage)
 
     if (stage == 0)
     {
+        // set the debug flag in SUMO
+        TraCI->vehicleSetDebug(getParentModule()->par("SUMOID").stringValue(), getParentModule()->par("SUMOvehicleDebug").boolValue());
+
         sonarDist = par("sonarDist").doubleValue();
     }
 }

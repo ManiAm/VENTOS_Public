@@ -1012,7 +1012,32 @@ omnetpp::cModule* TraCI_Start::addVehicle(std::string SUMOID, std::string type, 
     // look for this vehicle
     auto ii = allDeferredAttributes.find(SUMOID);
     if(ii != allDeferredAttributes.end())
-        applyDeferredAttributes(ii->second, SUMOID, mod);
+    {
+        // if an attribute is -1, then the attribute is not defined for this vehicle.
+        // So we do not touch the corresponding parameter!
+        // The configuration file determines the value of parameter
+
+        if(ii->second.DSRC_status != -1)
+            mod->par("DSRCenabled") = (bool)ii->second.DSRC_status;
+
+        if(ii->second.plnMode != -1)
+            mod->getSubmodule("appl")->par("plnMode") = ii->second.plnMode;
+
+        if(ii->second.plnId != "")
+            mod->getSubmodule("appl")->par("myPlnID") = ii->second.plnId;
+
+        if(ii->second.plnDepth != -1)
+            mod->getSubmodule("appl")->par("myPlnDepth") = ii->second.plnDepth;
+
+        if(ii->second.plnSize != -1)
+            mod->getSubmodule("appl")->par("plnSize") = ii->second.plnSize;
+
+        if(ii->second.maxSize != -1)
+            mod->getSubmodule("appl")->par("maxPlatoonSize") = ii->second.maxSize;
+
+        if(ii->second.optSize != -1)
+            mod->getSubmodule("appl")->par("optPlatoonSize") = ii->second.optSize;
+    }
 
     mod->scheduleStart(omnetpp::simTime() + updateInterval);
 
@@ -1039,59 +1064,6 @@ omnetpp::cModule* TraCI_Start::addVehicle(std::string SUMOID, std::string type, 
     }
 
     return mod;
-}
-
-
-// apply the deferred attributes from ADDNODE module into this vehicle
-void TraCI_Start::applyDeferredAttributes(veh_deferred_attributes_t &attribute, std::string SUMOID, omnetpp::cModule *mod)
-{
-    // if an attribute is -1, then the attribute is not defined for this vehicle.
-    // So we do not touch the corresponding parameter!
-    // The configuration file determines the value of parameter
-
-    if(attribute.DSRC_status != -1)
-        mod->par("DSRCenabled") = (bool)attribute.DSRC_status;
-
-    if(attribute.plnMode != -1)
-        mod->getSubmodule("appl")->par("plnMode") = attribute.plnMode;
-
-    if(attribute.plnId != "")
-        mod->getSubmodule("appl")->par("myPlnID") = attribute.plnId;
-
-    if(attribute.plnDepth != -1)
-        mod->getSubmodule("appl")->par("myPlnDepth") = attribute.plnDepth;
-
-    if(attribute.plnSize != -1)
-        mod->getSubmodule("appl")->par("plnSize") = attribute.plnSize;
-
-    if(attribute.maxSize != -1)
-        mod->getSubmodule("appl")->par("maxPlatoonSize") = attribute.maxSize;
-
-    if(attribute.optSize != -1)
-        mod->getSubmodule("appl")->par("optPlatoonSize") = attribute.optSize;
-
-    int plnMode = mod->getSubmodule("appl")->par("plnMode").longValue();
-
-    if(plnMode != 1 && plnMode != 2 && plnMode != 3)
-        throw omnetpp::cRuntimeError("plnMode is invalid in vehicle '%s'", SUMOID.c_str());
-
-    if(plnMode == 2 || plnMode == 3)
-    {
-        std::string pltID = mod->getSubmodule("appl")->par("myPlnID").stringValue();
-        if(pltID == "")
-            throw omnetpp::cRuntimeError("pltID is empty in vehicle '%s'", SUMOID.c_str());
-
-        int pltSize = mod->getSubmodule("appl")->par("plnSize").longValue();
-        if(pltSize <= 0)
-            throw omnetpp::cRuntimeError("pltSize is invalid in vehicle '%s'", SUMOID.c_str());
-
-        int pltDepth = mod->getSubmodule("appl")->par("myPlnDepth").longValue();
-        if(pltDepth < 0 || pltDepth >= pltSize)
-            throw omnetpp::cRuntimeError("pltDepth is invalid in vehicle '%s'", SUMOID.c_str());
-
-        // register vehicle as a platoon
-        vehiclePlatoonInit(SUMOID, pltID, pltSize, pltDepth);
-    }
 }
 
 

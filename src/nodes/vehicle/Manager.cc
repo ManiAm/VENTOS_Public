@@ -51,11 +51,6 @@ void ApplVManager::initialize(int stage)
         droppV = par("droppV").stringValue();
         plr = par("plr").doubleValue();
 
-        // NED variables (measurement errors)
-        measurementError = par("measurementError").boolValue();
-        errorGap = par("errorGap").doubleValue();
-        errorRelSpeed = par("errorRelSpeed").doubleValue();
-
         record_beacon_stat = par("record_beacon_stat").boolValue();
 
         BeaconVehCount = 0;
@@ -65,12 +60,10 @@ void ApplVManager::initialize(int stage)
 
         carFollowingModelId = TraCI->vehicleGetCarFollowingModelID(SUMOID);
 
-        TraCI->vehicleSetDebug(SUMOID, getParentModule()->par("SUMOvehicleDebug").boolValue());
-
-        if(measurementError)
+        if(par("measurementError").boolValue())
         {
-            TraCI->vehicleSetErrorGap(SUMOID, errorGap);
-            TraCI->vehicleSetErrorRelSpeed(SUMOID, errorRelSpeed);
+            TraCI->vehicleSetErrorGap(SUMOID, par("errorGap").doubleValue());
+            TraCI->vehicleSetErrorRelSpeed(SUMOID, par("errorRelSpeed").doubleValue());
         }
         else
         {
@@ -263,6 +256,7 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
             // parameters from the beacon
             params << (omnetpp::simTime().dbl())*1000 << PARAMS_DELIM;
             params << wsm->getSender() << PARAMS_DELIM;
+            params << wsm->getPlatoonDepth() << PARAMS_DELIM;
             params << (double)wsm->getSpeed() << PARAMS_DELIM;
             params << (double)wsm->getAccel() << PARAMS_DELIM;
             params << (double)wsm->getMaxDecel() << PARAMS_DELIM;

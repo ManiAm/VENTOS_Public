@@ -1090,13 +1090,13 @@ carFollowingModel_t TraCI_Commands::vehicleGetCarFollowingModelID(std::string no
 }
 
 
-int TraCI_Commands::vehicleGetCACCCommunicationID(std::string nodeId)
+int TraCI_Commands::vehicleGetCACCStrategy(std::string nodeId)
 {
-    record_TraCI_activity_func("commandStart", CMD_GET_VEHICLE_VARIABLE, 0x73, "vehicleGetCACCCommunicationID");
+    record_TraCI_activity_func("commandStart", CMD_GET_VEHICLE_VARIABLE, 0x73, "vehicleGetCACCStrategy");
 
     int result = genericGetInt(CMD_GET_VEHICLE_VARIABLE, nodeId, 0x73, RESPONSE_GET_VEHICLE_VARIABLE);
 
-    record_TraCI_activity_func("commandComplete", CMD_GET_VEHICLE_VARIABLE, 0x73, "vehicleGetCACCCommunicationID");
+    record_TraCI_activity_func("commandComplete", CMD_GET_VEHICLE_VARIABLE, 0x73, "vehicleGetCACCStrategy");
     return result;
 }
 
@@ -3889,7 +3889,7 @@ std::vector<double> TraCI_Commands::genericGetBoundingBox(uint8_t commandId, std
 void TraCI_Commands::record_TraCI_activity_func(std::string state, uint8_t commandGroupId, uint8_t commandId, std::string commandName)
 {
     // check if logging is enabled
-    bool logEnabled = par("record_TraCI_activity").boolValue();
+    bool logEnabled = this->par("record_TraCI_activity").boolValue();
     if(!logEnabled)
         return;
 
