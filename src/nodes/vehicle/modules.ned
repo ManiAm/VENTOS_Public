@@ -147,13 +147,11 @@ simple ApplVManager extends ApplVPlatoonMg
         bool record_beacon_stat = default(false);
         
         // beacon loss ratio in application layer
-        double plr = default(0);  // packet loss ratio (percent) in each simulation timeStep
-        double droppT = default(30s) @unit(s);
-        string droppV = default("");  // plr for which vehicle? empty string means all
+        double plr = default(0);  // packet loss ratio (in percent)
+        double dropStartTime = default(-1s) @unit(s);
         
         // measurement error
         bool measurementError = default(false);
         double errorGap = default(0.01);
         double errorRelSpeed = default(0.05);
 }
-

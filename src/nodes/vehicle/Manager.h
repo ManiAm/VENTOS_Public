@@ -38,8 +38,7 @@ private:
     typedef ApplVCoordinator super;
 
     // NED variables (packet loss ratio)
-    double droppT;
-    std::string droppV;
+    double dropStartTime;
     double plr;
 
     carFollowingModel_t carFollowingModelId;
@@ -71,7 +70,7 @@ protected:
     virtual void onPlatoonMsg(PlatoonMsg*);
 
     void onMessageType(omnetpp::cMessage*);
-    bool dropBeacon(double time, std::string vehicle, double plr);
+    bool dropBeacon(double time, double plr);
 
     /**
      * Returns the amount of CO2 emissions in grams/second, calculated for an average Car

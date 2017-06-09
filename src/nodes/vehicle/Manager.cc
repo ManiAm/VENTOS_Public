@@ -47,9 +47,10 @@ void ApplVManager::initialize(int stage)
     if (stage == 0)
     {
         // NED variables (packet loss ratio)
-        droppT = par("droppT").doubleValue();
-        droppV = par("droppV").stringValue();
+        dropStartTime = par("dropStartTime").doubleValue();
         plr = par("plr").doubleValue();
+        if(plr < 0 || plr > 100)
+            throw omnetpp::cRuntimeError("Packet Loss Ratio (PLR) should be in range [0,100]: %d", plr);
 
         record_beacon_stat = par("record_beacon_stat").boolValue();
 
@@ -142,7 +143,7 @@ void ApplVManager::onMessageType(omnetpp::cMessage* msg)
 
         BeaconVehCount++;
 
-        if( plr == 0 || !dropBeacon(droppT, droppV, plr) )
+        if( plr == 0 || !dropBeacon(dropStartTime, plr) )
         {
             onBeaconVehicle(wsm);
 
@@ -214,24 +215,17 @@ void ApplVManager::onMessageType(omnetpp::cMessage* msg)
 
 
 // simulate packet loss in application layer
-bool ApplVManager::dropBeacon(double time, std::string vehicle, double plr)
+bool ApplVManager::dropBeacon(double time, double plr)
 {
     if(omnetpp::simTime().dbl() >= time)
     {
-        // vehicle == "" --> drop beacon in all vehicles
-        // vehicle == SUMOID --> drop beacon only in specified vehicle
-        if (vehicle == "" || vehicle == SUMOID)
-        {
-            // random number in [0,1)
-            double p = dblrand();
+        // random number in [0,1)
+        double p = dblrand();
 
-            if( p < (plr/100) )
-                return true;   // drop the beacon
-            else
-                return false;  // keep the beacon
-        }
+        if( p < (plr/100) )
+            return true;   // drop the beacon
         else
-            return false;
+            return false;  // keep the beacon
     }
     else
         return false;
