@@ -124,9 +124,6 @@ private:
     omnetpp::cMessage* plnTIMER2 = NULL;
     omnetpp::cMessage* plnTIMER3 = NULL;
 
-    // keep track of the platoon size changes in each time step
-    int plnSize_old = -1;
-
     // --[ split ]--
     std::string splittingVehicle = "";
     int splittingDepth = -1;

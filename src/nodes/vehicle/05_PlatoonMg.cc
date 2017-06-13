@@ -108,7 +108,7 @@ void ApplVPlatoonMg::initialize(int stage)
         plnTIMER8  = new omnetpp::cMessage("wait for split done");
         plnTIMER8a = new omnetpp::cMessage("wait for enough gap");
 
-        // platoon leader checks constantly if we can split based on optPlnSize
+        // this timer is fired every time step to monitor platoon variables in this vehicle
         mgrTIMER = new omnetpp::cMessage("manager");
         scheduleAt(omnetpp::simTime(), mgrTIMER);
 
@@ -425,8 +425,9 @@ void ApplVPlatoonMg::dissolvePlatoon()
 
 void ApplVPlatoonMg::pltMonitor()
 {
-    // record platoon configuration
-    if(record_platoon_stat && myPlnDepth == 0 && plnSize_old != plnSize)
+    // record platoon configuration from the platoon leader
+    // make sure the platoon is stable (busy is not set)
+    if(record_platoon_stat && myPlnDepth == 0 && !this->busy)
     {
         auto members = TraCI->platoonGetMembers(SUMOID);
 
@@ -448,7 +449,7 @@ void ApplVPlatoonMg::pltMonitor()
 
             platoon_data_t entry;
 
-            entry.timestamp = (double)TraCI->simulationGetCurrentTime() / 1000.;
+            entry.timestamp = ((double)TraCI->simulationGetCurrentTime() / 1000.) - updateInterval;
             entry.vehId = vehId;
             entry.pltMode = vehPtr->getPlatoonMode();
             entry.pltId = vehPtr->getPlatoonId();
@@ -459,8 +460,6 @@ void ApplVPlatoonMg::pltMonitor()
 
             STAT->global_plnConfig_stat.push_back(entry);
         }
-
-        plnSize_old = plnSize;
     }
 
     // platoon leader checks constantly if we can split
