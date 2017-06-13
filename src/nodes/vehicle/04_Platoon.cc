@@ -49,22 +49,22 @@ void ApplVPlatoon::initialize(int stage)
 
         myPlnID = par("myPlnID").stringValue();
         myPlnDepth = par("myPlnDepth").longValue();
-        plnSize = par("plnSize").longValue();
+        plnSize = par("plnSize").longValue(); // plnSize is known in platoon leader only
 
         if(plnMode == 2 || plnMode == 3)
         {
             if(myPlnID == "")
-                throw omnetpp::cRuntimeError("plnMode is '%d', but pltID is empty in vehicle '%s'", plnMode, SUMOID.c_str());
+                throw omnetpp::cRuntimeError("pltID is empty in vehicle '%s'", SUMOID.c_str());
 
-            if(plnSize <= 0)
-                throw omnetpp::cRuntimeError("plnMode is '%d', but pltSize is invalid in vehicle '%s'", plnMode, SUMOID.c_str());
-
-            if(myPlnDepth < 0 || myPlnDepth >= plnSize)
-                throw omnetpp::cRuntimeError("plnMode is '%d', but pltDepth is invalid in vehicle '%s'", plnMode, SUMOID.c_str());
+            if(myPlnDepth < 0)
+                throw omnetpp::cRuntimeError("pltDepth is invalid in vehicle '%s'", SUMOID.c_str());
 
             // I am the platoon leader
             if(myPlnDepth == 0)
             {
+                if(plnSize <= 0)
+                    throw omnetpp::cRuntimeError("pltSize is invalid in vehicle '%s'", SUMOID.c_str());
+
                 for(int i = 0; i < plnSize; i++)
                 {
                     std::string vehID = "";

@@ -38,8 +38,9 @@ protected:
     int plnMode;
     std::string myPlnID = "";
     int myPlnDepth = -1;
-    int plnSize = -1;
 
+    // only the platoon leader know platoon size and member list
+    int plnSize = -1;
     std::deque<std::string> plnMembersList;
 
     enum platooningMode

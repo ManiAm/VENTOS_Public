@@ -58,7 +58,6 @@ protected:
 
     virtual std::string getPlatoonId();
     virtual int getPlatoonDepth();
-    virtual int getPlatoonSize();
 
 private:
     BeaconVehicle* generateBeacon();

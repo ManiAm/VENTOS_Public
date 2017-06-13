@@ -1949,7 +1949,9 @@ void AddNode::addVehiclePlatoon()
             deferred_entry.plnMode = 2;
             deferred_entry.plnDepth = i;
             deferred_entry.plnId = platoonID;
-            deferred_entry.plnSize = platoonSize;
+            // setting platoon size in leader ONLY
+            if(i == 0)
+                deferred_entry.plnSize = platoonSize;
 
             if(entry.second.pltMgmtProt)
             {

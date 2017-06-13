@@ -172,10 +172,4 @@ int ApplVBeacon::getPlatoonDepth()
     throw omnetpp::cRuntimeError("Platoon class should implement this method!");
 }
 
-
-int ApplVBeacon::getPlatoonSize()
-{
-    throw omnetpp::cRuntimeError("Platoon class should implement this method!");
-}
-
 }
