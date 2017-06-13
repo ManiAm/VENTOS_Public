@@ -35,6 +35,7 @@
 
 #include "traci/TraCICommands.h"
 #include "traci/TraCIConstants.h"
+#include "nodes/vehicle/Manager.h"
 
 namespace VENTOS {
 
@@ -358,6 +359,32 @@ uint32_t TraCI_Commands::simulationGetTimeStep()
     ASSERT(buf.eof());
 
     record_TraCI_activity_func("commandComplete", CMD_GET_SIM_VARIABLE, VAR_DELTA_T, "simulationGetTimeStep");
+
+    return val;
+}
+
+
+uint32_t TraCI_Commands::simulationGetCurrentTime()
+{
+    record_TraCI_activity_func("commandStart", CMD_GET_SIM_VARIABLE, VAR_TIME_STEP, "simulationGetCurrentTime");
+
+    TraCIBuffer buf = connection->query(CMD_GET_SIM_VARIABLE, TraCIBuffer() << static_cast<uint8_t>(VAR_TIME_STEP) << std::string("sim0"));
+
+    uint8_t cmdLength_resp; buf >> cmdLength_resp;
+    uint8_t commandId_resp; buf >> commandId_resp;
+    ASSERT(commandId_resp == RESPONSE_GET_SIM_VARIABLE);
+    uint8_t variableId_resp; buf >> variableId_resp;
+    ASSERT(variableId_resp == VAR_TIME_STEP);
+    std::string simId; buf >> simId;
+    uint8_t typeId_resp; buf >> typeId_resp;
+    ASSERT(typeId_resp == TYPE_INTEGER);
+
+    uint32_t val;
+    buf >> val;
+
+    ASSERT(buf.eof());
+
+    record_TraCI_activity_func("commandComplete", CMD_GET_SIM_VARIABLE, VAR_TIME_STEP, "simulationGetCurrentTime");
 
     return val;
 }
@@ -1109,6 +1136,46 @@ CFMODES_t TraCI_Commands::vehicleGetCarFollowingModelMode(std::string nodeId)
 
     record_TraCI_activity_func("commandComplete", CMD_GET_VEHICLE_VARIABLE, 0x75, "vehicleGetCarFollowingModelMode");
     return (CFMODES_t) result;
+}
+
+
+std::string TraCI_Commands::vehicleGetPlatoonId(std::string nodeId)
+{
+    std::string omnetId = convertId_traci2omnet(nodeId);
+    if(omnetId == "")
+        throw omnetpp::cRuntimeError("Vehicle with OMNET++ id '%s' does not exists", nodeId.c_str());
+
+    cModule *module = omnetpp::getSimulation()->getSystemModule()->getModuleByPath(omnetId.c_str());
+    ASSERT(module);
+
+    cModule *appl = module->getSubmodule("appl");
+    ASSERT(appl);
+
+    // get a pointer to the application layer
+    ApplVManager *vehPtr = static_cast<ApplVManager *>(appl);
+    ASSERT(vehPtr);
+
+    return vehPtr->par("myPlnID").stringValue();
+}
+
+
+int TraCI_Commands::vehicleGetPlatoonDepth(std::string nodeId)
+{
+    std::string omnetId = convertId_traci2omnet(nodeId);
+    if(omnetId == "")
+        throw omnetpp::cRuntimeError("Vehicle with OMNET++ id '%s' does not exists", nodeId.c_str());
+
+    cModule *module = omnetpp::getSimulation()->getSystemModule()->getModuleByPath(omnetId.c_str());
+    ASSERT(module);
+
+    cModule *appl = module->getSubmodule("appl");
+    ASSERT(appl);
+
+    // get a pointer to the application layer
+    ApplVManager *vehPtr = static_cast<ApplVManager *>(appl);
+    ASSERT(vehPtr);
+
+    return vehPtr->par("myPlnDepth").longValue();
 }
 
 
@@ -3185,6 +3252,143 @@ TraCICoord TraCI_Commands::rsuGetPosition(std::string rsuId)
 
 
 // ################################################################
+//                          Vehicle Platoon
+// ################################################################
+
+std::vector<std::string> TraCI_Commands::platoonGetIDList()
+{
+    std::vector<std::string> ids;
+
+    // We cannot use the 'departureArrival' map
+    // We need to make sure the vehicle module is currently active
+    // Thus 'hosts' should be used
+
+    // iterate over all active hosts
+    for(auto &ii : this->hosts)
+    {
+        // hosts stores all vehicle types (bicycle, car, obstacle, etc.)
+        // we have to make sure the module is a car!
+
+        cModule *appl = ii.second->getSubmodule("appl");
+        if(!appl)
+            continue;
+
+        if(!appl->hasPar("myPlnDepth"))
+            continue;
+
+        // get a pointer to the application layer of the platoon leader module
+        ApplVManager *vehPtr = static_cast<ApplVManager *>(appl);
+        ASSERT(vehPtr);
+
+        if(vehPtr->getPlatoonDepth() != 0)
+            continue;
+
+        ids.push_back(ii.first);
+    }
+
+    return ids;
+}
+
+
+uint32_t TraCI_Commands::platoonGetIDCount()
+{
+    return platoonGetIDList().size();
+}
+
+
+omnetpp::cModule* TraCI_Commands::platoonGetLeaderModule(std::string platoonId)
+{
+    // get all active platoons
+    auto allPlatoons = platoonGetIDList();
+
+    auto ii = std::find(allPlatoons.begin(), allPlatoons.end(), platoonId);
+    if(ii == allPlatoons.end())
+        throw omnetpp::cRuntimeError("Platoon '%s' does not exist", platoonId.c_str());
+
+    auto k = hosts.find(platoonId.c_str());
+    if(k == hosts.end())
+        throw omnetpp::cRuntimeError("Cannot find platoon '%s' in the hosts map", platoonId.c_str());
+
+    // get the platoon leader module
+    omnetpp::cModule *platoonLeaderModule = k->second;
+    ASSERT(platoonLeaderModule);
+
+    return platoonLeaderModule;
+}
+
+
+uint32_t TraCI_Commands::platoonGetSize(std::string platoonId)
+{
+    omnetpp::cModule *platoonLeaderModule = platoonGetLeaderModule(platoonId);
+
+    // get the application module
+    cModule *appl = platoonLeaderModule->getSubmodule("appl");
+    ASSERT(appl);
+
+    return appl->par("plnSize").longValue();
+}
+
+
+uint32_t TraCI_Commands::platoonGetOptSize(std::string platoonId)
+{
+    omnetpp::cModule *platoonLeaderModule = platoonGetLeaderModule(platoonId);
+
+    // get the application module
+    cModule *appl = platoonLeaderModule->getSubmodule("appl");
+    ASSERT(appl);
+
+    return appl->par("optPlatoonSize").longValue();
+}
+
+
+uint32_t TraCI_Commands::platoonGetMaxSize(std::string platoonId)
+{
+    omnetpp::cModule *platoonLeaderModule = platoonGetLeaderModule(platoonId);
+
+    // get the application module
+    cModule *appl = platoonLeaderModule->getSubmodule("appl");
+    ASSERT(appl);
+
+    return appl->par("maxPlatoonSize").longValue();
+}
+
+
+std::vector<std::string> TraCI_Commands::platoonGetMembers(std::string platoonId)
+{
+    omnetpp::cModule *platoonLeaderModule = platoonGetLeaderModule(platoonId);
+
+    // get the application module
+    cModule *appl = platoonLeaderModule->getSubmodule("appl");
+    ASSERT(appl);
+
+    // get a pointer to the application layer of the platoon leader module
+    ApplVManager *vehPtr = static_cast<ApplVManager *>(appl);
+    ASSERT(vehPtr);
+
+    std::vector<std::string> members;
+    for(auto &member : vehPtr->getPlatoonMembers())
+        members.push_back(member);
+
+    return members;
+}
+
+
+bool TraCI_Commands::platoonIsPltMgmtProtActive(std::string platoonId)
+{
+    omnetpp::cModule *platoonLeaderModule = platoonGetLeaderModule(platoonId);
+
+    // get the application module
+    cModule *appl = platoonLeaderModule->getSubmodule("appl");
+    ASSERT(appl);
+
+    // get the platoon leader mode
+    int plnMode = appl->par("plnMode").longValue();
+
+    return (plnMode == 3);
+}
+
+
+// ################################################################
 //                              Obstacle
 // ################################################################
 
@@ -3468,12 +3672,6 @@ bool TraCI_Commands::IsGUI()
         else
             throw omnetpp::cRuntimeError("SUMO application %s is not recognized", sumo_application.c_str());
     }
-}
-
-
-std::map<std::string, omnetpp::cModule*> TraCI_Commands::simulationGetManagedModules()
-{
-    return hosts;
 }
 
 

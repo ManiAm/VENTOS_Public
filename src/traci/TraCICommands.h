@@ -192,6 +192,9 @@ public:
     // record the departure and arrival time of each vehicle
     std::map<std::string /*SUMOID*/, departureArrivalEntry_t> departureArrival;
 
+    // all hosts managed by us
+    std::map<std::string /*SUMOID*/, cModule*> hosts;
+
 protected:
     double updateInterval = -1;
     TraCIConnection* connection = NULL;
@@ -200,8 +203,6 @@ protected:
     TraCICoord netbounds1;
     TraCICoord netbounds2;
     int margin;
-
-    std::map<std::string /*SUMOID*/, cModule*> hosts;  // vector of all hosts managed by us
 
 private:
     typedef omnetpp::cSimpleModule super;
@@ -265,6 +266,7 @@ public:
     std::vector<std::string> simulationGetLoadedVehiclesIDList();
     simBoundary_t simulationGetNetBoundary();
     uint32_t simulationGetTimeStep();
+    uint32_t simulationGetCurrentTime();
 
     std::string simulationGetStartTime();    // new command [returns the simulation start time]
     std::string simulationGetEndTime();      // new command [returns the simulation stop time]
@@ -318,6 +320,9 @@ public:
     carFollowingModel_t vehicleGetCarFollowingModelID(std::string);   // new command [returns the car-following model number -- 0(ACC)/1(CACC)]
     int vehicleGetCACCStrategy(std::string);                          // new command [returns the CACC strategy number]
     CFMODES_t vehicleGetCarFollowingModelMode(std::string);           // new command [returns the current ACC/CACC car following mode]
+
+    std::string vehicleGetPlatoonId(std::string);    // new command
+    int vehicleGetPlatoonDepth(std::string);    // new command
 
     // CMD_SET_VEHICLE_VARIABLE
     void vehicleSetStop(std::string, std::string, double, uint8_t, int32_t, uint8_t);
@@ -543,6 +548,19 @@ public:
     TraCICoord rsuGetPosition(std::string);
 
     // ################################################################
+    //                          Vehicle Platoon
+    // ################################################################
+
+    std::vector<std::string> platoonGetIDList();
+    uint32_t platoonGetIDCount();
+    omnetpp::cModule* platoonGetLeaderModule(std::string);
+    uint32_t platoonGetSize(std::string);
+    uint32_t platoonGetOptSize(std::string);
+    uint32_t platoonGetMaxSize(std::string);
+    std::vector<std::string> platoonGetMembers(std::string);
+    bool platoonIsPltMgmtProtActive(std::string);
+
+    // ################################################################
     //                              Obstacle
     // ################################################################
 
@@ -583,7 +601,6 @@ public:
     boost::filesystem::path getFullPath_SUMOConfig();
 
     bool IsGUI();
-    std::map<std::string, omnetpp::cModule*> simulationGetManagedModules();
 
     // ################################################################
     //                            Mapping

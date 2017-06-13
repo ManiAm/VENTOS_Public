@@ -163,6 +163,11 @@ void TrafficControl::readInsertion(std::string addNodePath)
 
     if(allSpeed.empty() && allOptSize.empty() && allPltMerge.empty() && allPltSplit.empty())
         LOG_WARNING << boost::format("\nWARNING: Traffic control with id '%1%' is empty! \n") % this->id << std::flush;
+
+    controlSpeed();
+    controlOptSize();
+    controlPltMerge();
+    controlPltSplit();
 }
 
 
@@ -787,13 +792,134 @@ void TrafficControl::vehicleSetSpeedExpression(speedEntry_t &speedEntry, std::st
 
 void TrafficControl::parseOptSize(rapidxml::xml_node<> *pNode)
 {
+    uint32_t speedNodeCount = 1;
 
+    // Iterate over all 'optSize' nodes
+    for(rapidxml::xml_node<> *cNode = pNode->first_node(optSize_tag.c_str()); cNode; cNode = cNode->next_sibling())
+    {
+        if(std::string(cNode->name()) != optSize_tag)
+            continue;
+
+        std::vector<std::string> validAttr = {"pltId", "begin", "value"};
+        xmlUtil::validityCheck(cNode, validAttr);
+
+        std::string pltId_str = xmlUtil::getAttrValue_string(cNode, "pltId", false, "");
+        double begin = xmlUtil::getAttrValue_double(cNode, "begin");
+        int value = xmlUtil::getAttrValue_int(cNode, "value");
+
+        if(value < 1)
+            throw omnetpp::cRuntimeError("attribute 'value' should be gretaer than or equal to 1 in element '%s'", optSize_tag.c_str());
+
+        if(begin < 0)
+            throw omnetpp::cRuntimeError("attribute 'begin' cannot be negative in element '%s'", optSize_tag.c_str());
+
+        auto it = allOptSize.find(speedNodeCount);
+        if(it == allOptSize.end())
+        {
+            optSizeEntry_t entry = {};
+
+            entry.pltId_str = pltId_str;
+            entry.begin = begin;
+            entry.value = value;
+
+            allOptSize.insert(std::make_pair(speedNodeCount, entry));
+        }
+        else
+            throw omnetpp::cRuntimeError("Multiple %s with the same 'id' %s is not allowed!", optSize_tag.c_str(), pltId_str.c_str());
+
+        speedNodeCount++;
+    }
 }
 
 
 void TrafficControl::controlOptSize()
 {
+    for(auto &entry : allOptSize)
+    {
+        if(entry.second.processingEnded)
+            continue;
 
+        ASSERT(entry.second.begin >= 0);
+
+        // wait until 'begin'
+        if(entry.second.begin > omnetpp::simTime().dbl())
+            continue;
+
+        if(!entry.second.processingStarted)
+        {
+            auto allActivePlatoons = TraCI->platoonGetIDList();
+
+            // prepare a list of platoons that their optSize needs to be affected
+            std::vector<std::string> affectedPlatoons;
+            if(entry.second.pltId_str == "")
+                affectedPlatoons = allActivePlatoons;
+            else
+            {
+                // look for the platoon leader
+                auto ii = std::find(allActivePlatoons.begin(), allActivePlatoons.end(), entry.second.pltId_str);
+                if(ii == allActivePlatoons.end())
+                {
+                    LOG_WARNING << boost::format("\nWARNING: Changing the optSize of '%s' at time '%f' is not possible ") % entry.second.pltId_str % entry.second.begin;
+                    LOG_WARNING << boost::format("(it does not exist in the network) \n") << std::flush;
+                    entry.second.processingEnded = true;
+                    continue;
+                }
+
+                affectedPlatoons.push_back(entry.second.pltId_str);
+            }
+
+            // this happens when no pltId is empty and there is no
+            // platoon in the network at 'begin'
+            if(affectedPlatoons.empty())
+            {
+                entry.second.processingEnded = true;
+                continue;
+            }
+
+            // adding all the followers too!
+            std::vector<std::string> affectedVehs;
+            for(auto &platoonId : affectedPlatoons)
+            {
+                // get all members in this platoon
+                auto followers = TraCI->platoonGetMembers(platoonId);
+
+                // append the followers to the affectedVehs
+                affectedVehs.insert(std::end(affectedVehs), std::begin(followers), std::end(followers));
+            }
+
+            for(auto &vehId : affectedVehs)
+            {
+                std::string omnetId = TraCI->convertId_traci2omnet(vehId);
+
+                // get a pointer to the vehicle
+                cModule *mod = omnetpp::getSimulation()->getSystemModule()->getModuleByPath(omnetId.c_str());
+                ASSERT(mod);
+
+                // get the application module
+                cModule *appl = mod->getSubmodule("appl");
+                ASSERT(appl);
+
+                // make sure platoon management protocol is 'on'
+                if(appl->par("plnMode").longValue() != 3)
+                {
+                    LOG_WARNING << boost::format("\nWARNING: Trying to change optSize in vehicle '%s' with disabled "
+                            "platoon management protocol. Is 'pltMgmtProt' attribute active? \n") % vehId << std::flush;
+                    entry.second.processingEnded = true;
+                    continue;
+                }
+
+                // get a pointer to the application layer
+                ApplVManager *vehPtr = static_cast<ApplVManager *>(appl);
+                ASSERT(vehPtr);
+
+                vehPtr->setOptSize(entry.second.value);
+            }
+
+            entry.second.processingStarted = true;
+        }
+
+        entry.second.processingEnded = true;
+    }
 }
 
 

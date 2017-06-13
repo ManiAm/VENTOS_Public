@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<trafficControl id="example_0">
+
+    <speed id="veh" begin="10" value="20" />  
+    <optSize begin="40" value="15" />
+    
+</trafficControl>
+
+
+<trafficControl id="control_0">
+
+    <speed id="veh.0" begin="60" end="1000" value="28*(-1)^floor(2(t-60)/200)" />  
+    
+</trafficControl>
+
+
+<trafficControl id="control_1">
+
+    <speed id="veh.0" begin="60" end="1000" value="28*(-1)^floor(2(t-60)/200)" maxAccel="1" maxDecel="7" />  
+    
+</trafficControl>
+
+
+<trafficControl id="control_2">
+
+    <speed id="veh.0" begin="60" end="1000" value="18+10*sin(0.1*(t-60))" />  
+    
+</trafficControl>
+

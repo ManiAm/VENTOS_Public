@@ -1902,7 +1902,12 @@ void AddNode::addVehiclePlatoon()
 
         LOG_DEBUG << boost::format("\n>>> AddNode is adding vehicle platoon '%s' ... \n") % platoonID << std::flush;
 
-        std::string vehID = platoonID + ".0";
+        RGB colorRGB = Color::colorNameToRGB("blue");
+        HSV colorHSV = Color::rgb2hsv(colorRGB.red, colorRGB.green, colorRGB.blue);
+        // get different saturation
+        std::vector<double> shades = Color::generateColorShades(platoonSize-1);
+
+        std::string vehID = platoonID;
         double departPos = entry.second.departPos;
 
         // adding platooned vehicles starting from leader
@@ -1930,9 +1935,55 @@ void AddNode::addVehiclePlatoon()
                     0 /*depart speed*/,
                     entry.second.departLane);
 
-            // set the leader color
-            RGB newColor = Color::colorNameToRGB(entry.second.color_str);
-            TraCI->vehicleSetColor(vehID, newColor);
+            double vehTimeGap = TraCI->vehicleGetTimeGap(vehID);
+            if(entry.second.interGap < vehTimeGap)
+                throw omnetpp::cRuntimeError("InterGap (=%d) in vehicle '%s' is smaller than intraGap (=%d).", entry.second.interGap, vehID.c_str(), vehTimeGap);
+
+            // adding some parameters into deferred attributes
+            auto ii = vehs_deferred_attributes.find(vehID);
+            if(ii != vehs_deferred_attributes.end())
+                throw omnetpp::cRuntimeError("Vehicle '%s' was added previously! Make sure the vehicle IDs are unique.", vehID.c_str());
+
+            veh_deferred_attributes_t deferred_entry;
+
+            deferred_entry.plnMode = 2;
+            deferred_entry.plnDepth = i;
+            deferred_entry.plnId = platoonID;
+            deferred_entry.plnSize = platoonSize;
+
+            if(entry.second.pltMgmtProt)
+            {
+                deferred_entry.plnMode = 3;
+                deferred_entry.maxSize = entry.second.maxSize;
+                deferred_entry.optSize = entry.second.optSize;
+                deferred_entry.interGap = entry.second.interGap;
+                // Note: in non-homogeneous platoon each vehicle has its own intraGap
+                deferred_entry.intraGap = TraCI->vehicleGetTimeGap(vehID);
+            }
+
+            vehs_deferred_attributes[vehID] = deferred_entry;
+
+            if(!entry.second.pltMgmtProt)
+            {
+                // set the leader color
+                RGB newColor = Color::colorNameToRGB(entry.second.color_str);
+                TraCI->vehicleSetColor(vehID, newColor);
+            }
+            else
+            {
+                // mark leader red
+                if(i == 0)
+                {
+                    RGB newColor = Color::colorNameToRGB("red");
+                    TraCI->vehicleSetColor(vehID, newColor);
+                }
+                else
+                {
+                    HSV newColorHSV = {colorHSV.hue, shades[i-1], colorHSV.value};
+                    RGB newColorRGB = Color::hsv2rgb(newColorHSV.hue, newColorHSV.saturation, newColorHSV.value);
+                    TraCI->vehicleSetColor(vehID, newColorRGB);
+                }
+            }
 
             // disable lane changing
             TraCI->vehicleSetLaneChangeMode(vehID, LANECHANGEMODE_OBSTACLE);
@@ -1962,27 +2013,6 @@ void AddNode::addVehiclePlatoon()
                     TraCI->vehicleSetMaxAccel(vehID, 200);
                 }
             }
-
-            // adding some parameters into deferred attributes
-            auto ii = vehs_deferred_attributes.find(vehID);
-            if(ii != vehs_deferred_attributes.end())
-                throw omnetpp::cRuntimeError("Vehicle '%s' was added previously! Make sure the vehicle IDs are unique.", vehID.c_str());
-
-            veh_deferred_attributes_t deferred_entry;
-
-            deferred_entry.plnMode = 2;
-            deferred_entry.plnDepth = i;
-            deferred_entry.plnId = platoonID;
-            deferred_entry.plnSize = platoonSize;
-
-            if(entry.second.pltMgmtProt)
-            {
-                deferred_entry.plnMode = 3;
-                deferred_entry.maxSize = entry.second.maxSize;
-                deferred_entry.optSize = entry.second.optSize;
-            }
-
-            vehs_deferred_attributes[vehID] = deferred_entry;
         }
 
         entry.second.processed = true;

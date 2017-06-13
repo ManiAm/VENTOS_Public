@@ -32,6 +32,13 @@ namespace VENTOS {
 
 Define_Module(VENTOS::ApplVPlatoonMg);
 
+// duration in seconds that platoon leader waits for response
+#define  WAIT_FOR_RES       1.
+#define  WAIT_FOR_MERGE     5.
+#define  TARGET_GAP_GOAL    0.95
+#define  SEND_DELAY_OFFSET  0.1
+
+
 ApplVPlatoonMg::~ApplVPlatoonMg()
 {
 
@@ -55,10 +62,9 @@ void ApplVPlatoonMg::initialize(int stage)
         maxPlnSize = par("maxPlatoonSize").longValue();
         optPlnSize = par("optPlatoonSize").longValue();
 
+        TP = par("TP").doubleValue();
+        TG = par("TG").doubleValue();
         adaptiveTG = par("adaptiveTG").boolValue();
-        TP = par("TP").doubleValue();    // 3.5 s
-        TG1 = par("TG1").doubleValue();  // 0.55 s
-        TG2 = par("TG2").doubleValue();  // 0.6 s
 
         entryEnabled = par("entryEnabled").boolValue();
         mergeEnabled = par("mergeEnabled").boolValue();
@@ -66,8 +72,14 @@ void ApplVPlatoonMg::initialize(int stage)
         followerLeaveEnabled = par("followerLeaveEnabled").boolValue();
         leaderLeaveEnabled = par("leaderLeaveEnabled").boolValue();
 
+        vehicleState = (myPlnDepth == 0) ? state_platoonLeader : state_platoonFollower;
+
+        WATCH(maxPlnSize);
+        WATCH(optPlnSize);
         WATCH(vehicleState);
         WATCH(busy);
+
+        updateInterval = (double)TraCI->simulationGetTimeStep() / 1000.;
 
         // entry maneuver
         // --------------
@@ -96,8 +108,9 @@ void ApplVPlatoonMg::initialize(int stage)
         plnTIMER8  = new omnetpp::cMessage("wait for split done");
         plnTIMER8a = new omnetpp::cMessage("wait for enough gap");
 
+        // platoon leader checks constantly if we can split based on optPlnSize
         mgrTIMER = new omnetpp::cMessage("manager");
-        scheduleAt(omnetpp::simTime() + 0.1, mgrTIMER);
+        scheduleAt(omnetpp::simTime(), mgrTIMER);
 
         // leader leave
         // ------------
@@ -131,11 +144,13 @@ void ApplVPlatoonMg::handlePositionUpdate(cObject* obj)
 
 void ApplVPlatoonMg::handleSelfMsg(omnetpp::cMessage* msg)
 {
-    if(plnMode == platoonManagement && (msg == entryManeuverEvt || msg == plnTIMER0))
+    if(plnMode == platoonManagement && msg == mgrTIMER)
+        pltMonitor();
+    else if(plnMode == platoonManagement && (msg == entryManeuverEvt || msg == plnTIMER0))
         entry_handleSelfMsg(msg);
     else if(plnMode == platoonManagement && (msg == plnTIMER1 || msg == plnTIMER1a || msg == plnTIMER2 || msg == plnTIMER3))
         merge_handleSelfMsg(msg);
-    else if(plnMode == platoonManagement && (msg == mgrTIMER || msg == plnTIMER4 || msg == plnTIMER6 || msg == plnTIMER7 || msg == plnTIMER5 || msg == plnTIMER8 || msg == plnTIMER8a))
+    else if(plnMode == platoonManagement && (msg == plnTIMER4 || msg == plnTIMER6 || msg == plnTIMER7 || msg == plnTIMER5 || msg == plnTIMER8 || msg == plnTIMER8a))
         split_handleSelfMsg(msg);
     else if(plnMode == platoonManagement && msg == plnTIMER9)
         leaderLeave_handleSelfMsg(msg);
@@ -153,16 +168,16 @@ void ApplVPlatoonMg::onBeaconVehicle(BeaconVehicle* wsm)
     // pass it down!
     super::onBeaconVehicle(wsm);
 
-    if(plnMode != platoonManagement)
-        return;
-
-    merge_BeaconFSM(wsm);
-    split_BeaconFSM(wsm);
-    common_BeaconFSM(wsm);
-    entry_BeaconFSM(wsm);
-    leaderLeave_BeaconFSM(wsm);
-    followerLeave_BeaconFSM(wsm);
-    dissolve_BeaconFSM(wsm);
+    if(plnMode == platoonManagement)
+    {
+        merge_BeaconFSM(wsm);
+        split_BeaconFSM(wsm);
+        common_BeaconFSM(wsm);
+        entry_BeaconFSM(wsm);
+        leaderLeave_BeaconFSM(wsm);
+        followerLeave_BeaconFSM(wsm);
+        dissolve_BeaconFSM(wsm);
+    }
 }
 
 
@@ -170,24 +185,21 @@ void ApplVPlatoonMg::onBeaconRSU(BeaconRSU* wsm)
 {
     // pass it down!
     super::onBeaconRSU(wsm);
-
-    if(plnMode != platoonManagement)
-        return;
 }
 
 
 void ApplVPlatoonMg::onPlatoonMsg(PlatoonMsg* wsm)
 {
-    if(plnMode != platoonManagement)
-        return;
-
-    merge_DataFSM(wsm);
-    split_DataFSM(wsm);
-    common_DataFSM(wsm);
-    entry_DataFSM(wsm);
-    leaderLeave_DataFSM(wsm);
-    followerLeave_DataFSM(wsm);
-    dissolve_DataFSM(wsm);
+    if(plnMode == platoonManagement)
+    {
+        merge_DataFSM(wsm);
+        split_DataFSM(wsm);
+        common_DataFSM(wsm);
+        entry_DataFSM(wsm);
+        leaderLeave_DataFSM(wsm);
+        followerLeave_DataFSM(wsm);
+        dissolve_DataFSM(wsm);
+    }
 }
 
 
@@ -322,6 +334,10 @@ void ApplVPlatoonMg::reportManeuverToStat(std::string from, std::string to, std:
 }
 
 
+// -------------------------------------------------------------------------------------------
+// --------------------------------[ Public interface ]---------------------------------------
+//--------------------------------------------------------------------------------------------
+
 // ask the platoon leader to manually initiate split at position 'depth'.
 // only platoon leader can call this method!
 void ApplVPlatoonMg::splitFromPlatoon(int depth)
@@ -406,6 +422,69 @@ void ApplVPlatoonMg::dissolvePlatoon()
     dissolve_DataFSM();
 }
 
+
+void ApplVPlatoonMg::pltMonitor()
+{
+    // record platoon configuration
+    if(record_platoon_stat && myPlnDepth == 0 && plnSize_old != plnSize)
+    {
+        auto members = TraCI->platoonGetMembers(SUMOID);
+
+        for(auto &vehId : members)
+        {
+            std::string omnetId = TraCI->convertId_traci2omnet(vehId);
+
+            // get a pointer to the vehicle
+            cModule *mod = omnetpp::getSimulation()->getSystemModule()->getModuleByPath(omnetId.c_str());
+            ASSERT(mod);
+
+            // get the application module
+            cModule *appl = mod->getSubmodule("appl");
+            ASSERT(appl);
+
+            // get a pointer to the application layer
+            ApplVPlatoonMg *vehPtr = static_cast<ApplVPlatoonMg *>(appl);
+            ASSERT(vehPtr);
+
+            platoon_data_t entry;
+
+            entry.timestamp = (double)TraCI->simulationGetCurrentTime() / 1000.;
+            entry.vehId = vehId;
+            entry.pltMode = vehPtr->getPlatoonMode();
+            entry.pltId = vehPtr->getPlatoonId();
+            entry.pltSize = vehPtr->getPlatoonSize();
+            entry.pltDepth = vehPtr->getPlatoonDepth();
+            entry.optSize = vehPtr->getOptSize();
+            entry.maxSize = vehPtr->getMaxSize();
+
+            STAT->global_plnConfig_stat.push_back(entry);
+        }
+
+        plnSize_old = plnSize;
+    }
+
+    // platoon leader checks constantly if we can split
+    if(vehicleState == state_platoonLeader)
+    {
+        if(!busy && splitEnabled && plnSize > optPlnSize)
+        {
+            splittingDepth = optPlnSize;
+            splittingVehicle = plnMembersList[splittingDepth];
+            splitCaller = -1;
+
+            busy = true;
+
+            vehicleState = state_sendSplitReq;
+            reportStateToStat();
+
+            split_DataFSM();
+        }
+    }
+
+    scheduleAt(omnetpp::simTime() + updateInterval, mgrTIMER);
+}
+
+
 // -------------------------------------------------------------------------------------------
 // --------------------------------------[ Common ]-------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -433,7 +512,7 @@ void ApplVPlatoonMg::common_DataFSM(PlatoonMsg* wsm)
                 // send ACK
                 PlatoonMsg* dataMsg = prepareData(wsm->getSender(), ACK, wsm->getSendingPlatoonID());
                 EV << "### " << SUMOID << ": sent ACK." << std::endl;
-                send(dataMsg, lowerLayerOut);
+                sendDelayed(dataMsg, uniform(0,SEND_DELAY_OFFSET), lowerLayerOut);
                 reportCommandToStat(dataMsg);
 
                 // save my current platoon ID
@@ -453,7 +532,7 @@ void ApplVPlatoonMg::common_DataFSM(PlatoonMsg* wsm)
                 // send ACK
                 PlatoonMsg* dataMsg = prepareData(wsm->getSender(), ACK, wsm->getSendingPlatoonID());
                 EV << "### " << SUMOID << ": sent ACK." << std::endl;
-                send(dataMsg, lowerLayerOut);
+                sendDelayed(dataMsg, uniform(0,SEND_DELAY_OFFSET), lowerLayerOut);
                 reportCommandToStat(dataMsg);
             }
         }
@@ -490,7 +569,7 @@ void ApplVPlatoonMg::entry_handleSelfMsg(omnetpp::cMessage* msg)
             vehicleState = state_waitForLaneChange;
             reportStateToStat();
 
-            scheduleAt(omnetpp::simTime() + 0.1, plnTIMER0);
+            scheduleAt(omnetpp::simTime() + updateInterval, plnTIMER0);
         }
     }
     else if(msg == plnTIMER0 && vehicleState == state_waitForLaneChange)
@@ -526,7 +605,7 @@ void ApplVPlatoonMg::entry_handleSelfMsg(omnetpp::cMessage* msg)
             reportStateToStat();
         }
         else
-            scheduleAt(omnetpp::simTime() + 0.1, plnTIMER0);
+            scheduleAt(omnetpp::simTime() + updateInterval, plnTIMER0);
     }
 }
 
@@ -599,7 +678,7 @@ void ApplVPlatoonMg::merge_handleSelfMsg(omnetpp::cMessage* msg)
                 }
             }
             else
-                scheduleAt(omnetpp::simTime() + 0.1, plnTIMER1a);
+                scheduleAt(omnetpp::simTime() + updateInterval, plnTIMER1a);
         }
     }
     else if(msg == plnTIMER2)
@@ -670,7 +749,7 @@ void ApplVPlatoonMg::merge_BeaconFSM(BeaconVehicle* wsm)
         // send a unicast MERGE_REQ to its platoon leader
         PlatoonMsg* dataMsg = prepareData(leadingPlnID, MERGE_REQ, leadingPlnID, -1, "", plnMembersList);
         EV << "### " << SUMOID << ": sent MERGE_REQ." << std::endl;
-        send(dataMsg, lowerLayerOut);
+        sendDelayed(dataMsg, uniform(0,SEND_DELAY_OFFSET), lowerLayerOut);
         reportCommandToStat(dataMsg);
 
         mergeReqAttempts++;
@@ -681,7 +760,7 @@ void ApplVPlatoonMg::merge_BeaconFSM(BeaconVehicle* wsm)
         reportManeuverToStat(SUMOID, leadingPlnID, "Merge_Request");
 
         // start plnTIMER1
-        scheduleAt(omnetpp::simTime() + 1., plnTIMER1);
+        scheduleAt(omnetpp::simTime() + WAIT_FOR_RES, plnTIMER1);
     }
 }
 
@@ -719,7 +798,9 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
     else if(vehicleState == state_mergeAccepted)
     {
         cancelEvent(plnTIMER1);
-        TraCI->vehicleSetTimeGap(SUMOID, TG1);
+        busy = true;
+
+        TraCI->vehicleSetTimeGap(SUMOID, TG);
         TraCI->vehicleSetSpeed(SUMOID, 30.);  // catch-up
 
         // now we should wait until we catch-up completely
@@ -728,7 +809,7 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
 
         // MyCircularBufferMerge.clear();
 
-        scheduleAt(omnetpp::simTime() + .1, plnTIMER1a);
+        scheduleAt(omnetpp::simTime() + updateInterval, plnTIMER1a);
     }
     else if(vehicleState == state_waitForCatchup)
     {
@@ -739,7 +820,7 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
             // send MERGE_REJECT
             PlatoonMsg* dataMsg = prepareData(wsm->getSender(), MERGE_REJECT, wsm->getSendingPlatoonID());
             EV << "### " << SUMOID << ": sent MERGE_REJECT." << std::endl;
-            send(dataMsg, lowerLayerOut);
+            sendDelayed(dataMsg, uniform(0,SEND_DELAY_OFFSET), lowerLayerOut);
             reportCommandToStat(dataMsg);
         }
     }
@@ -749,11 +830,12 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
         myPlnDepth = leadingPlnDepth + 1;
         plnSize = -1;
         plnMembersList.clear();
+        busy = false;
 
         // send unicast MERGE_DONE
         PlatoonMsg* dataMsg = prepareData(myPlnID, MERGE_DONE, myPlnID);
         EV << "### " << SUMOID << ": sent MERGE_DONE." << std::endl;
-        send(dataMsg, lowerLayerOut);
+        sendDelayed(dataMsg, uniform(0,SEND_DELAY_OFFSET), lowerLayerOut);
         reportCommandToStat(dataMsg);
 
         vehicleState = state_platoonFollower;
@@ -766,14 +848,14 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
         // send CHANGE_PL to all my followers (last two parameters are data attached to this ucommand)
         PlatoonMsg* dataMsg = prepareData("multicast", CHANGE_PL, leadingPlnID, leadingPlnDepth+1, leadingPlnID);
         EV << "### " << SUMOID << ": sent CHANGE_PL." << std::endl;
-        send(dataMsg, lowerLayerOut);
+        sendDelayed(dataMsg, uniform(0,SEND_DELAY_OFFSET), lowerLayerOut);
         reportCommandToStat(dataMsg);
 
         vehicleState = state_waitForAllAcks;
         reportStateToStat();
 
         // start plnTIMER2
-        scheduleAt(omnetpp::simTime() + 1., plnTIMER2);
+        scheduleAt(omnetpp::simTime() + WAIT_FOR_RES, plnTIMER2);
     }
     else if(vehicleState == state_waitForAllAcks)
     {
@@ -804,7 +886,7 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
                 // send MERGE_REJECT
                 PlatoonMsg* dataMsg = prepareData(wsm->getSender(), MERGE_REJECT, wsm->getSendingPlatoonID());
                 EV << "### " << SUMOID << ": sent MERGE_REJECT." << std::endl;
-                send(dataMsg, lowerLayerOut);
+                sendDelayed(dataMsg, uniform(0,SEND_DELAY_OFFSET), lowerLayerOut);
                 reportCommandToStat(dataMsg);
             }
             else
@@ -824,7 +906,7 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
         // send MERGE_ACCEPT
         PlatoonMsg* dataMsg = prepareData(secondPlnMembersList.front().c_str(), MERGE_ACCEPT, secondPlnMembersList.front().c_str());
         EV << "### " << SUMOID << ": sent MERGE_ACCEPT." << std::endl;
-        send(dataMsg, lowerLayerOut);
+        sendDelayed(dataMsg, uniform(0,SEND_DELAY_OFFSET), lowerLayerOut);
         reportCommandToStat(dataMsg);
 
         // we start the merge maneuver
@@ -833,8 +915,8 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
         vehicleState = state_waitForMergeDone;
         reportStateToStat();
 
-        // start plnTIMER3 (we wait for 5 seconds!)
-        scheduleAt(omnetpp::simTime() + 5., plnTIMER3);
+        // start plnTIMER3 (we wait)
+        scheduleAt(omnetpp::simTime() + WAIT_FOR_MERGE, plnTIMER3);
     }
     else if(vehicleState == state_waitForMergeDone)
     {
@@ -855,9 +937,10 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
         if( adaptiveTG && plnSize > (maxPlnSize / 2) )
         {
             // increase Tg
-            PlatoonMsg* dataMsg = prepareData("multicast", CHANGE_Tg, myPlnID, TG2);
-            EV << "### " << SUMOID << ": sent CHANGE_Tg with value " << TG2 << std::endl;
-            send(dataMsg, lowerLayerOut);
+            double newTG = TG + 0.05;
+            PlatoonMsg* dataMsg = prepareData("multicast", CHANGE_Tg, myPlnID, newTG);
+            EV << "### " << SUMOID << ": sent CHANGE_Tg with value " << newTG << std::endl;
+            sendDelayed(dataMsg, uniform(0,SEND_DELAY_OFFSET), lowerLayerOut);
             reportCommandToStat(dataMsg);
         }
 
@@ -914,7 +997,7 @@ bool ApplVPlatoonMg::CatchUpDone()
 
     double targetGap = (speed * timeGapSetting) + minGap;
 
-    if( (0.95 * leader.distance2Leader) <= targetGap )
+    if( (TARGET_GAP_GOAL * leader.distance2Leader) <= targetGap )
         return true;
     else
         return false;
@@ -930,11 +1013,7 @@ void ApplVPlatoonMg::split_handleSelfMsg(omnetpp::cMessage* msg)
     if(!splitEnabled)
         return;
 
-    if(msg == mgrTIMER)
-    {
-        splitMonitor();
-    }
-    else if(msg == plnTIMER4)
+    if(msg == plnTIMER4)
     {
         vehicleState = state_sendSplitReq;
         reportStateToStat();
@@ -997,36 +1076,12 @@ void ApplVPlatoonMg::split_handleSelfMsg(omnetpp::cMessage* msg)
             // we need this in follower/leader leave only. Other maneuvers ignore this
             PlatoonMsg* dataMsg = prepareData(oldPlnID, GAP_CREATED, oldPlnID);
             EV << "### " << SUMOID << ": sent GAP_CREATED." << std::endl;
-            send(dataMsg, lowerLayerOut);
+            sendDelayed(dataMsg, uniform(0,SEND_DELAY_OFFSET), lowerLayerOut);
             reportCommandToStat(dataMsg);
         }
         else
-            scheduleAt(omnetpp::simTime() + 0.1, plnTIMER8a);
+            scheduleAt(omnetpp::simTime() + updateInterval, plnTIMER8a);
     }
-}
-
-
-// platoon leader checks constantly if we can split
-void ApplVPlatoonMg::splitMonitor()
-{
-    if(vehicleState == state_platoonLeader)
-    {
-        if(!busy && splitEnabled && plnSize > optPlnSize)
-        {
-            splittingDepth = optPlnSize;
-            splittingVehicle = plnMembersList[splittingDepth];
-            splitCaller = -1;
-
-            busy = true;
-
-            vehicleState = state_sendSplitReq;
-            reportStateToStat();
-
-            split_DataFSM();
-        }
-    }
-
-    scheduleAt(omnetpp::simTime() + 0.1, mgrTIMER);
 }
 
 
@@ -1058,13 +1113,13 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
         // send a unicast SPLIT_REQ to the follower
         PlatoonMsg* dataMsg = prepareData(splittingVehicle, SPLIT_REQ, myPlnID);
         EV << "### " << SUMOID << ": sent SPLIT_REQ." << std::endl;
-        send(dataMsg, lowerLayerOut);
+        sendDelayed(dataMsg, uniform(0,SEND_DELAY_OFFSET), lowerLayerOut);
         reportCommandToStat(dataMsg);
 
         vehicleState = state_waitForSplitReply;
         reportStateToStat();
 
-        scheduleAt(omnetpp::simTime() + 1., plnTIMER4);
+        scheduleAt(omnetpp::simTime() + WAIT_FOR_RES, plnTIMER4);
     }
     else if(vehicleState == state_waitForSplitReply)
     {
@@ -1085,13 +1140,13 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
         // send CHANGE_PL to the splitting vehicle (last two parameters are data attached to this ucommand)
         PlatoonMsg* dataMsg = prepareData(splittingVehicle, CHANGE_PL, myPlnID, (-splittingDepth), splittingVehicle);
         EV << "### " << SUMOID << ": sent CHANGE_PL." << std::endl;
-        send(dataMsg, lowerLayerOut);
+        sendDelayed(dataMsg, uniform(0,SEND_DELAY_OFFSET), lowerLayerOut);
         reportCommandToStat(dataMsg);
 
         vehicleState = state_waitForAck;
         reportStateToStat();
 
-        scheduleAt(omnetpp::simTime() + 5., plnTIMER6);
+        scheduleAt(omnetpp::simTime() + WAIT_FOR_RES, plnTIMER6);
     }
     else if(vehicleState == state_waitForAck)
     {
@@ -1130,9 +1185,9 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
         if( adaptiveTG && plnSize < (maxPlnSize / 2) )
         {
             // decrease Tg
-            PlatoonMsg* dataMsg = prepareData("multicast", CHANGE_Tg, myPlnID, TG1);
-            EV << "### " << SUMOID << ": sent CHANGE_Tg with value " << TG1 << std::endl;
-            send(dataMsg, lowerLayerOut);
+            PlatoonMsg* dataMsg = prepareData("multicast", CHANGE_Tg, myPlnID, TG);
+            EV << "### " << SUMOID << ": sent CHANGE_Tg with value " << TG << std::endl;
+            sendDelayed(dataMsg, uniform(0,SEND_DELAY_OFFSET), lowerLayerOut);
             reportCommandToStat(dataMsg);
         }
 
@@ -1141,7 +1196,7 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
         // 1) splitCaller 2) our platoon member list
         PlatoonMsg* dataMsg = prepareData(splittingVehicle, SPLIT_DONE, myPlnID, splitCaller, "", secondPlnMembersList);
         EV << "### " << SUMOID << ": sent SPLIT_DONE." << std::endl;
-        send(dataMsg, lowerLayerOut);
+        sendDelayed(dataMsg, uniform(0,SEND_DELAY_OFFSET), lowerLayerOut);
         reportCommandToStat(dataMsg);
 
         if(splitCaller == -1)
@@ -1174,7 +1229,7 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
             std::string targetVeh = *it;
             PlatoonMsg* dataMsg = prepareData(targetVeh, CHANGE_PL, myPlnID, (-splittingDepth), splittingVehicle);
             EV << "### " << SUMOID << ": sent CHANGE_PL." << std::endl;
-            send(dataMsg, lowerLayerOut);
+            sendDelayed(dataMsg, uniform(0,SEND_DELAY_OFFSET), lowerLayerOut);
             reportCommandToStat(dataMsg);
 
             TotalPLSent++;
@@ -1183,7 +1238,7 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
         vehicleState = state_waitForAllAcks2;
         reportStateToStat();
 
-        scheduleAt(omnetpp::simTime() + 1., plnTIMER7);
+        scheduleAt(omnetpp::simTime() + WAIT_FOR_RES, plnTIMER7);
     }
     else if(vehicleState == state_waitForAllAcks2)
     {
@@ -1210,19 +1265,19 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
     }
     else if(vehicleState == state_platoonFollower)
     {
-        // splitting vehicle receives a SPLIT_REQ
+        // splitting vehicle receives a SPLIT_REQ from the leader
         if (wsm->getType() == SPLIT_REQ && wsm->getRecipient() == SUMOID)
         {
             // send SPLIT_ACCEPT
             PlatoonMsg* dataMsg = prepareData(myPlnID, SPLIT_ACCEPT, myPlnID);
             EV << "### " << SUMOID << ": sent SPLIT_ACCEPT." << std::endl;
-            send(dataMsg, lowerLayerOut);
+            sendDelayed(dataMsg, uniform(0,SEND_DELAY_OFFSET), lowerLayerOut);
             reportCommandToStat(dataMsg);
 
             vehicleState = state_waitForCHANGEPL;
             reportStateToStat();
 
-            scheduleAt(omnetpp::simTime() + 1., plnTIMER5);
+            scheduleAt(omnetpp::simTime() + WAIT_FOR_RES, plnTIMER5);
         }
     }
     else if(vehicleState == state_waitForCHANGEPL)
@@ -1231,7 +1286,7 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
         {
             cancelEvent(plnTIMER5);
 
-            // save my old platoon leader info for future use
+            // save my old platoon leader id for future use
             oldPlnID = myPlnID;
 
             // I am a free agent now!
@@ -1254,13 +1309,13 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
         // send ACK
         PlatoonMsg* dataMsg = prepareData(oldPlnID, ACK, myPlnID);
         EV << "### " << SUMOID << ": sent ACK." << std::endl;
-        send(dataMsg, lowerLayerOut);
+        sendDelayed(dataMsg, uniform(0,SEND_DELAY_OFFSET), lowerLayerOut);
         reportCommandToStat(dataMsg);
 
         vehicleState = state_waitForSplitDone;
         reportStateToStat();
 
-        scheduleAt(omnetpp::simTime() + 1., plnTIMER8);
+        scheduleAt(omnetpp::simTime() + WAIT_FOR_RES, plnTIMER8);
     }
     else if(vehicleState == state_waitForSplitDone)
     {
@@ -1296,8 +1351,8 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
 
             // MyCircularBufferSplit.clear();
 
-            // check each 0.1s to see if the gap is big enough
-            scheduleAt(omnetpp::simTime() + .1, plnTIMER8a);
+            // check each updateInterval to see if the gap is big enough
+            scheduleAt(omnetpp::simTime() + updateInterval, plnTIMER8a);
         }
     }
 }
@@ -1393,7 +1448,7 @@ void ApplVPlatoonMg::leaderLeave_DataFSM(PlatoonMsg *wsm)
         // send a multicast VOTE_LEADER to all followers
         PlatoonMsg* dataMsg = prepareData("multicast", VOTE_LEADER, myPlnID);
         EV << "### " << SUMOID << ": sent VOTE_LEADER." << std::endl;
-        send(dataMsg, lowerLayerOut);
+        sendDelayed(dataMsg, uniform(0,SEND_DELAY_OFFSET), lowerLayerOut);
         reportCommandToStat(dataMsg);
 
         vehicleState = state_waitForVoteReply;
@@ -1401,7 +1456,7 @@ void ApplVPlatoonMg::leaderLeave_DataFSM(PlatoonMsg *wsm)
 
         reportManeuverToStat(SUMOID, "-", "LLeave_Start");
 
-        scheduleAt(omnetpp::simTime() + 1., plnTIMER9);
+        scheduleAt(omnetpp::simTime() + WAIT_FOR_RES, plnTIMER9);
     }
     else if(vehicleState == state_waitForVoteReply)
     {
@@ -1458,7 +1513,7 @@ void ApplVPlatoonMg::leaderLeave_DataFSM(PlatoonMsg *wsm)
                 // send ELECTED_LEADER
                 PlatoonMsg* dataMsg = prepareData(myPlnID, ELECTED_LEADER, myPlnID, myPlnDepth);
                 EV << "### " << SUMOID << ": sent ELECTED_LEADER." << std::endl;
-                send(dataMsg, lowerLayerOut);
+                sendDelayed(dataMsg, uniform(0,SEND_DELAY_OFFSET), lowerLayerOut);
                 reportCommandToStat(dataMsg);
             }
         }
@@ -1512,7 +1567,7 @@ void ApplVPlatoonMg::followerLeave_handleSelfMsg(omnetpp::cMessage* msg)
             reportStateToStat();
         }
         else
-            scheduleAt(omnetpp::simTime() + .1, plnTIMER11);
+            scheduleAt(omnetpp::simTime() + updateInterval, plnTIMER11);
     }
 }
 
@@ -1535,7 +1590,7 @@ void ApplVPlatoonMg::followerLeave_DataFSM(PlatoonMsg *wsm)
         // send a unicast LEAVE_REQ to the leader
         PlatoonMsg* dataMsg = prepareData(myPlnID, LEAVE_REQ, myPlnID, myPlnDepth);
         EV << "### " << SUMOID << ": sent LEAVE_REQ." << std::endl;
-        send(dataMsg, lowerLayerOut);
+        sendDelayed(dataMsg, uniform(0,SEND_DELAY_OFFSET), lowerLayerOut);
         reportCommandToStat(dataMsg);
 
         vehicleState = state_waitForLeaveReply;
@@ -1543,7 +1598,7 @@ void ApplVPlatoonMg::followerLeave_DataFSM(PlatoonMsg *wsm)
 
         reportManeuverToStat(SUMOID, myPlnID, "FLeave_Request");
 
-        scheduleAt(omnetpp::simTime() + 5., plnTIMER10);
+        scheduleAt(omnetpp::simTime() + WAIT_FOR_RES, plnTIMER10);
     }
     else if(vehicleState == state_waitForLeaveReply)
     {
@@ -1571,8 +1626,8 @@ void ApplVPlatoonMg::followerLeave_DataFSM(PlatoonMsg *wsm)
             reportStateToStat();
 
             // now we should wait for the leader to do the split(s), and make us a free agent.
-            // we check every 0.1s to see if we are free agent
-            scheduleAt(omnetpp::simTime() + .1, plnTIMER11);
+            // we check every updateInterval to see if we are free agent
+            scheduleAt(omnetpp::simTime() + updateInterval, plnTIMER11);
         }
     }
     else if(vehicleState == state_platoonLeader)
@@ -1591,7 +1646,7 @@ void ApplVPlatoonMg::followerLeave_DataFSM(PlatoonMsg *wsm)
             // lastFollower notifies the leaving vehicle if it is the last follower or not!
             PlatoonMsg* dataMsg = prepareData(wsm->getSender(), LEAVE_ACCEPT, myPlnID, lastFollower);
             EV << "### " << SUMOID << ": sent LEAVE_ACCEPT." << std::endl;
-            send(dataMsg, lowerLayerOut);
+            sendDelayed(dataMsg, uniform(0,SEND_DELAY_OFFSET), lowerLayerOut);
             reportCommandToStat(dataMsg);
 
             // last follower wants to leave
@@ -1691,13 +1746,13 @@ void ApplVPlatoonMg::dissolve_DataFSM(PlatoonMsg* wsm)
         // send a unicast DISSOLVE message my follower
         PlatoonMsg* dataMsg = prepareData(lastVeh, DISSOLVE, myPlnID);
         EV << "### " << SUMOID << ": sent DISSOLVE to followers." << std::endl;
-        send(dataMsg, lowerLayerOut);
+        sendDelayed(dataMsg, uniform(0,SEND_DELAY_OFFSET), lowerLayerOut);
         reportCommandToStat(dataMsg);
 
         vehicleState = state_waitForDissolveAck;
         reportStateToStat();
 
-        scheduleAt(omnetpp::simTime() + 1., plnTIMER12);
+        scheduleAt(omnetpp::simTime() + WAIT_FOR_RES, plnTIMER12);
     }
     else if(vehicleState == state_waitForDissolveAck)
     {
@@ -1726,7 +1781,7 @@ void ApplVPlatoonMg::dissolve_DataFSM(PlatoonMsg* wsm)
             // send ACK
             PlatoonMsg* dataMsg = prepareData(wsm->getSender(), ACK, wsm->getSendingPlatoonID());
             EV << "### " << SUMOID << ": sent ACK." << std::endl;
-            send(dataMsg, lowerLayerOut);
+            sendDelayed(dataMsg, uniform(0,SEND_DELAY_OFFSET), lowerLayerOut);
             reportCommandToStat(dataMsg);
 
             // make it a free agent

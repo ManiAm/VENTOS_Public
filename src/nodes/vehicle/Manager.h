@@ -28,14 +28,14 @@
 #ifndef ApplVMANAGER_H
 #define ApplVMANAGER_H
 
-#include "nodes/vehicle/06_PlatoonCoordinator.h"
+#include "nodes/vehicle/05_PlatoonMg.h"
 
 namespace VENTOS {
 
-class ApplVManager : public ApplVCoordinator
+class ApplVManager : public ApplVPlatoonMg
 {
 private:
-    typedef ApplVCoordinator super;
+    typedef ApplVPlatoonMg super;
 
     // NED variables (packet loss ratio)
     double dropStartTime;

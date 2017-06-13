@@ -40,6 +40,8 @@ protected:
     int myPlnDepth = -1;
     int plnSize = -1;
 
+    std::deque<std::string> plnMembersList;
+
     enum platooningMode
     {
         platoonOff = 1,
@@ -55,16 +57,18 @@ public:
     virtual void initialize(int stage);
     virtual void finish();
 
+    int getPlatoonMode() {return plnMode;}
+    std::string getPlatoonId() {return myPlnID;}
+    int getPlatoonDepth() {return myPlnDepth;}
+    int getPlatoonSize() {return plnSize;}
+    std::deque<std::string> getPlatoonMembers() {return plnMembersList;};
+
 protected:
     virtual void handleSelfMsg(omnetpp::cMessage*);
     virtual void handlePositionUpdate(cObject*);
 
     virtual void onBeaconVehicle(BeaconVehicle*);
     virtual void onBeaconRSU(BeaconRSU*);
-
-    std::string getPlatoonId() {return myPlnID;}
-    int getPlatoonDepth() {return myPlnDepth;}
-    int getPlatoonSize() {return plnSize;}
 };
 
 }

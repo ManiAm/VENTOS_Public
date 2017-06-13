@@ -60,6 +60,18 @@ public:
     std::string maneuver;
 } plnStat_t;
 
+typedef struct platoon_data
+{
+    double timestamp = -1;
+    std::string vehId = "";
+    int pltMode = -1;
+    std::string pltId = "";
+    int pltSize = -1;
+    int pltDepth = -1;
+    int optSize = -1;
+    int maxSize = -1;
+} platoon_data_t;
+
 typedef struct MAC_stat
 {
     double last_stat_time;
@@ -106,6 +118,7 @@ public:
 
     std::vector<plnManagement_t> global_plnManagement_stat;
     std::vector<plnStat_t> global_plnData_stat;
+    std::vector<platoon_data_t> global_plnConfig_stat;
 
     std::map<std::string /*vehId*/, MAC_stat_t> global_MAC_stat;
     std::map<std::string /*vehId*/, PHY_stat_t> global_PHY_stat;
@@ -213,8 +226,9 @@ public:
     virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, cObject *, cObject *);
 
 private:
-    void save_plnManage_toFile();
+    void save_plnDataExchange_toFile();
     void save_plnStat_toFile();
+    void save_plnConfig_toFile();
 
     void save_beacon_stat_toFile();
 

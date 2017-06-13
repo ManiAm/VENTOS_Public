@@ -32,9 +32,11 @@
 #include <rapidxml_utils.hpp>
 #include <rapidxml_print.hpp>
 
+#include "exprtk.hpp"
+
 #include "traci/TraCICommands.h"
 #include "baseAppl/03_BaseApplLayer.h"
-#include "exprtk.hpp"
+#include "nodes/vehicle/Manager.h"
 
 
 namespace VENTOS {
@@ -78,7 +80,7 @@ private:
         // for internal use
         bool processingStarted = false;
         bool processingEnded = false;
-        double oldSpeed = false;
+        double oldSpeed = -1;
         bool checkRouteEdge = false;
         bool onEdge = false;
         bool onPos = false;
@@ -98,6 +100,10 @@ private:
         std::string pltId_str;
         double begin;
         int value;
+
+        // for internal use
+        bool processingStarted = false;
+        bool processingEnded = false;
     } optSizeEntry_t;
 
     std::map<uint32_t, optSizeEntry_t> allOptSize;

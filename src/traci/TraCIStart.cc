@@ -91,12 +91,6 @@ void TraCI_Start::initialize(int stage)
             Signal_arrived_vehs = registerSignal("vehicleArrivedSignal");
             this->subscribe("vehicleArrivedSignal", this);
 
-            Signal_module_added = registerSignal("vehicleModuleAddedSignal");
-            omnetpp::getSimulation()->getSystemModule()->subscribe("vehicleModuleAddedSignal", this);
-
-            Signal_module_deleted = registerSignal("vehicleModuleDeletedSignal");
-            omnetpp::getSimulation()->getSystemModule()->subscribe("vehicleModuleDeletedSignal", this);
-
             autoTerminate = par("autoTerminate");
             equilibrium_vehicle = par("equilibrium_vehicle").boolValue();
 
@@ -226,37 +220,6 @@ void TraCI_Start::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_
             departedVehicles.erase(it);  // remove this entry before adding
             vehicleAdd(node.vehicleId, node.vehicleTypeId, node.routeId, (omnetpp::simTime().dbl() * 1000)+1, node.pos, node.speed, node.lane);
         }
-    }
-}
-
-
-void TraCI_Start::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t signalID, cObject *obj, cObject *details)
-{
-    Enter_Method_Silent();
-
-    // note that this signal can be emitted more than once for a vehicle
-    // when that vehicle enters/exits ROI (region of interest)
-    if(signalID == Signal_module_added)
-    {
-        omnetpp::cModule *vehModule = static_cast<omnetpp::cModule *>(obj);
-        ASSERT(vehModule);
-
-        std::string SUMOID = vehModule->par("SUMOID");
-        ASSERT(SUMOID != "");
-
-        addMapping(SUMOID, vehModule->getFullName());
-        addMapping_emulated(SUMOID);
-    }
-    else if(signalID == Signal_module_deleted)
-    {
-        omnetpp::cModule *vehModule = static_cast<omnetpp::cModule *>(obj);
-        ASSERT(vehModule);
-
-        std::string SUMOID = vehModule->par("SUMOID");
-        ASSERT(SUMOID != "");
-
-        removeMapping(SUMOID);
-        removeMapping_emulated(SUMOID);
     }
 }
 
@@ -902,6 +865,12 @@ void TraCI_Start::deleteManagedModule(std::string nodeId /*sumo id*/)
     omnetpp::simsignal_t Signal_module_deleted = registerSignal("vehicleModuleDeletedSignal");
     this->emit(Signal_module_deleted, mod);
 
+    // remove the mapping after sending out the signal
+    std::string SUMOID = mod->par("SUMOID");
+    ASSERT(SUMOID != "");
+    removeMapping(SUMOID);
+    removeMapping_emulated(SUMOID);
+
     hosts.erase(nodeId);
     mod->callFinish();
     mod->deleteModule();
@@ -970,7 +939,7 @@ void TraCI_Start::addModule(std::string nodeId /*sumo id*/, const Coord& positio
     else
         throw omnetpp::cRuntimeError("Unknown vClass '%s' for vehicle '%s'", vClass.c_str(), nodeId.c_str());
 
-    // signal to those interested that a new module is interested
+    // signal to those interested that a new module is inserted
     omnetpp::simsignal_t Signal_module_added = registerSignal("vehicleModuleAddedSignal");
     this->emit(Signal_module_added, addedModule);
 }
@@ -991,6 +960,9 @@ omnetpp::cModule* TraCI_Start::addVehicle(std::string SUMOID, std::string type, 
     mod->finalizeParameters();
     mod->getDisplayString().parse(displayString.c_str());
     mod->buildInside();
+
+    // update hosts map
+    hosts[SUMOID] = mod;
 
     mod->par("SUMOID") = SUMOID;
     mod->par("SUMOType") = vehicleGetTypeID(SUMOID);
@@ -1037,7 +1009,19 @@ omnetpp::cModule* TraCI_Start::addVehicle(std::string SUMOID, std::string type, 
 
         if(ii->second.optSize != -1)
             mod->getSubmodule("appl")->par("optPlatoonSize") = ii->second.optSize;
+
+        // between platoons
+        if(ii->second.interGap != -1)
+            mod->getSubmodule("appl")->par("TP") = ii->second.interGap;
+
+        // between vehicles in a platoon
+        if(ii->second.intraGap != -1)
+            mod->getSubmodule("appl")->par("TG") = ii->second.intraGap;
     }
+
+    // updating the mapping before calling scheduleStart
+    addMapping(SUMOID, mod->getFullName());
+    addMapping_emulated(SUMOID);
 
     mod->scheduleStart(omnetpp::simTime() + updateInterval);
 
@@ -1052,7 +1036,6 @@ omnetpp::cModule* TraCI_Start::addVehicle(std::string SUMOID, std::string type, 
     }
 
     mod->callInitialize();
-    hosts[SUMOID] = mod;
 
     // post-initialize TraCIMobilityMod
     for (cModule::SubmoduleIterator iter(mod); !iter.end(); iter++)

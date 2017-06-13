@@ -24,7 +24,7 @@ simple BaseWorldUtility
 // Interface for Statistics module
 moduleinterface IBaseStatistics
 {
-
+        
 }
 
 simple Statistics like IBaseStatistics

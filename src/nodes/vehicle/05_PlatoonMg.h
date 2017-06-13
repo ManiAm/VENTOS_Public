@@ -39,10 +39,9 @@ protected:
     int maxPlnSize;
     int optPlnSize;
 
+    double TP; // time-gap between two platoons
+    double TG; // time-gap between vehicles in a platoon
     bool adaptiveTG;
-    double TP;
-    double TG1;
-    double TG2;
 
     bool entryEnabled;
     bool mergeEnabled;
@@ -51,6 +50,8 @@ protected:
     bool leaderLeaveEnabled;
 
     bool record_platoon_stat;
+
+    double updateInterval = -1;
 
     typedef enum states_num
     {
@@ -106,8 +107,6 @@ protected:
 private:
     typedef ApplVPlatoon super;
 
-    std::deque<std::string> plnMembersList;
-
     bool busy = false;
 
     // --[ entry ]--
@@ -124,6 +123,9 @@ private:
     omnetpp::cMessage* plnTIMER1a = NULL;
     omnetpp::cMessage* plnTIMER2 = NULL;
     omnetpp::cMessage* plnTIMER3 = NULL;
+
+    // keep track of the platoon size changes in each time step
+    int plnSize_old = -1;
 
     // --[ split ]--
     std::string splittingVehicle = "";
@@ -169,6 +171,21 @@ public:
     virtual void initialize(int stage);
     virtual void finish();
 
+    void splitFromPlatoon(int);
+    void leavePlatoon();
+    void dissolvePlatoon();
+
+    int getOptSize() {return this->optPlnSize;};
+    int getMaxSize() {return this->maxPlnSize;};
+
+    void setOptSize(int optSize) {this->optPlnSize = optSize;};
+
+    void setStatus_entry(bool status) {this->entryEnabled = status;};
+    void setStatus_merge(bool status) {this->mergeEnabled = status;};
+    void setStatus_split(bool status) {this->splitEnabled = status;};
+    void setStatus_followerLeave(bool status) {this->followerLeaveEnabled = status;};
+    void setStatus_leaderLeave(bool status) {this->leaderLeaveEnabled = status;};
+
 protected:
     virtual void handleSelfMsg(omnetpp::cMessage*);
     virtual void handlePositionUpdate(cObject*);
@@ -176,10 +193,6 @@ protected:
     virtual void onBeaconVehicle(BeaconVehicle*);
     virtual void onBeaconRSU(BeaconRSU*);
     virtual void onPlatoonMsg(PlatoonMsg* wsm);
-
-    void splitFromPlatoon(int);
-    void leavePlatoon();
-    void dissolvePlatoon();
 
 private:
     PlatoonMsg* prepareData( std::string, uCommand_t, std::string, double db = -1, std::string str = "", std::deque<std::string> vec = std::deque<std::string>() );
@@ -192,6 +205,18 @@ private:
     const std::string stateToStr(int);
     const std::string uCommandToStr(int);
 
+    void pltMonitor();
+
+    // common operations in maneuvers
+    void common_handleSelfMsg(omnetpp::cMessage* msg);
+    void common_BeaconFSM(BeaconVehicle *wsm = NULL);
+    void common_DataFSM(PlatoonMsg *wsm = NULL);
+
+    // entry
+    void entry_handleSelfMsg(omnetpp::cMessage* msg);
+    void entry_BeaconFSM(BeaconVehicle *wsm);
+    void entry_DataFSM(PlatoonMsg *wsm = NULL);
+
     // merge
     void merge_handleSelfMsg(omnetpp::cMessage* msg);
     void merge_BeaconFSM(BeaconVehicle *wsm = NULL);
@@ -203,19 +228,8 @@ private:
     void split_handleSelfMsg(omnetpp::cMessage* msg);
     void split_BeaconFSM(BeaconVehicle *wsm = NULL);
     void split_DataFSM(PlatoonMsg *wsm = NULL);
-    void splitMonitor();
     void RemoveFollowerFromList_Split(std::string);
     bool GapCreated();
-
-    // common operations in maneuvers
-    void common_handleSelfMsg(omnetpp::cMessage* msg);
-    void common_BeaconFSM(BeaconVehicle *wsm = NULL);
-    void common_DataFSM(PlatoonMsg *wsm = NULL);
-
-    // entry
-    void entry_handleSelfMsg(omnetpp::cMessage* msg);
-    void entry_BeaconFSM(BeaconVehicle *wsm);
-    void entry_DataFSM(PlatoonMsg *wsm = NULL);
 
     // leader leave
     void leaderLeave_handleSelfMsg(omnetpp::cMessage* msg);

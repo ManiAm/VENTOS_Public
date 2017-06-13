@@ -57,8 +57,6 @@ void Statistics::initialize(int stage)
 
         record_sim_stat = par("record_sim_stat").boolValue();
 
-        // register signals
-
         Signal_initialize_withTraCI = registerSignal("initializeWithTraCISignal");
         omnetpp::getSimulation()->getSystemModule()->subscribe("initializeWithTraCISignal", this);
 
@@ -78,8 +76,9 @@ void Statistics::finish()
 {
     save_beacon_stat_toFile();
 
-    save_plnManage_toFile();
+    save_plnDataExchange_toFile();
     save_plnStat_toFile();
+    save_plnConfig_toFile();
 
     save_MAC_stat_toFile();
     save_PHY_stat_toFile();
@@ -120,7 +119,7 @@ void Statistics::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t
         record_Sim_data();
 
         // collecting data for this vehicle in this timeStep
-        for(auto &module : TraCI->simulationGetManagedModules())
+        for(auto &module : TraCI->hosts)
         {
             record_Veh_data(module.first);
             record_Veh_emission(module.first);
@@ -245,7 +244,7 @@ void Statistics::save_beacon_stat_toFile()
 }
 
 
-void Statistics::save_plnManage_toFile()
+void Statistics::save_plnDataExchange_toFile()
 {
     if(global_plnManagement_stat.empty())
         return;
@@ -253,7 +252,7 @@ void Statistics::save_plnManage_toFile()
     int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
 
     std::ostringstream fileName;
-    fileName << boost::format("%03d_plnManage.txt") % currentRun;
+    fileName << boost::format("%03d_plnDataExchange.txt") % currentRun;
 
     boost::filesystem::path filePath ("results");
     filePath /= fileName.str();
@@ -408,6 +407,117 @@ void Statistics::save_plnStat_toFile()
         fprintf (filePtr, "%-20s", y.from.c_str());
         fprintf (filePtr, "%-20s", y.to.c_str());
         fprintf (filePtr, "%-20s\n", y.maneuver.c_str());
+    }
+
+    fclose(filePtr);
+}
+
+
+void Statistics::save_plnConfig_toFile()
+{
+    if(global_plnConfig_stat.empty())
+        return;
+
+    int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
+
+    std::ostringstream fileName;
+    fileName << boost::format("%03d_plnConfig.txt") % currentRun;
+
+    boost::filesystem::path filePath ("results");
+    filePath /= fileName.str();
+
+    FILE *filePtr = fopen (filePath.c_str(), "w");
+    if (!filePtr)
+        throw omnetpp::cRuntimeError("Cannot create file '%s'", filePath.c_str());
+
+    // write simulation parameters at the beginning of the file
+    {
+        // get the current config name
+        std::string configName = omnetpp::getEnvir()->getConfigEx()->getVariable("configname");
+
+        std::string iniFile = omnetpp::getEnvir()->getConfigEx()->getVariable("inifile");
+
+        // PID of the simulation process
+        std::string processid = omnetpp::getEnvir()->getConfigEx()->getVariable("processid");
+
+        // globally unique identifier for the run, produced by
+        // concatenating the configuration name, run number, date/time, etc.
+        std::string runID = omnetpp::getEnvir()->getConfigEx()->getVariable("runid");
+
+        // get number of total runs in this config
+        int totalRun = omnetpp::getEnvir()->getConfigEx()->getNumRunsInConfig(configName.c_str());
+
+        // get the current run number
+        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
+
+        // get configuration name
+        std::vector<std::string> iterVar = omnetpp::getEnvir()->getConfigEx()->getConfigChain(configName.c_str());
+
+        // write to file
+        fprintf (filePtr, "configName      %s\n", configName.c_str());
+        fprintf (filePtr, "iniFile         %s\n", iniFile.c_str());
+        fprintf (filePtr, "processID       %s\n", processid.c_str());
+        fprintf (filePtr, "runID           %s\n", runID.c_str());
+        fprintf (filePtr, "totalRun        %d\n", totalRun);
+        fprintf (filePtr, "currentRun      %d\n", currentRun);
+        fprintf (filePtr, "currentConfig   %s\n", iterVar[0].c_str());
+        fprintf (filePtr, "sim timeStep    %u ms\n", TraCI->simulationGetTimeStep());
+        fprintf (filePtr, "startDateTime   %s\n", TraCI->simulationGetStartTime().c_str());
+        fprintf (filePtr, "endDateTime     %s\n", TraCI->simulationGetEndTime().c_str());
+        fprintf (filePtr, "duration        %s\n\n\n", TraCI->simulationGetDuration().c_str());
+    }
+
+    // write column title
+    fprintf (filePtr, "%-15s","index");
+    fprintf (filePtr, "%-15s","timestamp");
+    fprintf (filePtr, "%-15s","vehId");
+    fprintf (filePtr, "%-15s","pltId");
+    fprintf (filePtr, "%-15s","pltDepth");
+    fprintf (filePtr, "%-15s","pltSize");
+    fprintf (filePtr, "%-15s","pltMode");
+    fprintf (filePtr, "%-15s","pltOptSize");
+    fprintf (filePtr, "%-15s","pltMaxSize");
+    fprintf (filePtr, "\n\n");
+
+    // sort the global_plnConfig_stat first
+    std::sort(global_plnConfig_stat.begin(), global_plnConfig_stat.end(),
+        [](const platoon_data_t & a, const platoon_data_t & b) -> bool
+    {
+        if(a.timestamp < b.timestamp)
+            return true;
+        else if((a.timestamp == b.timestamp) && (a.pltId < b.pltId))
+            return true;
+        else if((a.timestamp == b.timestamp) && (a.pltId == b.pltId) && (a.pltDepth < b.pltDepth))
+            return true;
+        else
+            return false;
+    });
+
+    double oldTime = -2;
+    std::string oldPltId = "";
+    int index = 0;
+
+    for(auto &y : global_plnConfig_stat)
+    {
+        if(oldTime != y.timestamp || oldPltId != y.pltId)
+        {
+            fprintf(filePtr, "\n");
+            oldTime = y.timestamp;
+            oldPltId = y.pltId;
+            index++;
+        }
+
+        fprintf (filePtr, "%-15d", index);
+        fprintf (filePtr, "%-15.2f", y.timestamp);
+        fprintf (filePtr, "%-15s", y.vehId.c_str());
+        fprintf (filePtr, "%-15s", y.pltId.c_str());
+        fprintf (filePtr, "%-15d", y.pltDepth);
+        fprintf (filePtr, "%-15d", y.pltSize);
+        fprintf (filePtr, "%-15d", y.pltMode);
+        fprintf (filePtr, "%-15d", y.optSize);
+        fprintf (filePtr, "%-15d", y.maxSize);
+
+        fprintf (filePtr, "\n");
     }
 
     fclose(filePtr);

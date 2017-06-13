@@ -54,13 +54,27 @@ void ApplVPlatoon::initialize(int stage)
         if(plnMode == 2 || plnMode == 3)
         {
             if(myPlnID == "")
-                throw omnetpp::cRuntimeError("pltID is empty in vehicle '%s'", SUMOID.c_str());
+                throw omnetpp::cRuntimeError("plnMode is '%d', but pltID is empty in vehicle '%s'", plnMode, SUMOID.c_str());
 
             if(plnSize <= 0)
-                throw omnetpp::cRuntimeError("pltSize is invalid in vehicle '%s'", SUMOID.c_str());
+                throw omnetpp::cRuntimeError("plnMode is '%d', but pltSize is invalid in vehicle '%s'", plnMode, SUMOID.c_str());
 
             if(myPlnDepth < 0 || myPlnDepth >= plnSize)
-                throw omnetpp::cRuntimeError("pltDepth is invalid in vehicle '%s'", SUMOID.c_str());
+                throw omnetpp::cRuntimeError("plnMode is '%d', but pltDepth is invalid in vehicle '%s'", plnMode, SUMOID.c_str());
+
+            // I am the platoon leader
+            if(myPlnDepth == 0)
+            {
+                for(int i = 0; i < plnSize; i++)
+                {
+                    std::string vehID = "";
+                    if(i == 0)
+                        vehID = myPlnID;
+                    else
+                        vehID = myPlnID + "." + std::to_string(i);
+                    plnMembersList.push_back(vehID);
+                }
+            }
 
             // register this vehicle as a platoon member to SUMO
             TraCI->vehiclePlatoonInit(SUMOID, myPlnID, plnSize, myPlnDepth);
