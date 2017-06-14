@@ -29,22 +29,27 @@ cplusplus {{
 #include "WaveShortMessage_m.h"
 #include <deque>
 typedef std::deque<std::string> stringQueue;
+
+typedef struct value
+{
+    double dblValue = -1;
+    std::string strValue = "";
+    stringQueue queueValue; 
+} value_t;
+
 }}
 
 class Veins::WaveShortMessage;
-class noncobject stringQueue;
+class noncobject value_t;
 
 namespace VENTOS;
 
 packet PlatoonMsg extends WaveShortMessage 
 {
-    string sender;
-    string senderType;
-	string recipient;
-    int type;
+    string senderID;
+	string receiverID;
+    int uCommandType;
     string sendingPlatoonID;
     string receivingPlatoonID;
-    double dblValue;
-    string strValue;
-    stringQueue queueValue;    
+    value_t value;   
 };

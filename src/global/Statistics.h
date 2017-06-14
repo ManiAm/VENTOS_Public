@@ -33,15 +33,7 @@
 
 namespace VENTOS {
 
-typedef struct BeaconStat
-{
-    double time;
-    std::string senderID;
-    std::string receiverID;
-    bool dropped;
-} BeaconStat_t;
-
-typedef struct plnManagement
+typedef struct plnDataExchange
 {
     double time;
     std::string sender;
@@ -49,18 +41,18 @@ typedef struct plnManagement
     std::string type;
     std::string sendingPlnID;
     std::string receivingPlnID;
-} plnManagement_t;
+} plnDataExchange_t;
 
-typedef struct plnStat
+typedef struct plnManeuverDuration
 {
 public:
     double time;
     std::string from;
     std::string to;
     std::string maneuver;
-} plnStat_t;
+} plnManeuverDuration_t;
 
-typedef struct platoon_data
+typedef struct plnConfig
 {
     double timestamp = -1;
     std::string vehId = "";
@@ -70,7 +62,15 @@ typedef struct platoon_data
     int pltDepth = -1;
     int optSize = -1;
     int maxSize = -1;
-} platoon_data_t;
+} plnConfig_t;
+
+typedef struct BeaconStat
+{
+    double time;
+    std::string senderID;
+    std::string receiverID;
+    bool dropped;
+} BeaconStat_t;
 
 typedef struct MAC_stat
 {
@@ -116,9 +116,9 @@ class Statistics : public BaseApplLayer
 public:
     std::vector<BeaconStat_t> global_Beacon_stat;
 
-    std::vector<plnManagement_t> global_plnManagement_stat;
-    std::vector<plnStat_t> global_plnData_stat;
-    std::vector<platoon_data_t> global_plnConfig_stat;
+    std::vector<plnDataExchange_t> global_plnDataExchange_stat;
+    std::vector<plnManeuverDuration_t> global_plnManeuverDuration_stat;
+    std::vector<plnConfig_t> global_plnConfig_stat;
 
     std::map<std::string /*vehId*/, MAC_stat_t> global_MAC_stat;
     std::map<std::string /*vehId*/, PHY_stat_t> global_PHY_stat;
@@ -145,12 +145,12 @@ private:
 
     typedef struct sim_status_entry
     {
-        double timeStep;
-        long int loaded;
-        long int departed;
-        long int arrived;
-        long int running;
-        long int waiting;
+        double timeStep = -1;
+        long int loaded = -1;
+        long int departed = -1;
+        long int arrived = -1;
+        long int running = -1;
+        long int waiting = -1;
     } sim_status_entry_t;
 
     bool record_sim_stat;
@@ -167,25 +167,25 @@ private:
 
     typedef struct veh_data_entry
     {
-        double timeStep;
-        std::string vehId;
-        std::string vehType;
-        std::string lane;
-        double lanePos;
-        double speed;
-        double accel;
-        double departure;
-        double arrival;
-        std::string route;
-        double routeDuration;
-        double drivingDistance;
-        std::string CFMode;
-        double timeGapSetting;
-        double timeGap;
-        double frontSpaceGap;
-        double rearSpaceGap;
-        std::string nextTLId;  // TLid that controls this vehicle. Empty string means the vehicle is not controlled by any TLid
-        char nextTLLinkStat;   // status of the TL ahead (character 'n' means no TL ahead)
+        double timeStep = -1;
+        std::string vehId = "";
+        std::string vehType = "";
+        std::string lane = "";
+        double lanePos = -1;
+        double speed = -1;
+        double accel = std::numeric_limits<double>::infinity();
+        double departure = -1;
+        double arrival = -1;
+        std::string route = "";
+        double routeDuration = -1;
+        double drivingDistance = -1;
+        std::string CFMode = "";
+        double timeGapSetting = -1;
+        double timeGap = std::numeric_limits<double>::infinity();
+        double frontSpaceGap = std::numeric_limits<double>::infinity();
+        double rearSpaceGap = std::numeric_limits<double>::infinity();
+        std::string nextTLId = "";    // TLid that controls this vehicle. Empty string means the vehicle is not controlled by any TLid
+        char nextTLLinkStat = '\0';   // status of the TL ahead (character 'n' means no TL ahead)
     } veh_data_entry_t;
 
     std::vector<veh_data_entry_t> collected_veh_data;
@@ -201,16 +201,16 @@ private:
 
     typedef struct veh_emission_entry
     {
-        double timeStep;
-        std::string vehId;
-        std::string emissionClass;
-        double CO2;
-        double CO;
-        double HC;
-        double PMx;
-        double NOx;
-        double fuel;
-        double noise;
+        double timeStep = -1;
+        std::string vehId = "";
+        std::string emissionClass = "";
+        double CO2 = -1;
+        double CO = -1;
+        double HC = -1;
+        double PMx = -1;
+        double NOx = -1;
+        double fuel = -1;
+        double noise = -1;
     } veh_emission_entry_t;
 
     std::vector<veh_emission_entry_t> collected_veh_emission;

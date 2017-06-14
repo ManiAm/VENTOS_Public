@@ -192,7 +192,7 @@ protected:
     virtual void onPlatoonMsg(PlatoonMsg* wsm);
 
 private:
-    PlatoonMsg* prepareData( std::string, uCommand_t, std::string, double db = -1, std::string str = "", std::deque<std::string> vec = std::deque<std::string>() );
+    PlatoonMsg* prepareData(std::string, uCommand_t, std::string, value_t value = value_t());
     void updateColorDepth();
 
     // reporting to statistics

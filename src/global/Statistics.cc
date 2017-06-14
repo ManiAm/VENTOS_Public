@@ -246,7 +246,7 @@ void Statistics::save_beacon_stat_toFile()
 
 void Statistics::save_plnDataExchange_toFile()
 {
-    if(global_plnManagement_stat.empty())
+    if(global_plnDataExchange_stat.empty())
         return;
 
     int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
@@ -310,7 +310,7 @@ void Statistics::save_plnDataExchange_toFile()
     double oldTime = -1;
 
     // write body
-    for(auto &y : global_plnManagement_stat)
+    for(auto &y : global_plnDataExchange_stat)
     {
         // make the log more readable :)
         if(y.sender != oldSender || y.time != oldTime)
@@ -334,13 +334,13 @@ void Statistics::save_plnDataExchange_toFile()
 
 void Statistics::save_plnStat_toFile()
 {
-    if(global_plnData_stat.empty())
+    if(global_plnManeuverDuration_stat.empty())
         return;
 
     int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
 
     std::ostringstream fileName;
-    fileName << boost::format("%03d_plnStat.txt") % currentRun;
+    fileName << boost::format("%03d_plnManeuverDuration.txt") % currentRun;
 
     boost::filesystem::path filePath ("results");
     filePath /= fileName.str();
@@ -395,7 +395,7 @@ void Statistics::save_plnStat_toFile()
     std::string oldPln = "";
 
     // write body
-    for(auto &y : global_plnData_stat)
+    for(auto &y : global_plnManeuverDuration_stat)
     {
         if(y.from != oldPln)
         {
@@ -481,8 +481,8 @@ void Statistics::save_plnConfig_toFile()
 
     // sort the global_plnConfig_stat first
     std::sort(global_plnConfig_stat.begin(), global_plnConfig_stat.end(),
-        [](const platoon_data_t & a, const platoon_data_t & b) -> bool
-    {
+            [](const plnConfig_t & a, const plnConfig_t & b) -> bool
+            {
         if(a.timestamp < b.timestamp)
             return true;
         else if((a.timestamp == b.timestamp) && (a.pltId < b.pltId))
@@ -491,7 +491,7 @@ void Statistics::save_plnConfig_toFile()
             return true;
         else
             return false;
-    });
+            });
 
     double oldTime = -2;
     std::string oldPltId = "";
@@ -857,11 +857,6 @@ void Statistics::record_Sim_data()
     sim_status_entry_t entry = {};
 
     entry.timeStep = (omnetpp::simTime()-updateInterval).dbl();
-    entry.loaded = -1;
-    entry.departed = -1;
-    entry.arrived = -1;
-    entry.running = -1;
-    entry.waiting = -1;
 
     for(std::string record : record_sim_tokenize)
     {
@@ -962,15 +957,41 @@ void Statistics::save_Sim_data_toFile()
         for(std::string record : record_sim_tokenize)
         {
             if(record == "loaded")
-                fprintf (filePtr, "%-15ld", y.loaded);
+            {
+                if(y.loaded != -1)
+                    fprintf (filePtr, "%-15ld", y.loaded);
+                else
+                    fprintf (filePtr, "%-15s", "-");
+
+            }
             else if(record == "departed")
-                fprintf (filePtr, "%-15ld", y.departed);
+            {
+                if(y.departed != -1)
+                    fprintf (filePtr, "%-15ld", y.departed);
+                else
+                    fprintf (filePtr, "%-15s", "-");
+            }
             else if(record == "arrived")
-                fprintf (filePtr, "%-15ld", y.arrived);
+            {
+                if(y.arrived != -1)
+                    fprintf (filePtr, "%-15ld", y.arrived);
+                else
+                    fprintf (filePtr, "%-15s", "-");
+            }
             else if(record == "running")
-                fprintf (filePtr, "%-15ld", y.running);
+            {
+                if(y.running != -1)
+                    fprintf (filePtr, "%-15ld", y.running);
+                else
+                    fprintf (filePtr, "%-15s", "-");
+            }
             else if(record == "waiting")
-                fprintf (filePtr, "%-15ld", y.waiting);
+            {
+                if(y.waiting != -1)
+                    fprintf (filePtr, "%-15ld", y.waiting);
+                else
+                    fprintf (filePtr, "%-15s", "-");
+            }
             else
             {
                 fclose(filePtr);
@@ -1058,24 +1079,6 @@ void Statistics::record_Veh_data(std::string SUMOID, bool arrived)
     veh_data_entry entry = {};
 
     entry.timeStep = (omnetpp::simTime()-updateInterval).dbl();
-    entry.vehId = "-";
-    entry.vehType = "-";
-    entry.lane = "-";
-    entry.lanePos = -1;
-    entry.speed = -1;
-    entry.accel = std::numeric_limits<double>::infinity();
-    entry.departure = 0;
-    entry.arrival = -1;
-    entry.route = "-";
-    entry.routeDuration = 0;
-    entry.drivingDistance = -1;
-    entry.CFMode = "-";
-    entry.timeGapSetting = -1;
-    entry.timeGap = -2;
-    entry.frontSpaceGap = -2;
-    entry.rearSpaceGap = -2;
-    entry.nextTLId = "-";
-    entry.nextTLLinkStat = '-';
 
     static int columnNumber = 0;
     for(std::string record : it->second.record_list)
@@ -1175,7 +1178,7 @@ void Statistics::record_Veh_data(std::string SUMOID, bool arrived)
             if(!res.empty())
                 entry.nextTLId = res[0].TLS_id;
             else
-                entry.nextTLId = "";
+                entry.nextTLId = "none";
         }
         else if(record == "nexttllinkstat")
         {
@@ -1184,10 +1187,10 @@ void Statistics::record_Veh_data(std::string SUMOID, bool arrived)
             if(!res.empty())
                 entry.nextTLLinkStat = res[0].linkState;
             else
-                entry.nextTLLinkStat = ' ';
+                entry.nextTLLinkStat = 'n';
         }
         else
-            throw omnetpp::cRuntimeError("'%s' is not a valid record name in veh '%s'", record.c_str(), SUMOID.c_str());
+            throw omnetpp::cRuntimeError("'%s' is not a valid record name in veh '%s'. Check 'record_list' parameter", record.c_str(), SUMOID.c_str());
 
         auto it = veh_data_columns.find(record);
         if(it == veh_data_columns.end())
@@ -1284,41 +1287,131 @@ void Statistics::save_Veh_data_toFile()
         for(std::string record : columns_sorted)
         {
             if(record == "vehid")
-                fprintf (filePtr, "%-20s", y.vehId.c_str());
+            {
+                if(y.vehId != "")
+                    fprintf (filePtr, "%-20s", y.vehId.c_str());
+                else
+                    fprintf (filePtr, "%-20s", "-");
+            }
             else if(record == "vehtype")
-                fprintf (filePtr, "%-20s", y.vehType.c_str());
+            {
+                if(y.vehType != "")
+                    fprintf (filePtr, "%-20s", y.vehType.c_str());
+                else
+                    fprintf (filePtr, "%-20s", "-");
+            }
             else if(record == "lane")
-                fprintf (filePtr, "%-20s", y.lane.c_str());
+            {
+                if(y.lane != "")
+                    fprintf (filePtr, "%-20s", y.lane.c_str());
+                else
+                    fprintf (filePtr, "%-20s", "-");
+            }
             else if(record == "lanepos")
-                fprintf (filePtr, "%-20.2f", y.lanePos);
+            {
+                if(y.lanePos != -1)
+                    fprintf (filePtr, "%-20.2f", y.lanePos);
+                else
+                    fprintf (filePtr, "%-20s", "-");
+            }
             else if(record == "speed")
-                fprintf (filePtr, "%-20.2f", y.speed);
+            {
+                if(y.speed != -1)
+                    fprintf (filePtr, "%-20.2f", y.speed);
+                else
+                    fprintf (filePtr, "%-20s", "-");
+            }
             else if(record == "accel")
-                fprintf (filePtr, "%-20.2f", y.accel);
+            {
+                if(y.accel != std::numeric_limits<double>::infinity())
+                    fprintf (filePtr, "%-20.2f", y.accel);
+                else
+                    fprintf (filePtr, "%-20s", "-");
+            }
             else if(record == "departure")
-                fprintf (filePtr, "%-20.2f", y.departure);
+            {
+                if(y.departure != -1)
+                    fprintf (filePtr, "%-20.2f", y.departure);
+                else
+                    fprintf (filePtr, "%-20s", "-");
+            }
             else if(record == "arrival")
-                fprintf (filePtr, "%-20.2f", y.arrival);
+            {
+                if(y.arrival != -1)
+                    fprintf (filePtr, "%-20.2f", y.arrival);
+                else
+                    fprintf (filePtr, "%-20s", "-");
+            }
             else if(record == "route")
-                fprintf (filePtr, "%-20s", y.route.c_str());
+            {
+                if(y.route != "")
+                    fprintf (filePtr, "%-20s", y.route.c_str());
+                else
+                    fprintf (filePtr, "%-20s", "-");
+            }
             else if(record == "routeduration")
-                fprintf (filePtr, "%-20.2f", y.routeDuration);
+            {
+                if(y.routeDuration != -1)
+                    fprintf (filePtr, "%-20.2f", y.routeDuration);
+                else
+                    fprintf (filePtr, "%-20s", "-");
+            }
             else if(record == "drivingdistance")
-                fprintf (filePtr, "%-20.2f", y.drivingDistance);
+            {
+                if(y.drivingDistance != -1)
+                    fprintf (filePtr, "%-20.2f", y.drivingDistance);
+                else
+                    fprintf (filePtr, "%-20s", "-");
+            }
             else if(record == "cfmode")
-                fprintf (filePtr, "%-20s", y.CFMode.c_str());
+            {
+                if(y.CFMode != "")
+                    fprintf (filePtr, "%-20s", y.CFMode.c_str());
+                else
+                    fprintf (filePtr, "%-20s", "-");
+            }
             else if(record == "timegapsetting")
-                fprintf (filePtr, "%-20.2f", y.timeGapSetting);
+            {
+                if(y.timeGapSetting != -1)
+                    fprintf (filePtr, "%-20.2f", y.timeGapSetting);
+                else
+                    fprintf (filePtr, "%-20s", "-");
+            }
             else if(record == "timegap")
-                fprintf (filePtr, "%-20.2f", y.timeGap);
+            {
+                if(y.timeGap != std::numeric_limits<double>::infinity())
+                    fprintf (filePtr, "%-20.2f", y.timeGap);
+                else
+                    fprintf (filePtr, "%-20s", "-");
+            }
             else if(record == "frontspacegap")
-                fprintf (filePtr, "%-20.2f", y.frontSpaceGap);
+            {
+                if(y.frontSpaceGap != std::numeric_limits<double>::infinity())
+                    fprintf (filePtr, "%-20.2f", y.frontSpaceGap);
+                else
+                    fprintf (filePtr, "%-20s", "-");
+            }
             else if(record == "rearspacegap")
-                fprintf (filePtr, "%-20.2f", y.rearSpaceGap);
+            {
+                if(y.rearSpaceGap != std::numeric_limits<double>::infinity())
+                    fprintf (filePtr, "%-20.2f", y.rearSpaceGap);
+                else
+                    fprintf (filePtr, "%-20s", "-");
+            }
             else if(record == "nexttlid")
-                fprintf (filePtr, "%-20s", y.nextTLId.c_str());
+            {
+                if(y.nextTLId != "")
+                    fprintf (filePtr, "%-20s", y.nextTLId.c_str());
+                else
+                    fprintf (filePtr, "%-20s", "-");
+            }
             else if(record == "nexttllinkstat")
-                fprintf (filePtr, "%-20c", y.nextTLLinkStat);
+            {
+                if(y.nextTLLinkStat != '\0')
+                    fprintf (filePtr, "%-20c", y.nextTLLinkStat);
+                else
+                    fprintf (filePtr, "%-20s", "-");
+            }
             else
             {
                 fclose(filePtr);
@@ -1395,15 +1488,6 @@ void Statistics::record_Veh_emission(std::string SUMOID)
     veh_emission_entry_t entry = {};
 
     entry.timeStep = (omnetpp::simTime()-updateInterval).dbl();
-    entry.vehId = "-";
-    entry.emissionClass = "-";
-    entry.CO2 = -1;
-    entry.CO = -1;
-    entry.HC = -1;
-    entry.PMx = -1;
-    entry.NOx = -1;
-    entry.fuel = -1;
-    entry.noise = -1;
 
     static int columnNumber = 0;
     for(std::string record : it->second.emission_list)
@@ -1427,7 +1511,7 @@ void Statistics::record_Veh_emission(std::string SUMOID)
         else if(record == "noise")
             entry.noise = TraCI->vehicleGetNoiseEmission(SUMOID);
         else
-            throw omnetpp::cRuntimeError("'%s' is not a valid record name in veh '%s'", record.c_str(), SUMOID.c_str());
+            throw omnetpp::cRuntimeError("'%s' is not a valid record name in veh '%s'. Check 'emission_list' parameter", record.c_str(), SUMOID.c_str());
 
         auto it = veh_emission_columns.find(record);
         if(it == veh_emission_columns.end())
@@ -1524,23 +1608,68 @@ void Statistics::save_Veh_emission_toFile()
         for(std::string record : columns_sorted)
         {
             if(record == "vehid")
-                fprintf (filePtr, "%-20s", y.vehId.c_str());
+            {
+                if(y.vehId != "")
+                    fprintf (filePtr, "%-20s", y.vehId.c_str());
+                else
+                    fprintf (filePtr, "%-20s", "-");
+            }
             else if(record == "emissionclass")
-                fprintf (filePtr, "%-20s", y.emissionClass.c_str());
+            {
+                if(y.emissionClass != "")
+                    fprintf (filePtr, "%-20s", y.emissionClass.c_str());
+                else
+                    fprintf (filePtr, "%-20s", "-");
+            }
             else if(record == "co2")
-                fprintf (filePtr, "%-20.2f", y.CO2);
+            {
+                if(y.CO2 != -1)
+                    fprintf (filePtr, "%-20.2f", y.CO2);
+                else
+                    fprintf (filePtr, "%-20s", "-");
+            }
             else if(record == "co")
-                fprintf (filePtr, "%-20.2f", y.CO);
+            {
+                if(y.CO != -1)
+                    fprintf (filePtr, "%-20.2f", y.CO);
+                else
+                    fprintf (filePtr, "%-20s", "-");
+            }
             else if(record == "hc")
-                fprintf (filePtr, "%-20.2f", y.HC);
+            {
+                if(y.HC != -1)
+                    fprintf (filePtr, "%-20.2f", y.HC);
+                else
+                    fprintf (filePtr, "%-20s", "-");
+            }
             else if(record == "pmx")
-                fprintf (filePtr, "%-20.2f", y.PMx);
+            {
+                if( y.PMx != -1)
+                    fprintf (filePtr, "%-20.2f", y.PMx);
+                else
+                    fprintf (filePtr, "%-20s", "-");
+            }
             else if(record == "nox")
-                fprintf (filePtr, "%-20.2f", y.NOx);
+            {
+                if(y.NOx != -1)
+                    fprintf (filePtr, "%-20.2f", y.NOx);
+                else
+                    fprintf (filePtr, "%-20s", "-");
+            }
             else if(record == "fuel")
-                fprintf (filePtr, "%-20.2f", y.fuel);
+            {
+                if(y.fuel != -1)
+                    fprintf (filePtr, "%-20.2f", y.fuel);
+                else
+                    fprintf (filePtr, "%-20s", "-");
+            }
             else if(record == "noise")
-                fprintf (filePtr, "%-20.2f", y.noise);
+            {
+                if(y.noise != -1)
+                    fprintf (filePtr, "%-20.2f", y.noise);
+                else
+                    fprintf (filePtr, "%-20s", "-");
+            }
             else
             {
                 fclose(filePtr);

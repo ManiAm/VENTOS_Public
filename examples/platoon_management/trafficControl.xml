@@ -3,7 +3,8 @@
 <trafficControl id="example_0">
 
     <speed id="veh" begin="10" value="20" />  
-    <optSize begin="40" value="15" />
+    <optSize begin="40" value="5" />
+    <optSize begin="60" value="3" />
     
 </trafficControl>
 
