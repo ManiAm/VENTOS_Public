@@ -31,10 +31,28 @@ cplusplus {{
 typedef std::deque<std::string> stringQueue;
 
 typedef struct value
-{
-    double dblValue = -1;
-    std::string strValue = "";
-    stringQueue queueValue; 
+{    
+    // values used by CHANGE_Tg
+    double newTG = -1;
+    
+    // values used by CHANGE_PL
+    double newPltDepth = -1;
+    std::string newPltLeader;
+ 
+     // values used by MERGE_REQ
+    stringQueue myPltMembers;
+    
+    // values used by SPLIT_DONE
+    double caller = -1;
+    stringQueue myNewPltMembers;
+    int maxSize = -1;
+    int optPlnSize = -1;
+    
+    // values used by LEAVE_REQ and ELECTED_LEADER
+    double myPltDepth = -1;
+    
+    // values used by LEAVE_ACCEPT
+    bool lastFollower = false;
 } value_t;
 
 }}
@@ -46,10 +64,11 @@ namespace VENTOS;
 
 packet PlatoonMsg extends WaveShortMessage 
 {
-    string senderID;
-	string receiverID;
-    int uCommandType;
-    string sendingPlatoonID;
-    string receivingPlatoonID;
-    value_t value;   
+    string  senderID;
+	string  receiverID;
+    int     uCommandType;
+    string  sendingPlatoonID;
+    string  receivingPlatoonID;
+    value_t value; // some uCommands need this field to 
+                   // send extra infromation to the receiver
 };

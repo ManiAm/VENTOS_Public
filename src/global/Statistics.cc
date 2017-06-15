@@ -77,7 +77,7 @@ void Statistics::finish()
     save_beacon_stat_toFile();
 
     save_plnDataExchange_toFile();
-    save_plnStat_toFile();
+    save_plnManeuverDuration_toFile();
     save_plnConfig_toFile();
 
     save_MAC_stat_toFile();
@@ -332,7 +332,7 @@ void Statistics::save_plnDataExchange_toFile()
 }
 
 
-void Statistics::save_plnStat_toFile()
+void Statistics::save_plnManeuverDuration_toFile()
 {
     if(global_plnManeuverDuration_stat.empty())
         return;
@@ -471,10 +471,10 @@ void Statistics::save_plnConfig_toFile()
     fprintf (filePtr, "%-15s","index");
     fprintf (filePtr, "%-15s","timestamp");
     fprintf (filePtr, "%-15s","vehId");
+    fprintf (filePtr, "%-15s","pltMode");
     fprintf (filePtr, "%-15s","pltId");
     fprintf (filePtr, "%-15s","pltDepth");
     fprintf (filePtr, "%-15s","pltSize");
-    fprintf (filePtr, "%-15s","pltMode");
     fprintf (filePtr, "%-15s","pltOptSize");
     fprintf (filePtr, "%-15s","pltMaxSize");
     fprintf (filePtr, "\n\n");
@@ -510,12 +510,24 @@ void Statistics::save_plnConfig_toFile()
         fprintf (filePtr, "%-15d", index);
         fprintf (filePtr, "%-15.2f", y.timestamp);
         fprintf (filePtr, "%-15s", y.vehId.c_str());
+        fprintf (filePtr, "%-15d", y.pltMode);
         fprintf (filePtr, "%-15s", y.pltId.c_str());
         fprintf (filePtr, "%-15d", y.pltDepth);
-        fprintf (filePtr, "%-15d", y.pltSize);
-        fprintf (filePtr, "%-15d", y.pltMode);
-        fprintf (filePtr, "%-15d", y.optSize);
-        fprintf (filePtr, "%-15d", y.maxSize);
+
+        if(y.pltSize != -1)
+            fprintf (filePtr, "%-15d", y.pltSize);
+        else
+            fprintf (filePtr, "%-15s", "-");
+
+        if(y.optSize != -1)
+            fprintf (filePtr, "%-15d", y.optSize);
+        else
+            fprintf (filePtr, "%-15s", "-");
+
+        if(y.maxSize != -1)
+            fprintf (filePtr, "%-15d", y.maxSize);
+        else
+            fprintf (filePtr, "%-15s", "-");
 
         fprintf (filePtr, "\n");
     }
@@ -1091,6 +1103,11 @@ void Statistics::record_Veh_data(std::string SUMOID, bool arrived)
             entry.lane = TraCI->vehicleGetLaneID(SUMOID);
         else if(record == "lanepos")
             entry.lanePos = TraCI->vehicleGetLanePosition(SUMOID);
+        else if(record == "pos")
+        {
+            TraCICoord coord = TraCI->vehicleGetPosition(SUMOID);
+            entry.pos = (boost::format("%.2f,%.2f,%.2f") % coord.x % coord.y % coord.z).str();
+        }
         else if(record == "speed")
             entry.speed = TraCI->vehicleGetSpeed(SUMOID);
         else if(record == "accel")
@@ -1311,6 +1328,13 @@ void Statistics::save_Veh_data_toFile()
             {
                 if(y.lanePos != -1)
                     fprintf (filePtr, "%-20.2f", y.lanePos);
+                else
+                    fprintf (filePtr, "%-20s", "-");
+            }
+            else if(record == "pos")
+            {
+                if(y.pos != "")
+                    fprintf (filePtr, "%-20s", y.pos.c_str());
                 else
                     fprintf (filePtr, "%-20s", "-");
             }

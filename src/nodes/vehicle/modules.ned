@@ -99,8 +99,9 @@ simple ApplVPlatoon extends ApplVAID
     parameters:
         @class(VENTOS::ApplVPlatoon);        
         
-        // parameters in this module are used internally
-        // Do not change them!
+        bool record_platoon_stat = default(false);
+                
+        // the following parameters are used internally [Do not change]
         
         // plnMode = 1: no platooning
         // plnMode = 2: platoonin with no management protocol
@@ -118,20 +119,18 @@ simple ApplVPlatoonMg extends ApplVPlatoon
     parameters:
         @class(VENTOS::ApplVPlatoonMg);        
         
-        int maxPlatoonSize = default(10);
-        int optPlatoonSize = default(5);
+        int maxPlatoonSize = default(-1);
+        int optPlatoonSize = default(-1);
         
         double TP = default(3.5s) @unit(s);   // inter-platoon time-gap (between platoons)
-        double TG = default(0.55s) @unit(s);  // intra-platoon time-gap (between vehicles)
+        double TG = default(0.55s) @unit(s);  // intra-platoon time-gap (between vehicles in a platoon)
         bool adaptiveTG = default(true);
         
         bool entryEnabled = default(false);
         bool mergeEnabled = default(true);
         bool splitEnabled = default(true);
         bool followerLeaveEnabled = default(true);
-        bool leaderLeaveEnabled = default(true);   
-        
-        bool record_platoon_stat = default(false);
+        bool leaderLeaveEnabled = default(true);
 }
 
 

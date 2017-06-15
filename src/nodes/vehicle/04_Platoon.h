@@ -35,7 +35,7 @@ namespace VENTOS {
 class ApplVPlatoon : public ApplV_AID
 {
 protected:
-    int plnMode;
+    int plnMode = -1;
     std::string myPlnID = "";
     int myPlnDepth = -1;
 
@@ -43,11 +43,17 @@ protected:
     int plnSize = -1;
     std::deque<std::string> plnMembersList;
 
+    bool record_platoon_stat = false;
+    omnetpp::cMessage* platoonMonitorTIMER = NULL;
+    double updateInterval = -1;
+
+public:
     enum platooningMode
     {
         platoonOff = 1,
         platoonNoManagement = 2,
         platoonManagement = 3,
+        platoonMAX,
     };
 
 private:

@@ -172,6 +172,7 @@ private:
         std::string vehType = "";
         std::string lane = "";
         double lanePos = -1;
+        std::string pos = "";
         double speed = -1;
         double accel = std::numeric_limits<double>::infinity();
         double departure = -1;
@@ -227,7 +228,7 @@ public:
 
 private:
     void save_plnDataExchange_toFile();
-    void save_plnStat_toFile();
+    void save_plnManeuverDuration_toFile();
     void save_plnConfig_toFile();
 
     void save_beacon_stat_toFile();

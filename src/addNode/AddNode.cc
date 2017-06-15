@@ -1956,9 +1956,17 @@ void AddNode::addVehiclePlatoon()
             if(entry.second.pltMgmtProt)
             {
                 deferred_entry.plnMode = 3;
-                deferred_entry.maxSize = entry.second.maxSize;
-                deferred_entry.optSize = entry.second.optSize;
+
+                // setting parameters in leader OLNY
+                if(i == 0)
+                {
+                    deferred_entry.maxSize = entry.second.maxSize;
+                    deferred_entry.optSize = entry.second.optSize;
+                }
+
+                // gap between platoons
                 deferred_entry.interGap = entry.second.interGap;
+
                 // Note: in non-homogeneous platoon each vehicle has its own intraGap
                 deferred_entry.intraGap = TraCI->vehicleGetTimeGap(vehID);
             }

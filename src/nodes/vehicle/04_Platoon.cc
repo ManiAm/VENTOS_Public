@@ -44,41 +44,47 @@ void ApplVPlatoon::initialize(int stage)
     if (stage == 0)
     {
         plnMode = par("plnMode").longValue();
-        if(plnMode != 1 && plnMode != 2 && plnMode != 3)
-            throw omnetpp::cRuntimeError("plnMode is invalid in vehicle '%s'", SUMOID.c_str());
+        if(plnMode != platoonNoManagement && plnMode != platoonManagement)
+            return;
 
         myPlnID = par("myPlnID").stringValue();
+        if(myPlnID == "")
+            throw omnetpp::cRuntimeError("pltID is empty in vehicle '%s'", SUMOID.c_str());
+
         myPlnDepth = par("myPlnDepth").longValue();
-        plnSize = par("plnSize").longValue(); // plnSize is known in platoon leader only
+        if(myPlnDepth < 0)
+            throw omnetpp::cRuntimeError("pltDepth is invalid in vehicle '%s'", SUMOID.c_str());
 
-        if(plnMode == 2 || plnMode == 3)
+        // I am the platoon leader
+        if(myPlnDepth == 0)
         {
-            if(myPlnID == "")
-                throw omnetpp::cRuntimeError("pltID is empty in vehicle '%s'", SUMOID.c_str());
+            // plnSize is known in platoon leader only
+            plnSize = par("plnSize").longValue();
+            if(plnSize <= 0)
+                throw omnetpp::cRuntimeError("pltSize is invalid in vehicle '%s'", SUMOID.c_str());
 
-            if(myPlnDepth < 0)
-                throw omnetpp::cRuntimeError("pltDepth is invalid in vehicle '%s'", SUMOID.c_str());
-
-            // I am the platoon leader
-            if(myPlnDepth == 0)
+            for(int i = 0; i < plnSize; i++)
             {
-                if(plnSize <= 0)
-                    throw omnetpp::cRuntimeError("pltSize is invalid in vehicle '%s'", SUMOID.c_str());
-
-                for(int i = 0; i < plnSize; i++)
-                {
-                    std::string vehID = "";
-                    if(i == 0)
-                        vehID = myPlnID;
-                    else
-                        vehID = myPlnID + "." + std::to_string(i);
-                    plnMembersList.push_back(vehID);
-                }
+                std::string vehID = "";
+                if(i == 0)
+                    vehID = myPlnID;
+                else
+                    vehID = myPlnID + "." + std::to_string(i);
+                plnMembersList.push_back(vehID);
             }
-
-            // register this vehicle as a platoon member to SUMO
-            TraCI->vehiclePlatoonInit(SUMOID, myPlnID, plnSize, myPlnDepth);
         }
+
+        // register this vehicle as a platoon member to SUMO
+        TraCI->vehiclePlatoonInit(SUMOID, myPlnID, plnSize, myPlnDepth);
+
+        record_platoon_stat = par("record_platoon_stat").boolValue();
+        if(record_platoon_stat)
+        {
+            platoonMonitorTIMER = new omnetpp::cMessage("platoon_monitor");
+            scheduleAt(omnetpp::simTime(), platoonMonitorTIMER);
+        }
+
+        updateInterval = (double)TraCI->simulationGetTimeStep() / 1000.;
 
         WATCH(plnMode);
         WATCH(myPlnID);

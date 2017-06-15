@@ -57,13 +57,26 @@ void ApplVPlatoonMg::initialize(int stage)
         if(!DSRCenabled)
             throw omnetpp::cRuntimeError("This vehicle is not DSRC-enabled!");
 
-        record_platoon_stat = par("record_platoon_stat").boolValue();
+        // I am the platoon leader
+        if(myPlnDepth == 0)
+        {
+            maxPlnSize = par("maxPlatoonSize").longValue();
+            if(maxPlnSize < 1)
+                throw omnetpp::cRuntimeError("maxPlnSize is invalid in vehicle '%s'", SUMOID.c_str());
 
-        maxPlnSize = par("maxPlatoonSize").longValue();
-        optPlnSize = par("optPlatoonSize").longValue();
+            optPlnSize = par("optPlatoonSize").longValue();
+            if(optPlnSize < 1)
+                throw omnetpp::cRuntimeError("optPlnSize is invalid in vehicle '%s'", SUMOID.c_str());
+        }
 
         TP = par("TP").doubleValue();
+        if(TP <= 0)
+            throw omnetpp::cRuntimeError("TP (inter-platoon gap) is invalid in vehicle '%s'", SUMOID.c_str());
+
         TG = par("TG").doubleValue();
+        if(TG <= 0)
+            throw omnetpp::cRuntimeError("TG (intra-platoon gap) is invalid in vehicle '%s'", SUMOID.c_str());
+
         adaptiveTG = par("adaptiveTG").boolValue();
 
         entryEnabled = par("entryEnabled").boolValue();
@@ -78,8 +91,6 @@ void ApplVPlatoonMg::initialize(int stage)
         WATCH(optPlnSize);
         WATCH(vehicleState);
         WATCH(busy);
-
-        updateInterval = (double)TraCI->simulationGetTimeStep() / 1000.;
 
         // entry maneuver
         // --------------
@@ -108,10 +119,6 @@ void ApplVPlatoonMg::initialize(int stage)
         plnTIMER8  = new omnetpp::cMessage("wait for split done");
         plnTIMER8a = new omnetpp::cMessage("wait for enough gap");
 
-        // this timer is fired every time step to monitor platoon variables in this vehicle
-        mgrTIMER = new omnetpp::cMessage("manager");
-        scheduleAt(omnetpp::simTime(), mgrTIMER);
-
         // leader leave
         // ------------
         plnTIMER9 = new omnetpp::cMessage("wait for VOTE reply");
@@ -124,6 +131,12 @@ void ApplVPlatoonMg::initialize(int stage)
         // dissolve
         // --------
         plnTIMER12 = new omnetpp::cMessage("wait for DISSOLVE ACK");
+
+        if(!platoonMonitorTIMER->isScheduled())
+        {
+            platoonMonitorTIMER = new omnetpp::cMessage("platoon_monitor");
+            scheduleAt(omnetpp::simTime(), platoonMonitorTIMER);
+        }
     }
 }
 
@@ -144,8 +157,16 @@ void ApplVPlatoonMg::handlePositionUpdate(cObject* obj)
 
 void ApplVPlatoonMg::handleSelfMsg(omnetpp::cMessage* msg)
 {
-    if(plnMode == platoonManagement && msg == mgrTIMER)
-        pltMonitor();
+    if(msg == platoonMonitorTIMER)
+    {
+        // save current platoon configuration
+        pltConfigMonitor();
+
+        // check if we can split
+        pltSplitMonitor();
+
+        scheduleAt(omnetpp::simTime() + updateInterval, platoonMonitorTIMER);
+    }
     else if(plnMode == platoonManagement && (msg == entryManeuverEvt || msg == plnTIMER0))
         entry_handleSelfMsg(msg);
     else if(plnMode == platoonManagement && (msg == plnTIMER1 || msg == plnTIMER1a || msg == plnTIMER2 || msg == plnTIMER3))
@@ -443,7 +464,7 @@ void ApplVPlatoonMg::dissolvePlatoon()
 }
 
 
-void ApplVPlatoonMg::pltMonitor()
+void ApplVPlatoonMg::pltConfigMonitor()
 {
     // record platoon configuration from the platoon leader
     // make sure the platoon is stable (busy is not set)
@@ -481,10 +502,20 @@ void ApplVPlatoonMg::pltMonitor()
             STAT->global_plnConfig_stat.push_back(entry);
         }
     }
+}
 
+
+void ApplVPlatoonMg::pltSplitMonitor()
+{
     // platoon leader checks constantly if we can split
     if(vehicleState == state_platoonLeader)
     {
+        if(plnSize < 1)
+            throw omnetpp::cRuntimeError("vehicle '%s' has invalid plnSize of '%d'", SUMOID.c_str(), plnSize);
+
+        if(optPlnSize < 1)
+            throw omnetpp::cRuntimeError("vehicle '%s' has invalid optPlnSize of '%d'", SUMOID.c_str(), optPlnSize);
+
         if(!busy && splitEnabled && plnSize > optPlnSize)
         {
             splittingDepth = optPlnSize;
@@ -499,8 +530,6 @@ void ApplVPlatoonMg::pltMonitor()
             split_DataFSM();
         }
     }
-
-    scheduleAt(omnetpp::simTime() + updateInterval, mgrTIMER);
 }
 
 
@@ -528,23 +557,29 @@ void ApplVPlatoonMg::common_DataFSM(PlatoonMsg* wsm)
         {
             if( std::string(wsm->getReceiverID()) == "multicast" || wsm->getReceiverID() == SUMOID )
             {
+                // save my current platoon ID
+                oldPlnID = myPlnID;
+
+                // these should be updated after sending ACK!
+                myPlnID = wsm->getValue().newPltLeader;
+                myPlnDepth += wsm->getValue().newPltDepth;
+
+                if(myPlnID == "")
+                    throw omnetpp::cRuntimeError("vehicle '%s' has an empty platoon id", SUMOID.c_str());
+
+                if(myPlnDepth < 0)
+                    throw omnetpp::cRuntimeError("vehicle '%s' has invalid platoon depth of '%d'", SUMOID.c_str(), myPlnDepth);
+
                 // send ACK
                 PlatoonMsg* dataMsg = prepareData(wsm->getSenderID(), ACK, wsm->getSendingPlatoonID());
                 EV << "### " << SUMOID << ": sent ACK." << std::endl;
                 sendDelayed(dataMsg, uniform(0,SEND_DELAY_OFFSET), lowerLayerOut);
                 reportCommandToStat(dataMsg);
-
-                // save my current platoon ID
-                oldPlnID = myPlnID;
-
-                // these should be updated after sending ACK!
-                myPlnID = wsm->getValue().strValue;
-                myPlnDepth = myPlnDepth + wsm->getValue().dblValue;
             }
         }
         // if my old platoon leader asks me to change my leader to the current one
         // I have done it before, so I only ACK
-        else if( wsm->getUCommandType() == CHANGE_PL && wsm->getSenderID() == oldPlnID && wsm->getValue().strValue == myPlnID )
+        else if( wsm->getUCommandType() == CHANGE_PL && wsm->getSenderID() == oldPlnID && wsm->getValue().newPltLeader == myPlnID )
         {
             if( std::string(wsm->getReceiverID()) == "multicast" || wsm->getReceiverID() == SUMOID )
             {
@@ -557,7 +592,7 @@ void ApplVPlatoonMg::common_DataFSM(PlatoonMsg* wsm)
         }
         else if(wsm->getUCommandType() == CHANGE_Tg && wsm->getSenderID() == myPlnID)
         {
-            TraCI->vehicleSetTimeGap(SUMOID, wsm->getValue().dblValue);
+            TraCI->vehicleSetTimeGap(SUMOID, wsm->getValue().newTG);
         }
     }
 }
@@ -767,7 +802,7 @@ void ApplVPlatoonMg::merge_BeaconFSM(BeaconVehicle* wsm)
 
         // send a unicast MERGE_REQ to its platoon leader
         value_t value;
-        value.queueValue = plnMembersList;
+        value.myPltMembers = plnMembersList;
         PlatoonMsg* dataMsg = prepareData(leadingPlnID, MERGE_REQ, leadingPlnID, value);
         EV << "### " << SUMOID << ": sent MERGE_REQ." << std::endl;
         sendDelayed(dataMsg, uniform(0,SEND_DELAY_OFFSET), lowerLayerOut);
@@ -850,6 +885,8 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
         myPlnID = leadingPlnID;
         myPlnDepth = leadingPlnDepth + 1;
         plnSize = -1;
+        optPlnSize = -1;
+        maxPlnSize = -1;
         plnMembersList.clear();
         busy = false;
 
@@ -868,8 +905,8 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
     {
         // send CHANGE_PL to all my followers (last two parameters are data attached to this ucommand)
         value_t entry;
-        entry.dblValue = leadingPlnDepth+1;
-        entry.strValue = leadingPlnID;
+        entry.newPltDepth = leadingPlnDepth+1;
+        entry.newPltLeader = leadingPlnID;
         PlatoonMsg* dataMsg = prepareData("multicast", CHANGE_PL, leadingPlnID, entry);
         EV << "### " << SUMOID << ": sent CHANGE_PL." << std::endl;
         sendDelayed(dataMsg, uniform(0,SEND_DELAY_OFFSET), lowerLayerOut);
@@ -903,7 +940,7 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
     {
         if (wsm->getUCommandType() == MERGE_REQ && wsm->getReceiverID() == myPlnID)
         {
-            int finalPlnSize =  wsm->getValue().queueValue.size() + plnSize;
+            int finalPlnSize =  wsm->getValue().myPltMembers.size() + plnSize;
 
             if(busy || finalPlnSize > optPlnSize)
             {
@@ -916,7 +953,7 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
             else
             {
                 // save followers list for future use
-                secondPlnMembersList = wsm->getValue().queueValue;
+                secondPlnMembersList = wsm->getValue().myPltMembers;
 
                 vehicleState = state_sendMergeAccept;
                 reportStateToStat();
@@ -963,7 +1000,7 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
             // increase Tg
             double newTG = TG + 0.05;
             value_t entry;
-            entry.dblValue = newTG;
+            entry.newTG = newTG;
             PlatoonMsg* dataMsg = prepareData("multicast", CHANGE_Tg, myPlnID, entry);
             EV << "### " << SUMOID << ": sent CHANGE_Tg with value " << newTG << std::endl;
             sendDelayed(dataMsg, uniform(0,SEND_DELAY_OFFSET), lowerLayerOut);
@@ -1125,16 +1162,14 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
 
     if(vehicleState == state_sendSplitReq)
     {
-        if(plnSize == -1)
-            throw omnetpp::cRuntimeError("WTH! platoon size is -1!");
+        if(plnSize < 1)
+            throw omnetpp::cRuntimeError("vehicle '%s' has invalid plnSize of '%d'", SUMOID.c_str(), plnSize);
 
-        // check if splittingDepth is valid
         if(splittingDepth <= 0 || splittingDepth >= plnSize)
-            throw omnetpp::cRuntimeError("splitting depth is wrong!");
+            throw omnetpp::cRuntimeError("vehicle '%s' has invalid splittingDepth of '%d'", SUMOID.c_str(), splittingDepth);
 
-        // check if splittingVehicle is valid
         if(splittingVehicle == "")
-            throw omnetpp::cRuntimeError("splitting vehicle is not known!");
+            throw omnetpp::cRuntimeError("vehicle '%s' has an empty splittingVehicle", SUMOID.c_str());
 
         // send a unicast SPLIT_REQ to the follower
         PlatoonMsg* dataMsg = prepareData(splittingVehicle, SPLIT_REQ, myPlnID);
@@ -1165,8 +1200,8 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
     {
         // send CHANGE_PL to the splitting vehicle (last two parameters are data attached to this ucommand)
         value_t entry;
-        entry.dblValue = -splittingDepth;
-        entry.strValue = splittingVehicle;
+        entry.newPltDepth = -splittingDepth;
+        entry.newPltLeader = splittingVehicle;
         PlatoonMsg* dataMsg = prepareData(splittingVehicle, CHANGE_PL, myPlnID, entry);
         EV << "### " << SUMOID << ": sent CHANGE_PL." << std::endl;
         sendDelayed(dataMsg, uniform(0,SEND_DELAY_OFFSET), lowerLayerOut);
@@ -1215,7 +1250,7 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
         {
             // decrease Tg
             value_t entry;
-            entry.dblValue = TG;
+            entry.newTG = TG;
             PlatoonMsg* dataMsg = prepareData("multicast", CHANGE_Tg, myPlnID, entry);
             EV << "### " << SUMOID << ": sent CHANGE_Tg with value " << TG << std::endl;
             sendDelayed(dataMsg, uniform(0,SEND_DELAY_OFFSET), lowerLayerOut);
@@ -1223,11 +1258,11 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
         }
 
         // send unicast SPLIT_DONE
-        // we send two data to our follower:
-        // 1) splitCaller 2) our platoon member list
         value_t entry;
-        entry.dblValue = splitCaller;
-        entry.queueValue = secondPlnMembersList;
+        entry.caller = splitCaller;
+        entry.myNewPltMembers = secondPlnMembersList;
+        entry.maxSize = maxPlnSize;
+        entry.optPlnSize = optPlnSize;
         PlatoonMsg* dataMsg = prepareData(splittingVehicle, SPLIT_DONE, myPlnID, entry);
         EV << "### " << SUMOID << ": sent SPLIT_DONE." << std::endl;
         sendDelayed(dataMsg, uniform(0,SEND_DELAY_OFFSET), lowerLayerOut);
@@ -1261,8 +1296,8 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
         for (std::deque<std::string>::iterator it=plnMembersList.begin()+splittingDepth+1; it!=plnMembersList.end(); ++it)
         {
             value_t entry;
-            entry.dblValue = -splittingDepth;
-            entry.strValue = splittingVehicle;
+            entry.newPltDepth = -splittingDepth;
+            entry.newPltLeader = splittingVehicle;
             PlatoonMsg* dataMsg = prepareData(*it /*targetVeh*/, CHANGE_PL, myPlnID, entry);
             EV << "### " << SUMOID << ": sent CHANGE_PL." << std::endl;
             sendDelayed(dataMsg, uniform(0,SEND_DELAY_OFFSET), lowerLayerOut);
@@ -1326,9 +1361,15 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
             oldPlnID = myPlnID;
 
             // I am a free agent now!
-            myPlnID = wsm->getValue().strValue;
-            myPlnDepth = myPlnDepth + wsm->getValue().dblValue;
+            myPlnID = wsm->getValue().newPltLeader;
+            myPlnDepth += wsm->getValue().newPltDepth;
             plnSize = 1;
+
+            if(myPlnID == "")
+                throw omnetpp::cRuntimeError("vehicle '%s' has an empty platoon id", SUMOID.c_str());
+
+            if(myPlnDepth != 0)
+                throw omnetpp::cRuntimeError("vehicle '%s' has a platoon depth other than zero", SUMOID.c_str());
 
             // change color to red!
             RGB newColor = Color::colorNameToRGB("red");
@@ -1360,16 +1401,25 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
             cancelEvent(plnTIMER8);
 
             plnMembersList.clear();
-            plnMembersList = wsm->getValue().queueValue;
+            plnMembersList = wsm->getValue().myNewPltMembers;
 
             plnSize = plnMembersList.size();
+
+            optPlnSize = wsm->getValue().optPlnSize;
+            maxPlnSize = wsm->getValue().maxSize;
+
+            if(optPlnSize < 1)
+                throw omnetpp::cRuntimeError("vehicle '%s' has an invalid optPlnSize of '%d'", SUMOID.c_str(), optPlnSize);
+
+            if(maxPlnSize < 1)
+                throw omnetpp::cRuntimeError("vehicle '%s' has invalid maxPlnSize of '%d'", SUMOID.c_str(), maxPlnSize);
 
             updateColorDepth();
 
             TraCI->vehicleSetTimeGap(SUMOID, TP);
 
             // check splitCaller. If 'leader leave' is on-going
-            if(wsm->getValue().dblValue == 0)
+            if(wsm->getValue().caller == 0)
             {
                 // then check if there is any leading vehicle after my leader
                 auto leader = TraCI->vehicleGetLeader(oldPlnID, sonarDist);
@@ -1548,7 +1598,7 @@ void ApplVPlatoonMg::leaderLeave_DataFSM(PlatoonMsg *wsm)
             {
                 // send ELECTED_LEADER
                 value_t entry;
-                entry.dblValue = myPlnDepth;
+                entry.myPltDepth = myPlnDepth;
                 PlatoonMsg* dataMsg = prepareData(myPlnID, ELECTED_LEADER, myPlnID, entry);
                 EV << "### " << SUMOID << ": sent ELECTED_LEADER." << std::endl;
                 sendDelayed(dataMsg, uniform(0,SEND_DELAY_OFFSET), lowerLayerOut);
@@ -1627,7 +1677,7 @@ void ApplVPlatoonMg::followerLeave_DataFSM(PlatoonMsg *wsm)
     {
         // send a unicast LEAVE_REQ to the leader
         value_t entry;
-        entry.dblValue = myPlnDepth;
+        entry.myPltDepth = myPlnDepth;
         PlatoonMsg* dataMsg = prepareData(myPlnID, LEAVE_REQ, myPlnID, entry);
         EV << "### " << SUMOID << ": sent LEAVE_REQ." << std::endl;
         sendDelayed(dataMsg, uniform(0,SEND_DELAY_OFFSET), lowerLayerOut);
@@ -1655,12 +1705,10 @@ void ApplVPlatoonMg::followerLeave_DataFSM(PlatoonMsg *wsm)
         {
             cancelEvent(plnTIMER10);
 
-            if(wsm->getValue().dblValue == 0)
-                reportManeuverToStat(SUMOID, "-", "MFLeave_Start");
-            else if(wsm->getValue().dblValue == 1)
+            if(wsm->getValue().lastFollower)
                 reportManeuverToStat(SUMOID, "-", "LFLeave_Start");
             else
-                throw omnetpp::cRuntimeError("Unknwon value!");
+                reportManeuverToStat(SUMOID, "-", "MFLeave_Start");
 
             vehicleState = state_platoonFollower;
             reportStateToStat();
@@ -1675,17 +1723,15 @@ void ApplVPlatoonMg::followerLeave_DataFSM(PlatoonMsg *wsm)
         // leader receives a LEAVE_REQ
         if (wsm->getUCommandType() == LEAVE_REQ && wsm->getReceiverID() == SUMOID)
         {
-            if(wsm->getValue().dblValue <= 0 || wsm->getValue().dblValue >= plnSize)
+            if(wsm->getValue().myPltDepth <= 0 || wsm->getValue().myPltDepth >= plnSize)
                 throw omnetpp::cRuntimeError("depth of the follower is not right!");
 
             busy = true;
 
-            int lastFollower = (wsm->getValue().dblValue + 1 == plnSize) ? 1 : 0;
-
             // send LEAVE_ACCEPT
             // lastFollower notifies the leaving vehicle if it is the last follower or not!
             value_t entry;
-            entry.dblValue = lastFollower;
+            entry.lastFollower = (wsm->getValue().myPltDepth + 1 == plnSize) ? true : false;
             PlatoonMsg* dataMsg = prepareData(wsm->getSenderID(), LEAVE_ACCEPT, myPlnID, entry);
             EV << "### " << SUMOID << ": sent LEAVE_ACCEPT." << std::endl;
             sendDelayed(dataMsg, uniform(0,SEND_DELAY_OFFSET), lowerLayerOut);
@@ -1693,11 +1739,11 @@ void ApplVPlatoonMg::followerLeave_DataFSM(PlatoonMsg *wsm)
 
             // last follower wants to leave
             // one split is enough
-            if(wsm->getValue().dblValue + 1 == plnSize)
+            if(wsm->getValue().myPltDepth + 1 == plnSize)
             {
                 RemainingSplits = 1;
 
-                splittingDepth = wsm->getValue().dblValue;
+                splittingDepth = wsm->getValue().myPltDepth;
                 splittingVehicle = plnMembersList[splittingDepth];
                 splitCaller = 1;  // Notifying split that follower leave is the caller
 
@@ -1713,7 +1759,7 @@ void ApplVPlatoonMg::followerLeave_DataFSM(PlatoonMsg *wsm)
                 RemainingSplits = 2;
 
                 // start the first split
-                splittingDepth = wsm->getValue().dblValue + 1;
+                splittingDepth = wsm->getValue().myPltDepth + 1;
                 splittingVehicle = plnMembersList[splittingDepth];
                 splitCaller = 1;  // Notifying split that follower leave is the caller
 

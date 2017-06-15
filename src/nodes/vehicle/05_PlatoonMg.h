@@ -36,8 +36,8 @@ class ApplVPlatoonMg : public ApplVPlatoon
 {
 protected:
     // NED variables
-    int maxPlnSize;
-    int optPlnSize;
+    int maxPlnSize = -1;
+    int optPlnSize = -1;
 
     double TP; // time-gap between two platoons
     double TG; // time-gap between vehicles in a platoon
@@ -48,10 +48,6 @@ protected:
     bool splitEnabled;
     bool followerLeaveEnabled;
     bool leaderLeaveEnabled;
-
-    bool record_platoon_stat;
-
-    double updateInterval = -1;
 
     typedef enum states_num
     {
@@ -138,7 +134,6 @@ private:
     omnetpp::cMessage* plnTIMER7 = NULL;
     omnetpp::cMessage* plnTIMER8 = NULL;
     omnetpp::cMessage* plnTIMER8a = NULL;
-    omnetpp::cMessage* mgrTIMER = NULL;
 
     // --[ leader leave ]--
     omnetpp::cMessage* plnTIMER9 = NULL;
@@ -174,6 +169,7 @@ public:
 
     int getOptSize() {return this->optPlnSize;};
     int getMaxSize() {return this->maxPlnSize;};
+    bool isBusy() {return this->busy;};
 
     void setOptSize(int optSize) {this->optPlnSize = optSize;};
 
@@ -202,7 +198,8 @@ private:
     const std::string stateToStr(int);
     const std::string uCommandToStr(int);
 
-    void pltMonitor();
+    void pltConfigMonitor();
+    void pltSplitMonitor();
 
     // common operations in maneuvers
     void common_handleSelfMsg(omnetpp::cMessage* msg);

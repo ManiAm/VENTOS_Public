@@ -876,18 +876,7 @@ void TrafficControl::controlOptSize()
                 continue;
             }
 
-            // adding all the followers too!
-            std::vector<std::string> affectedVehs;
-            for(auto &platoonId : affectedPlatoons)
-            {
-                // get all members in this platoon
-                auto followers = TraCI->platoonGetMembers(platoonId);
-
-                // append the followers to the affectedVehs
-                affectedVehs.insert(std::end(affectedVehs), std::begin(followers), std::end(followers));
-            }
-
-            for(auto &vehId : affectedVehs)
+            for(auto &vehId : affectedPlatoons)
             {
                 std::string omnetId = TraCI->convertId_traci2omnet(vehId);
 
@@ -900,7 +889,7 @@ void TrafficControl::controlOptSize()
                 ASSERT(appl);
 
                 // make sure platoon management protocol is 'on'
-                if(appl->par("plnMode").longValue() != 3)
+                if(appl->par("plnMode").longValue() != ApplVPlatoon::platoonManagement)
                 {
                     LOG_WARNING << boost::format("\nWARNING: Trying to change optSize in vehicle '%s' with disabled "
                             "platoon management protocol. Is 'pltMgmtProt' attribute active? \n") % vehId << std::flush;
