@@ -972,7 +972,7 @@ omnetpp::cModule* TraCI_Start::addVehicle(std::string SUMOID, std::string type, 
     mod->par("hasOBU") = (IPaddress_val != "") ? true : false;
     mod->par("IPaddress") = IPaddress_val;
 
-    // update initial position in obstacles
+    // update initial position in obstacle
     if(vClass == "custom1")
     {
         mod->getSubmodule("mobility")->par("x") = position.x;
@@ -992,31 +992,33 @@ omnetpp::cModule* TraCI_Start::addVehicle(std::string SUMOID, std::string type, 
         if(ii->second.DSRC_status != -1)
             mod->par("DSRCenabled") = (bool)ii->second.DSRC_status;
 
+        omnetpp::cModule *appl = mod->getSubmodule("appl");
+
         if(ii->second.plnMode != -1)
-            mod->getSubmodule("appl")->par("plnMode") = ii->second.plnMode;
+            appl->par("plnMode") = ii->second.plnMode;
 
         if(ii->second.plnId != "")
-            mod->getSubmodule("appl")->par("myPlnID") = ii->second.plnId;
+            appl->par("myPlnID") = ii->second.plnId;
 
         if(ii->second.plnDepth != -1)
-            mod->getSubmodule("appl")->par("myPlnDepth") = ii->second.plnDepth;
+            appl->par("myPlnDepth") = ii->second.plnDepth;
 
         if(ii->second.plnSize != -1)
-            mod->getSubmodule("appl")->par("plnSize") = ii->second.plnSize;
+            appl->par("plnSize") = ii->second.plnSize;
 
         if(ii->second.maxSize != -1)
-            mod->getSubmodule("appl")->par("maxPlatoonSize") = ii->second.maxSize;
+            appl->par("maxPlatoonSize") = ii->second.maxSize;
 
         if(ii->second.optSize != -1)
-            mod->getSubmodule("appl")->par("optPlatoonSize") = ii->second.optSize;
+            appl->par("optPlatoonSize") = ii->second.optSize;
 
         // between platoons
         if(ii->second.interGap != -1)
-            mod->getSubmodule("appl")->par("TP") = ii->second.interGap;
+            appl->par("TP") = ii->second.interGap;
 
         // between vehicles in a platoon
         if(ii->second.intraGap != -1)
-            mod->getSubmodule("appl")->par("TG") = ii->second.intraGap;
+            appl->par("TG") = ii->second.intraGap;
     }
 
     // updating the mapping before calling scheduleStart
