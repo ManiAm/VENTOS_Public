@@ -144,6 +144,28 @@ void ApplVPlatoonMg::initialize(int stage)
 void ApplVPlatoonMg::finish()
 {
     super::finish();
+
+    cancelAndDelete(entryManeuverEvt);
+    cancelAndDelete(plnTIMER0);
+
+    cancelAndDelete(plnTIMER1);
+    cancelAndDelete(plnTIMER1a);
+    cancelAndDelete(plnTIMER2);
+    cancelAndDelete(plnTIMER3);
+
+    cancelAndDelete(plnTIMER4);
+    cancelAndDelete(plnTIMER5);
+    cancelAndDelete(plnTIMER6);
+    cancelAndDelete(plnTIMER7);
+    cancelAndDelete(plnTIMER8);
+    cancelAndDelete(plnTIMER8a);
+
+    cancelAndDelete(plnTIMER9);
+
+    cancelAndDelete(plnTIMER10);
+    cancelAndDelete(plnTIMER11);
+
+    cancelAndDelete(plnTIMER12);
 }
 
 

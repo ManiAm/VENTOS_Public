@@ -97,6 +97,8 @@ void ApplVPlatoon::initialize(int stage)
 void ApplVPlatoon::finish()
 {
     super::finish();
+
+    cancelAndDelete(platoonMonitorTIMER);
 }
 
 
