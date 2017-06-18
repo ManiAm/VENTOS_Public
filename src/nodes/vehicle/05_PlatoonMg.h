@@ -49,57 +49,6 @@ protected:
     bool followerLeaveEnabled;
     bool leaderLeaveEnabled;
 
-    typedef enum states_num
-    {
-        state_idle,             // 0
-        state_platoonLeader,    // 1
-        state_platoonFollower,  // 2
-
-        // entry states
-        state_waitForLaneChange,
-
-        // merge states
-        state_sendMergeReq,
-        state_waitForMergeReply,  // 5
-        state_mergeAccepted,
-        state_waitForCatchup,
-        state_sendMergeDone,
-        state_notifyFollowers,
-        state_waitForAllAcks,
-        state_sendMergeAccept,
-        state_waitForMergeDone,
-        state_mergeDone,
-
-        // split states
-        state_sendSplitReq,      // 14
-        state_waitForSplitReply,
-        state_makeItFreeAgent,
-        state_waitForAck,
-        state_splitDone,
-        state_changePL,
-        state_waitForAllAcks2,   // 20
-        state_waitForCHANGEPL,
-        state_sendingACK,
-        state_waitForSplitDone,
-        state_waitForGap,
-
-        // leader leave
-        state_sendVoteLeader,
-        state_waitForVoteReply,
-        state_splitCompleted,
-
-        // follower leave
-        state_sendLeaveReq,
-        state_waitForLeaveReply,
-        state_secondSplit,
-
-        // dissolve
-        state_sendDissolve,
-        state_waitForDissolveAck,
-    } states_num_t;
-
-    states_num_t vehicleState = state_idle;
-
 private:
     typedef ApplVPlatoon super;
 
@@ -148,15 +97,162 @@ private:
     omnetpp::cMessage* plnTIMER12 = NULL;
     std::string lastVeh = "";
 
+    typedef enum states_num
+    {
+        state_idle,             // 0
+
+        state_platoonLeader,    // 1
+        state_platoonFollower,
+
+        // entry states
+        state_waitForLaneChange, // 3
+
+        // merge states
+        state_sendMergeReq,     // 4
+        state_waitForMergeReply,
+        state_mergeAccepted,
+        state_waitForCatchup,
+        state_sendMergeDone,
+        state_notifyFollowers,
+        state_waitForAllAcks,
+        state_sendMergeAccept,
+        state_waitForMergeDone,
+        state_mergeDone,
+
+        // split states
+        state_sendSplitReq,      // 14
+        state_waitForSplitReply,
+        state_makeItFreeAgent,
+        state_waitForAck,
+        state_splitDone,
+        state_changePL,
+        state_waitForAllAcks2,
+        state_waitForCHANGEPL,
+        state_sendingACK,
+        state_waitForSplitDone,
+        state_waitForGap,
+
+        // leader leave
+        state_sendVoteLeader,   // 25
+        state_waitForVoteReply,
+        state_splitCompleted,
+
+        // follower leave
+        state_sendLeaveReq,   // 28
+        state_waitForLeaveReply,
+        state_secondSplit,
+
+        // dissolve
+        state_sendDissolve,   // 31
+        state_waitForDissolveAck,
+
+        state_MAX,
+    } states_num_t;
+
+    states_num_t vehicleState = state_idle;
+
+    const std::map<states_num_t, std::string> vehicleStateMap = {
+
+            {state_idle, "state_idle"},
+
+            {state_platoonLeader, "state_platoonLeader"},
+            {state_platoonFollower, "state_platoonFollower"},
+
+            // entry states
+            {state_waitForLaneChange, "state_waitForLaneChange"},
+
+            // merge states
+            {state_sendMergeReq, "state_sendMergeReq"},
+            {state_waitForMergeReply, "state_waitForMergeReply"},
+            {state_mergeAccepted, "state_mergeAccepted"},
+            {state_waitForCatchup, "state_waitForCatchup"},
+            {state_sendMergeDone, "state_sendMergeDone"},
+            {state_notifyFollowers, "state_notifyFollowers"},
+            {state_waitForAllAcks, "state_waitForAllAcks"},
+            {state_sendMergeAccept, "state_sendMergeAccept"},
+            {state_waitForMergeDone, "state_waitForMergeDone"},
+            {state_mergeDone, "state_mergeDone"},
+
+            {state_sendSplitReq, "state_sendSplitReq"},
+            {state_waitForSplitReply, "state_waitForSplitReply"},
+            {state_makeItFreeAgent, "state_makeItFreeAgent"},
+            {state_waitForAck, "state_waitForAck"},
+            {state_splitDone, "state_splitDone"},
+            {state_changePL, "state_changePL"},
+            {state_waitForAllAcks2, "state_waitForAllAcks2"},
+            {state_waitForCHANGEPL, "state_waitForCHANGEPL"},
+            {state_sendingACK, "state_sendingACK"},
+            {state_waitForSplitDone, "state_waitForSplitDone"},
+            {state_waitForGap, "state_waitForGap"},
+
+            // leader leave
+            {state_sendVoteLeader, "state_sendVoteLeader"},
+            {state_waitForVoteReply, "state_waitForVoteReply"},
+            {state_splitCompleted, "state_splitCompleted"},
+
+            // follower leave
+            {state_sendLeaveReq, "state_sendLeaveReq"},
+            {state_waitForLeaveReply, "state_waitForLeaveReply"},
+            {state_secondSplit, "state_secondSplit"},
+
+            // dissolve
+            {state_sendDissolve, "state_sendDissolve"},
+            {state_waitForDissolveAck, "state_waitForDissolveAck"}
+    };
+
     typedef enum uCommand
     {
-        MERGE_REQ, MERGE_ACCEPT, MERGE_REJECT, MERGE_DONE,
-        SPLIT_REQ, SPLIT_ACCEPT, SPLIT_REJECT, SPLIT_DONE,
-        CHANGE_PL, CHANGE_Tg,
-        VOTE_LEADER, ELECTED_LEADER, DISSOLVE,
-        LEAVE_REQ, LEAVE_ACCEPT, LEAVE_REJECT, GAP_CREATED,
+        MERGE_REQ,
+        MERGE_ACCEPT,
+        MERGE_REJECT,
+        MERGE_DONE,
+
+        SPLIT_REQ,
+        SPLIT_ACCEPT,
+        SPLIT_REJECT,
+        SPLIT_DONE,
+
+        CHANGE_PL,
+        CHANGE_Tg,
+
+        VOTE_LEADER,
+        ELECTED_LEADER,
+        DISSOLVE,
+
+        LEAVE_REQ,
+        LEAVE_ACCEPT,
+        LEAVE_REJECT,
+        GAP_CREATED,
+
         ACK,
     } uCommand_t;
+
+    const std::map<uCommand_t, std::string> uCommandMap = {
+
+            {MERGE_REQ, "MERGE_REQ"},
+            {MERGE_ACCEPT, "MERGE_ACCEPT"},
+            {MERGE_REJECT, "MERGE_REJECT"},
+            {MERGE_DONE, "MERGE_DONE"},
+
+            {SPLIT_REQ, "SPLIT_REQ"},
+            {SPLIT_ACCEPT, "SPLIT_ACCEPT"},
+            {SPLIT_REJECT, "SPLIT_REJECT"},
+            {SPLIT_DONE, "SPLIT_DONE"},
+
+            {CHANGE_PL, "CHANGE_PL"},
+            {CHANGE_Tg, "CHANGE_Tg"},
+
+            {VOTE_LEADER, "VOTE_LEADER"},
+            {ELECTED_LEADER, "ELECTED_LEADER"},
+            {DISSOLVE, "DISSOLVE"},
+
+            {LEAVE_REQ, "LEAVE_REQ"},
+            {LEAVE_ACCEPT, "LEAVE_ACCEPT"},
+            {LEAVE_REJECT, "LEAVE_REJECT"},
+            {GAP_CREATED, "GAP_CREATED"},
+
+            {ACK, "ACK"}
+    };
 
 public:
     ~ApplVPlatoonMg();
@@ -188,18 +284,14 @@ protected:
     virtual void onPlatoonMsg(PlatoonMsg* wsm);
 
 private:
-    PlatoonMsg* prepareData(std::string, uCommand_t, std::string, value_t value = value_t());
+    void sendPltData(std::string, uCommand_t, std::string, value_t value = value_t());
     void updateColorDepth();
+    void setVehicleState(states_num_t vehState, std::string maneuver = "");
 
     // reporting to statistics
-    void reportStateToStat();
-    void reportCommandToStat(PlatoonMsg*);
-    void reportManeuverToStat(std::string, std::string, std::string);
-    const std::string stateToStr(int);
-    const std::string uCommandToStr(int);
-
-    void pltConfigMonitor();
-    void pltSplitMonitor();
+    void reportConfigToStat();
+    const std::string stateToStr(states_num_t);
+    const std::string uCommandToStr(uCommand_t);
 
     // common operations in maneuvers
     void common_handleSelfMsg(omnetpp::cMessage* msg);
@@ -219,6 +311,7 @@ private:
     bool CatchUpDone();
 
     // split
+    void pltSplitMonitor();
     void split_handleSelfMsg(omnetpp::cMessage* msg);
     void split_BeaconFSM(BeaconVehicle *wsm = NULL);
     void split_DataFSM(PlatoonMsg *wsm = NULL);

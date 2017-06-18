@@ -33,25 +33,6 @@
 
 namespace VENTOS {
 
-typedef struct plnDataExchange
-{
-    double time;
-    std::string sender;
-    std::string receiver;
-    std::string type;
-    std::string sendingPlnID;
-    std::string receivingPlnID;
-} plnDataExchange_t;
-
-typedef struct plnManeuverDuration
-{
-public:
-    double time;
-    std::string from;
-    std::string to;
-    std::string maneuver;
-} plnManeuverDuration_t;
-
 typedef struct plnConfig
 {
     double timestamp = -1;
@@ -63,6 +44,34 @@ typedef struct plnConfig
     int optSize = -1;
     int maxSize = -1;
 } plnConfig_t;
+
+typedef struct plnStateChange
+{
+    double time;
+    std::string vehId;
+    std::string fromState;
+    std::string toState;
+} plnStateChange_t;
+
+typedef struct plnDataExchange
+{
+    double time;
+    std::string senderId;
+    std::string sendingPltId;
+    std::string senderState;
+    std::string command;
+    std::string receiverId;
+    std::string receivingPltId;
+} plnDataExchange_t;
+
+typedef struct plnManeuverDuration
+{
+public:
+    double time;
+    std::string vehId;
+    std::string vehState;
+    std::string maneuver;
+} plnManeuverDuration_t;
 
 typedef struct BeaconStat
 {
@@ -116,9 +125,10 @@ class Statistics : public BaseApplLayer
 public:
     std::vector<BeaconStat_t> global_Beacon_stat;
 
+    std::vector<plnConfig_t> global_plnConfig_stat;
+    std::vector<plnStateChange_t> global_plnStateChange_stat;
     std::vector<plnDataExchange_t> global_plnDataExchange_stat;
     std::vector<plnManeuverDuration_t> global_plnManeuverDuration_stat;
-    std::vector<plnConfig_t> global_plnConfig_stat;
 
     std::map<std::string /*vehId*/, MAC_stat_t> global_MAC_stat;
     std::map<std::string /*vehId*/, PHY_stat_t> global_PHY_stat;
@@ -126,10 +136,13 @@ public:
 
     uint32_t departedVehicleCount = 0; // accumulated number of departed vehicles
     uint32_t arrivedVehicleCount = 0;  // accumulated number of arrived vehicles
+    uint32_t activeVehicleCount = 0;   // number of active vehicles (be it parking or driving) at current time step
+    uint32_t parkingVehicleCount = 0;  // number of parking vehicles at current time step
+    uint32_t drivingVehicleCount = 0;  // number of driving vehicles at current time step
 
-    uint32_t activeVehicleCount = 0;  // number of active vehicles (be it parking or driving) at current time step
-    uint32_t parkingVehicleCount = 0; // number of parking vehicles at current time step
-    uint32_t drivingVehicleCount = 0; // number of driving vehicles at current time step
+    uint32_t departedPersonCount = 0;
+    uint32_t arrivedPersonCount = 0;
+    uint32_t activePersonCount = 0;
 
 private:
     // NED variables
@@ -227,9 +240,8 @@ public:
     virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, cObject *, cObject *);
 
 private:
-    void save_plnDataExchange_toFile();
-    void save_plnManeuverDuration_toFile();
     void save_plnConfig_toFile();
+    void save_plnData_toFile();
 
     void save_beacon_stat_toFile();
 

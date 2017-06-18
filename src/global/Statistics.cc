@@ -76,8 +76,7 @@ void Statistics::finish()
 {
     save_beacon_stat_toFile();
 
-    save_plnDataExchange_toFile();
-    save_plnManeuverDuration_toFile();
+    save_plnData_toFile();
     save_plnConfig_toFile();
 
     save_MAC_stat_toFile();
@@ -244,175 +243,6 @@ void Statistics::save_beacon_stat_toFile()
 }
 
 
-void Statistics::save_plnDataExchange_toFile()
-{
-    if(global_plnDataExchange_stat.empty())
-        return;
-
-    int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
-
-    std::ostringstream fileName;
-    fileName << boost::format("%03d_plnDataExchange.txt") % currentRun;
-
-    boost::filesystem::path filePath ("results");
-    filePath /= fileName.str();
-
-    FILE *filePtr = fopen (filePath.c_str(), "w");
-    if (!filePtr)
-        throw omnetpp::cRuntimeError("Cannot create file '%s'", filePath.c_str());
-
-    // write simulation parameters at the beginning of the file
-    {
-        // get the current config name
-        std::string configName = omnetpp::getEnvir()->getConfigEx()->getVariable("configname");
-
-        std::string iniFile = omnetpp::getEnvir()->getConfigEx()->getVariable("inifile");
-
-        // PID of the simulation process
-        std::string processid = omnetpp::getEnvir()->getConfigEx()->getVariable("processid");
-
-        // globally unique identifier for the run, produced by
-        // concatenating the configuration name, run number, date/time, etc.
-        std::string runID = omnetpp::getEnvir()->getConfigEx()->getVariable("runid");
-
-        // get number of total runs in this config
-        int totalRun = omnetpp::getEnvir()->getConfigEx()->getNumRunsInConfig(configName.c_str());
-
-        // get the current run number
-        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
-
-        // get configuration name
-        std::vector<std::string> iterVar = omnetpp::getEnvir()->getConfigEx()->getConfigChain(configName.c_str());
-
-        // write to file
-        fprintf (filePtr, "configName      %s\n", configName.c_str());
-        fprintf (filePtr, "iniFile         %s\n", iniFile.c_str());
-        fprintf (filePtr, "processID       %s\n", processid.c_str());
-        fprintf (filePtr, "runID           %s\n", runID.c_str());
-        fprintf (filePtr, "totalRun        %d\n", totalRun);
-        fprintf (filePtr, "currentRun      %d\n", currentRun);
-        fprintf (filePtr, "currentConfig   %s\n", iterVar[0].c_str());
-        fprintf (filePtr, "sim timeStep    %u ms\n", TraCI->simulationGetTimeStep());
-        fprintf (filePtr, "startDateTime   %s\n", TraCI->simulationGetStartTime().c_str());
-        fprintf (filePtr, "endDateTime     %s\n", TraCI->simulationGetEndTime().c_str());
-        fprintf (filePtr, "duration        %s\n\n\n", TraCI->simulationGetDuration().c_str());
-    }
-
-    // write header
-    fprintf (filePtr, "%-12s","timeStep");
-    fprintf (filePtr, "%-15s","sender");
-    fprintf (filePtr, "%-17s","receiver");
-    fprintf (filePtr, "%-25s","type");
-    fprintf (filePtr, "%-20s","sendingPlnID");
-    fprintf (filePtr, "%-20s\n\n","recPlnID");
-
-    std::string oldSender = "";
-    double oldTime = -1;
-
-    // write body
-    for(auto &y : global_plnDataExchange_stat)
-    {
-        // make the log more readable :)
-        if(y.sender != oldSender || y.time != oldTime)
-        {
-            fprintf(filePtr, "\n");
-            oldSender = y.sender;
-            oldTime = y.time;
-        }
-
-        fprintf (filePtr, "%-10.2f", y.time);
-        fprintf (filePtr, "%-15s", y.sender.c_str());
-        fprintf (filePtr, "%-17s", y.receiver.c_str());
-        fprintf (filePtr, "%-30s", y.type.c_str());
-        fprintf (filePtr, "%-18s", y.sendingPlnID.c_str());
-        fprintf (filePtr, "%-20s\n", y.receivingPlnID.c_str());
-    }
-
-    fclose(filePtr);
-}
-
-
-void Statistics::save_plnManeuverDuration_toFile()
-{
-    if(global_plnManeuverDuration_stat.empty())
-        return;
-
-    int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
-
-    std::ostringstream fileName;
-    fileName << boost::format("%03d_plnManeuverDuration.txt") % currentRun;
-
-    boost::filesystem::path filePath ("results");
-    filePath /= fileName.str();
-
-    FILE *filePtr = fopen (filePath.c_str(), "w");
-    if (!filePtr)
-        throw omnetpp::cRuntimeError("Cannot create file '%s'", filePath.c_str());
-
-    // write simulation parameters at the beginning of the file
-    {
-        // get the current config name
-        std::string configName = omnetpp::getEnvir()->getConfigEx()->getVariable("configname");
-
-        std::string iniFile = omnetpp::getEnvir()->getConfigEx()->getVariable("inifile");
-
-        // PID of the simulation process
-        std::string processid = omnetpp::getEnvir()->getConfigEx()->getVariable("processid");
-
-        // globally unique identifier for the run, produced by
-        // concatenating the configuration name, run number, date/time, etc.
-        std::string runID = omnetpp::getEnvir()->getConfigEx()->getVariable("runid");
-
-        // get number of total runs in this config
-        int totalRun = omnetpp::getEnvir()->getConfigEx()->getNumRunsInConfig(configName.c_str());
-
-        // get the current run number
-        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
-
-        // get configuration name
-        std::vector<std::string> iterVar = omnetpp::getEnvir()->getConfigEx()->getConfigChain(configName.c_str());
-
-        // write to file
-        fprintf (filePtr, "configName      %s\n", configName.c_str());
-        fprintf (filePtr, "iniFile         %s\n", iniFile.c_str());
-        fprintf (filePtr, "processID       %s\n", processid.c_str());
-        fprintf (filePtr, "runID           %s\n", runID.c_str());
-        fprintf (filePtr, "totalRun        %d\n", totalRun);
-        fprintf (filePtr, "currentRun      %d\n", currentRun);
-        fprintf (filePtr, "currentConfig   %s\n", iterVar[0].c_str());
-        fprintf (filePtr, "sim timeStep    %u ms\n", TraCI->simulationGetTimeStep());
-        fprintf (filePtr, "startDateTime   %s\n", TraCI->simulationGetStartTime().c_str());
-        fprintf (filePtr, "endDateTime     %s\n", TraCI->simulationGetEndTime().c_str());
-        fprintf (filePtr, "duration        %s\n\n\n", TraCI->simulationGetDuration().c_str());
-    }
-
-    // write header
-    fprintf (filePtr, "%-12s","timeStep");
-    fprintf (filePtr, "%-20s","from platoon");
-    fprintf (filePtr, "%-20s","to platoon");
-    fprintf (filePtr, "%-20s\n\n","comment");
-
-    std::string oldPln = "";
-
-    // write body
-    for(auto &y : global_plnManeuverDuration_stat)
-    {
-        if(y.from != oldPln)
-        {
-            fprintf(filePtr, "\n");
-            oldPln = y.from;
-        }
-
-        fprintf (filePtr, "%-10.2f", y.time);
-        fprintf (filePtr, "%-20s", y.from.c_str());
-        fprintf (filePtr, "%-20s", y.to.c_str());
-        fprintf (filePtr, "%-20s\n", y.maneuver.c_str());
-    }
-
-    fclose(filePtr);
-}
-
-
 void Statistics::save_plnConfig_toFile()
 {
     if(global_plnConfig_stat.empty())
@@ -479,7 +309,7 @@ void Statistics::save_plnConfig_toFile()
     fprintf (filePtr, "%-15s","pltMaxSize");
     fprintf (filePtr, "\n\n");
 
-    // sort the global_plnConfig_stat first
+    // sort the global_plnConfig_stat
     std::sort(global_plnConfig_stat.begin(), global_plnConfig_stat.end(),
             [](const plnConfig_t & a, const plnConfig_t & b) -> bool
             {
@@ -530,6 +360,236 @@ void Statistics::save_plnConfig_toFile()
             fprintf (filePtr, "%-15s", "-");
 
         fprintf (filePtr, "\n");
+    }
+
+    fclose(filePtr);
+}
+
+
+void Statistics::save_plnData_toFile()
+{
+    if(global_plnStateChange_stat.empty() || global_plnDataExchange_stat.empty())
+        return;
+
+    int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
+
+    std::ostringstream fileName;
+    fileName << boost::format("%03d_plnData.txt") % currentRun;
+
+    boost::filesystem::path filePath ("results");
+    filePath /= fileName.str();
+
+    FILE *filePtr = fopen (filePath.c_str(), "w");
+    if (!filePtr)
+        throw omnetpp::cRuntimeError("Cannot create file '%s'", filePath.c_str());
+
+    // write simulation parameters at the beginning of the file
+    {
+        // get the current config name
+        std::string configName = omnetpp::getEnvir()->getConfigEx()->getVariable("configname");
+
+        std::string iniFile = omnetpp::getEnvir()->getConfigEx()->getVariable("inifile");
+
+        // PID of the simulation process
+        std::string processid = omnetpp::getEnvir()->getConfigEx()->getVariable("processid");
+
+        // globally unique identifier for the run, produced by
+        // concatenating the configuration name, run number, date/time, etc.
+        std::string runID = omnetpp::getEnvir()->getConfigEx()->getVariable("runid");
+
+        // get number of total runs in this config
+        int totalRun = omnetpp::getEnvir()->getConfigEx()->getNumRunsInConfig(configName.c_str());
+
+        // get the current run number
+        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
+
+        // get configuration name
+        std::vector<std::string> iterVar = omnetpp::getEnvir()->getConfigEx()->getConfigChain(configName.c_str());
+
+        // write to file
+        fprintf (filePtr, "configName      %s\n", configName.c_str());
+        fprintf (filePtr, "iniFile         %s\n", iniFile.c_str());
+        fprintf (filePtr, "processID       %s\n", processid.c_str());
+        fprintf (filePtr, "runID           %s\n", runID.c_str());
+        fprintf (filePtr, "totalRun        %d\n", totalRun);
+        fprintf (filePtr, "currentRun      %d\n", currentRun);
+        fprintf (filePtr, "currentConfig   %s\n", iterVar[0].c_str());
+        fprintf (filePtr, "sim timeStep    %u ms\n", TraCI->simulationGetTimeStep());
+        fprintf (filePtr, "startDateTime   %s\n", TraCI->simulationGetStartTime().c_str());
+        fprintf (filePtr, "endDateTime     %s\n", TraCI->simulationGetEndTime().c_str());
+        fprintf (filePtr, "duration        %s\n\n\n", TraCI->simulationGetDuration().c_str());
+    }
+
+    std::vector<double> timeSteps;
+
+    for(auto &i : global_plnStateChange_stat)
+    {
+        auto iter = std::find(timeSteps.begin(), timeSteps.end(), i.time);
+        if(iter == timeSteps.end())
+            timeSteps.push_back(i.time);
+    }
+
+    for(auto &i : global_plnDataExchange_stat)
+    {
+        auto iter = std::find(timeSteps.begin(), timeSteps.end(), i.time);
+        if(iter == timeSteps.end())
+            timeSteps.push_back(i.time);
+    }
+
+    // sort time values in timeSteps
+    std::sort(timeSteps.begin(), timeSteps.end());
+
+    typedef struct platoonDataAll
+    {
+        double time = -1;
+        std::string vehId = "-";
+        std::string commandSent = "-";
+        std::string receiverId = "-";
+        std::string senderPltId = "-";
+        std::string receiverPltId = "-";
+        std::string fromState = "-";
+        std::string toState = "-";
+        std::string maneuverStartEnd = "-";
+    } platoonDataAll_t;
+
+    std::vector<platoonDataAll_t> platoonData_vector;
+
+    // iterate over each time step that a platooning event has happened
+    for(auto &time : timeSteps)
+    {
+        // get all matches in 'global_plnStateChange_stat' for this time step
+        std::vector<std::vector<plnStateChange_t>::const_iterator> matches_plnState;
+        auto i = global_plnStateChange_stat.begin(), end = global_plnStateChange_stat.end();
+        while (i != end)
+        {
+            i = std::find_if(i, end, [&] (const plnStateChange_t &s) {return s.time == time;});
+            if (i != end)
+                matches_plnState.push_back(i++);
+        }
+
+        // get all matches in 'global_plnDataExchange_stat' fro this time step
+        typedef std::vector<std::vector<plnDataExchange_t>::const_iterator> matches_plnData_ii;
+        matches_plnData_ii matches_plnData;
+        auto ii = global_plnDataExchange_stat.begin(), end2 = global_plnDataExchange_stat.end();
+        while (ii != end2)
+        {
+            ii = std::find_if(ii, end2, [&] (const plnDataExchange_t &s) {return s.time == time;});
+            if (ii != end2)
+                matches_plnData.push_back(ii++);
+        }
+
+        if(!matches_plnState.empty())
+        {
+            // iterate over all platoon states in this time step
+            for(auto &plnState : matches_plnState)
+            {
+                platoonDataAll_t entry;
+
+                entry.time = time;
+                entry.vehId = plnState->vehId;
+                entry.fromState = plnState->fromState;
+                entry.toState = plnState->toState;
+
+                // does the vehicle send any command in this state
+                std::vector<matches_plnData_ii::iterator> matches_commands;
+                auto ii = matches_plnData.begin(), end = matches_plnData.end();
+                while (ii != end)
+                {
+                    ii = std::find_if(ii, end, [&] (const std::vector<plnDataExchange_t>::const_iterator &s) {
+                        return (s->senderId == plnState->vehId && s->senderState == plnState->fromState);});
+                    if (ii != end)
+                        matches_commands.push_back(ii++);
+                }
+
+                if(matches_commands.empty())
+                {
+                    platoonData_vector.push_back(entry);
+                }
+                else
+                {
+                    // for each command
+                    for(auto &k : matches_commands)
+                    {
+                        entry.commandSent = (*k)->command;
+                        entry.receiverId = (*k)->receiverId;
+                        entry.senderPltId = (*k)->sendingPltId;
+                        entry.receiverPltId = (*k)->receivingPltId;
+
+                        platoonData_vector.push_back(entry);
+                    }
+                }
+            }
+        }
+        else
+        {
+            if(matches_plnData.empty())
+                throw omnetpp::cRuntimeError("matches_plnState and matches_plnData are both empty in time step '%f'", time);
+
+            // iterate over all data exchange in this time step
+            for(auto &plnData : matches_plnData)
+            {
+                platoonDataAll_t entry;
+
+                entry.time = time;
+                entry.vehId = plnData->senderId;
+                entry.fromState = plnData->senderState;
+                entry.toState = plnData->senderState;  // the vehicle state does not change
+                entry.commandSent = plnData->command;
+                entry.receiverId = plnData->receiverId;
+                entry.senderPltId = plnData->sendingPltId;
+                entry.receiverPltId = plnData->receivingPltId;
+
+                platoonData_vector.push_back(entry);
+            }
+        }
+    }
+
+    // mark start/end of maneuvers
+    for(auto &entry : global_plnManeuverDuration_stat)
+    {
+        auto ii = std::find_if(platoonData_vector.begin(), platoonData_vector.end(), [&] (const platoonDataAll_t &s) {
+            return (s.time == entry.time && s.vehId == entry.vehId && s.toState == entry.vehState);});
+
+        if(ii != platoonData_vector.end())
+            ii->maneuverStartEnd = entry.maneuver;
+        else
+            throw omnetpp::cRuntimeError("cannot find the maneuver entry in platoonData_vector map");
+    }
+
+    // write header
+    fprintf (filePtr, "%-12s","timeStep");
+    fprintf (filePtr, "%-15s","vehId");
+    fprintf (filePtr, "%-30s","fromState");
+    fprintf (filePtr, "%-30s","toState");
+    fprintf (filePtr, "%-15s","commandSent");
+    fprintf (filePtr, "%-15s","receiverId");
+    fprintf (filePtr, "%-15s","senderPltId");
+    fprintf (filePtr, "%-17s","receiverPltId");
+    fprintf (filePtr, "%-17s\n\n","maneuverStartEnd");
+
+    std::string oldSender = "";
+    double oldTime = -1;
+
+    // write body
+    for(auto &y : platoonData_vector)
+    {
+        // make the log more readable :)
+        if(y.vehId != oldSender || y.time != oldTime)
+        {
+            fprintf(filePtr, "\n");
+            oldSender = y.vehId;
+            oldTime = y.time;
+        }
+
+        fprintf (filePtr, "%-12.2f", y.time);
+        fprintf (filePtr, "%-15s", y.vehId.c_str());
+        fprintf (filePtr, "%-30s", y.fromState.c_str());
+        fprintf (filePtr, "%-30s", y.toState.c_str());
+        fprintf (filePtr, "%-15s", y.commandSent.c_str());
+        fprintf (filePtr, "%-15s", y.receiverId.c_str());
+        fprintf (filePtr, "%-15s", y.senderPltId.c_str());
+        fprintf (filePtr, "%-17s", y.receiverPltId.c_str());
+        fprintf (filePtr, "%-17s\n", y.maneuverStartEnd.c_str());
     }
 
     fclose(filePtr);
