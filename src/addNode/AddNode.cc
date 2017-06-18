@@ -53,6 +53,15 @@ void AddNode::initialize(int stage)
 
     if(stage == 0)
     {
+        // check module names for duplcate -- even if addNode id is empty
+        checkDuplicateModuleName(par("vehicle_ModuleName").stringValue());
+        checkDuplicateModuleName(par("bike_ModuleName").stringValue());
+        checkDuplicateModuleName(par("ped_ModuleName").stringValue());
+        checkDuplicateModuleName(par("obstacle_ModuleName").stringValue());
+        checkDuplicateModuleName(par("RSU_ModuleName").stringValue());
+        checkDuplicateModuleName(par("adversary_ModuleName").stringValue());
+        checkDuplicateModuleName(par("CA_ModuleName").stringValue());
+
         id = par("id").stringValue();
         if(id == "")
             return;
@@ -169,6 +178,18 @@ void AddNode::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t si
         if(!allVehiclePlatoon.empty())
             addVehiclePlatoon();
     }
+}
+
+
+void AddNode::checkDuplicateModuleName(std::string moduleName)
+{
+    static std::vector<std::string> allModuleNames;
+
+    auto ii = std::find(allModuleNames.begin(), allModuleNames.end(), moduleName);
+    if(ii == allModuleNames.end())
+        allModuleNames.push_back(moduleName);
+    else
+        throw omnetpp::cRuntimeError("Two or more module names in AddNode have the same id '%s'", moduleName.c_str());
 }
 
 

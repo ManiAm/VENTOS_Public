@@ -243,6 +243,8 @@ public:
     virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, long, cObject* details);
 
 private:
+    void checkDuplicateModuleName(std::string);
+
     void readInsertion(std::string);
     void printLoadedStatistics();
 
