@@ -253,6 +253,8 @@ public:
     TraCIBuffer subscribeSimulation(uint32_t beginTime, uint32_t endTime, std::string objectId, std::vector<uint8_t> variables);
     // CMD_SUBSCRIBE_VEHICLE_VARIABLE
     TraCIBuffer subscribeVehicle(uint32_t beginTime, uint32_t endTime, std::string objectId, std::vector<uint8_t> variables);
+    // CMD_SUBSCRIBE_PERSON_VARIABLE
+    TraCIBuffer subscribePerson(uint32_t beginTime, uint32_t endTime, std::string objectId, std::vector<uint8_t> variables);
 
     // ################################################################
     //                            simulation

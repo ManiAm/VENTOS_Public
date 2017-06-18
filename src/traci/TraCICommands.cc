@@ -153,6 +153,24 @@ TraCIBuffer TraCI_Commands::subscribeVehicle(uint32_t beginTime, uint32_t endTim
 }
 
 
+// CMD_SUBSCRIBE_PERSON_VARIABLE
+TraCIBuffer TraCI_Commands::subscribePerson(uint32_t beginTime, uint32_t endTime, std::string objectId, std::vector<uint8_t> variables)
+{
+    record_TraCI_activity_func("commandStart", CMD_SUBSCRIBE_PERSON_VARIABLE, 0xff, "subscribePerson");
+
+    TraCIBuffer p;
+    p << beginTime << endTime << objectId << (uint8_t)variables.size();
+    for(uint8_t i : variables)
+        p << i;
+
+    TraCIBuffer buf = connection->query(CMD_SUBSCRIBE_PERSON_VARIABLE, p);
+
+    record_TraCI_activity_func("commandComplete", CMD_SUBSCRIBE_PERSON_VARIABLE, 0xff, "subscribePerson");
+
+    return buf;
+}
+
+
 // ################################################################
 //                            simulation
 // ################################################################

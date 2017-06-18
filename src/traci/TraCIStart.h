@@ -59,13 +59,13 @@ private:
     omnetpp::simsignal_t Signal_arrived_vehs;
 
     std::set<std::string> subscribedVehicles;    // all vehicles we have already subscribed to
-    std::set<std::string> subscribedPedestrians; // all pedestrians we have already subscribed to
-    std::vector<std::string> allPedestrians;
+    std::set<std::string> subscribedPerson;      // all person we have already subscribed to
 
     // next OMNeT++ module vector index to use
     size_t nextMotorVectorIndex = 0;
     size_t nextObstacleVectorIndex = 0;
     size_t nextBikeVectorIndex = 0;
+    size_t nextPersonVectorIndex = 0;
 
     omnetpp::cMessage* executeOneTimestepTrigger = NULL; // self-message scheduled for when to next call executeOneTimestep
 
@@ -110,18 +110,20 @@ private:
     void processSubcriptionResult(TraCIBuffer& buf);
     void processSimSubscription(std::string objectId, TraCIBuffer& buf);
     void processVehicleSubscription(std::string objectId, TraCIBuffer& buf);
+    void processPersonSubscription(std::string objectId, TraCIBuffer& buf);
 
-    void addModule(std::string nodeId, const Coord& position, std::string road_id = "", double speed = -1, double angle = -1);
+    void addVehicleModule(std::string nodeId, const Coord& position, std::string road_id, double speed, double angle);
     omnetpp::cModule* addVehicle(std::string nodeId, std::string type, std::string name, std::string displayString, int32_t nodeVectorIndex, std::string vClass, const Coord& position, std::string road_id, double speed, double angle);
-    omnetpp::cModule* addPedestrian();
-    void deleteManagedModule(std::string nodeId);
+    void addPerson(std::string nodeId, const Coord& position, std::string road_id, double speed, double angle);
 
-    // returns a pointer to the managed module named moduleName, or 0 if no module can be found
+    void deleteManagedModule(std::string nodeId);
     cModule* getManagedModule(std::string nodeId);
 
     // returns whether a given position lies within the simulation's region of interest.
     // Modules are destroyed and re-created as managed vehicles leave and re-enter the ROI
     bool isInRegionOfInterest(const TraCICoord& position, std::string road_id, double speed, double angle);
+
+    bool checkEndSimulation(uint32_t);
 };
 
 }
