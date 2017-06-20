@@ -808,7 +808,7 @@ void TrafficControl::parseOptSize(rapidxml::xml_node<> *pNode)
         int value = xmlUtil::getAttrValue_int(cNode, "value");
 
         if(value < 1)
-            throw omnetpp::cRuntimeError("attribute 'value' should be gretaer than or equal to 1 in element '%s'", optSize_tag.c_str());
+            throw omnetpp::cRuntimeError("attribute 'value' should be >=1 in element '%s'", optSize_tag.c_str());
 
         if(begin < 0)
             throw omnetpp::cRuntimeError("attribute 'begin' cannot be negative in element '%s'", optSize_tag.c_str());
