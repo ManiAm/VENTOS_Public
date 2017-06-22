@@ -112,7 +112,10 @@ private:
     {
         std::string pltId_str;
         double begin;
-        std::string mode_str;
+
+        // for internal use
+        bool processingStarted = false;
+        bool processingEnded = false;
     } pltMergeEntry_t;
 
     std::map<uint32_t, pltMergeEntry_t> allPltMerge;
@@ -120,9 +123,13 @@ private:
     typedef struct pltSplitEntry
     {
         std::string pltId_str;
-        double begin;
         int splitIndex;
         std::string splitVehId_str;
+        double begin;
+
+        // for internal use
+        bool processingStarted = false;
+        bool processingEnded = false;
     } pltSplitEntry_t;
 
     std::map<uint32_t, pltSplitEntry_t> allPltSplit;

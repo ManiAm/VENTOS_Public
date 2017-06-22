@@ -174,7 +174,7 @@ void TrafficControl::readInsertion(std::string addNodePath)
 
 void TrafficControl::parseSpeed(rapidxml::xml_node<> *pNode)
 {
-    uint32_t speedNodeCount = 1;
+    uint32_t nodeCount = 1;
 
     auto allEdges = TraCI->edgeGetIDList();
     auto allLanes = TraCI->laneGetIDList();
@@ -290,7 +290,7 @@ void TrafficControl::parseSpeed(rapidxml::xml_node<> *pNode)
             }
         }
 
-        auto it = allSpeed.find(speedNodeCount);
+        auto it = allSpeed.find(nodeCount);
         if(it == allSpeed.end())
         {
             speedEntry_t entry = {};
@@ -308,64 +308,64 @@ void TrafficControl::parseSpeed(rapidxml::xml_node<> *pNode)
             entry.maxAccel = maxAccel;
 
             // check for conflicts before adding
-            checkSpeedConflicts(entry, speedNodeCount);
+            checkSpeedConflicts(entry, nodeCount);
 
-            allSpeed.insert(std::make_pair(speedNodeCount, entry));
+            allSpeed.insert(std::make_pair(nodeCount, entry));
         }
         else
             throw omnetpp::cRuntimeError("Multiple %s with the same 'id' %s is not allowed!", speed_tag.c_str(), id_str.c_str());
 
         // set symbol_table and expression
-        auto ii = allSpeed.find(speedNodeCount);
+        auto ii = allSpeed.find(nodeCount);
         ii->second.symbol_table.add_variable("t", ii->second.expressionVariable);
         ii->second.expression.register_symbol_table(ii->second.symbol_table);
 
-        speedNodeCount++;
+        nodeCount++;
     }
 }
 
 
-void TrafficControl::checkSpeedConflicts(speedEntry_t &speedEntry, uint32_t speedNodeCount)
+void TrafficControl::checkSpeedConflicts(speedEntry_t &speedEntry, uint32_t nodeCount)
 {
     if(speedEntry.begin != -1)
     {
-        uint32_t conflictedSpeedNode = checkSpeedConflicts_begin(speedEntry, speedNodeCount);
+        uint32_t conflictedSpeedNode = checkSpeedConflicts_begin(speedEntry, nodeCount);
         if(conflictedSpeedNode != 0)
             throw omnetpp::cRuntimeError("Speed node '%d' and '%d' in TrafficControl with id '%s' have conflicts. "
                     "They are both trying to change the speed of vehicle '%s' at time '%f'", conflictedSpeedNode,
-                    speedNodeCount,
+                    nodeCount,
                     this->id.c_str(),
                     speedEntry.id_str.c_str(),
                     speedEntry.begin);
     }
     else if(speedEntry.edgeId_str != "")
     {
-        uint32_t conflictedSpeedNode = checkSpeedConflicts_edgeId(speedEntry, speedNodeCount);
+        uint32_t conflictedSpeedNode = checkSpeedConflicts_edgeId(speedEntry, nodeCount);
         if(conflictedSpeedNode != 0)
             throw omnetpp::cRuntimeError("Speed node '%d' and '%d' in TrafficControl with id '%s' have conflicts. "
                     "They are both trying to change the speed of vehicle '%s' at the same location", conflictedSpeedNode,
-                    speedNodeCount,
+                    nodeCount,
                     this->id.c_str(),
                     speedEntry.id_str.c_str());
     }
     else if(speedEntry.laneId_str != "")
     {
-        uint32_t conflictedSpeedNode = checkSpeedConflicts_laneId(speedEntry, speedNodeCount);
+        uint32_t conflictedSpeedNode = checkSpeedConflicts_laneId(speedEntry, nodeCount);
         if(conflictedSpeedNode != 0)
             throw omnetpp::cRuntimeError("Speed node '%d' and '%d' in TrafficControl with id '%s' have conflicts. "
                     "They are both trying to change the speed of vehicle '%s' at the same location", conflictedSpeedNode,
-                    speedNodeCount,
+                    nodeCount,
                     this->id.c_str(),
                     speedEntry.id_str.c_str());
     }
 }
 
 
-uint32_t TrafficControl::checkSpeedConflicts_begin(speedEntry_t &speedEntry, uint32_t speedNodeCount)
+uint32_t TrafficControl::checkSpeedConflicts_begin(speedEntry_t &speedEntry, uint32_t nodeCount)
 {
     typedef struct speedChangeEntry
     {
-        uint32_t speedNodeCount;
+        uint32_t nodeCount;
         double fromTime;
         double toTime;
     } speedChangeEntry_t;
@@ -388,7 +388,7 @@ uint32_t TrafficControl::checkSpeedConflicts_begin(speedEntry_t &speedEntry, uin
     // this is the first speed control for this vehicle
     if(ii == allSpeedChange.end())
     {
-        speedChangeEntry_t entry = {speedNodeCount, fromTime, toTime};
+        speedChangeEntry_t entry = {nodeCount, fromTime, toTime};
         std::vector<speedChangeEntry_t> entry2 = {entry};
         allSpeedChange[speedEntry.id_str] = entry2;
 
@@ -404,12 +404,12 @@ uint32_t TrafficControl::checkSpeedConflicts_begin(speedEntry_t &speedEntry, uin
             if((toTime >= speedNode.fromTime && toTime <= speedNode.toTime) ||
                     (fromTime >= speedNode.fromTime && fromTime <= speedNode.toTime))
             {
-                return speedNode.speedNodeCount;
+                return speedNode.nodeCount;
             }
         }
 
         // there is no overlap!
-        speedChangeEntry_t entry = {speedNodeCount, fromTime, toTime};
+        speedChangeEntry_t entry = {nodeCount, fromTime, toTime};
         ii->second.push_back(entry);
 
         return 0;
@@ -417,11 +417,11 @@ uint32_t TrafficControl::checkSpeedConflicts_begin(speedEntry_t &speedEntry, uin
 }
 
 
-uint32_t TrafficControl::checkSpeedConflicts_edgeId(speedEntry_t &speedEntry, uint32_t speedNodeCount)
+uint32_t TrafficControl::checkSpeedConflicts_edgeId(speedEntry_t &speedEntry, uint32_t nodeCount)
 {
     typedef struct speedChangeEntry
     {
-        uint32_t speedNodeCount;
+        uint32_t nodeCount;
         std::string edgeId;
         double edgePos;
     } speedChangeEntry_t;
@@ -432,7 +432,7 @@ uint32_t TrafficControl::checkSpeedConflicts_edgeId(speedEntry_t &speedEntry, ui
     // this is the first speed control for this vehicle
     if(ii == allSpeedChange.end())
     {
-        speedChangeEntry_t entry = {speedNodeCount, speedEntry.edgeId_str, speedEntry.edgePos};
+        speedChangeEntry_t entry = {nodeCount, speedEntry.edgeId_str, speedEntry.edgePos};
         std::vector<speedChangeEntry_t> entry2 = {entry};
         allSpeedChange[speedEntry.id_str] = entry2;
 
@@ -447,12 +447,12 @@ uint32_t TrafficControl::checkSpeedConflicts_edgeId(speedEntry_t &speedEntry, ui
             // check for overlap
             if(speedEntry.edgeId_str == speedNode.edgeId && speedEntry.edgePos == speedNode.edgePos)
             {
-                return speedNode.speedNodeCount;
+                return speedNode.nodeCount;
             }
         }
 
         // there is no overlap!
-        speedChangeEntry_t entry = {speedNodeCount, speedEntry.edgeId_str, speedEntry.edgePos};
+        speedChangeEntry_t entry = {nodeCount, speedEntry.edgeId_str, speedEntry.edgePos};
         ii->second.push_back(entry);
 
         return 0;
@@ -460,11 +460,11 @@ uint32_t TrafficControl::checkSpeedConflicts_edgeId(speedEntry_t &speedEntry, ui
 }
 
 
-uint32_t TrafficControl::checkSpeedConflicts_laneId(speedEntry_t &speedEntry, uint32_t speedNodeCount)
+uint32_t TrafficControl::checkSpeedConflicts_laneId(speedEntry_t &speedEntry, uint32_t nodeCount)
 {
     typedef struct speedChangeEntry
     {
-        uint32_t speedNodeCount;
+        uint32_t nodeCount;
         std::string laneId;
         double lanePos;
     } speedChangeEntry_t;
@@ -475,7 +475,7 @@ uint32_t TrafficControl::checkSpeedConflicts_laneId(speedEntry_t &speedEntry, ui
     // this is the first speed control for this vehicle
     if(ii == allSpeedChange.end())
     {
-        speedChangeEntry_t entry = {speedNodeCount, speedEntry.laneId_str, speedEntry.lanePos};
+        speedChangeEntry_t entry = {nodeCount, speedEntry.laneId_str, speedEntry.lanePos};
         std::vector<speedChangeEntry_t> entry2 = {entry};
         allSpeedChange[speedEntry.id_str] = entry2;
 
@@ -490,12 +490,12 @@ uint32_t TrafficControl::checkSpeedConflicts_laneId(speedEntry_t &speedEntry, ui
             // check for overlap
             if(speedEntry.laneId_str == speedNode.laneId && speedEntry.lanePos == speedNode.lanePos)
             {
-                return speedNode.speedNodeCount;
+                return speedNode.nodeCount;
             }
         }
 
         // there is no overlap!
-        speedChangeEntry_t entry = {speedNodeCount, speedEntry.laneId_str, speedEntry.lanePos};
+        speedChangeEntry_t entry = {nodeCount, speedEntry.laneId_str, speedEntry.lanePos};
         ii->second.push_back(entry);
 
         return 0;
@@ -792,7 +792,7 @@ void TrafficControl::vehicleSetSpeedExpression(speedEntry_t &speedEntry, std::st
 
 void TrafficControl::parseOptSize(rapidxml::xml_node<> *pNode)
 {
-    uint32_t speedNodeCount = 1;
+    uint32_t nodeCount = 1;
 
     // Iterate over all 'optSize' nodes
     for(rapidxml::xml_node<> *cNode = pNode->first_node(optSize_tag.c_str()); cNode; cNode = cNode->next_sibling())
@@ -813,7 +813,7 @@ void TrafficControl::parseOptSize(rapidxml::xml_node<> *pNode)
         if(begin < 0)
             throw omnetpp::cRuntimeError("attribute 'begin' cannot be negative in element '%s'", optSize_tag.c_str());
 
-        auto it = allOptSize.find(speedNodeCount);
+        auto it = allOptSize.find(nodeCount);
         if(it == allOptSize.end())
         {
             optSizeEntry_t entry = {};
@@ -822,12 +822,12 @@ void TrafficControl::parseOptSize(rapidxml::xml_node<> *pNode)
             entry.begin = begin;
             entry.value = value;
 
-            allOptSize.insert(std::make_pair(speedNodeCount, entry));
+            allOptSize.insert(std::make_pair(nodeCount, entry));
         }
         else
             throw omnetpp::cRuntimeError("Multiple %s with the same 'id' %s is not allowed!", optSize_tag.c_str(), pltId_str.c_str());
 
-        speedNodeCount++;
+        nodeCount++;
     }
 }
 
@@ -914,25 +914,295 @@ void TrafficControl::controlOptSize()
 
 void TrafficControl::parsePltMerge(rapidxml::xml_node<> *pNode)
 {
+    uint32_t nodeCount = 1;
 
+    // Iterate over all 'merge' nodes
+    for(rapidxml::xml_node<> *cNode = pNode->first_node(pltMerge_tag.c_str()); cNode; cNode = cNode->next_sibling())
+    {
+        if(std::string(cNode->name()) != pltMerge_tag)
+            continue;
+
+        std::vector<std::string> validAttr = {"pltId", "begin"};
+        xmlUtil::validityCheck(cNode, validAttr);
+
+        std::string pltId_str = xmlUtil::getAttrValue_string(cNode, "pltId");
+        double begin = xmlUtil::getAttrValue_double(cNode, "begin");
+
+        if(begin < 0)
+            throw omnetpp::cRuntimeError("attribute 'begin' cannot be negative in element '%s'", pltMerge_tag.c_str());
+
+        auto it = allPltMerge.find(nodeCount);
+        if(it == allPltMerge.end())
+        {
+            pltMergeEntry_t entry = {};
+
+            entry.pltId_str = pltId_str;
+            entry.begin = begin;
+
+            allPltMerge.insert(std::make_pair(nodeCount, entry));
+        }
+        else
+            throw omnetpp::cRuntimeError("Multiple %s with the same 'id' %s is not allowed!", pltMerge_tag.c_str(), pltId_str.c_str());
+
+        nodeCount++;
+    }
 }
 
 
 void TrafficControl::controlPltMerge()
 {
+    for(auto &entry : allPltMerge)
+    {
+        if(entry.second.processingEnded)
+            continue;
 
+        ASSERT(entry.second.begin >= 0);
+
+        // wait until 'begin'
+        if(entry.second.begin > omnetpp::simTime().dbl())
+            continue;
+
+        if(!entry.second.processingStarted)
+        {
+            auto allActivePlatoons = TraCI->platoonGetIDList();
+
+            // look for the platoon leader
+            auto ii = std::find(allActivePlatoons.begin(), allActivePlatoons.end(), entry.second.pltId_str);
+            if(ii == allActivePlatoons.end())
+            {
+                LOG_WARNING << boost::format("\nWARNING: Merging platoon '%s' at time '%f' is not possible ") % entry.second.pltId_str % entry.second.begin;
+                LOG_WARNING << boost::format("(it does not exist in the network) \n") << std::flush;
+                entry.second.processingEnded = true;
+                continue;
+            }
+
+            std::string omnetId = TraCI->convertId_traci2omnet(entry.second.pltId_str);
+
+            // get a pointer to the vehicle
+            cModule *mod = omnetpp::getSimulation()->getSystemModule()->getModuleByPath(omnetId.c_str());
+            ASSERT(mod);
+
+            // get the application module
+            cModule *appl = mod->getSubmodule("appl");
+            ASSERT(appl);
+
+            // make sure platoon management protocol is 'on'
+            if(appl->par("plnMode").longValue() != ApplVPlatoon::platoonManagement)
+            {
+                LOG_WARNING << boost::format("\nWARNING: Trying to perform merge in platoon '%s' with disabled "
+                        "platoon management protocol. Is 'pltMgmtProt' attribute active? \n") % entry.second.pltId_str << std::flush;
+                entry.second.processingEnded = true;
+                continue;
+            }
+
+            // make sure there is a vehicle in front of this platoon
+            leader_t frontVeh = TraCI->vehicleGetLeader(entry.second.pltId_str, 900);
+            if(frontVeh.leaderID == "")
+            {
+                LOG_WARNING << boost::format("\nWARNING: There is no vehicle in front of platoon '%s' to merge at time '%f'. \n") %
+                        entry.second.pltId_str %
+                        entry.second.begin << std::flush;
+                entry.second.processingEnded = true;
+                continue;
+            }
+
+            // make sure the front vehicle is part of a platoon
+            std::string frontVehId = TraCI->convertId_traci2omnet(frontVeh.leaderID);
+            cModule *frontMod = omnetpp::getSimulation()->getSystemModule()->getModuleByPath(frontVehId.c_str());
+            ASSERT(frontMod);
+            cModule *frontAppl = frontMod->getSubmodule("appl");
+            ASSERT(frontAppl);
+            if(std::string(frontAppl->par("myPlnID").stringValue()) == "")
+            {
+                LOG_WARNING << boost::format("\nWARNING: Merge is canceled, because the front vehicle '%s' is not part of any platoon. \n") % frontVeh.leaderID << std::flush;
+                entry.second.processingEnded = true;
+                continue;
+            }
+
+            // get a pointer to the application layer
+            ApplVManager *vehPtr = static_cast<ApplVManager *>(appl);
+            ASSERT(vehPtr);
+
+            vehPtr->manualMerge();
+
+            entry.second.processingStarted = true;
+        }
+
+        entry.second.processingEnded = true;
+    }
 }
 
 
 void TrafficControl::parsePltSplit(rapidxml::xml_node<> *pNode)
 {
+    uint32_t nodeCount = 1;
 
+    // Iterate over all 'split' nodes
+    for(rapidxml::xml_node<> *cNode = pNode->first_node(pltSplit_tag.c_str()); cNode; cNode = cNode->next_sibling())
+    {
+        if(std::string(cNode->name()) != pltSplit_tag)
+            continue;
+
+        std::vector<std::string> validAttr = {"pltId", "splitIndex", "splitVehId", "begin"};
+        xmlUtil::validityCheck(cNode, validAttr);
+
+        std::string pltId_str = xmlUtil::getAttrValue_string(cNode, "pltId", false, "");
+        int splitIndex = xmlUtil::getAttrValue_int(cNode, "splitIndex", false, -1);
+        std::string splitVehId = xmlUtil::getAttrValue_string(cNode, "splitVehId", false, "");
+        double begin = xmlUtil::getAttrValue_double(cNode, "begin");
+
+        if(begin < 0)
+            throw omnetpp::cRuntimeError("attribute 'begin' cannot be negative in element '%s'", pltSplit_tag.c_str());
+
+        if(cNode->first_attribute("pltId") && !cNode->first_attribute("splitIndex"))
+            throw omnetpp::cRuntimeError("attribute 'splitIndex' is required when 'pltId' is present in element '%s'", pltSplit_tag.c_str());
+
+        if(cNode->first_attribute("splitIndex") && !cNode->first_attribute("pltId"))
+            throw omnetpp::cRuntimeError("attribute 'pltId' is required when 'splitIndex' is present in element '%s'", pltSplit_tag.c_str());
+
+        if(cNode->first_attribute("splitVehId") && (cNode->first_attribute("pltId") || cNode->first_attribute("splitIndex")))
+            throw omnetpp::cRuntimeError("attribute 'pltId/splitIndex' is redundant when 'splitVehId' is present in element '%s'", pltSplit_tag.c_str());
+
+        auto it = allPltSplit.find(nodeCount);
+        if(it == allPltSplit.end())
+        {
+            pltSplitEntry_t entry = {};
+
+            entry.pltId_str = pltId_str;
+            entry.splitIndex = splitIndex;
+            entry.splitVehId_str = splitVehId;
+            entry.begin = begin;
+
+            allPltSplit.insert(std::make_pair(nodeCount, entry));
+        }
+        else
+            throw omnetpp::cRuntimeError("Multiple %s with the same 'id' %s is not allowed!", pltSplit_tag.c_str(), pltId_str.c_str());
+
+        nodeCount++;
+    }
 }
 
 
 void TrafficControl::controlPltSplit()
 {
+    for(auto &entry : allPltSplit)
+    {
+        if(entry.second.processingEnded)
+            continue;
 
+        ASSERT(entry.second.begin >= 0);
+
+        // wait until 'begin'
+        if(entry.second.begin > omnetpp::simTime().dbl())
+            continue;
+
+        if(!entry.second.processingStarted)
+        {
+            std::string platoonID_m = "";
+            int splitIndex_m = -1;
+
+            // if platoon id is not specified
+            if(entry.second.pltId_str == "")
+            {
+                if(entry.second.splitVehId_str == "")
+                    throw omnetpp::cRuntimeError("The 'splitVehId' is empty in element '%s'", pltSplit_tag.c_str());
+
+                std::string omnetId = TraCI->convertId_traci2omnet(entry.second.splitVehId_str);
+
+                if(omnetId == "")
+                    throw omnetpp::cRuntimeError("Vehicle '%s' does not exist in the network", entry.second.splitVehId_str.c_str());
+
+                // get a pointer to the splitting vehicle
+                cModule *mod = omnetpp::getSimulation()->getSystemModule()->getModuleByPath(omnetId.c_str());
+                ASSERT(mod);
+
+                // get the application module
+                cModule *appl = mod->getSubmodule("appl");
+                ASSERT(appl);
+
+                // get a pointer to the application layer
+                ApplVManager *vehPtr = static_cast<ApplVManager *>(appl);
+                ASSERT(vehPtr);
+
+                // make sure platoon management protocol is 'on'
+                if(appl->par("plnMode").longValue() != ApplVPlatoon::platoonManagement)
+                {
+                    LOG_WARNING << boost::format("\nWARNING: The platoon management protocol is not active in splitting vehicle '%s'. \n") % entry.second.splitVehId_str << std::flush;
+                    entry.second.processingEnded = true;
+                    continue;
+                }
+
+                // make sure the splitting vehicle is part of a platoon
+                if(vehPtr->getPlatoonId() == "")
+                {
+                    LOG_WARNING << boost::format("\nWARNING: Splitting vehicle '%s' is not part of any platoons. \n") % entry.second.splitVehId_str << std::flush;
+                    entry.second.processingEnded = true;
+                    continue;
+                }
+
+                if(vehPtr->getPlatoonDepth() <= 0)
+                {
+                    LOG_WARNING << boost::format("\nWARNING: Splitting vehicle '%s' is not a platoon follower. \n") % entry.second.splitVehId_str << std::flush;
+                    entry.second.processingEnded = true;
+                    continue;
+                }
+
+                platoonID_m = vehPtr->getPlatoonId();
+                splitIndex_m = vehPtr->getPlatoonDepth();
+            }
+            else
+            {
+                platoonID_m = entry.second.pltId_str;
+                splitIndex_m = entry.second.splitIndex;
+            }
+
+            auto allActivePlatoons = TraCI->platoonGetIDList();
+
+            // look for the platoon leader
+            auto ii = std::find(allActivePlatoons.begin(), allActivePlatoons.end(), platoonID_m);
+            if(ii == allActivePlatoons.end())
+            {
+                LOG_WARNING << boost::format("\nWARNING: Platoon splitting in '%s' at time '%f' is not possible ") % platoonID_m % entry.second.begin;
+                LOG_WARNING << boost::format("(it does not exist in the network) \n") << std::flush;
+                entry.second.processingEnded = true;
+                continue;
+            }
+
+            std::string omnetId = TraCI->convertId_traci2omnet(platoonID_m);
+
+            // get a pointer to the platoon leader
+            cModule *mod = omnetpp::getSimulation()->getSystemModule()->getModuleByPath(omnetId.c_str());
+            ASSERT(mod);
+
+            // get the application module
+            cModule *appl = mod->getSubmodule("appl");
+            ASSERT(appl);
+
+            // make sure platoon management protocol is 'on'
+            if(appl->par("plnMode").longValue() != ApplVPlatoon::platoonManagement)
+            {
+                LOG_WARNING << boost::format("\nWARNING: Trying to perform split in platoon '%s' with disabled "
+                        "platoon management protocol. Is 'pltMgmtProt' attribute active? \n") % platoonID_m << std::flush;
+                entry.second.processingEnded = true;
+                continue;
+            }
+
+            // get a pointer to the application layer of the platoon leader
+            ApplVManager *vehPtr = static_cast<ApplVManager *>(appl);
+            ASSERT(vehPtr);
+
+            int platoonSize = vehPtr->getPlatoonSize();
+
+            if(splitIndex_m <= 0 || splitIndex_m >= platoonSize)
+                throw omnetpp::cRuntimeError("The 'splitIndex' value '%d' is invalid in element '%s'", splitIndex_m, pltSplit_tag.c_str());
+
+            vehPtr->splitFromPlatoon(splitIndex_m);
+
+            entry.second.processingStarted = true;
+        }
+
+        entry.second.processingEnded = true;
+    }
 }
 
 }

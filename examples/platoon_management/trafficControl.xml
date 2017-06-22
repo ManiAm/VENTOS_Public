@@ -3,8 +3,14 @@
 <trafficControl id="example_0">
 
     <speed id="veh" begin="10" value="20" />  
+    
     <optSize begin="40" value="5" />
     <optSize begin="60" value="3" />
+    
+    <pltMerge pltId="veh.3" begin="80" />
+    
+    <pltSplit pltId="veh" splitIndex="2" begin="100" />
+    <pltSplit splitVehId="veh.5" begin="120" />
     
 </trafficControl>
 

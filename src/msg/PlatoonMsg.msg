@@ -41,12 +41,14 @@ typedef struct value
  
      // values used by MERGE_REQ
     stringQueue myPltMembers;
+    bool manualMerge = false;
     
     // values used by SPLIT_DONE
     double caller = -1;
     stringQueue myNewPltMembers;
     int maxSize = -1;
     int optPlnSize = -1;
+    bool manualSplit = false;
     
     // values used by LEAVE_REQ and ELECTED_LEADER
     double myPltDepth = -1;

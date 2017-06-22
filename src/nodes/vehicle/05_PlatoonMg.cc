@@ -109,6 +109,7 @@ void ApplVPlatoonMg::initialize(int stage)
         plnTIMER1a = new omnetpp::cMessage("wait to catchup");
         plnTIMER2  = new omnetpp::cMessage("wait for followers ack");
         plnTIMER3  = new omnetpp::cMessage("wait for merge done");
+        plnTIMER3a = new omnetpp::cMessage("wait for front platoon beacon");
 
         // split maneuver
         // --------------
@@ -413,26 +414,62 @@ const std::string ApplVPlatoonMg::uCommandToStr(uCommand_t command)
 // --------------------------------[ Public interface ]---------------------------------------
 //--------------------------------------------------------------------------------------------
 
-// ask the platoon leader to manually initiate split at position 'depth'.
-// only platoon leader can call this method!
-void ApplVPlatoonMg::splitFromPlatoon(int depth)
+// asking the platoon leader to merge into the front platoon
+void ApplVPlatoonMg::manualMerge()
 {
+    Enter_Method("inside manualMerge() method");
+
     if(!DSRCenabled)
         throw omnetpp::cRuntimeError("This vehicle is not VANET-enabled!");
 
-    if(vehicleState != state_platoonLeader)
+    if(this->myPlnDepth != 0)
+        throw omnetpp::cRuntimeError("only platoon leader can initiate merge!");
+
+    if(busy || vehicleState != state_platoonLeader)
+    {
+        LOG_WARNING << boost::format("\nWARNING: Platoon '%s' cannot start the merge maneuver, because it is busy performing another maneuver. \n")
+        % this->myPlnID << std::flush;
+        return;
+    }
+
+    if(mergeEnabled)
+    {
+        setVehicleState(state_waitForBeacon);
+
+        scheduleAt(omnetpp::simTime() + WAIT_FOR_MERGE, plnTIMER3a);
+    }
+}
+
+
+// asking the platoon leader to initiate a split at position 'depth'.
+void ApplVPlatoonMg::splitFromPlatoon(int depth)
+{
+    Enter_Method("inside splitFromPlatoon() method");
+
+    if(!DSRCenabled)
+        throw omnetpp::cRuntimeError("This vehicle is not VANET-enabled!");
+
+    if(this->myPlnDepth != 0)
         throw omnetpp::cRuntimeError("only platoon leader can initiate split!");
 
-    if(depth <= 0 || depth > plnSize-1)
+    if(depth <= 0 || depth >= plnSize)
         throw omnetpp::cRuntimeError("depth of splitting vehicle is invalid!");
 
-    if(!busy && splitEnabled)
+    if(busy || vehicleState != state_platoonLeader)
+    {
+        LOG_WARNING << boost::format("\nWARNING: Platoon '%s' cannot start the split maneuver, because it is busy performing another maneuver. \n")
+        % this->myPlnID << std::flush;
+        return;
+    }
+
+    if(splitEnabled)
     {
         splittingDepth = depth;
         splittingVehicle = plnMembersList[splittingDepth];
         splitCaller = -1;
 
         busy = true;
+        manualSplit = true;
 
         setVehicleState(state_sendSplitReq);
 
@@ -443,6 +480,8 @@ void ApplVPlatoonMg::splitFromPlatoon(int depth)
 
 void ApplVPlatoonMg::leavePlatoon()
 {
+    Enter_Method("inside leavePlatoon() method");
+
     if(!DSRCenabled)
         throw omnetpp::cRuntimeError("This vehicle is not VANET-enabled!");
 
@@ -477,6 +516,8 @@ void ApplVPlatoonMg::leavePlatoon()
 
 void ApplVPlatoonMg::dissolvePlatoon()
 {
+    Enter_Method("inside dissolvePlatoon() method");
+
     if(!DSRCenabled)
         throw omnetpp::cRuntimeError("This vehicle is not VANET-enabled!");
 
@@ -700,6 +741,15 @@ void ApplVPlatoonMg::merge_handleSelfMsg(omnetpp::cMessage* msg)
             merge_DataFSM();
         }
     }
+    else if(msg == plnTIMER3a)
+    {
+        // we have waited long enough for a beacon from
+        // the front vehicle
+        if(vehicleState == state_waitForBeacon)
+        {
+            setVehicleState(state_platoonLeader);
+        }
+    }
 }
 
 
@@ -726,6 +776,15 @@ void ApplVPlatoonMg::merge_BeaconFSM(BeaconVehicle* wsm)
             }
         }
     }
+    else if(vehicleState == state_waitForBeacon)
+    {
+        if(isBeaconFromFrontVehicle(wsm))
+        {
+            setVehicleState(state_sendMergeReq);
+
+            merge_BeaconFSM(wsm);
+        }
+    }
     else if(vehicleState == state_sendMergeReq)
     {
         // save these values from the received beacon from my preceding vehicle
@@ -743,10 +802,24 @@ void ApplVPlatoonMg::merge_BeaconFSM(BeaconVehicle* wsm)
             return;
         }
 
-        // send a unicast MERGE_REQ to its platoon leader
-        value_t value;
-        value.myPltMembers = plnMembersList;
-        sendPltData(leadingPlnID, MERGE_REQ, leadingPlnID, value);
+        if(!plnTIMER3a->isScheduled())
+        {
+            // send a unicast MERGE_REQ to its platoon leader
+            value_t value;
+            value.myPltMembers = plnMembersList;
+            sendPltData(leadingPlnID, MERGE_REQ, leadingPlnID, value);
+        }
+        else
+        {
+            cancelEvent(plnTIMER3a);
+
+            // send a unicast MERGE_REQ to its platoon leader and
+            // we set 'manualMerge' flag to true
+            value_t value;
+            value.myPltMembers = plnMembersList;
+            value.manualMerge = true;
+            sendPltData(leadingPlnID, MERGE_REQ, leadingPlnID, value);
+        }
 
         setVehicleState(state_waitForMergeReply, "Merge_Request");
 
@@ -857,22 +930,38 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
     {
         if (wsm->getUCommandType() == MERGE_REQ && wsm->getReceiverID() == myPlnID)
         {
-            int finalPlnSize =  wsm->getValue().myPltMembers.size() + plnSize;
-
-            if(busy || finalPlnSize > optPlnSize)
+            if(busy)
             {
                 // send MERGE_REJECT
                 sendPltData(wsm->getSenderID(), MERGE_REJECT, wsm->getSendingPlatoonID());
+
+                return;
             }
+
+            if(!wsm->getValue().manualMerge)
+            {
+                int finalPlnSize =  wsm->getValue().myPltMembers.size() + plnSize;
+                if(finalPlnSize > optPlnSize)
+                {
+                    // send MERGE_REJECT
+                    sendPltData(wsm->getSenderID(), MERGE_REJECT, wsm->getSendingPlatoonID());
+
+                    return;
+                }
+            }
+            // in manual merge, we need to update the optimal platoon size in leader
             else
             {
-                // save followers list for future use
-                secondPlnMembersList = wsm->getValue().myPltMembers;
-
-                setVehicleState(state_sendMergeAccept);
-
-                merge_DataFSM(wsm);
+                int finalPlnSize = plnSize + wsm->getValue().myPltMembers.size();
+                this->optPlnSize = finalPlnSize;
             }
+
+            // save followers list for future use
+            secondPlnMembersList = wsm->getValue().myPltMembers;
+
+            setVehicleState(state_sendMergeAccept);
+
+            merge_DataFSM(wsm);
         }
     }
     else if(vehicleState == state_sendMergeAccept)
@@ -1149,6 +1238,10 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
         plnSize = splittingDepth;
         plnMembersList.pop_back();
 
+        // optimal platoon size is equal to current platoon size
+        if(manualSplit)
+            optPlnSize = plnSize;
+
         updateColorDepth();
 
         if( adaptiveTG && plnSize < (maxPlnSize / 2) )
@@ -1165,7 +1258,11 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
         entry.myNewPltMembers = secondPlnMembersList;
         entry.maxSize = maxPlnSize;
         entry.optPlnSize = optPlnSize;
+        entry.manualSplit = manualSplit;
         sendPltData(splittingVehicle, SPLIT_DONE, myPlnID, entry);
+
+        // reset manualSplit after sending it in SPLIT_DONE
+        manualSplit = false;
 
         if(splitCaller == -1)
         {
@@ -1289,7 +1386,11 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
 
             plnSize = plnMembersList.size();
 
-            optPlnSize = wsm->getValue().optPlnSize;
+            if(wsm->getValue().manualSplit)
+                optPlnSize = plnSize;
+            else
+                optPlnSize = wsm->getValue().optPlnSize;
+
             maxPlnSize = wsm->getValue().maxSize;
 
             if(optPlnSize < 1)
