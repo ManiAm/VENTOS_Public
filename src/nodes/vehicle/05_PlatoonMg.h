@@ -95,6 +95,8 @@ private:
     omnetpp::cMessage* plnTIMER10 = NULL;
     omnetpp::cMessage* plnTIMER11 = NULL;
 
+    std::string leaveDirection = "";
+
     // --[ dissolve ]--
     omnetpp::cMessage* plnTIMER12 = NULL;
     std::string lastVeh = "";
@@ -267,7 +269,7 @@ public:
 
     void manualMerge();
     void splitFromPlatoon(int);
-    void leavePlatoon();
+    void leavePlatoon(std::string = "free");
     void dissolvePlatoon();
 
     int getOptSize() {return this->optPlnSize;};
@@ -334,6 +336,7 @@ private:
     void followerLeave_handleSelfMsg(omnetpp::cMessage* msg);
     void followerLeave_BeaconFSM(BeaconVehicle *wsm = NULL);
     void followerLeave_DataFSM(PlatoonMsg *wsm = NULL);
+    void performLaneChange();
 
     // dissolve
     void dissolve_handleSelfMsg(omnetpp::cMessage* msg);

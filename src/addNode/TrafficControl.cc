@@ -105,6 +105,12 @@ void TrafficControl::receiveSignal(omnetpp::cComponent *source, omnetpp::simsign
 
         if(!allPltSplit.empty())
             controlPltSplit();
+
+        if(!allPltLeave.empty())
+            controlPltLeave();
+
+        if(!allPltManeuver.empty())
+            controlPltManeuver();
     }
 }
 
@@ -152,7 +158,9 @@ void TrafficControl::readInsertion(std::string addNodePath)
         if(nodeName != speed_tag &&
                 nodeName != optSize_tag &&
                 nodeName != pltMerge_tag &&
-                nodeName != pltSplit_tag)
+                nodeName != pltSplit_tag &&
+                nodeName != pltLeave_tag &&
+                nodeName != maneuver_tag)
             throw omnetpp::cRuntimeError("'%s' is not a valid node in id '%s'", nodeName.c_str(), this->id.c_str());
     }
 
@@ -160,14 +168,18 @@ void TrafficControl::readInsertion(std::string addNodePath)
     parseOptSize(pNode);
     parsePltMerge(pNode);
     parsePltSplit(pNode);
+    parsePltLeave(pNode);
+    parsePltManeuver(pNode);
 
-    if(allSpeed.empty() && allOptSize.empty() && allPltMerge.empty() && allPltSplit.empty())
+    if(allSpeed.empty() && allOptSize.empty() && allPltMerge.empty() && allPltSplit.empty() && allPltLeave.empty())
         LOG_WARNING << boost::format("\nWARNING: Traffic control with id '%1%' is empty! \n") % this->id << std::flush;
 
     controlSpeed();
     controlOptSize();
     controlPltMerge();
     controlPltSplit();
+    controlPltLeave();
+    controlPltManeuver();
 }
 
 
@@ -878,28 +890,16 @@ void TrafficControl::controlOptSize()
 
             for(auto &vehId : affectedPlatoons)
             {
-                std::string omnetId = TraCI->convertId_traci2omnet(vehId);
-
-                // get a pointer to the vehicle
-                cModule *mod = omnetpp::getSimulation()->getSystemModule()->getModuleByPath(omnetId.c_str());
-                ASSERT(mod);
-
-                // get the application module
-                cModule *appl = mod->getSubmodule("appl");
-                ASSERT(appl);
+                ApplVManager *vehPtr = getApplPtr(vehId);
 
                 // make sure platoon management protocol is 'on'
-                if(appl->par("plnMode").longValue() != ApplVPlatoon::platoonManagement)
+                if(vehPtr->par("plnMode").longValue() != ApplVPlatoon::platoonManagement)
                 {
                     LOG_WARNING << boost::format("\nWARNING: Trying to change optSize in vehicle '%s' with disabled "
                             "platoon management protocol. Is 'pltMgmtProt' attribute active? \n") % vehId << std::flush;
                     entry.second.processingEnded = true;
                     continue;
                 }
-
-                // get a pointer to the application layer
-                ApplVManager *vehPtr = static_cast<ApplVManager *>(appl);
-                ASSERT(vehPtr);
 
                 vehPtr->setOptSize(entry.second.value);
             }
@@ -976,18 +976,10 @@ void TrafficControl::controlPltMerge()
                 continue;
             }
 
-            std::string omnetId = TraCI->convertId_traci2omnet(entry.second.pltId_str);
-
-            // get a pointer to the vehicle
-            cModule *mod = omnetpp::getSimulation()->getSystemModule()->getModuleByPath(omnetId.c_str());
-            ASSERT(mod);
-
-            // get the application module
-            cModule *appl = mod->getSubmodule("appl");
-            ASSERT(appl);
+            ApplVManager *vehPtr = getApplPtr(entry.second.pltId_str);
 
             // make sure platoon management protocol is 'on'
-            if(appl->par("plnMode").longValue() != ApplVPlatoon::platoonManagement)
+            if(vehPtr->par("plnMode").longValue() != ApplVPlatoon::platoonManagement)
             {
                 LOG_WARNING << boost::format("\nWARNING: Trying to perform merge in platoon '%s' with disabled "
                         "platoon management protocol. Is 'pltMgmtProt' attribute active? \n") % entry.second.pltId_str << std::flush;
@@ -1007,21 +999,13 @@ void TrafficControl::controlPltMerge()
             }
 
             // make sure the front vehicle is part of a platoon
-            std::string frontVehId = TraCI->convertId_traci2omnet(frontVeh.leaderID);
-            cModule *frontMod = omnetpp::getSimulation()->getSystemModule()->getModuleByPath(frontVehId.c_str());
-            ASSERT(frontMod);
-            cModule *frontAppl = frontMod->getSubmodule("appl");
-            ASSERT(frontAppl);
+            ApplVManager *frontAppl = getApplPtr(frontVeh.leaderID);
             if(std::string(frontAppl->par("myPlnID").stringValue()) == "")
             {
                 LOG_WARNING << boost::format("\nWARNING: Merge is canceled, because the front vehicle '%s' is not part of any platoon. \n") % frontVeh.leaderID << std::flush;
                 entry.second.processingEnded = true;
                 continue;
             }
-
-            // get a pointer to the application layer
-            ApplVManager *vehPtr = static_cast<ApplVManager *>(appl);
-            ASSERT(vehPtr);
 
             vehPtr->manualMerge();
 
@@ -1054,6 +1038,9 @@ void TrafficControl::parsePltSplit(rapidxml::xml_node<> *pNode)
         if(begin < 0)
             throw omnetpp::cRuntimeError("attribute 'begin' cannot be negative in element '%s'", pltSplit_tag.c_str());
 
+        if(splitIndex != -1 && splitIndex < 0)
+            throw omnetpp::cRuntimeError("attribute 'splitIndex' is invalid in element '%s'", pltSplit_tag.c_str());
+
         if(cNode->first_attribute("pltId") && !cNode->first_attribute("splitIndex"))
             throw omnetpp::cRuntimeError("attribute 'splitIndex' is required when 'pltId' is present in element '%s'", pltSplit_tag.c_str());
 
@@ -1069,8 +1056,8 @@ void TrafficControl::parsePltSplit(rapidxml::xml_node<> *pNode)
             pltSplitEntry_t entry = {};
 
             entry.pltId_str = pltId_str;
-            entry.splitIndex = splitIndex;
-            entry.splitVehId_str = splitVehId;
+            entry.index = splitIndex;
+            entry.vehId_str = splitVehId;
             entry.begin = begin;
 
             allPltSplit.insert(std::make_pair(nodeCount, entry));
@@ -1104,56 +1091,26 @@ void TrafficControl::controlPltSplit()
             // if platoon id is not specified
             if(entry.second.pltId_str == "")
             {
-                if(entry.second.splitVehId_str == "")
-                    throw omnetpp::cRuntimeError("The 'splitVehId' is empty in element '%s'", pltSplit_tag.c_str());
+                pltIndex_t data = getPlatoonIdAndIndex(entry.second);
 
-                std::string omnetId = TraCI->convertId_traci2omnet(entry.second.splitVehId_str);
+                platoonID_m = data.platoonId;
+                splitIndex_m = data.index;
 
-                if(omnetId == "")
-                    throw omnetpp::cRuntimeError("Vehicle '%s' does not exist in the network", entry.second.splitVehId_str.c_str());
-
-                // get a pointer to the splitting vehicle
-                cModule *mod = omnetpp::getSimulation()->getSystemModule()->getModuleByPath(omnetId.c_str());
-                ASSERT(mod);
-
-                // get the application module
-                cModule *appl = mod->getSubmodule("appl");
-                ASSERT(appl);
-
-                // get a pointer to the application layer
-                ApplVManager *vehPtr = static_cast<ApplVManager *>(appl);
-                ASSERT(vehPtr);
-
-                // make sure platoon management protocol is 'on'
-                if(appl->par("plnMode").longValue() != ApplVPlatoon::platoonManagement)
-                {
-                    LOG_WARNING << boost::format("\nWARNING: The platoon management protocol is not active in splitting vehicle '%s'. \n") % entry.second.splitVehId_str << std::flush;
-                    entry.second.processingEnded = true;
+                if(splitIndex_m == -1)
                     continue;
-                }
-
-                // make sure the splitting vehicle is part of a platoon
-                if(vehPtr->getPlatoonId() == "")
-                {
-                    LOG_WARNING << boost::format("\nWARNING: Splitting vehicle '%s' is not part of any platoons. \n") % entry.second.splitVehId_str << std::flush;
-                    entry.second.processingEnded = true;
-                    continue;
-                }
-
-                if(vehPtr->getPlatoonDepth() <= 0)
-                {
-                    LOG_WARNING << boost::format("\nWARNING: Splitting vehicle '%s' is not a platoon follower. \n") % entry.second.splitVehId_str << std::flush;
-                    entry.second.processingEnded = true;
-                    continue;
-                }
-
-                platoonID_m = vehPtr->getPlatoonId();
-                splitIndex_m = vehPtr->getPlatoonDepth();
             }
             else
             {
                 platoonID_m = entry.second.pltId_str;
-                splitIndex_m = entry.second.splitIndex;
+                splitIndex_m = entry.second.index;
+            }
+
+            // note that platoon leader can not be the split vehicle
+            if(splitIndex_m <= 0)
+            {
+                LOG_WARNING << boost::format("\nWARNING: Platoon '%s' splitting cannot happen from index '%d'. \n") % platoonID_m.c_str() % splitIndex_m << std::flush;
+                entry.second.processingEnded = true;
+                continue;
             }
 
             auto allActivePlatoons = TraCI->platoonGetIDList();
@@ -1168,28 +1125,16 @@ void TrafficControl::controlPltSplit()
                 continue;
             }
 
-            std::string omnetId = TraCI->convertId_traci2omnet(platoonID_m);
-
-            // get a pointer to the platoon leader
-            cModule *mod = omnetpp::getSimulation()->getSystemModule()->getModuleByPath(omnetId.c_str());
-            ASSERT(mod);
-
-            // get the application module
-            cModule *appl = mod->getSubmodule("appl");
-            ASSERT(appl);
+            ApplVManager *vehPtr = getApplPtr(platoonID_m);
 
             // make sure platoon management protocol is 'on'
-            if(appl->par("plnMode").longValue() != ApplVPlatoon::platoonManagement)
+            if(vehPtr->par("plnMode").longValue() != ApplVPlatoon::platoonManagement)
             {
                 LOG_WARNING << boost::format("\nWARNING: Trying to perform split in platoon '%s' with disabled "
                         "platoon management protocol. Is 'pltMgmtProt' attribute active? \n") % platoonID_m << std::flush;
                 entry.second.processingEnded = true;
                 continue;
             }
-
-            // get a pointer to the application layer of the platoon leader
-            ApplVManager *vehPtr = static_cast<ApplVManager *>(appl);
-            ASSERT(vehPtr);
 
             int platoonSize = vehPtr->getPlatoonSize();
 
@@ -1203,6 +1148,272 @@ void TrafficControl::controlPltSplit()
 
         entry.second.processingEnded = true;
     }
+}
+
+
+template <typename T>
+TrafficControl::pltIndex_t TrafficControl::getPlatoonIdAndIndex(T &entry)
+{
+    pltIndex_t data;
+
+    // get a pointer to the splitting/leaving vehicle
+    ApplVManager *vehPtr = getApplPtr(entry.vehId_str);
+
+    // make sure platoon management protocol is 'on'
+    if(vehPtr->par("plnMode").longValue() != ApplVPlatoon::platoonManagement)
+    {
+        LOG_WARNING << boost::format("\nWARNING: The platoon management protocol is not active in vehicle '%s'. \n") % entry.vehId_str << std::flush;
+        entry.processingEnded = true;
+        return data;
+    }
+
+    // make sure the splitting/leaving vehicle is part of a platoon
+    if(vehPtr->getPlatoonId() == "")
+    {
+        LOG_WARNING << boost::format("\nWARNING: Vehicle '%s' is not part of any platoons. \n") % entry.vehId_str << std::flush;
+        entry.processingEnded = true;
+        return data;
+    }
+
+    if(vehPtr->getPlatoonDepth() < 0)
+    {
+        LOG_WARNING << boost::format("\nWARNING: Vehicle '%s' does not have a valid platoon depth. \n") % entry.vehId_str << std::flush;
+        entry.processingEnded = true;
+        return data;
+    }
+
+    data.platoonId = vehPtr->getPlatoonId();
+    data.index = vehPtr->getPlatoonDepth();
+
+    return data;
+}
+
+
+void TrafficControl::parsePltLeave(rapidxml::xml_node<> *pNode)
+{
+    uint32_t nodeCount = 1;
+
+    // Iterate over all 'leave' nodes
+    for(rapidxml::xml_node<> *cNode = pNode->first_node(pltLeave_tag.c_str()); cNode; cNode = cNode->next_sibling())
+    {
+        if(std::string(cNode->name()) != pltLeave_tag)
+            continue;
+
+        std::vector<std::string> validAttr = {"pltId", "leaveIndex", "leaveVehId", "begin", "leaveDirection"};
+        xmlUtil::validityCheck(cNode, validAttr);
+
+        std::string pltId_str = xmlUtil::getAttrValue_string(cNode, "pltId", false, "");
+        int leaveIndex = xmlUtil::getAttrValue_int(cNode, "leaveIndex", false, -1);
+        std::string leaveVehId = xmlUtil::getAttrValue_string(cNode, "leaveVehId", false, "");
+        double begin = xmlUtil::getAttrValue_double(cNode, "begin");
+        std::string leaveDirection_str = xmlUtil::getAttrValue_string(cNode, "leaveDirection", false, "free");
+
+        if(leaveIndex != -1 && leaveIndex < 0)
+            throw omnetpp::cRuntimeError("attribute 'leaveIndex' is invalid in element '%s'", pltLeave_tag.c_str());
+
+        if(begin < 0)
+            throw omnetpp::cRuntimeError("attribute 'begin' cannot be negative in element '%s'", pltLeave_tag.c_str());
+
+        if(cNode->first_attribute("pltId") && !cNode->first_attribute("leaveIndex"))
+            throw omnetpp::cRuntimeError("attribute 'leaveIndex' is required when 'pltId' is present in element '%s'", pltLeave_tag.c_str());
+
+        if(cNode->first_attribute("leaveIndex") && !cNode->first_attribute("pltId"))
+            throw omnetpp::cRuntimeError("attribute 'pltId' is required when 'leaveIndex' is present in element '%s'", pltLeave_tag.c_str());
+
+        if(cNode->first_attribute("leaveVehId") && (cNode->first_attribute("pltId") || cNode->first_attribute("leaveIndex")))
+            throw omnetpp::cRuntimeError("attribute 'pltId/leaveIndex' is redundant when 'leaveVehId' is present in element '%s'", pltLeave_tag.c_str());
+
+        auto it = allPltLeave.find(nodeCount);
+        if(it == allPltLeave.end())
+        {
+            pltLeaveEntry_t entry = {};
+
+            entry.pltId_str = pltId_str;
+            entry.index = leaveIndex;
+            entry.vehId_str = leaveVehId;
+            entry.begin = begin;
+            entry.leaveDirection = leaveDirection_str;
+
+            allPltLeave.insert(std::make_pair(nodeCount, entry));
+        }
+        else
+            throw omnetpp::cRuntimeError("Multiple %s with the same 'id' %s is not allowed!", pltLeave_tag.c_str(), pltId_str.c_str());
+
+        nodeCount++;
+    }
+}
+
+
+void TrafficControl::controlPltLeave()
+{
+    for(auto &entry : allPltLeave)
+    {
+        if(entry.second.processingEnded)
+            continue;
+
+        ASSERT(entry.second.begin >= 0);
+
+        // wait until 'begin'
+        if(entry.second.begin > omnetpp::simTime().dbl())
+            continue;
+
+        if(!entry.second.processingStarted)
+        {
+            std::string platoonID_m = "";
+            int leaveIndex_m = -1;
+
+            // if platoon id is not specified
+            if(entry.second.pltId_str == "")
+            {
+                pltIndex_t data = getPlatoonIdAndIndex(entry.second);
+
+                platoonID_m = data.platoonId;
+                leaveIndex_m = data.index;
+
+                if(leaveIndex_m == -1)
+                    continue;
+            }
+            else
+            {
+                platoonID_m = entry.second.pltId_str;
+                leaveIndex_m = entry.second.index;
+            }
+
+            if(leaveIndex_m < 0)
+            {
+                LOG_WARNING << boost::format("\nWARNING: Platoon leave in '%s' cannot happen from index '%d'. \n") % platoonID_m.c_str() % leaveIndex_m << std::flush;
+                entry.second.processingEnded = true;
+                continue;
+            }
+
+            auto allActivePlatoons = TraCI->platoonGetIDList();
+
+            // look for the platoon leader
+            auto ii = std::find(allActivePlatoons.begin(), allActivePlatoons.end(), platoonID_m);
+            if(ii == allActivePlatoons.end())
+            {
+                LOG_WARNING << boost::format("\nWARNING: Platoon leaving in '%s' at time '%f' is not possible ") % platoonID_m % entry.second.begin;
+                LOG_WARNING << boost::format("(it does not exist in the network) \n") << std::flush;
+                entry.second.processingEnded = true;
+                continue;
+            }
+
+            ApplVManager *vehPtr = getApplPtr(platoonID_m);
+
+            // make sure platoon management protocol is 'on'
+            if(vehPtr->par("plnMode").longValue() != ApplVPlatoon::platoonManagement)
+            {
+                LOG_WARNING << boost::format("\nWARNING: Trying to perform leave in platoon '%s' with disabled "
+                        "platoon management protocol. Is 'pltMgmtProt' attribute active? \n") % platoonID_m << std::flush;
+                entry.second.processingEnded = true;
+                continue;
+            }
+
+            // platoon leader leave
+            if(leaveIndex_m == 0)
+            {
+                vehPtr->leavePlatoon(entry.second.leaveDirection);
+            }
+            // platoon follower leave
+            else
+            {
+                int platoonSize = vehPtr->getPlatoonSize();
+
+                if(leaveIndex_m < 0 || leaveIndex_m >= platoonSize)
+                    throw omnetpp::cRuntimeError("The 'leaveIndex' value '%d' is invalid in element '%s'", leaveIndex_m, pltLeave_tag.c_str());
+
+                auto pltMembers = TraCI->platoonGetMembers(platoonID_m);
+
+                ApplVManager *followingVehPtr = getApplPtr(pltMembers[leaveIndex_m]);
+
+                followingVehPtr->leavePlatoon(entry.second.leaveDirection);
+            }
+
+            entry.second.processingStarted = true;
+        }
+
+        entry.second.processingEnded = true;
+    }
+}
+
+
+void TrafficControl::parsePltManeuver(rapidxml::xml_node<> *pNode)
+{
+    uint32_t nodeCount = 1;
+
+    // Iterate over all 'maneuver' nodes
+    for(rapidxml::xml_node<> *cNode = pNode->first_node(maneuver_tag.c_str()); cNode; cNode = cNode->next_sibling())
+    {
+        if(std::string(cNode->name()) != maneuver_tag)
+            continue;
+
+        std::vector<std::string> validAttr = {"pltId", "begin", "merge", "split", "leaderLeave", "followerLeave", "entry"};
+        xmlUtil::validityCheck(cNode, validAttr);
+
+        std::string pltId_str = xmlUtil::getAttrValue_string(cNode, "pltId", false, "");
+        double begin = xmlUtil::getAttrValue_double(cNode, "begin");
+        bool merge_active = xmlUtil::getAttrValue_bool(cNode, "merge", false, true);
+        bool split_active = xmlUtil::getAttrValue_bool(cNode, "split", false, true);
+        bool leaderLeave_active = xmlUtil::getAttrValue_bool(cNode, "leaderLeave", false, true);
+        bool followerLeave_active = xmlUtil::getAttrValue_bool(cNode, "followerLeave", false, true);
+        bool entry_active = xmlUtil::getAttrValue_bool(cNode, "entry", false, true);
+
+        if(begin < 0)
+            throw omnetpp::cRuntimeError("attribute 'begin' cannot be negative in element '%s'", maneuver_tag.c_str());
+
+        if(!cNode->first_attribute("merge") &&
+                !cNode->first_attribute("split") &&
+                !cNode->first_attribute("leaderLeave") &&
+                !cNode->first_attribute("followerLeave") &&
+                !cNode->first_attribute("entry"))
+            throw omnetpp::cRuntimeError("at least one maneuver attribute is required in element '%s'", maneuver_tag.c_str());
+
+        auto it = allPltManeuver.find(nodeCount);
+        if(it == allPltManeuver.end())
+        {
+            pltManeuver_t entry = {};
+
+            entry.pltId_str = pltId_str;
+            entry.begin = begin;
+            entry.merge_active = merge_active;
+            entry.split_active = split_active;
+            entry.leaderLeave_active = leaderLeave_active;
+            entry.followerLeave_active = followerLeave_active;
+            entry.entry_active = entry_active;
+
+            allPltManeuver.insert(std::make_pair(nodeCount, entry));
+        }
+        else
+            throw omnetpp::cRuntimeError("Multiple %s with the same 'id' %s is not allowed!", maneuver_tag.c_str(), pltId_str.c_str());
+
+        nodeCount++;
+    }
+}
+
+
+void TrafficControl::controlPltManeuver()
+{
+
+}
+
+
+ApplVManager* TrafficControl::getApplPtr(std::string vehId)
+{
+    std::string omnetId = TraCI->convertId_traci2omnet(vehId);
+
+    // get a pointer to the vehicle
+    cModule *mod = omnetpp::getSimulation()->getSystemModule()->getModuleByPath(omnetId.c_str());
+    ASSERT(mod);
+
+    // get the application module
+    cModule *appl = mod->getSubmodule("appl");
+    ASSERT(appl);
+
+    // get a pointer to the application layer
+    ApplVManager *vehPtr = static_cast<ApplVManager *>(appl);
+    ASSERT(vehPtr);
+
+    return vehPtr;
 }
 
 }

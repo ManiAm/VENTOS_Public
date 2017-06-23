@@ -432,12 +432,16 @@ void ApplVPlatoonMg::manualMerge()
         return;
     }
 
-    if(mergeEnabled)
+    if(!mergeEnabled)
     {
-        setVehicleState(state_waitForBeacon);
-
-        scheduleAt(omnetpp::simTime() + WAIT_FOR_MERGE, plnTIMER3a);
+        LOG_WARNING << boost::format("\nWARNING: Merge is disabled in platoon '%s'. \n")
+        % this->myPlnID << std::flush;
+        return;
     }
+
+    setVehicleState(state_waitForBeacon);
+
+    scheduleAt(omnetpp::simTime() + WAIT_FOR_MERGE, plnTIMER3a);
 }
 
 
@@ -462,55 +466,97 @@ void ApplVPlatoonMg::splitFromPlatoon(int depth)
         return;
     }
 
-    if(splitEnabled)
+    if(!splitEnabled)
     {
-        splittingDepth = depth;
-        splittingVehicle = plnMembersList[splittingDepth];
-        splitCaller = -1;
-
-        busy = true;
-        manualSplit = true;
-
-        setVehicleState(state_sendSplitReq);
-
-        split_DataFSM();
+        LOG_WARNING << boost::format("\nWARNING: Split is disabled in platoon '%s'. \n")
+        % this->myPlnID << std::flush;
+        return;
     }
+
+    splittingDepth = depth;
+    splittingVehicle = plnMembersList[splittingDepth];
+    splitCaller = -1;
+
+    busy = true;
+    manualSplit = true;
+
+    setVehicleState(state_sendSplitReq);
+
+    split_DataFSM();
 }
 
 
-void ApplVPlatoonMg::leavePlatoon()
+void ApplVPlatoonMg::leavePlatoon(std::string vehLeaveDirection)
 {
     Enter_Method("inside leavePlatoon() method");
 
     if(!DSRCenabled)
         throw omnetpp::cRuntimeError("This vehicle is not VANET-enabled!");
 
-    // if I am leader
-    if(vehicleState == state_platoonLeader)
+    if(busy)
     {
-        if(!busy && leaderLeaveEnabled && plnSize > 1)
+        LOG_WARNING << boost::format("\nWARNING: Platoon '%s' cannot start the leave maneuver, because it is busy performing another maneuver. \n")
+        % this->myPlnID << std::flush;
+        return;
+    }
+
+    // if I am leader
+    if(this->myPlnDepth == 0)
+    {
+        if(vehicleState != state_platoonLeader)
         {
-            busy = true;
-
-            setVehicleState(state_sendVoteLeader);
-
-            leaderLeave_DataFSM();
+            LOG_WARNING << boost::format("\nWARNING: Platoon leader in platoon '%s' is not in the 'state_platoonLeader' \n")
+            % this->myPlnID << std::flush;
+            return;
         }
+
+        if(plnSize <= 1)
+        {
+            LOG_WARNING << boost::format("\nWARNING: Platoon '%s' cannot start the leave maneuver, because its size is '%d' \n")
+            % this->myPlnID % plnSize << std::flush;
+            return;
+        }
+
+        if(!leaderLeaveEnabled)
+        {
+            LOG_WARNING << boost::format("\nWARNING: Leader leave is disabled in platoon '%s'. \n")
+            % this->myPlnID << std::flush;
+            return;
+        }
+
+        busy = true;
+
+        setVehicleState(state_sendVoteLeader);
+
+        leaveDirection = vehLeaveDirection;
+
+        leaderLeave_DataFSM();
     }
     // if I am follower
-    else if(vehicleState == state_platoonFollower)
-    {
-        if(!busy && followerLeaveEnabled)
-        {
-            busy = true;
-
-            setVehicleState(state_sendLeaveReq);
-
-            followerLeave_DataFSM();
-        }
-    }
     else
-        throw omnetpp::cRuntimeError("vehicle should be in leader or follower states!");
+    {
+        if(vehicleState != state_platoonFollower)
+        {
+            LOG_WARNING << boost::format("\nWARNING: Platoon follower in platoon '%s' is not in the 'state_platoonFollower' \n")
+            % this->myPlnID << std::flush;
+            return;
+        }
+
+        if(!followerLeaveEnabled)
+        {
+            LOG_WARNING << boost::format("\nWARNING: Follower leave is disabled in platoon '%s'. \n")
+            % this->myPlnID << std::flush;
+            return;
+        }
+
+        busy = true;
+
+        setVehicleState(state_sendLeaveReq);
+
+        leaveDirection = vehLeaveDirection;
+
+        followerLeave_DataFSM();
+    }
 }
 
 
@@ -609,8 +655,6 @@ void ApplVPlatoonMg::entry_handleSelfMsg(omnetpp::cMessage* msg)
         // check if we are at lane 0
         if(TraCI->vehicleGetLaneIndex(SUMOID) == 0)
         {
-            TraCI->vehicleSetClass(SUMOID, "vip");   // change vClass to vip
-
             int32_t bitset = TraCI->vehicleBuildLaneChangeMode(10, 01, 01, 01, 01);
             TraCI->vehicleSetLaneChangeMode(SUMOID, bitset);   // alter 'lane change' mode
             TraCI->vehicleChangeLane(SUMOID, 1, 5);   // change to lane 1 (special lane)
@@ -1542,11 +1586,10 @@ void ApplVPlatoonMg::leaderLeave_DataFSM(PlatoonMsg *wsm)
         // now we can leave the platoon
         if(wsm->getUCommandType() == GAP_CREATED && wsm->getReceiverID() == SUMOID)
         {
-            TraCI->vehicleSetClass(SUMOID, "private");   // change vClass
-
             int32_t bitset = TraCI->vehicleBuildLaneChangeMode(10, 01, 01, 01, 01);
             TraCI->vehicleSetLaneChangeMode(SUMOID, bitset);  // alter 'lane change' mode
-            TraCI->vehicleChangeLane(SUMOID, 0, 5);   // change to lane 0 (normal lane)
+
+            performLaneChange();
 
             TraCI->vehicleSetSpeed(SUMOID, 30.);
 
@@ -1554,9 +1597,12 @@ void ApplVPlatoonMg::leaderLeave_DataFSM(PlatoonMsg *wsm)
             RGB newColor = Color::colorNameToRGB("yellow");
             TraCI->vehicleSetColor(SUMOID, newColor);
 
-            plnSize = -1;
+            myPlnID = "";
             myPlnDepth = -1;
+            plnSize = -1;
+            plnMembersList.clear();
             busy = false;
+            leaveDirection = "";
 
             setVehicleState(state_idle, "LLeave_End");
         }
@@ -1602,11 +1648,10 @@ void ApplVPlatoonMg::followerLeave_handleSelfMsg(omnetpp::cMessage* msg)
         // check if we are free agent?
         if(vehicleState == state_platoonLeader && plnSize == 1)
         {
-            TraCI->vehicleSetClass(SUMOID, "private");   // change vClass
-
             int32_t bitset = TraCI->vehicleBuildLaneChangeMode(10, 01, 01, 01, 01);
             TraCI->vehicleSetLaneChangeMode(SUMOID, bitset);  // alter 'lane change' mode
-            TraCI->vehicleChangeLane(SUMOID, 0, 5);   // change to lane 0 (normal lane)
+
+            performLaneChange();
 
             TraCI->vehicleSetSpeed(SUMOID, 30.);
 
@@ -1614,9 +1659,10 @@ void ApplVPlatoonMg::followerLeave_handleSelfMsg(omnetpp::cMessage* msg)
             RGB newColor = Color::colorNameToRGB("yellow");
             TraCI->vehicleSetColor(SUMOID, newColor);
 
-            plnSize = -1;
+            myPlnID = "";
             myPlnDepth = -1;
             busy = false;
+            leaveDirection = "";
 
             setVehicleState(state_idle, "FLeave_End");
         }
@@ -1630,7 +1676,6 @@ void ApplVPlatoonMg::followerLeave_BeaconFSM(BeaconVehicle *wsm)
 {
     if(!followerLeaveEnabled)
         return;
-
 }
 
 
@@ -1655,6 +1700,8 @@ void ApplVPlatoonMg::followerLeave_DataFSM(PlatoonMsg *wsm)
         if(wsm->getUCommandType() == LEAVE_REJECT && wsm->getSenderID() == myPlnID)
         {
             cancelEvent(plnTIMER10);
+
+            leaveDirection = "";
 
             setVehicleState(state_platoonFollower, "FLeave_Reject");
         }
@@ -1688,8 +1735,7 @@ void ApplVPlatoonMg::followerLeave_DataFSM(PlatoonMsg *wsm)
             entry.lastFollower = (wsm->getValue().myPltDepth + 1 == plnSize) ? true : false;
             sendPltData(wsm->getSenderID(), LEAVE_ACCEPT, myPlnID, entry);
 
-            // last follower wants to leave
-            // one split is enough
+            // last follower wants to leave (one split is enough)
             if(wsm->getValue().myPltDepth + 1 == plnSize)
             {
                 RemainingSplits = 1;
@@ -1702,8 +1748,7 @@ void ApplVPlatoonMg::followerLeave_DataFSM(PlatoonMsg *wsm)
 
                 split_DataFSM();
             }
-            // middle follower wants to leave
-            // we need two splits
+            // middle follower wants to leave (we need two splits)
             else
             {
                 RemainingSplits = 2;
@@ -1742,6 +1787,77 @@ void ApplVPlatoonMg::followerLeave_DataFSM(PlatoonMsg *wsm)
         }
     }
 }
+
+
+void ApplVPlatoonMg::performLaneChange()
+{
+    std::string myEdge = TraCI->vehicleGetEdgeID(SUMOID);
+    int numLanes = TraCI->edgeGetLaneCount(myEdge);
+    int lane = TraCI->vehicleGetLaneIndex(SUMOID);
+    std::string vehClass = TraCI->vehicleGetClass(SUMOID);
+    auto allowedLanes = TraCI->edgeGetAllowedLanes(myEdge, vehClass);
+
+    // change lane to the right
+    if(leaveDirection == "right")
+    {
+        lane--;
+
+        if(lane < 0)
+            throw omnetpp::cRuntimeError("Vehicle '%s' cannot change lane to right!", SUMOID.c_str());
+
+        auto ii = std::find(allowedLanes.begin(), allowedLanes.end(), myEdge + "_" + std::to_string(lane));
+        if(ii == allowedLanes.end())
+            throw omnetpp::cRuntimeError("Vehicle '%s' is not allowed to change lane to right due to its vClass!", SUMOID.c_str());
+
+        TraCI->vehicleChangeLane(SUMOID, lane, 5);
+    }
+    // change lane to the left
+    else if(leaveDirection == "left")
+    {
+        lane++;
+
+        if(lane >= numLanes)
+            throw omnetpp::cRuntimeError("Vehicle '%s' cannot change lane to left!", SUMOID.c_str());
+
+        auto ii = std::find(allowedLanes.begin(), allowedLanes.end(), myEdge + "_" + std::to_string(lane));
+        if(ii == allowedLanes.end())
+            throw omnetpp::cRuntimeError("Vehicle '%s' is not allowed to change lane to left due to its vClass!", SUMOID.c_str());
+
+        TraCI->vehicleChangeLane(SUMOID, lane, 5);
+    }
+    // change lane to whatever lane that is free
+    else if(leaveDirection == "free")
+    {
+        int rightLane = lane;
+
+        // try changing lane to right first
+        rightLane --;
+        auto ii = std::find(allowedLanes.begin(), allowedLanes.end(), myEdge + "_" + std::to_string(rightLane));
+        if(rightLane >= 0 && ii != allowedLanes.end())
+        {
+            TraCI->vehicleChangeLane(SUMOID, rightLane, 5);
+        }
+        else
+        {
+            int leftLane = lane;
+
+            // try changing lane to left
+            leftLane ++;
+            auto ii = std::find(allowedLanes.begin(), allowedLanes.end(), myEdge + "_" + std::to_string(leftLane));
+            if(leftLane < numLanes && ii != allowedLanes.end())
+            {
+                TraCI->vehicleChangeLane(SUMOID, leftLane, 5);
+            }
+            else
+            {
+                throw omnetpp::cRuntimeError("Vehicle '%s' is not allowed to change lane to right or left!", SUMOID.c_str());
+            }
+        }
+    }
+    else
+        throw omnetpp::cRuntimeError("Invalid leave direction '%s' for vehicle '%s'", leaveDirection.c_str(), SUMOID.c_str());
+}
+
 
 // -------------------------------------------------------------------------------------------
 // -----------------------------------[ Dissolve ]--------------------------------------------

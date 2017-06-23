@@ -56,6 +56,8 @@ private:
     const std::string optSize_tag = "optSize";
     const std::string pltMerge_tag = "pltMerge";
     const std::string pltSplit_tag = "pltSplit";
+    const std::string pltLeave_tag = "pltLeave";
+    const std::string maneuver_tag = "maneuver";
 
     std::string id;
 
@@ -123,8 +125,8 @@ private:
     typedef struct pltSplitEntry
     {
         std::string pltId_str;
-        int splitIndex;
-        std::string splitVehId_str;
+        int index;
+        std::string vehId_str;
         double begin;
 
         // for internal use
@@ -133,6 +135,38 @@ private:
     } pltSplitEntry_t;
 
     std::map<uint32_t, pltSplitEntry_t> allPltSplit;
+
+    typedef struct pltLeaveEntry
+    {
+        std::string pltId_str;
+        int index;
+        std::string vehId_str;
+        double begin;
+        std::string leaveDirection;
+
+        // for internal use
+        bool processingStarted = false;
+        bool processingEnded = false;
+    } pltLeaveEntry_t;
+
+    std::map<uint32_t, pltLeaveEntry_t> allPltLeave;
+
+    typedef struct pltManeuver
+    {
+        std::string pltId_str;
+        double begin;
+        bool merge_active;
+        bool split_active;
+        bool leaderLeave_active;
+        bool followerLeave_active;
+        bool entry_active;
+
+        // for internal use
+        bool processingStarted = false;
+        bool processingEnded = false;
+    } pltManeuver_t;
+
+    std::map<uint32_t, pltManeuver_t> allPltManeuver;
 
 public:
     virtual ~TrafficControl();
@@ -165,6 +199,20 @@ private:
 
     void parsePltSplit(rapidxml::xml_node<> *);
     void controlPltSplit();
+    typedef struct pltIndex
+    {
+        std::string platoonId = "";
+        int index = -1;
+    }pltIndex_t;
+    template <typename T> pltIndex_t getPlatoonIdAndIndex(T &entry);
+
+    void parsePltLeave(rapidxml::xml_node<> *);
+    void controlPltLeave();
+
+    void parsePltManeuver(rapidxml::xml_node<> *);
+    void controlPltManeuver();
+
+    ApplVManager* getApplPtr(std::string vehId);
 };
 
 }
