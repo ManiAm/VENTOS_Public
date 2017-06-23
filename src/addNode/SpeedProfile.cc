@@ -48,10 +48,7 @@ void SpeedProfile::initialize(int stage)
         if(startTime < 0 && startTime != -1)
             throw omnetpp::cRuntimeError("startTime in SpeedProfile is not correct!");
 
-        // get total vehicles from addMobileNode module
-        cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("addMobileNode");
-        ASSERT(module);
-        numVehicles = module->par("numVehicles").longValue();
+        numVehicles = 10;
 
         warmUp = par("warmUp").boolValue();
         stopPosition = par("stopPosition").doubleValue() * numVehicles;

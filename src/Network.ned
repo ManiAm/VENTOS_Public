@@ -48,10 +48,6 @@ network Network
             parameters:
                 @display("p=144,135;i=old/bwsink");
         }
-        addMobileNode: AddMobileNode {
-            parameters:
-                @display("p=144,312;i=old/bwsink");
-        }
         trafficControl: TrafficControl {
             parameters:
                 @display("p=245,135;i=block/app2");
