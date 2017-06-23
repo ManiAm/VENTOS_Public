@@ -29,79 +29,114 @@
 
 namespace VENTOS {
 
-// Define_Module macro registers this class with OMNET++
-Define_Module(VENTOS::tutorial);
+  // Define_Module macro registers this class with OMNET++
+  Define_Module(VENTOS::tutorial);
 
-tutorial::~tutorial()
-{
+  tutorial::~tutorial()
+  {
 
-}
+  }
 
-void tutorial::initialize(int stage)
-{
+  void tutorial::initialize(int stage)
+  {
     if(stage == 0)
     {
-        active = par("active").boolValue();
+      active = par("active").boolValue();
 
-        if(active)
-        {
-            // get a pointer to the TraCI module
-            TraCI = TraCI_Commands::getTraCI();
+      if(active)
+      {
+        // get a pointer to the TraCI module
+        TraCI = TraCI_Commands::getTraCI();
 
-            // subscribe to initializeWithTraCISignal
-            Signal_initialize_withTraCI = registerSignal("initializeWithTraCISignal");
-            omnetpp::getSimulation()->getSystemModule()->subscribe("initializeWithTraCISignal", this);
+        // subscribe to initializeWithTraCISignal
+        Signal_initialize_withTraCI = registerSignal("initializeWithTraCISignal");
+        omnetpp::getSimulation()->getSystemModule()->subscribe("initializeWithTraCISignal", this);
 
-            // subscribe to executeEachTimeStepSignal
-            Signal_executeEachTS = registerSignal("executeEachTimeStepSignal");
-            omnetpp::getSimulation()->getSystemModule()->subscribe("executeEachTimeStepSignal", this);
-        }
+        // subscribe to executeEachTimeStepSignal
+        Signal_executeEachTS = registerSignal("executeEachTimeStepSignal");
+        omnetpp::getSimulation()->getSystemModule()->subscribe("executeEachTimeStepSignal", this);
+      }
     }
-}
+  }
 
-void tutorial::finish()
-{
+  void tutorial::finish()
+  {
     if(!active)
-        return;
+    return;
 
     // unsubscribe from initializeWithTraCISignal
     if(omnetpp::getSimulation()->getSystemModule()->isSubscribed("initializeWithTraCISignal", this))
-        omnetpp::getSimulation()->getSystemModule()->unsubscribe("initializeWithTraCISignal", this);
+    omnetpp::getSimulation()->getSystemModule()->unsubscribe("initializeWithTraCISignal", this);
 
     // unsubscribe from executeEachTimeStepSignal
     if(omnetpp::getSimulation()->getSystemModule()->isSubscribed("executeEachTimeStepSignal", this))
-        omnetpp::getSimulation()->getSystemModule()->unsubscribe("executeEachTimeStepSignal", this);
-}
+    omnetpp::getSimulation()->getSystemModule()->unsubscribe("executeEachTimeStepSignal", this);
+  }
 
-void tutorial::handleMessage(omnetpp::cMessage *msg)
-{
+  void tutorial::handleMessage(omnetpp::cMessage *msg)
+  {
 
-}
+  }
 
-void tutorial::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t signalID, long i, cObject* details)
-{
+  void tutorial::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t signalID, long i, cObject* details)
+  {
     Enter_Method_Silent();
 
     // if Signal_executeEachTS is received, then call executeEachTimestep() method
     if(signalID == Signal_executeEachTS)
     {
-        tutorial::executeEachTimestep();
+      tutorial::executeEachTimestep();
     }
     // if Signal_initialize_withTraCI is received, then call initialize_withTraCI() method
     else if(signalID == Signal_initialize_withTraCI)
     {
-        tutorial::initialize_withTraCI();
+      tutorial::initialize_withTraCI();
     }
-}
+  }
 
-void tutorial::initialize_withTraCI()
-{
+  void tutorial::initialize_withTraCI()
+  {
+    int depart = 0;
+    const int interval = 1000;
+    for(int i=1; i<=100; i++)
+    {
+      char vehicleName[90];
+      sprintf(vehicleName, "veh_set1_%d", i);
+      TraCI->vehicleAdd(vehicleName, "passenger", "route0", depart, 0/*pos*/, 0 /*speed*/, 0 /*lane*/);
+      depart += interval;
+    }
+  }
 
-}
+  void tutorial::executeEachTimestep()
+  {
+    static int departedVehs = 0;
+    // get number of departed vehicles in the current time step
+    departedVehs += TraCI->simulationGetDepartedVehiclesCount();
+    static int arrivedVehs = 0;
+    // get the number of arrived vehicles in the current time step
+    arrivedVehs += TraCI->simulationGetArrivedNumber();
+    std::cout << "\ntime step: " << omnetpp::simTime().dbl();
+    std::cout << ", departed vehs: " << departedVehs;
+    std::cout << ", arrived vehs: " << arrivedVehs;
+    std::cout << "\n" << std::flush;
 
-void tutorial::executeEachTimestep()
-{
-
-}
+    // static bool wasExecuted = false;
+    if(/*!wasExecuted && */departedVehs == 10)
+    {
+      int depart = omnetpp::simTime().dbl() * 1000;
+      const int interval = 1000;
+      for(int i=1; i<=5; i++)
+      {
+        char vehicleName[90];
+        sprintf(vehicleName, "veh_set2_%d", i);
+        TraCI->vehicleAdd(vehicleName, "passenger", "route0", depart, 0 /*pos*/, 0 /*speed*/, 1 /*lane*/);
+        // change color to red
+        RGB newColor = Color::colorNameToRGB("red");
+        TraCI->vehicleSetColor(vehicleName, newColor);
+        depart += interval;
+      }
+      // wasExecuted = true;
+    }
+  }
 
 }
