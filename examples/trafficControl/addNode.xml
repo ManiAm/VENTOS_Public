@@ -2,14 +2,8 @@
 
 <addNode id="add_00">
 
-  <vehicle_platoon
-    id="plt1" type="TypeManual" size="4"
-    route="route0" depart="0" departLane="0" departPos="100"
-    pltMgmtProt="false" optSize="2" maxSize="10" />
-
-  <vehicle_platoon
-    id="plt2" type="TypeManual" size="4"
-    route="route0" depart="0" departLane="0" departPos="50"
-    pltMgmtProt="false" optSize="2" maxSize="10" />
+<vehicle_platoon
+  id="veh" type="TypeACC1" size="6"
+  route="route0" departPos="100" departLane="1" platoonMaxSpeed="0" pltMgmtProt="true" optSize="4" maxSize="10" />
 
 </addNode>
