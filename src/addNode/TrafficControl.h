@@ -155,11 +155,11 @@ private:
     {
         std::string pltId_str;
         double begin;
-        bool merge_active;
-        bool split_active;
-        bool leaderLeave_active;
-        bool followerLeave_active;
-        bool entry_active;
+        int merge_active;
+        int split_active;
+        int leaderLeave_active;
+        int followerLeave_active;
+        int entry_active;
 
         // for internal use
         bool processingStarted = false;
