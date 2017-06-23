@@ -109,6 +109,7 @@ void ApplVPlatoonMg::initialize(int stage)
         plnTIMER1a = new omnetpp::cMessage("wait to catchup");
         plnTIMER2  = new omnetpp::cMessage("wait for followers ack");
         plnTIMER3  = new omnetpp::cMessage("wait for merge done");
+        plnTIMER3a = new omnetpp::cMessage("wait for front platoon beacon");
 
         // split maneuver
         // --------------
@@ -413,70 +414,156 @@ const std::string ApplVPlatoonMg::uCommandToStr(uCommand_t command)
 // --------------------------------[ Public interface ]---------------------------------------
 //--------------------------------------------------------------------------------------------
 
-// ask the platoon leader to manually initiate split at position 'depth'.
-// only platoon leader can call this method!
-void ApplVPlatoonMg::splitFromPlatoon(int depth)
+// asking the platoon leader to merge into the front platoon
+void ApplVPlatoonMg::manualMerge()
 {
+    Enter_Method("inside manualMerge() method");
+
     if(!DSRCenabled)
         throw omnetpp::cRuntimeError("This vehicle is not VANET-enabled!");
 
-    if(vehicleState != state_platoonLeader)
-        throw omnetpp::cRuntimeError("only platoon leader can initiate split!");
+    if(this->myPlnDepth != 0)
+        throw omnetpp::cRuntimeError("only platoon leader can initiate merge!");
 
-    if(depth <= 0 || depth > plnSize-1)
-        throw omnetpp::cRuntimeError("depth of splitting vehicle is invalid!");
-
-    if(!busy && splitEnabled)
+    if(busy || vehicleState != state_platoonLeader)
     {
-        splittingDepth = depth;
-        splittingVehicle = plnMembersList[splittingDepth];
-        splitCaller = -1;
-
-        busy = true;
-
-        setVehicleState(state_sendSplitReq);
-
-        split_DataFSM();
+        LOG_WARNING << boost::format("\nWARNING: Platoon '%s' cannot start the merge maneuver, because it is busy performing another maneuver. \n")
+        % this->myPlnID << std::flush;
+        return;
     }
+
+    if(!mergeEnabled)
+    {
+        LOG_WARNING << boost::format("\nWARNING: Merge is disabled in platoon '%s'. \n")
+        % this->myPlnID << std::flush;
+        return;
+    }
+
+    setVehicleState(state_waitForBeacon);
+
+    scheduleAt(omnetpp::simTime() + WAIT_FOR_MERGE, plnTIMER3a);
 }
 
 
-void ApplVPlatoonMg::leavePlatoon()
+// asking the platoon leader to initiate a split at position 'depth'.
+void ApplVPlatoonMg::splitFromPlatoon(int depth)
 {
+    Enter_Method("inside splitFromPlatoon() method");
+
     if(!DSRCenabled)
         throw omnetpp::cRuntimeError("This vehicle is not VANET-enabled!");
 
-    // if I am leader
-    if(vehicleState == state_platoonLeader)
+    if(this->myPlnDepth != 0)
+        throw omnetpp::cRuntimeError("only platoon leader can initiate split!");
+
+    if(depth <= 0 || depth >= plnSize)
+        throw omnetpp::cRuntimeError("depth of splitting vehicle is invalid!");
+
+    if(busy || vehicleState != state_platoonLeader)
     {
-        if(!busy && leaderLeaveEnabled && plnSize > 1)
+        LOG_WARNING << boost::format("\nWARNING: Platoon '%s' cannot start the split maneuver, because it is busy performing another maneuver. \n")
+        % this->myPlnID << std::flush;
+        return;
+    }
+
+    if(!splitEnabled)
+    {
+        LOG_WARNING << boost::format("\nWARNING: Split is disabled in platoon '%s'. \n")
+        % this->myPlnID << std::flush;
+        return;
+    }
+
+    splittingDepth = depth;
+    splittingVehicle = plnMembersList[splittingDepth];
+    splitCaller = -1;
+
+    busy = true;
+    manualSplit = true;
+
+    setVehicleState(state_sendSplitReq);
+
+    split_DataFSM();
+}
+
+
+void ApplVPlatoonMg::leavePlatoon(std::string vehLeaveDirection)
+{
+    Enter_Method("inside leavePlatoon() method");
+
+    if(!DSRCenabled)
+        throw omnetpp::cRuntimeError("This vehicle is not VANET-enabled!");
+
+    if(busy)
+    {
+        LOG_WARNING << boost::format("\nWARNING: Platoon '%s' cannot start the leave maneuver, because it is busy performing another maneuver. \n")
+        % this->myPlnID << std::flush;
+        return;
+    }
+
+    // if I am leader
+    if(this->myPlnDepth == 0)
+    {
+        if(vehicleState != state_platoonLeader)
         {
-            busy = true;
-
-            setVehicleState(state_sendVoteLeader);
-
-            leaderLeave_DataFSM();
+            LOG_WARNING << boost::format("\nWARNING: Platoon leader in platoon '%s' is not in the 'state_platoonLeader' \n")
+            % this->myPlnID << std::flush;
+            return;
         }
+
+        if(plnSize <= 1)
+        {
+            LOG_WARNING << boost::format("\nWARNING: Platoon '%s' cannot start the leave maneuver, because its size is '%d' \n")
+            % this->myPlnID % plnSize << std::flush;
+            return;
+        }
+
+        if(!leaderLeaveEnabled)
+        {
+            LOG_WARNING << boost::format("\nWARNING: Leader leave is disabled in platoon '%s'. \n")
+            % this->myPlnID << std::flush;
+            return;
+        }
+
+        busy = true;
+
+        setVehicleState(state_sendVoteLeader);
+
+        leaveDirection = vehLeaveDirection;
+
+        leaderLeave_DataFSM();
     }
     // if I am follower
-    else if(vehicleState == state_platoonFollower)
-    {
-        if(!busy && followerLeaveEnabled)
-        {
-            busy = true;
-
-            setVehicleState(state_sendLeaveReq);
-
-            followerLeave_DataFSM();
-        }
-    }
     else
-        throw omnetpp::cRuntimeError("vehicle should be in leader or follower states!");
+    {
+        if(vehicleState != state_platoonFollower)
+        {
+            LOG_WARNING << boost::format("\nWARNING: Platoon follower in platoon '%s' is not in the 'state_platoonFollower' \n")
+            % this->myPlnID << std::flush;
+            return;
+        }
+
+        if(!followerLeaveEnabled)
+        {
+            LOG_WARNING << boost::format("\nWARNING: Follower leave is disabled in platoon '%s'. \n")
+            % this->myPlnID << std::flush;
+            return;
+        }
+
+        busy = true;
+
+        setVehicleState(state_sendLeaveReq);
+
+        leaveDirection = vehLeaveDirection;
+
+        followerLeave_DataFSM();
+    }
 }
 
 
 void ApplVPlatoonMg::dissolvePlatoon()
 {
+    Enter_Method("inside dissolvePlatoon() method");
+
     if(!DSRCenabled)
         throw omnetpp::cRuntimeError("This vehicle is not VANET-enabled!");
 
@@ -568,8 +655,6 @@ void ApplVPlatoonMg::entry_handleSelfMsg(omnetpp::cMessage* msg)
         // check if we are at lane 0
         if(TraCI->vehicleGetLaneIndex(SUMOID) == 0)
         {
-            TraCI->vehicleSetClass(SUMOID, "vip");   // change vClass to vip
-
             int32_t bitset = TraCI->vehicleBuildLaneChangeMode(10, 01, 01, 01, 01);
             TraCI->vehicleSetLaneChangeMode(SUMOID, bitset);   // alter 'lane change' mode
             TraCI->vehicleChangeLane(SUMOID, 1, 5);   // change to lane 1 (special lane)
@@ -700,6 +785,15 @@ void ApplVPlatoonMg::merge_handleSelfMsg(omnetpp::cMessage* msg)
             merge_DataFSM();
         }
     }
+    else if(msg == plnTIMER3a)
+    {
+        // we have waited long enough for a beacon from
+        // the front vehicle
+        if(vehicleState == state_waitForBeacon)
+        {
+            setVehicleState(state_platoonLeader);
+        }
+    }
 }
 
 
@@ -726,6 +820,15 @@ void ApplVPlatoonMg::merge_BeaconFSM(BeaconVehicle* wsm)
             }
         }
     }
+    else if(vehicleState == state_waitForBeacon)
+    {
+        if(isBeaconFromFrontVehicle(wsm))
+        {
+            setVehicleState(state_sendMergeReq);
+
+            merge_BeaconFSM(wsm);
+        }
+    }
     else if(vehicleState == state_sendMergeReq)
     {
         // save these values from the received beacon from my preceding vehicle
@@ -743,10 +846,24 @@ void ApplVPlatoonMg::merge_BeaconFSM(BeaconVehicle* wsm)
             return;
         }
 
-        // send a unicast MERGE_REQ to its platoon leader
-        value_t value;
-        value.myPltMembers = plnMembersList;
-        sendPltData(leadingPlnID, MERGE_REQ, leadingPlnID, value);
+        if(!plnTIMER3a->isScheduled())
+        {
+            // send a unicast MERGE_REQ to its platoon leader
+            value_t value;
+            value.myPltMembers = plnMembersList;
+            sendPltData(leadingPlnID, MERGE_REQ, leadingPlnID, value);
+        }
+        else
+        {
+            cancelEvent(plnTIMER3a);
+
+            // send a unicast MERGE_REQ to its platoon leader and
+            // we set 'manualMerge' flag to true
+            value_t value;
+            value.myPltMembers = plnMembersList;
+            value.manualMerge = true;
+            sendPltData(leadingPlnID, MERGE_REQ, leadingPlnID, value);
+        }
 
         setVehicleState(state_waitForMergeReply, "Merge_Request");
 
@@ -857,22 +974,38 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
     {
         if (wsm->getUCommandType() == MERGE_REQ && wsm->getReceiverID() == myPlnID)
         {
-            int finalPlnSize =  wsm->getValue().myPltMembers.size() + plnSize;
-
-            if(busy || finalPlnSize > optPlnSize)
+            if(busy)
             {
                 // send MERGE_REJECT
                 sendPltData(wsm->getSenderID(), MERGE_REJECT, wsm->getSendingPlatoonID());
+
+                return;
             }
+
+            if(!wsm->getValue().manualMerge)
+            {
+                int finalPlnSize =  wsm->getValue().myPltMembers.size() + plnSize;
+                if(finalPlnSize > optPlnSize)
+                {
+                    // send MERGE_REJECT
+                    sendPltData(wsm->getSenderID(), MERGE_REJECT, wsm->getSendingPlatoonID());
+
+                    return;
+                }
+            }
+            // in manual merge, we need to update the optimal platoon size in leader
             else
             {
-                // save followers list for future use
-                secondPlnMembersList = wsm->getValue().myPltMembers;
-
-                setVehicleState(state_sendMergeAccept);
-
-                merge_DataFSM(wsm);
+                int finalPlnSize = plnSize + wsm->getValue().myPltMembers.size();
+                this->optPlnSize = finalPlnSize;
             }
+
+            // save followers list for future use
+            secondPlnMembersList = wsm->getValue().myPltMembers;
+
+            setVehicleState(state_sendMergeAccept);
+
+            merge_DataFSM(wsm);
         }
     }
     else if(vehicleState == state_sendMergeAccept)
@@ -1149,6 +1282,10 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
         plnSize = splittingDepth;
         plnMembersList.pop_back();
 
+        // optimal platoon size is equal to current platoon size
+        if(manualSplit)
+            optPlnSize = plnSize;
+
         updateColorDepth();
 
         if( adaptiveTG && plnSize < (maxPlnSize / 2) )
@@ -1165,7 +1302,11 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
         entry.myNewPltMembers = secondPlnMembersList;
         entry.maxSize = maxPlnSize;
         entry.optPlnSize = optPlnSize;
+        entry.manualSplit = manualSplit;
         sendPltData(splittingVehicle, SPLIT_DONE, myPlnID, entry);
+
+        // reset manualSplit after sending it in SPLIT_DONE
+        manualSplit = false;
 
         if(splitCaller == -1)
         {
@@ -1289,7 +1430,11 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
 
             plnSize = plnMembersList.size();
 
-            optPlnSize = wsm->getValue().optPlnSize;
+            if(wsm->getValue().manualSplit)
+                optPlnSize = plnSize;
+            else
+                optPlnSize = wsm->getValue().optPlnSize;
+
             maxPlnSize = wsm->getValue().maxSize;
 
             if(optPlnSize < 1)
@@ -1441,11 +1586,10 @@ void ApplVPlatoonMg::leaderLeave_DataFSM(PlatoonMsg *wsm)
         // now we can leave the platoon
         if(wsm->getUCommandType() == GAP_CREATED && wsm->getReceiverID() == SUMOID)
         {
-            TraCI->vehicleSetClass(SUMOID, "private");   // change vClass
-
             int32_t bitset = TraCI->vehicleBuildLaneChangeMode(10, 01, 01, 01, 01);
             TraCI->vehicleSetLaneChangeMode(SUMOID, bitset);  // alter 'lane change' mode
-            TraCI->vehicleChangeLane(SUMOID, 0, 5);   // change to lane 0 (normal lane)
+
+            performLaneChange();
 
             TraCI->vehicleSetSpeed(SUMOID, 30.);
 
@@ -1453,9 +1597,12 @@ void ApplVPlatoonMg::leaderLeave_DataFSM(PlatoonMsg *wsm)
             RGB newColor = Color::colorNameToRGB("yellow");
             TraCI->vehicleSetColor(SUMOID, newColor);
 
-            plnSize = -1;
+            myPlnID = "";
             myPlnDepth = -1;
+            plnSize = -1;
+            plnMembersList.clear();
             busy = false;
+            leaveDirection = "";
 
             setVehicleState(state_idle, "LLeave_End");
         }
@@ -1501,11 +1648,10 @@ void ApplVPlatoonMg::followerLeave_handleSelfMsg(omnetpp::cMessage* msg)
         // check if we are free agent?
         if(vehicleState == state_platoonLeader && plnSize == 1)
         {
-            TraCI->vehicleSetClass(SUMOID, "private");   // change vClass
-
             int32_t bitset = TraCI->vehicleBuildLaneChangeMode(10, 01, 01, 01, 01);
             TraCI->vehicleSetLaneChangeMode(SUMOID, bitset);  // alter 'lane change' mode
-            TraCI->vehicleChangeLane(SUMOID, 0, 5);   // change to lane 0 (normal lane)
+
+            performLaneChange();
 
             TraCI->vehicleSetSpeed(SUMOID, 30.);
 
@@ -1513,9 +1659,10 @@ void ApplVPlatoonMg::followerLeave_handleSelfMsg(omnetpp::cMessage* msg)
             RGB newColor = Color::colorNameToRGB("yellow");
             TraCI->vehicleSetColor(SUMOID, newColor);
 
-            plnSize = -1;
+            myPlnID = "";
             myPlnDepth = -1;
             busy = false;
+            leaveDirection = "";
 
             setVehicleState(state_idle, "FLeave_End");
         }
@@ -1529,7 +1676,6 @@ void ApplVPlatoonMg::followerLeave_BeaconFSM(BeaconVehicle *wsm)
 {
     if(!followerLeaveEnabled)
         return;
-
 }
 
 
@@ -1554,6 +1700,8 @@ void ApplVPlatoonMg::followerLeave_DataFSM(PlatoonMsg *wsm)
         if(wsm->getUCommandType() == LEAVE_REJECT && wsm->getSenderID() == myPlnID)
         {
             cancelEvent(plnTIMER10);
+
+            leaveDirection = "";
 
             setVehicleState(state_platoonFollower, "FLeave_Reject");
         }
@@ -1587,8 +1735,7 @@ void ApplVPlatoonMg::followerLeave_DataFSM(PlatoonMsg *wsm)
             entry.lastFollower = (wsm->getValue().myPltDepth + 1 == plnSize) ? true : false;
             sendPltData(wsm->getSenderID(), LEAVE_ACCEPT, myPlnID, entry);
 
-            // last follower wants to leave
-            // one split is enough
+            // last follower wants to leave (one split is enough)
             if(wsm->getValue().myPltDepth + 1 == plnSize)
             {
                 RemainingSplits = 1;
@@ -1601,8 +1748,7 @@ void ApplVPlatoonMg::followerLeave_DataFSM(PlatoonMsg *wsm)
 
                 split_DataFSM();
             }
-            // middle follower wants to leave
-            // we need two splits
+            // middle follower wants to leave (we need two splits)
             else
             {
                 RemainingSplits = 2;
@@ -1641,6 +1787,77 @@ void ApplVPlatoonMg::followerLeave_DataFSM(PlatoonMsg *wsm)
         }
     }
 }
+
+
+void ApplVPlatoonMg::performLaneChange()
+{
+    std::string myEdge = TraCI->vehicleGetEdgeID(SUMOID);
+    int numLanes = TraCI->edgeGetLaneCount(myEdge);
+    int lane = TraCI->vehicleGetLaneIndex(SUMOID);
+    std::string vehClass = TraCI->vehicleGetClass(SUMOID);
+    auto allowedLanes = TraCI->edgeGetAllowedLanes(myEdge, vehClass);
+
+    // change lane to the right
+    if(leaveDirection == "right")
+    {
+        lane--;
+
+        if(lane < 0)
+            throw omnetpp::cRuntimeError("Vehicle '%s' cannot change lane to right!", SUMOID.c_str());
+
+        auto ii = std::find(allowedLanes.begin(), allowedLanes.end(), myEdge + "_" + std::to_string(lane));
+        if(ii == allowedLanes.end())
+            throw omnetpp::cRuntimeError("Vehicle '%s' is not allowed to change lane to right due to its vClass!", SUMOID.c_str());
+
+        TraCI->vehicleChangeLane(SUMOID, lane, 5);
+    }
+    // change lane to the left
+    else if(leaveDirection == "left")
+    {
+        lane++;
+
+        if(lane >= numLanes)
+            throw omnetpp::cRuntimeError("Vehicle '%s' cannot change lane to left!", SUMOID.c_str());
+
+        auto ii = std::find(allowedLanes.begin(), allowedLanes.end(), myEdge + "_" + std::to_string(lane));
+        if(ii == allowedLanes.end())
+            throw omnetpp::cRuntimeError("Vehicle '%s' is not allowed to change lane to left due to its vClass!", SUMOID.c_str());
+
+        TraCI->vehicleChangeLane(SUMOID, lane, 5);
+    }
+    // change lane to whatever lane that is free
+    else if(leaveDirection == "free")
+    {
+        int rightLane = lane;
+
+        // try changing lane to right first
+        rightLane --;
+        auto ii = std::find(allowedLanes.begin(), allowedLanes.end(), myEdge + "_" + std::to_string(rightLane));
+        if(rightLane >= 0 && ii != allowedLanes.end())
+        {
+            TraCI->vehicleChangeLane(SUMOID, rightLane, 5);
+        }
+        else
+        {
+            int leftLane = lane;
+
+            // try changing lane to left
+            leftLane ++;
+            auto ii = std::find(allowedLanes.begin(), allowedLanes.end(), myEdge + "_" + std::to_string(leftLane));
+            if(leftLane < numLanes && ii != allowedLanes.end())
+            {
+                TraCI->vehicleChangeLane(SUMOID, leftLane, 5);
+            }
+            else
+            {
+                throw omnetpp::cRuntimeError("Vehicle '%s' is not allowed to change lane to right or left!", SUMOID.c_str());
+            }
+        }
+    }
+    else
+        throw omnetpp::cRuntimeError("Invalid leave direction '%s' for vehicle '%s'", leaveDirection.c_str(), SUMOID.c_str());
+}
+
 
 // -------------------------------------------------------------------------------------------
 // -----------------------------------[ Dissolve ]--------------------------------------------

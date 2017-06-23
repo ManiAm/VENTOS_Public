@@ -2,9 +2,6 @@
 
 <edges>
 
-  <edge id="1to2" from="1" to="2" numLanes="3" >
-      <lane index="0" speed="30" />
-      <lane index="1" speed="30" />
-  </edge>
+  <edge id="1to2" from="1" to="2" numLanes="3" speed="30" />
 
 </edges>

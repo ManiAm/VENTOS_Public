@@ -68,6 +68,7 @@ private:
     omnetpp::cMessage* plnTIMER1a = NULL;
     omnetpp::cMessage* plnTIMER2 = NULL;
     omnetpp::cMessage* plnTIMER3 = NULL;
+    omnetpp::cMessage* plnTIMER3a = NULL;
 
     // --[ split ]--
     std::string splittingVehicle = "";
@@ -76,6 +77,7 @@ private:
     int TotalPLSent = 0;
     int TotalACKsRx = 0;
     int splitCaller = -1;
+    bool manualSplit = false;
 
     omnetpp::cMessage* plnTIMER4 = NULL;
     omnetpp::cMessage* plnTIMER5 = NULL;
@@ -92,6 +94,8 @@ private:
 
     omnetpp::cMessage* plnTIMER10 = NULL;
     omnetpp::cMessage* plnTIMER11 = NULL;
+
+    std::string leaveDirection = "";
 
     // --[ dissolve ]--
     omnetpp::cMessage* plnTIMER12 = NULL;
@@ -146,6 +150,8 @@ private:
         state_sendDissolve,   // 31
         state_waitForDissolveAck,
 
+        state_waitForBeacon,
+
         state_MAX,
     } states_num_t;
 
@@ -197,7 +203,9 @@ private:
 
             // dissolve
             {state_sendDissolve, "state_sendDissolve"},
-            {state_waitForDissolveAck, "state_waitForDissolveAck"}
+            {state_waitForDissolveAck, "state_waitForDissolveAck"},
+
+            {state_waitForBeacon, "state_waitForBeacon"}
     };
 
     typedef enum uCommand
@@ -259,8 +267,9 @@ public:
     virtual void initialize(int stage);
     virtual void finish();
 
+    void manualMerge();
     void splitFromPlatoon(int);
-    void leavePlatoon();
+    void leavePlatoon(std::string = "free");
     void dissolvePlatoon();
 
     int getOptSize() {return this->optPlnSize;};
@@ -327,6 +336,7 @@ private:
     void followerLeave_handleSelfMsg(omnetpp::cMessage* msg);
     void followerLeave_BeaconFSM(BeaconVehicle *wsm = NULL);
     void followerLeave_DataFSM(PlatoonMsg *wsm = NULL);
+    void performLaneChange();
 
     // dissolve
     void dissolve_handleSelfMsg(omnetpp::cMessage* msg);
