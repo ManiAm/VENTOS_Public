@@ -1,7 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <addNode id="add_00">
-  
-  <vehicle id="veh.0" type="TypeManual" route="route0" departSpeed="20" />
-  
+
+  <!-- <vehicle_platoon
+    id="plt1" type="TypeManual" size="5"
+    route="route0" depart="0" departLane="0" departPos="200"
+    platoonMaxSpeed="20" color="red" interGap="3.5" />
+
+  <vehicle_platoon
+    id="plt2" type="TypeManual2" size="5"
+    route="route0" depart="0" departLane="0" departPos="160"
+    platoonMaxSpeed="20" color="green" interGap="3.5" /> -->
+
+  <vehicle_platoon
+    id="plt1" type="TypeManual" size="4"
+    route="route0" depart="0" departLane="0" departPos="100"
+    pltMgmtProt="true" optSize="2" maxSize="10" />
+
+  <vehicle_platoon
+    id="plt2" type="TypeManual" size="4"
+    route="route0" depart="0" departLane="0" departPos="50"
+    pltMgmtProt="true" />
+
 </addNode>

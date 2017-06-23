@@ -1,10 +1,10 @@
 
 <configuration>
- 
+
     <input>
         <net-file value="example.net.xml"/>
         <route-files value="example.rou.xml"/>
-        <additional-files value="example.ttl.xml"/>       
+        <additional-files value="example.ttl.xml"/>
     </input>
 
     <time>
@@ -12,7 +12,7 @@
         <end value="-1"/>
         <step-length value="1"/>
     </time>
-    
+
     <processing>
         <time-to-teleport value="0" />
         <xml-validation value="never" />

@@ -3,9 +3,5 @@
 <trafficControl id="control_0">
 
     <speed id="veh" begin="60" end="1000" value="28*(-1)^floor(2(t-60)/200)" maxAccel="2" maxDecel="5" />  
-    
+
 </trafficControl>
-
-
-
-
