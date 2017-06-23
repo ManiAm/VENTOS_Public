@@ -2,9 +2,9 @@
 
 <addNode id="add_0">
 
-  <adversary id="jammer" pos="1890,0,0" />
+  <adversary id="jammer" pos="1890,0,0" /> 
   
-  <vehicle_flow id="veh" type="TypeCACC1" route="route1" begin="0" number="10" distribution="deterministic" period="1" />
+  <vehicle_platoon id="veh" type="TypeCACC1" size="10" route="route1" departPos="100" platoonMaxSpeed="0" />
 
 </addNode>
 

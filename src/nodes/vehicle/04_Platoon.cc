@@ -72,10 +72,10 @@ void ApplVPlatoon::initialize(int stage)
                     vehID = myPlnID + "." + std::to_string(i);
                 plnMembersList.push_back(vehID);
             }
-        }
 
-        // register this vehicle as a platoon member to SUMO
-        TraCI->vehiclePlatoonInit(SUMOID, myPlnID, plnSize, myPlnDepth);
+            // platoon leader registers the platoon with SUMO
+            TraCI->vehiclePlatoonInit(SUMOID, plnSize);
+        }
 
         record_platoon_stat = par("record_platoon_stat").boolValue();
         if(record_platoon_stat)

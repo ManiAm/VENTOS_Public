@@ -50,15 +50,15 @@ network Network
         }
         addMobileNode: AddMobileNode {
             parameters:
-                @display("p=48,300;i=old/bwsink");
+                @display("p=144,312;i=old/bwsink");
         }
         trafficControl: TrafficControl {
             parameters:
-                @display("p=436,135;i=block/app2");
+                @display("p=245,135;i=block/app2");
         }
         speedprofile: SpeedProfile {
             parameters:
-                @display("p=245,135;i=block/table");
+                @display("p=255,315;i=block/table");
         }
         statistics: <statisticsType> like IBaseStatistics {
             parameters:
