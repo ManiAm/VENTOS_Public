@@ -2,7 +2,6 @@
 
 <routes>
 
-  <!-- Krauss Model (tau here is T_g and not controller delay!) -->
   <vType id="passenger" length="5.0" minGap="2.0" maxSpeed="30.0" vClass="passenger">
       <carFollowing-Krauss accel="3.0" decel="5.0" sigma="0" tau="1.64" />
   </vType>    
