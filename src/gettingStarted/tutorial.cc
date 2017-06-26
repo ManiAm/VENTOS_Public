@@ -26,6 +26,7 @@
 //
 
 #include "tutorial.h"  // including the header file above
+#include <string>
 
 namespace VENTOS {
 
@@ -96,58 +97,66 @@ namespace VENTOS {
 
   void tutorial::initialize_withTraCI()
   {
-    /* Dynamically adding 5 vehicles in the beginning of the simulation */
-    // int depart = 0;
-    // const int interval = 1000;
-    // for(int i=1; i<=5; i++)
-    // {
-    //   char vehicleName[90];
-    //   sprintf(vehicleName, "veh_set1_%d", i);
-    //   TraCI->vehicleAdd(vehicleName, "passenger", "route0", depart, 0/*pos*/, 0 /*speed*/, 0 /*lane*/);
-    //   depart += interval;
-    // }
+    /* Dynamically adding 100 vehicles in the beginning of the simulation */
+    int depart = 0;
+    const int interval = 1000;
+    for(int i=1; i<=100; i++)
+    {
+      // char vehicleName[90];
+      // sprintf(vehicleName, "veh_set1_%d", i);
+      std::string vehicleName = "veh_set2_" + std::to_string(i);
+      TraCI->vehicleAdd(vehicleName, "passenger", "route0", depart, 0/*pos*/, 0 /*speed*/, 0 /*lane*/);
+      depart += interval;
+    }
 
-    /* Forcing a rear-end collision (ForceCrash scenario)*/
-    TraCI->vehicleSetLaneChangeMode("veh0", 0);
-    TraCI->vehicleSetLaneChangeMode("veh1", 0);
+    // /* Forcing a rear-end collision (ForceCrash scenario)*/
+    // TraCI->vehicleSetLaneChangeMode("veh0", 0);
+    // TraCI->vehicleSetLaneChangeMode("veh1", 0);
   }
 
   void tutorial::executeEachTimestep()
   {
     /* Dynamically adding 5 vehicles in the middle of the simulation */
-    // static int departedVehs = 0;
-    // // get number of departed vehicles in the current time step
-    // departedVehs += TraCI->simulationGetDepartedVehiclesCount();
-    // static int arrivedVehs = 0;
-    // // get the number of arrived vehicles in the current time step
-    // arrivedVehs += TraCI->simulationGetArrivedNumber();
-    // std::cout << "\ntime step: " << omnetpp::simTime().dbl();
-    // std::cout << ", departed vehs: " << departedVehs;
-    // std::cout << ", arrived vehs: " << arrivedVehs;
-    // std::cout << "\n" << std::flush;
-    // // static bool wasExecuted = false;
+    static int departedVehs = 0;
+    // get number of departed vehicles in the current time step
+    departedVehs += TraCI->simulationGetDepartedVehiclesCount();
+
+    if (departedVehs > 0) {
+      std::string vehicleName = "veh_set2_" + std::to_string(departedVehs);
+      std::cout << vehicleName << " departed at " << TraCI->vehicleGetDepartureTime(vehicleName) << " seconds."<< std::endl;
+    }
+
+    static int arrivedVehs = 0;
+    // get the number of arrived vehicles in the current time step
+    arrivedVehs += TraCI->simulationGetArrivedNumber();
+    std::cout << "\ntime step: " << omnetpp::simTime().dbl();
+    std::cout << ", departed vehs: " << departedVehs;
+    std::cout << ", arrived vehs: " << arrivedVehs;
+    std::cout << "\n" << std::flush;
+    // static bool wasExecuted = false;
     // if(/*!wasExecuted && */departedVehs == 10)
     // {
     //   int depart = omnetpp::simTime().dbl() * 1000;
     //   const int interval = 1000;
     //   for(int i=1; i<=5; i++)
     //   {
-    //     char vehicleName[90];
-    //     sprintf(vehicleName, "veh_set2_%d", i);
+    //     // char vehicleName[90];
+    //     // sprintf(vehicleName, 'veh_set2_%d', i);
+    //     std::string vehicleName = "veh_set2_" + i;
     //     TraCI->vehicleAdd(vehicleName, "passenger", "route0", depart, 0 /*pos*/, 0 /*speed*/, 1 /*lane*/);
     //     // change color to red
     //     RGB newColor = Color::colorNameToRGB("red");
     //     TraCI->vehicleSetColor(vehicleName, newColor);
     //     depart += interval;
     //   }
-    //   wasExecuted = true;
+    //   // wasExecuted = true;
     // }
 
-    /* Forcing a rear-end collision (ForceCrash scenario)*/
-    if(omnetpp::simTime().dbl() == 20)
-    {
-      // TraCI->vehicleSetSpeedMode("veh0", 27);
-      TraCI->vehicleSetSpeed("veh0", 0);
-    }
+    // /* Forcing a rear-end collision (ForceCrash scenario)*/
+    // if(omnetpp::simTime().dbl() == 20)
+    // {
+    //   // TraCI->vehicleSetSpeedMode("veh0", 27);
+    //   TraCI->vehicleSetSpeed("veh0", 0);
+    // }
   }
 }
