@@ -257,8 +257,7 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
 
             // my own parameters
             params << myPlnID << PARAMS_DELIM;
-            params << myPlnDepth << PARAMS_DELIM;
-            params << plnSize;
+            params << myPlnDepth;
 
             // update my platoon view in SUMO
             TraCI->vehiclePlatoonViewUpdate(SUMOID, params.str());

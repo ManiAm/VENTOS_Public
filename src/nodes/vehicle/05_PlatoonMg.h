@@ -278,6 +278,12 @@ public:
 
     void setOptSize(int optSize) {this->optPlnSize = optSize;};
 
+    bool getStatus_entry(void) {return this->entryEnabled;};
+    bool getStatus_merge(void) {return this->mergeEnabled;};
+    bool getStatus_split(void) {return this->splitEnabled;};
+    bool getStatus_followerLeave(void) {return this->followerLeaveEnabled;};
+    bool getStatus_leaderLeave(void) {return this->leaderLeaveEnabled;};
+
     void setStatus_entry(bool status) {this->entryEnabled = status;};
     void setStatus_merge(bool status) {this->mergeEnabled = status;};
     void setStatus_split(bool status) {this->splitEnabled = status;};

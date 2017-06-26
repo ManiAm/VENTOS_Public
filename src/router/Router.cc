@@ -120,6 +120,9 @@ void Router::initialize(int stage)
         Signal_system = registerSignal("system");
         omnetpp::getSimulation()->getSystemModule()->subscribe("system", this);
 
+        Signal_initialize_withTraCI = registerSignal("initializeWithTraCISignal");
+        omnetpp::getSimulation()->getSystemModule()->subscribe("initializeWithTraCISignal", this);
+
         Signal_executeEachTS = registerSignal("executeEachTimeStepSignal");
         omnetpp::getSimulation()->getSystemModule()->subscribe("executeEachTimeStepSignal", this);
 
@@ -241,7 +244,15 @@ void Router::finish()
 }
 
 
-//Receives a signal every time-step
+void Router::handleMessage(omnetpp::cMessage* msg)
+{
+    checkEdgeRemovals();
+
+    routerMsg = new omnetpp::cMessage("routerMsg");   //Create a new internal message
+    scheduleAt(omnetpp::simTime().dbl() + AccidentCheckInterval, routerMsg); //Schedule them to start sending
+}
+
+
 void Router::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t signalID, long i, cObject* details)
 {
     Enter_Method_Silent();
@@ -252,15 +263,170 @@ void Router::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t sig
         if(laneCostsMode == MODE_EWMA || laneCostsMode == MODE_RECORD || UseHysteresis)
             laneCostsData();
     }
+    else if(signalID == Signal_initialize_withTraCI)
+    {
+        addVehs();
+    }
 }
 
 
-void Router::handleMessage(omnetpp::cMessage* msg)
+void Router::receiveSignal(cComponent *source, omnetpp::simsignal_t signalID, cObject *obj, cObject* details)
 {
-    checkEdgeRemovals();
+    if(signalID != Signal_system)
+    {
+        delete obj;
+        return;
+    }
 
-    routerMsg = new omnetpp::cMessage("routerMsg");   //Create a new internal message
-    scheduleAt(omnetpp::simTime().dbl() + AccidentCheckInterval, routerMsg); //Schedule them to start sending
+    systemData *s = static_cast<systemData*>(obj);
+    if(std::string(s->getRecipient()) != "system") // Check if it's the right kind of symbol
+    {
+        delete obj;
+        return;
+    }
+
+    std::string tedge = s->getEdge();
+    std::string tnode = s->getNode();
+    std::string tsender = s->getSender();
+
+    switch(s->getRequestType())
+    {
+    case DIJKSTRA:
+        receiveDijkstraRequest(net->edges.at(tedge), net->nodes.at(tnode), tsender);
+        break;
+    case HYPERTREE:
+        receiveHypertreeRequest(net->edges.at(tedge), net->nodes.at(tnode), tsender);
+        break;
+    case DONE:
+        receiveDoneRequest(s->getSender());
+        break;
+    case STARTED:
+        receiveStartedRequest(s->getSender());
+        break;
+    }
+
+    delete obj;
+}
+
+
+std::vector<std::string> getEdgeNames(std::string netName) {
+    std::vector<std::string> edgeNames;
+
+    rapidxml::file <> xmlFile(netName.c_str());
+    rapidxml::xml_document<> doc;
+    rapidxml::xml_node<> *node;
+    doc.parse<0>(xmlFile.data());
+    for(node = doc.first_node()->first_node("edge"); node; node = node->next_sibling("edge"))
+        edgeNames.push_back(node->first_attribute()->value());
+
+    return edgeNames;
+}
+
+std::vector<std::string> getNodeNames(std::string netName) {
+    std::vector<std::string> nodeNames;
+    rapidxml::file <> xmlFile(netName.c_str());
+    rapidxml::xml_document<> doc;
+    rapidxml::xml_node<> *node;
+    doc.parse<0>(xmlFile.data());
+    for(node = doc.first_node()->first_node("junction"); node; node = node->next_sibling("junction"))
+        nodeNames.push_back(node->first_attribute()->value());
+
+    return nodeNames;
+}
+
+double curve(double x)  //Input will linearly increase from 0 to 1, from first to last vehicle.
+{                       //Output should be between 0 and 1, scaled by some function
+    return x;
+}
+
+void Router::addVehs()
+{
+    std::string vehFile = ("/Vehicles" + std::to_string(totalVehicleCount) + ".xml");
+    std::string xmlFileName = TraCI->getFullPath_SUMOConfig().parent_path().string();
+    xmlFileName += vehFile;
+
+    if(!boost::filesystem::exists(xmlFileName))
+    {
+        std::string dir = TraCI->getFullPath_SUMOConfig().parent_path().string();
+
+        std::string netName = dir + "/hello.net.xml";
+
+        std::vector<std::string> edgeNames = getEdgeNames(netName);
+        std::vector<std::string> nodeNames = getNodeNames(netName);
+
+        srand(time(NULL));
+        std::string vName = dir + "/Vehicles" + std::to_string(totalVehicleCount) + ".xml";
+        std::ofstream vFile(vName.c_str());
+        vFile << "<vehicles>" << std::endl;
+        for(int i = 1; i <= totalVehicleCount; i++)
+        {
+            std::string edge = edgeNames[rand() % edgeNames.size()];
+            std::string node = nodeNames[rand() % nodeNames.size()];
+            //vFile << "   <vehicle id=\"v" << i << "\" type=\"TypeManual\" origin=\"" << edge << "\" destination=\"" << node << "\" depart=\"" << i * r->createTime / r->totalVehicleCount << "\" />" << endl;
+
+            vFile << "   <vehicle id=\"v" << i << "\" type=\"TypeManual\" origin=\"" << edge << "\" destination=\""
+                    << node << "\" depart=\"" << curve((double)i/totalVehicleCount) * createTime << "\" />" << std::endl;
+        }
+        vFile << "</vehicles>" << std::endl;
+        vFile.close();
+    }
+
+    rapidxml::file<> xmlFile( xmlFileName.c_str() );          // Convert our file to a rapid-xml readable object
+    rapidxml::xml_document<> doc;                             // Build a rapidxml doc
+    doc.parse<0>(xmlFile.data());                             // Fill it with data from our file
+    rapidxml::xml_node<> *node = doc.first_node("vehicles");  // Parse up to the "nodes" declaration
+
+    std::string id, type, origin, destination;
+    double depart;
+    for(node = node->first_node("vehicle"); node; node = node->next_sibling()) // For each vehicle
+    {
+        int readCount = 0;
+        for(rapidxml::xml_attribute<> *attr = node->first_attribute(); attr; attr = attr->next_attribute())//For each attribute
+        {
+            switch(readCount)   //Read that attribute to the right variable
+            {
+            case 0:
+                id = attr->value();
+                break;
+            case 1:
+                type = attr->value();
+                break;
+            case 2:
+                origin = attr->value();
+                break;
+            case 3:
+                destination = attr->value();
+                break;
+            case 4:
+                depart = atof(attr->value());
+                break;
+            }
+            readCount++;
+        }
+
+        if(readCount < 5)
+            throw omnetpp::cRuntimeError("XML formatted wrong! Not enough elements given for some vehicle.");
+
+        net->vehicles[id] = new Vehicle(id, type, origin, destination, depart);
+
+        auto routeList = TraCI->routeGetIDList();   //Get all the routes so far
+        if(std::find(routeList.begin(), routeList.end(), origin) == routeList.end())
+        {
+            std::vector<std::string> startRoute = {origin}; //With just the starting edge
+            TraCI->routeAdd(origin /*route ID*/, startRoute);   //And add it to the simulation
+        }
+
+        //Send a TraCI add call -- might not need to be *1000.
+        TraCI->vehicleAdd(id/*vehID*/, type/*vehType*/, origin/*routeID*/, 1000 * depart, 0/*pos*/, 0/*initial speed*/, 0/*lane*/);
+
+        //Change color of non-rerouting vehicle to green.
+        std::string veh = id.substr(1,-1);
+        if(find(nonReroutingVehicles->begin(), nonReroutingVehicles->end(), veh) != nonReroutingVehicles->end())
+        {
+            RGB newColor = Color::colorNameToRGB("green");
+            TraCI->vehicleSetColor(id, newColor);
+        }
+    }
 }
 
 
@@ -368,44 +534,6 @@ void Router::receiveDoneRequest(std::string sender)
 void Router::receiveStartedRequest(std::string sender)
 {
     vehicleTravelTimes[sender] = omnetpp::simTime().dbl();
-}
-
-void Router::receiveSignal(cComponent *source, omnetpp::simsignal_t signalID, cObject *obj, cObject* details)
-{
-    if(signalID != Signal_system)
-    {
-        delete obj;
-        return;
-    }
-
-    systemData *s = static_cast<systemData*>(obj);
-    if(std::string(s->getRecipient()) != "system") // Check if it's the right kind of symbol
-    {
-        delete obj;
-        return;
-    }
-
-    std::string tedge = s->getEdge();
-    std::string tnode = s->getNode();
-    std::string tsender = s->getSender();
-
-    switch(s->getRequestType())
-    {
-    case DIJKSTRA:
-        receiveDijkstraRequest(net->edges.at(tedge), net->nodes.at(tnode), tsender);
-        break;
-    case HYPERTREE:
-        receiveHypertreeRequest(net->edges.at(tedge), net->nodes.at(tnode), tsender);
-        break;
-    case DONE:
-        receiveDoneRequest(s->getSender());
-        break;
-    case STARTED:
-        receiveStartedRequest(s->getSender());
-        break;
-    }
-
-    delete obj;
 }
 
 void Router::issueStop(std::string vehID, std::string edgeID, double position, int laneIndex)

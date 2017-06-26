@@ -901,6 +901,12 @@ void TrafficControl::controlOptSize()
                     continue;
                 }
 
+                if(!vehPtr->getStatus_split())
+                    LOG_WARNING << boost::format("\nWARNING: Split is disabled in platoon '%s'. \n") % vehId << std::flush;
+
+                if(!vehPtr->getStatus_merge())
+                    LOG_WARNING << boost::format("\nWARNING: Merge is disabled in platoon '%s'. \n") % vehId << std::flush;
+
                 vehPtr->setOptSize(entry.second.value);
             }
 
@@ -1352,11 +1358,11 @@ void TrafficControl::parsePltManeuver(rapidxml::xml_node<> *pNode)
 
         std::string pltId_str = xmlUtil::getAttrValue_string(cNode, "pltId", false, "");
         double begin = xmlUtil::getAttrValue_double(cNode, "begin");
-        bool merge_active = xmlUtil::getAttrValue_bool(cNode, "merge", false, true);
-        bool split_active = xmlUtil::getAttrValue_bool(cNode, "split", false, true);
-        bool leaderLeave_active = xmlUtil::getAttrValue_bool(cNode, "leaderLeave", false, true);
-        bool followerLeave_active = xmlUtil::getAttrValue_bool(cNode, "followerLeave", false, true);
-        bool entry_active = xmlUtil::getAttrValue_bool(cNode, "entry", false, true);
+        int merge_active = (!cNode->first_attribute("merge")) ? -1 : xmlUtil::getAttrValue_bool(cNode, "merge");
+        int split_active = (!cNode->first_attribute("split")) ? -1 : xmlUtil::getAttrValue_bool(cNode, "split");
+        int leaderLeave_active = (!cNode->first_attribute("leaderLeave")) ? -1 : xmlUtil::getAttrValue_bool(cNode, "leaderLeave");
+        int followerLeave_active = (!cNode->first_attribute("followerLeave")) ? -1 : xmlUtil::getAttrValue_bool(cNode, "followerLeave");
+        int entry_active = (!cNode->first_attribute("entry")) ? -1 : xmlUtil::getAttrValue_bool(cNode, "entry");
 
         if(begin < 0)
             throw omnetpp::cRuntimeError("attribute 'begin' cannot be negative in element '%s'", maneuver_tag.c_str());
@@ -1393,7 +1399,82 @@ void TrafficControl::parsePltManeuver(rapidxml::xml_node<> *pNode)
 
 void TrafficControl::controlPltManeuver()
 {
+    for(auto &entry : allPltManeuver)
+    {
+        if(entry.second.processingEnded)
+            continue;
 
+        ASSERT(entry.second.begin >= 0);
+
+        // wait until 'begin'
+        if(entry.second.begin > omnetpp::simTime().dbl())
+            continue;
+
+        if(!entry.second.processingStarted)
+        {
+            auto allActivePlatoons = TraCI->platoonGetIDList();
+
+            // prepare a list of platoons
+            std::vector<std::string> affectedPlatoons;
+            if(entry.second.pltId_str == "")
+                affectedPlatoons = allActivePlatoons;
+            else
+            {
+                // look for the platoon leader
+                auto ii = std::find(allActivePlatoons.begin(), allActivePlatoons.end(), entry.second.pltId_str);
+                if(ii == allActivePlatoons.end())
+                {
+                    LOG_WARNING << boost::format("\nWARNING: Enabling/Disabling maneuver in platoon '%s' at time '%f' is not possible ") % entry.second.pltId_str % entry.second.begin;
+                    LOG_WARNING << boost::format("(it does not exist in the network) \n") << std::flush;
+                    entry.second.processingEnded = true;
+                    continue;
+                }
+
+                affectedPlatoons.push_back(entry.second.pltId_str);
+            }
+
+            // this happens when no pltId is empty and there is no
+            // platoon in the network at 'begin'
+            if(affectedPlatoons.empty())
+            {
+                entry.second.processingEnded = true;
+                continue;
+            }
+
+            for(auto &vehId : affectedPlatoons)
+            {
+                ApplVManager *vehPtr = getApplPtr(vehId);
+
+                // make sure platoon management protocol is 'on'
+                if(vehPtr->par("plnMode").longValue() != ApplVPlatoon::platoonManagement)
+                {
+                    LOG_WARNING << boost::format("\nWARNING: Trying to enable/disable maneuver in vehicle '%s' with disabled "
+                            "platoon management protocol. Is 'pltMgmtProt' attribute active? \n") % vehId << std::flush;
+                    entry.second.processingEnded = true;
+                    continue;
+                }
+
+                if(entry.second.merge_active != -1)
+                    vehPtr->setStatus_merge((bool)entry.second.merge_active);
+
+                if(entry.second.split_active != -1)
+                    vehPtr->setStatus_split((bool)entry.second.split_active);
+
+                if(entry.second.leaderLeave_active != -1)
+                    vehPtr->setStatus_leaderLeave((bool)entry.second.leaderLeave_active);
+
+                if(entry.second.followerLeave_active != -1)
+                    vehPtr->setStatus_followerLeave((bool)entry.second.followerLeave_active);
+
+                if(entry.second.entry_active != -1)
+                    vehPtr->setStatus_entry((bool)entry.second.entry_active);
+            }
+
+            entry.second.processingStarted = true;
+        }
+
+        entry.second.processingEnded = true;
+    }
 }
 
 

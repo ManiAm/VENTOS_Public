@@ -3,15 +3,15 @@
 <routes>
   
   <vType id="Type1" length="5.0" minGap="2.0" maxSpeed="28.0" vClass="passenger">
-      <carFollowing-OptimalSpeed accel="100" decel="100" sigma="0" tau="1.64" sensitivity="1.21" DesTimeGap="1.64" />
+      <carFollowing-OptimalSpeed accel="100" decel="100" sigma="0" tau="1.64" sensitivity="1.21" />
   </vType>
 
   <vType id="Type2" length="5.0" minGap="2.0" maxSpeed="28.0" vClass="passenger">
-      <carFollowing-OptimalSpeed accel="100" decel="100" sigma="0" tau="1" sensitivity="2" DesTimeGap="1.4" />
+      <carFollowing-OptimalSpeed accel="100" decel="100" sigma="0" tau="1.4" sensitivity="2" />
   </vType>
 
   <vType id="Type3" length="5.0" minGap="2.0" maxSpeed="28.0" vClass="passenger">
-      <carFollowing-OptimalSpeed accel="100" decel="100" sigma="0" tau="0.5" sensitivity="4" DesTimeGap="0.7" />
+      <carFollowing-OptimalSpeed accel="100" decel="100" sigma="0" tau="0.7" sensitivity="4" />
   </vType>
 
   <route id="route1" edges="1to2 2to3 3to4 4to6" />

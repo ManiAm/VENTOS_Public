@@ -78,6 +78,8 @@ public:
 protected:
     boost::filesystem::path SUMOConfigDirectory;
 
+    void addVehs();
+
     //Edge-removal Algo
     omnetpp::cMessage* routerMsg = NULL;
     void issueStop(std::string vehID, std::string edgeID, double position, int laneIndex); //Tells a vehicle to stop on the given edge
@@ -116,6 +118,7 @@ protected:
     TraCI_Commands* TraCI = NULL;
     omnetpp::simsignal_t Signal_system;
     omnetpp::simsignal_t Signal_executeEachTS;
+    omnetpp::simsignal_t Signal_initialize_withTraCI;
 
     int debugLevel;
 

@@ -40,7 +40,7 @@ void ApplAdversary::initialize(int stage)
 {
 	super::initialize(stage);
 
-	if (stage==0)
+	if (stage == 0)
 	{
 		AttackT = par("AttackT").doubleValue();
 		falsificationAttack = par("falsificationAttack").boolValue();
@@ -86,8 +86,6 @@ void ApplAdversary::handleLowerMsg(omnetpp::cMessage* msg)
         delete msg;
         return;
     }
-
-    super::handleLowerMsg(msg);
 
     // Attack time has not arrived yet!
     if(omnetpp::simTime().dbl() < AttackT)
