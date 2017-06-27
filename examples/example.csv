@@ -1,0 +1,28 @@
+,,Inventory List,,,Highlight items to reorder?,,Yes,,,,
+,,,,,,,,,,,
+,Flagged items to reorder,Inventory ID,Name,Description,Unit Price,Quantity in Stock,Inventory Value,Reorder Level,Reorder Time in Days,Quantity in Reorder,Discontinued?
+,Reorder,IN0001,Item 1,Desc 1,$51.00 ,25,"$1,275.00 ",29,13,50,
+,Reorder,IN0002,Item 2,Desc 2,$93.00 ,132,"$12,276.00 ",231,4,50,
+,,IN0003,Item 3,Desc 3,$57.00 ,151,"$8,607.00 ",114,11,150,
+,,IN0004,Item 4,Desc 4,$19.00 ,186,"$3,534.00 ",158,6,50,
+,,IN0005,Item 5,Desc 5,$75.00 ,62,"$4,650.00 ",39,12,50,
+,Reorder,IN0006,Item 6,Desc 6,$11.00 ,5,$55.00 ,9,13,150,
+,,IN0007,Item 7,Desc 7,$56.00 ,58,"$3,248.00 ",109,7,100,yes
+,Reorder,IN0008,Item 8,Desc 8,$38.00 ,101,"$3,838.00 ",162,3,100,
+,,IN0009,Item 9,Desc 9,$59.00 ,122,"$7,198.00 ",82,3,150,
+,Reorder,IN0010,Item 10,Desc 10,$50.00 ,175,"$8,750.00 ",283,8,150,
+,Reorder,IN0011,Item 11,Desc 11,$59.00 ,176,"$10,384.00 ",229,1,100,
+,Reorder,IN0012,Item 12,Desc 12,$18.00 ,22,$396.00 ,36,12,50,
+,Reorder,IN0013,Item 13,Desc 13,$26.00 ,72,"$1,872.00 ",102,9,100,
+,Reorder,IN0014,Item 14,Desc 14,$42.00 ,62,"$2,604.00 ",83,2,100,
+,,IN0015,Item 15,Desc 15,$32.00 ,46,"$1,472.00 ",23,15,50,
+,Reorder,IN0016,Item 16,Desc 16,$90.00 ,96,"$8,640.00 ",180,3,50,
+,,IN0017,Item 17,Desc 17,$97.00 ,57,"$5,529.00 ",98,12,50,Yes
+,Reorder,IN0018,Item 18,Desc 18,$12.00 ,6,$72.00 ,7,13,50,
+,Reorder,IN0019,Item 19,Desc 19,$82.00 ,143,"$11,726.00 ",164,12,150,
+,,IN0020,Item 20,Desc 20,$16.00 ,124,"$1,984.00 ",113,14,50,
+,,IN0021,Item 21,Desc 21,$19.00 ,112,"$2,128.00 ",75,11,50,
+,,IN0022,Item 22,Desc 22,$24.00 ,182,"$4,368.00 ",132,15,150,
+,,IN0023,Item 23,Desc 23,$29.00 ,106,"$3,074.00 ",142,1,150,Yes
+,,IN0024,Item 24,Desc 24,$75.00 ,173,"$12,975.00 ",127,9,100,
+,,IN0025,Item 25,Desc 25,$14.00 ,28,$392.00 ,21,8,50,

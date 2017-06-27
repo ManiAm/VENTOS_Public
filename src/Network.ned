@@ -23,7 +23,7 @@ network Network
         // debug info is only available in OMNET GUI mode
         int debugLevel = default(0);
 
-        @display("bgb=529,367");
+        @display("bgb=529,283");
     submodules:
         world: BaseWorldUtility {
             parameters:
@@ -51,10 +51,6 @@ network Network
         trafficControl: TrafficControl {
             parameters:
                 @display("p=245,135;i=block/app2");
-        }
-        speedprofile: SpeedProfile {
-            parameters:
-                @display("p=255,315;i=block/table");
         }
         statistics: <statisticsType> like IBaseStatistics {
             parameters:
