@@ -244,7 +244,7 @@ void AddNode::readInsertion(std::string addNodePath)
                 nodeName != vehicle_platoon_tag &&
                 nodeName != ca_tag &&
                 nodeName != emulated_tag)
-            throw omnetpp::cRuntimeError("'%s' is not a valid node in id '%s'", nodeName.c_str(), this->id.c_str());
+            throw omnetpp::cRuntimeError("'%s' is not a valid element in id '%s' of addNode.xml file!", nodeName.c_str(), this->id.c_str());
     }
 
     parseAdversary(pNode);

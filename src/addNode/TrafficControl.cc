@@ -164,7 +164,7 @@ void TrafficControl::readInsertion(std::string addNodePath)
                 nodeName != pltSplit_tag &&
                 nodeName != pltLeave_tag &&
                 nodeName != maneuver_tag)
-            throw omnetpp::cRuntimeError("'%s' is not a valid node in id '%s'", nodeName.c_str(), this->id.c_str());
+            throw omnetpp::cRuntimeError("'%s' is not a valid element in id '%s' of trafficControl.xml file!", nodeName.c_str(), this->id.c_str());
     }
 
     parseSpeed(pNode);

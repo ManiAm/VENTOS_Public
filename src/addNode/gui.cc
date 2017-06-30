@@ -144,7 +144,7 @@ void gui::readInsertion(std::string addNodePath)
         std::string nodeName = cNode->name();
 
         if(nodeName != viewport_tag && nodeName != track_tag)
-            throw omnetpp::cRuntimeError("'%s' is not a valid node in id '%s'", nodeName.c_str(), this->id.c_str());
+            throw omnetpp::cRuntimeError("'%s' is not a valid element in id '%s' of gui.xml file!", nodeName.c_str(), this->id.c_str());
     }
 
     parseViewport(pNode);
@@ -318,7 +318,7 @@ void gui::parseTracking(rapidxml::xml_node<> *pNode)
         if(std::string(cNode->name()) != track_tag)
             continue;
 
-        std::vector<std::string> validAttr = {"vehId", "pltId", "begin", "updateRate"};
+        std::vector<std::string> validAttr = {"vehId", "viewId", "begin", "updateRate"};
         xmlUtil::validityCheck(cNode, validAttr);
 
         std::string viewId_str = xmlUtil::getAttrValue_string(cNode, "viewId", false, "View #0");
@@ -376,15 +376,33 @@ void gui::controlTracking()
 
         if(!entry.second.processingStarted)
         {
+            auto ii = TraCI->departureArrival.find(entry.second.vehId_str);
+            if(ii == TraCI->departureArrival.end())
+            {
+                LOG_WARNING << boost::format("\nWARNING: Vehicle '%s' tracking is not possible, because it hasn't departed yet at time '%f' \n") %
+                        entry.second.vehId_str %
+                        entry.second.begin << std::flush;
+                entry.second.processingEnded = true;
+                continue;
+            }
+            else if(ii->second.arrival != -1)
+            {
+                LOG_WARNING << boost::format("\nWARNING: Vehicle '%s' tracking is not possible, because it has left the network at time '%f' \n ") %
+                        entry.second.vehId_str %
+                        ii->second.arrival << std::flush;
+                entry.second.processingEnded = true;
+                continue;
+            }
+
             // create the view if not exist
             TraCI->GUIAddView(entry.second.viewId_str);
 
+            TraCI->GUISetTrackVehicle(entry.second.viewId_str, entry.second.vehId_str);
 
             entry.second.processingStarted = true;
         }
 
-
-
+        entry.second.processingEnded = true;
     }
 }
 
