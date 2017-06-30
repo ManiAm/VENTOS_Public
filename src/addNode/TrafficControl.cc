@@ -141,10 +141,10 @@ void TrafficControl::readInsertion(std::string addNodePath)
         // Get the value of this attribute
         std::string strValue = pAttr->value();
 
-        // We found the correct applDependency node
+        // We found the correct id
         if(strValue == this->id)
             break;
-        // Get the next applDependency
+        // Get the next id
         else
         {
             pNode = pNode->next_sibling();
@@ -1263,12 +1263,65 @@ void TrafficControl::parseOptSize(rapidxml::xml_node<> *pNode)
             entry.begin = begin;
             entry.value = value;
 
+            // check for conflicts before adding
+            uint32_t conflictedOptSizeNode = checkOptSizeConflicts(entry, nodeCount);
+            if(conflictedOptSizeNode != 0)
+                throw omnetpp::cRuntimeError("optSize node '%d' and '%d' in TrafficControl with id '%s' have conflicts. "
+                        "They are both trying to change the optimal platoon size at time '%f'", conflictedOptSizeNode,
+                        nodeCount,
+                        this->id.c_str(),
+                        entry.begin);
+
             allOptSize.insert(std::make_pair(nodeCount, entry));
         }
         else
             throw omnetpp::cRuntimeError("Multiple %s with the same 'id' %s is not allowed!", optSize_tag.c_str(), pltId_str.c_str());
 
         nodeCount++;
+    }
+}
+
+
+uint32_t TrafficControl::checkOptSizeConflicts(optSizeEntry_t &optSizeEntry, uint32_t nodeCount)
+{
+    typedef struct optSizeChangeEntry
+    {
+        uint32_t nodeCount;
+        double time;
+    } optSizeChangeEntry_t;
+
+    static std::map<std::string /*platoonID*/, std::vector<optSizeChangeEntry_t>> allOptSizeChange;
+
+    ASSERT(optSizeEntry.begin != -1);
+
+    auto ii = allOptSizeChange.find(optSizeEntry.pltId_str);
+    // this is the first optSize for this platoon
+    if(ii == allOptSizeChange.end())
+    {
+        optSizeChangeEntry_t entry = {nodeCount, optSizeEntry.begin};
+        std::vector<optSizeChangeEntry_t> entry2 = {entry};
+        allOptSizeChange[optSizeEntry.pltId_str] = entry2;
+
+        return 0;
+    }
+    // there is an existing optSize for this platoon
+    else
+    {
+        // for each node on this lane
+        for(auto &optSizeNode : ii->second)
+        {
+            // check for overlap
+            if(optSizeEntry.begin == optSizeNode.time)
+            {
+                return optSizeNode.nodeCount;
+            }
+        }
+
+        // there is no overlap!
+        optSizeChangeEntry_t entry = {nodeCount, optSizeEntry.begin};
+        ii->second.push_back(entry);
+
+        return 0;
     }
 }
 

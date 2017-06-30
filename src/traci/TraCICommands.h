@@ -494,11 +494,13 @@ public:
     // CMD_GET_GUI_VARIABLE
     TraCICoord GUIGetOffset(std::string);
     std::vector<double> GUIGetBoundry(std::string);
+    double GUIGetZoom(std::string);
 
     // CMD_SET_GUI_VARIABLE
     void GUISetZoom(std::string, double);
-    void GUISetTrackVehicle(std::string, std::string);
     void GUISetOffset(std::string, double, double);
+    void GUISetTrackVehicle(std::string, std::string);
+    void GUIAddView(std::string);                                      // new command
 
     // ################################################################
     //                               polygon

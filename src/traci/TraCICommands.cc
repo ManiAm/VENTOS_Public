@@ -28,6 +28,7 @@
 #include <cmath>
 #include <iomanip>
 #include <algorithm>
+#include <regex>
 #include "boost/format.hpp"
 
 #undef ev
@@ -2872,6 +2873,15 @@ std::vector<double> TraCI_Commands::GUIGetBoundry(std::string viewID)
     return result;
 }
 
+double TraCI_Commands::GUIGetZoom(std::string viewID)
+{
+    record_TraCI_activity_func("commandStart", CMD_GET_GUI_VARIABLE, VAR_VIEW_ZOOM, "GUIGetZoom");
+
+    double result = genericGetDouble(CMD_GET_GUI_VARIABLE, viewID, VAR_VIEW_ZOOM, RESPONSE_GET_GUI_VARIABLE);
+
+    record_TraCI_activity_func("commandComplete", CMD_GET_GUI_VARIABLE, VAR_VIEW_ZOOM, "GUIGetZoom");
+    return result;
+}
 
 // #####################
 // CMD_SET_GUI_VARIABLE
@@ -2917,6 +2927,25 @@ void TraCI_Commands::GUISetTrackVehicle(std::string viewID, std::string nodeId)
     ASSERT(buf.eof());
 
     record_TraCI_activity_func("commandComplete", CMD_SET_GUI_VARIABLE, VAR_TRACK_VEHICLE, "GUISetTrackVehicle");
+}
+
+
+void TraCI_Commands::GUIAddView(std::string viewID)
+{
+    record_TraCI_activity_func("commandStart", CMD_SET_GUI_VARIABLE, 0xa7, "GUIAddView");
+
+    // make sure the view ID is in the 'View #n' format
+    if (!std::regex_match (viewID, std::regex("(View #)([[:digit:]]+)") ))
+        throw omnetpp::cRuntimeError("The viewID should be in the 'View #n' format");
+
+    uint8_t variableId = 0xa7;
+    uint8_t variableType = TYPE_STRING;
+    std::string init_viewID = "View #0";
+
+    TraCIBuffer buf = connection->query(CMD_SET_GUI_VARIABLE, TraCIBuffer() << variableId << init_viewID << variableType << viewID);
+    ASSERT(buf.eof());
+
+    record_TraCI_activity_func("commandComplete", CMD_SET_GUI_VARIABLE, 0xa7, "GUIAddView");
 }
 
 

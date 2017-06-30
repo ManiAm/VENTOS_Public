@@ -208,6 +208,7 @@ private:
     void CSV2TXT(std::string, std::vector<std::vector<std::string>> &);
 
     void parseOptSize(rapidxml::xml_node<> *);
+    uint32_t checkOptSizeConflicts(optSizeEntry_t &, uint32_t);
     void controlOptSize();
 
     void parsePltMerge(rapidxml::xml_node<> *);

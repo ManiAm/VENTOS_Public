@@ -40,7 +40,7 @@ network Network
             parameters:
                 @display("p=48,48;i=old/floppy2");
         }
-        Tracking: Tracking {
+        gui: gui {
             parameters:
                 @display("p=337,135;i=block/circle");
         }

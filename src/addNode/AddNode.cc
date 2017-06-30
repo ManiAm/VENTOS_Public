@@ -169,6 +169,8 @@ void AddNode::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t si
     if(signalID == Signal_initialize_withTraCI)
     {
         SUMO_timeStep = (double)TraCI->simulationGetTimeStep() / 1000.;
+        if(SUMO_timeStep <= 0)
+            throw omnetpp::cRuntimeError("Simulation time step '%d' is invalid", SUMO_timeStep);
 
         readInsertion("addNode.xml");
     }
@@ -1958,7 +1960,7 @@ void AddNode::addVehiclePlatoon()
 
             double vehTimeGap = TraCI->vehicleGetTimeGap(vehID);
             if(entry.second.interGap < vehTimeGap)
-                throw omnetpp::cRuntimeError("InterGap (=%d) in vehicle '%s' is smaller than intraGap (=%d).", entry.second.interGap, vehID.c_str(), vehTimeGap);
+                throw omnetpp::cRuntimeError("InterGap (=%d) in vehicle '%s' is smaller than intraGap (=%d) defined in 'tau' attribute.", entry.second.interGap, vehID.c_str(), vehTimeGap);
 
             // adding some parameters into deferred attributes
             auto ii = vehs_deferred_attributes.find(vehID);
