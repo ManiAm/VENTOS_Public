@@ -2915,6 +2915,20 @@ void TraCI_Commands::GUISetOffset(std::string viewID, double x, double y)
 }
 
 
+void TraCI_Commands::GUITakeScreenshot(std::string viewID, std::string filename)
+{
+    record_TraCI_activity_func("commandStart", CMD_SET_GUI_VARIABLE, VAR_SCREENSHOT, "GUITakeScreenshot");
+
+    uint8_t variableId = VAR_SCREENSHOT;
+    uint8_t variableType = TYPE_STRING;
+
+    TraCIBuffer buf = connection->query(CMD_SET_GUI_VARIABLE, TraCIBuffer() << variableId << viewID << variableType << filename);
+    ASSERT(buf.eof());
+
+    record_TraCI_activity_func("commandComplete", CMD_SET_GUI_VARIABLE, VAR_SCREENSHOT, "GUITakeScreenshot");
+}
+
+
 // very slow!
 void TraCI_Commands::GUISetTrackVehicle(std::string viewID, std::string nodeId)
 {

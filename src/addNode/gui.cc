@@ -26,6 +26,7 @@
 //
 
 #include <algorithm>
+#include <regex>
 #include <boost/algorithm/string.hpp>
 
 #include "gui.h"
@@ -95,6 +96,9 @@ void gui::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t signal
     {
         if(!allViewport.empty())
             controlViewport();
+
+        if(!allTracking.empty())
+            controlTracking();
     }
 }
 
@@ -139,16 +143,18 @@ void gui::readInsertion(std::string addNodePath)
     {
         std::string nodeName = cNode->name();
 
-        if(nodeName != viewport_tag)
+        if(nodeName != viewport_tag && nodeName != track_tag)
             throw omnetpp::cRuntimeError("'%s' is not a valid node in id '%s'", nodeName.c_str(), this->id.c_str());
     }
 
     parseViewport(pNode);
+    parseTracking(pNode);
 
-    if(allViewport.empty())
+    if(allViewport.empty() && allTracking.empty())
         LOG_WARNING << boost::format("\nWARNING: GUI with id '%1%' is empty! \n") % this->id << std::flush;
 
     controlViewport();
+    controlTracking();
 }
 
 
@@ -156,7 +162,7 @@ void gui::parseViewport(rapidxml::xml_node<> *pNode)
 {
     uint32_t nodeCount = 1;
 
-    // Iterate over all 'zoom' nodes
+    // Iterate over all 'viewport' nodes
     for(rapidxml::xml_node<> *cNode = pNode->first_node(viewport_tag.c_str()); cNode; cNode = cNode->next_sibling())
     {
         if(std::string(cNode->name()) != viewport_tag)
@@ -171,6 +177,10 @@ void gui::parseViewport(rapidxml::xml_node<> *pNode)
         double offsetY = xmlUtil::getAttrValue_double(cNode, "offsetY", false, std::numeric_limits<int>::max());
         double begin = xmlUtil::getAttrValue_double(cNode, "begin", false, 0);
         int steps = xmlUtil::getAttrValue_int(cNode, "steps", false, 0);
+
+        // make sure the view ID is in the 'View #n' format
+        if (!std::regex_match (viewId_str, std::regex("(View #)([[:digit:]]+)") ))
+            throw omnetpp::cRuntimeError("attribute 'viewId' is not in the 'View #n' format in element '%s'", viewport_tag.c_str());
 
         if(zoom < 100)
             throw omnetpp::cRuntimeError("attribute 'zoom' should be >=100 in element '%s'", viewport_tag.c_str());
@@ -294,6 +304,87 @@ void gui::controlViewport()
             if(currentZoom <= entry.second.zoom)
                 entry.second.processingEnded = true;
         }
+    }
+}
+
+
+void gui::parseTracking(rapidxml::xml_node<> *pNode)
+{
+    uint32_t nodeCount = 1;
+
+    // Iterate over all 'track' nodes
+    for(rapidxml::xml_node<> *cNode = pNode->first_node(track_tag.c_str()); cNode; cNode = cNode->next_sibling())
+    {
+        if(std::string(cNode->name()) != track_tag)
+            continue;
+
+        std::vector<std::string> validAttr = {"vehId", "pltId", "begin", "updateRate"};
+        xmlUtil::validityCheck(cNode, validAttr);
+
+        std::string viewId_str = xmlUtil::getAttrValue_string(cNode, "viewId", false, "View #0");
+        std::string vehId_str = xmlUtil::getAttrValue_string(cNode, "vehId", false, "");
+        double begin = xmlUtil::getAttrValue_double(cNode, "begin", false, 0);
+        double updateRate = xmlUtil::getAttrValue_double(cNode, "updateRate", false, -1);
+
+        // make sure the view ID is in the 'View #n' format
+        if (!std::regex_match (viewId_str, std::regex("(View #)([[:digit:]]+)") ))
+            throw omnetpp::cRuntimeError("attribute 'viewId' is not in the 'View #n' format in element '%s'", viewport_tag.c_str());
+
+        if(begin < 0)
+            throw omnetpp::cRuntimeError("attribute 'begin' should be positive in element '%s'", track_tag.c_str());
+
+        if(updateRate != -1 && updateRate <= 0)
+            throw omnetpp::cRuntimeError("attribute 'updateRate' should be positive in element '%s'", track_tag.c_str());
+
+        // make sure at least one attribute is present
+        if(!cNode->first_attribute("vehId") && !cNode->first_attribute("pltId"))
+            throw omnetpp::cRuntimeError("at least one of the 'vehId/pltId' attributes should be present in element '%s'", track_tag.c_str());
+
+        auto it = allTracking.find(nodeCount);
+        if(it == allTracking.end())
+        {
+            trackEntry_t entry = {};
+
+            entry.viewId_str = viewId_str;
+            entry.vehId_str = vehId_str;
+            entry.begin = begin;
+            entry.updateRate = updateRate;
+
+            allTracking.insert(std::make_pair(nodeCount, entry));
+        }
+        else
+            throw omnetpp::cRuntimeError("Multiple %s with the same 'id' is not allowed!", track_tag.c_str());
+
+        nodeCount++;
+    }
+}
+
+
+void gui::controlTracking()
+{
+    for(auto &entry : allTracking)
+    {
+        if(entry.second.processingEnded)
+            continue;
+
+        ASSERT(entry.second.begin >= 0);
+        ASSERT(entry.second.viewId_str != "");
+
+        // wait until 'begin'
+        if(entry.second.begin > omnetpp::simTime().dbl())
+            continue;
+
+        if(!entry.second.processingStarted)
+        {
+            // create the view if not exist
+            TraCI->GUIAddView(entry.second.viewId_str);
+
+
+            entry.second.processingStarted = true;
+        }
+
+
+
     }
 }
 

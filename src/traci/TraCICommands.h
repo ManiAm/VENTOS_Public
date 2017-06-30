@@ -499,6 +499,7 @@ public:
     // CMD_SET_GUI_VARIABLE
     void GUISetZoom(std::string, double);
     void GUISetOffset(std::string, double, double);
+    void GUITakeScreenshot(std::string, std::string);
     void GUISetTrackVehicle(std::string, std::string);
     void GUIAddView(std::string);                                      // new command
 

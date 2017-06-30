@@ -48,6 +48,7 @@ private:
     double SUMO_timeStep = -1;
 
     const std::string viewport_tag = "viewport";
+    const std::string track_tag = "track";
 
     std::string id;
 
@@ -69,6 +70,20 @@ private:
 
     std::map<uint32_t, viewportEntry> allViewport;
 
+    typedef struct trackEntry
+    {
+        std::string viewId_str;
+        std::string vehId_str;
+        double begin;
+        double updateRate;
+
+        // for internal use
+        bool processingStarted = false;
+        bool processingEnded = false;
+    } trackEntry_t;
+
+    std::map<uint32_t, trackEntry_t> allTracking;
+
 public:
     virtual ~gui();
     virtual void initialize(int stage);
@@ -81,6 +96,9 @@ private:
 
     void parseViewport(rapidxml::xml_node<> *);
     void controlViewport();
+
+    void parseTracking(rapidxml::xml_node<> *);
+    void controlTracking();
 };
 
 }

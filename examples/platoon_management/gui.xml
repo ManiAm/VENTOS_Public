@@ -2,7 +2,9 @@
 
 <gui id="gui_0">
 
-    <viewport zoom="15159" offsetX="100" offsetY="-5" steps="200" />  
-
+    <viewport zoom="15159" offsetX="100" offsetY="-5" />  
+    <viewport offsetX="150" begin="10" />
+    <viewport viewId="View #1" zoom="200" offsetY="55" />
+    <viewport viewId="View #1" offsetY="100" begin="10" />
         
 </gui>
