@@ -379,10 +379,7 @@ void gui::controlTracking()
             auto ii = TraCI->departureArrival.find(entry.second.vehId_str);
             if(ii == TraCI->departureArrival.end())
             {
-                LOG_WARNING << boost::format("\nWARNING: Vehicle '%s' tracking is not possible, because it hasn't departed yet at time '%f' \n") %
-                        entry.second.vehId_str %
-                        entry.second.begin << std::flush;
-                entry.second.processingEnded = true;
+                // the vehicle hasn't departed yet
                 continue;
             }
             else if(ii->second.arrival != -1)
