@@ -54,7 +54,6 @@ typedef struct veh_deferred_attributes
     int maxSize = -1;        // maximum platoon size
     int optSize = -1;        // optimal platoon size
     double interGap = -1;    // time-gap between platoons
-    double intraGap = -1;    // time-gap between vehicles in a platoon
 }veh_deferred_attributes_t;
 
 class AddNode : public BaseApplLayer

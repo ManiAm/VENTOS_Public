@@ -1776,7 +1776,7 @@ void AddNode::parseVehiclePlatoon(rapidxml::xml_node<> *pNode)
         double departPos = xmlUtil::getAttrValue_double(cNode, "departPos", false, -1);
         double platoonMaxSpeed = xmlUtil::getAttrValue_double(cNode, "platoonMaxSpeed", false, 10);
         bool fastCatchUp = xmlUtil::getAttrValue_bool(cNode, "fastCatchUp", false, false);
-        double interGap = xmlUtil::getAttrValue_double(cNode, "interGap", false, 3.5);
+        double interGap = xmlUtil::getAttrValue_double(cNode, "interGap", false, -1);
         bool pltMgmtProt = xmlUtil::getAttrValue_bool(cNode, "pltMgmtProt", false, false);
         int maxSize = xmlUtil::getAttrValue_int(cNode, "maxSize", false, -1);
         int optSize = xmlUtil::getAttrValue_int(cNode, "optSize", false, -1);
@@ -1958,10 +1958,6 @@ void AddNode::addVehiclePlatoon()
                     0 /*depart speed*/,
                     entry.second.departLane);
 
-            double vehTimeGap = TraCI->vehicleGetTimeGap(vehID);
-            if(entry.second.interGap < vehTimeGap)
-                throw omnetpp::cRuntimeError("InterGap (=%d) in vehicle '%s' is smaller than intraGap (=%d) defined in 'tau' attribute.", entry.second.interGap, vehID.c_str(), vehTimeGap);
-
             // adding some parameters into deferred attributes
             auto ii = vehs_deferred_attributes.find(vehID);
             if(ii != vehs_deferred_attributes.end())
@@ -1972,6 +1968,7 @@ void AddNode::addVehiclePlatoon()
             deferred_entry.plnMode = 2;
             deferred_entry.plnDepth = i;
             deferred_entry.plnId = platoonID;
+
             // setting platoon size in leader ONLY
             if(i == 0)
                 deferred_entry.plnSize = platoonSize;
@@ -1980,7 +1977,7 @@ void AddNode::addVehiclePlatoon()
             {
                 deferred_entry.plnMode = 3;
 
-                // setting parameters in leader OLNY
+                // setting parameters in leader ONLY
                 if(i == 0)
                 {
                     deferred_entry.maxSize = entry.second.maxSize;
@@ -1989,9 +1986,6 @@ void AddNode::addVehiclePlatoon()
 
                 // gap between platoons
                 deferred_entry.interGap = entry.second.interGap;
-
-                // Note: in non-homogeneous platoon each vehicle has its own intraGap
-                deferred_entry.intraGap = TraCI->vehicleGetTimeGap(vehID);
             }
 
             vehs_deferred_attributes[vehID] = deferred_entry;
@@ -2004,9 +1998,9 @@ void AddNode::addVehiclePlatoon()
             }
             else
             {
-                // mark leader red
                 if(i == 0)
                 {
+                    // set the leader color to red
                     RGB newColor = Color::colorNameToRGB("red");
                     TraCI->vehicleSetColor(vehID, newColor);
                 }
@@ -2023,9 +2017,6 @@ void AddNode::addVehiclePlatoon()
 
             if(i == 0)
             {
-                // set the interGap in leader
-                TraCI->vehicleSetTimeGap(vehID, entry.second.interGap);
-
                 TraCI->vehicleSetSpeed(vehID, entry.second.platoonMaxSpeed);
             }
             else

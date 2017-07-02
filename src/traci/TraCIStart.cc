@@ -1217,10 +1217,6 @@ omnetpp::cModule* TraCI_Start::addVehicle(std::string SUMOID, std::string type, 
         // between platoons
         if(ii->second.interGap != -1)
             appl->par("TP") = ii->second.interGap;
-
-        // between vehicles in a platoon
-        if(ii->second.intraGap != -1)
-            appl->par("TG") = ii->second.intraGap;
     }
 
     // updating the mapping before calling scheduleStart.

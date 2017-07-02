@@ -73,9 +73,12 @@ void ApplVPlatoonMg::initialize(int stage)
         if(TP <= 0)
             throw omnetpp::cRuntimeError("TP (inter-platoon gap) is invalid in vehicle '%s'", SUMOID.c_str());
 
-        TG = par("TG").doubleValue();
+        TG = TraCI->vehicleGetTimeGap(SUMOID);
         if(TG <= 0)
             throw omnetpp::cRuntimeError("TG (intra-platoon gap) is invalid in vehicle '%s'", SUMOID.c_str());
+
+        if(TP < TG)
+            throw omnetpp::cRuntimeError("InterGap (=%d) is smaller than intraGap (=%d) in vehicle '%s'", TP, TG, SUMOID.c_str());
 
         adaptiveTG = par("adaptiveTG").boolValue();
 
