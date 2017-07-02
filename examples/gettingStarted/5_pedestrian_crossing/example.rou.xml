@@ -5,11 +5,9 @@
       <carFollowing-Krauss accel="3.0" decel="5.0" sigma="0" tau="1.64" />
   </vType>    
   
-    <!-- bicycle -->
   <vType id="bicycle" length="1.6" width="0.6" minGap="0.5" maxSpeed="4.2" vClass="bicycle" guiShape="bicycle">
   </vType>
 
-  <!-- pedestrian -->
   <vType id="pedestrian" length="0.3" width="0.6" minGap="1.5" maxSpeed="1.4" vClass="pedestrian" guiShape="pedestrian" color="red">
   </vType>
 
@@ -18,7 +16,6 @@
 
   <flow id="route1" begin="10" end="1000" vehsPerHour="500" type="passenger" route="WtoE" />
   <flow id="route2" begin="10" end="1000" vehsPerHour="500" type="passenger" route="EtoW" />
-
 
   <person id="ped1" type="pedestrian" depart="10">
       <walk from="EC" to="WC" />
