@@ -2160,7 +2160,7 @@ void AddNode::addCA()
         // create an array of adversaries
         cModule* mod = nodeType->create(par("CA_ModuleName"), parentMod, num, i);
         mod->finalizeParameters();
-        mod->getDisplayString().parse(par("adversary_ModuleDisplayString"));
+        mod->getDisplayString().parse(par("CA_ModuleDisplayString"));
         mod->buildInside();
 
         TraCI->addMapping(entry.second.id_str, mod->getFullName());
