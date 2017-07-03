@@ -357,9 +357,7 @@ public:
     void vehicleSetComfDecel(std::string, double);                  // new command
 
     // used by the protocol
-    void vehiclePlatoonInit(std::string, int);
-    void vehiclePlatoonJoin(std::string, std::string, int, int);
-    void vehiclePlatoonLeave(std::string);
+    void vehiclePlatoonInit(std::string, std::deque<std::string>);
     void vehiclePlatoonViewUpdate(std::string, std::string);
 
     // ################################################################

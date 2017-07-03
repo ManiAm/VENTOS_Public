@@ -74,7 +74,7 @@ void ApplVPlatoon::initialize(int stage)
             }
 
             // platoon leader registers the platoon with SUMO
-            TraCI->vehiclePlatoonInit(SUMOID, plnSize);
+            TraCI->vehiclePlatoonInit(SUMOID, plnMembersList);
         }
 
         record_platoon_stat = par("record_platoon_stat").boolValue();

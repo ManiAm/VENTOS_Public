@@ -1587,57 +1587,27 @@ void TraCI_Commands::vehicleRemove(std::string nodeId, uint8_t reason)
 }
 
 
-void TraCI_Commands::vehiclePlatoonInit(std::string nodeId, int platoonSize)
+void TraCI_Commands::vehiclePlatoonInit(std::string nodeId, std::deque<std::string> platoonMembers)
 {
     record_TraCI_activity_func("commandStart", CMD_SET_VEHICLE_VARIABLE, 0x26, "vehiclePlatoonInit");
 
     uint8_t variableId = 0x26;
-    uint8_t variableType = TYPE_STRING;
+    uint8_t variableType = TYPE_STRINGLIST;
 
-    TraCIBuffer buf = connection->query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << std::to_string(platoonSize));
+    TraCIBuffer buffer;
+    buffer << variableId << nodeId << variableType << (int32_t)platoonMembers.size();
+    for(auto &str : platoonMembers)
+    {
+        buffer << (int32_t)str.length();
+        for(unsigned int i = 0; i < str.length(); ++i)
+            buffer << (int8_t)str[i];
+    }
+
+    TraCIBuffer buf = connection->query(CMD_SET_VEHICLE_VARIABLE, buffer);
 
     ASSERT(buf.eof());
 
     record_TraCI_activity_func("commandComplete", CMD_SET_VEHICLE_VARIABLE, 0x26, "vehiclePlatoonInit");
-}
-
-
-void TraCI_Commands::vehiclePlatoonJoin(std::string nodeId, std::string platoonId, int platoonSize, int platoonDepth)
-{
-    record_TraCI_activity_func("commandStart", CMD_SET_VEHICLE_VARIABLE, 0x25, "vehiclePlatoonJoin");
-
-    std::ostringstream params;
-    params << "JOIN" << PARAMS_DELIM;
-    params << platoonId << PARAMS_DELIM;
-    params << platoonSize << PARAMS_DELIM;
-    params << platoonDepth;
-
-    uint8_t variableId = 0x25;
-    uint8_t variableType = TYPE_STRING;
-
-    TraCIBuffer buf = connection->query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << params.str());
-
-    ASSERT(buf.eof());
-
-    record_TraCI_activity_func("commandComplete", CMD_SET_VEHICLE_VARIABLE, 0x25, "vehiclePlatoonJoin");
-}
-
-
-void TraCI_Commands::vehiclePlatoonLeave(std::string nodeId)
-{
-    record_TraCI_activity_func("commandStart", CMD_SET_VEHICLE_VARIABLE, 0x25, "vehiclePlatoonLeave");
-
-    std::ostringstream params;
-    params << "LEAVE";
-
-    uint8_t variableId = 0x25;
-    uint8_t variableType = TYPE_STRING;
-
-    TraCIBuffer buf = connection->query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << params.str());
-
-    ASSERT(buf.eof());
-
-    record_TraCI_activity_func("commandComplete", CMD_SET_VEHICLE_VARIABLE, 0x25, "vehiclePlatoonLeave");
 }
 
 

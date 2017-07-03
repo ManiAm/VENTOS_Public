@@ -1054,6 +1054,8 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
         // change the color of the followers
         updateColorDepth();
 
+        TraCI->vehiclePlatoonInit(SUMOID, plnMembersList);
+
         busy = false;
     }
 }
@@ -1291,6 +1293,8 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
 
         updateColorDepth();
 
+        TraCI->vehiclePlatoonInit(SUMOID, plnMembersList);
+
         if( adaptiveTG && plnSize < (maxPlnSize / 2) )
         {
             // decrease Tg
@@ -1404,6 +1408,9 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
             if(myPlnDepth != 0)
                 throw omnetpp::cRuntimeError("vehicle '%s' has a platoon depth other than zero", SUMOID.c_str());
 
+            // announce it to the SUMO ASAP
+            TraCI->vehiclePlatoonInit(SUMOID, std::deque<std::string> () = {SUMOID});
+
             // change color to red!
             RGB newColor = Color::colorNameToRGB("red");
             TraCI->vehicleSetColor(SUMOID, newColor);
@@ -1450,6 +1457,8 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
 
             TraCI->vehicleSetTimeGap(SUMOID, TP);
 
+            TraCI->vehiclePlatoonInit(SUMOID, plnMembersList);
+
             // check splitCaller. If 'leader leave' is on-going
             if(wsm->getValue().caller == 0)
             {
@@ -1465,8 +1474,6 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
                 TraCI->vehicleSetSpeed(SUMOID, 30.); // set max speed
 
             setVehicleState(state_waitForGap);
-
-            // MyCircularBufferSplit.clear();
 
             // check each updateInterval to see if the gap is big enough
             scheduleAt(omnetpp::simTime() + updateInterval, plnTIMER8a);
@@ -1941,6 +1948,8 @@ void ApplVPlatoonMg::dissolve_DataFSM(PlatoonMsg* wsm)
             TraCI->vehicleSetColor(SUMOID, newColor);
 
             setVehicleState(state_platoonLeader);
+
+            TraCI->vehiclePlatoonInit(SUMOID, plnMembersList);
         }
     }
 }
