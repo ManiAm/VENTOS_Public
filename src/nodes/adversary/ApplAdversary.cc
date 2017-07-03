@@ -25,6 +25,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include <nodes/adversary/ApplAdversary.h>
+#include "nodes/vehicle/Manager.h"
 
 namespace VENTOS {
 
@@ -38,43 +39,58 @@ ApplAdversary::~ApplAdversary()
 
 void ApplAdversary::initialize(int stage)
 {
-	super::initialize(stage);
+    super::initialize(stage);
 
-	if (stage == 0)
-	{
-		AttackT = par("AttackT").doubleValue();
-		falsificationAttack = par("falsificationAttack").boolValue();
-		replayAttack = par("replayAttack").boolValue();
-		jammingAttack = par("jammingAttack").boolValue();
+    if (stage == 0)
+    {
+        attackMode = par("attackMode").longValue();
 
-        JammingEvt = new omnetpp::cMessage("Jamming Event");
+        if(attackMode == -1)
+            return;
 
-        if(jammingAttack)
-	    {
-            //scheduleAt(simTime(), JammingEvt);
-	    }
-	}
+        if(attackMode >= attackMode_MAX)
+            throw omnetpp::cRuntimeError("Attack mode '%d' is not valid", attackMode);
+
+        attackStartTime = par("attackStartTime").doubleValue();
+
+        // get a pointer to the connection manager module
+        omnetpp::cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("connMan");
+        cc = static_cast<BaseConnectionManager*>(module);
+        ASSERT(cc);
+
+        Signal_executeEachTS = registerSignal("executeEachTimeStepSignal");
+        omnetpp::getSimulation()->getSystemModule()->subscribe("executeEachTimeStepSignal", this);
+    }
 }
 
 
 void ApplAdversary::finish()
 {
     super::finish();
+
+    // unsubscribe
+    omnetpp::getSimulation()->getSystemModule()->unsubscribe("executeEachTimeStepSignal", this);
+}
+
+
+void ApplAdversary::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t signalID, long i, cObject* details)
+{
+    Enter_Method_Silent();
+
+    if(signalID == Signal_executeEachTS)
+    {
+        if(attackMode == attackMode_jamming)
+        {
+            if(omnetpp::simTime().dbl() >= attackStartTime)
+                DoJammingAttack();
+        }
+    }
 }
 
 
 void ApplAdversary::handleSelfMsg(omnetpp::cMessage* msg)
 {
-    if(msg == JammingEvt)
-    {
-        if(omnetpp::simTime().dbl() >= AttackT)
-            DoJammingAttack();
-
-        // schedule for next jamming attack
-        scheduleAt(omnetpp::simTime() + 0.001, JammingEvt);
-    }
-    else
-        super::handleSelfMsg(msg);
+    super::handleSelfMsg(msg);
 }
 
 
@@ -88,24 +104,19 @@ void ApplAdversary::handleLowerMsg(omnetpp::cMessage* msg)
     }
 
     // Attack time has not arrived yet!
-    if(omnetpp::simTime().dbl() < AttackT)
+    if(omnetpp::simTime().dbl() < attackStartTime)
         return;
 
+    // received a beacon from a nearby vehicle
     if (msg->getKind() == TYPE_BEACON_VEHICLE)
     {
         BeaconVehicle* wsm = dynamic_cast<BeaconVehicle*>(msg);
         ASSERT(wsm);
 
-        EV << "######### received a beacon!" << std::endl;
-
-        if(falsificationAttack)
-        {
+        if(attackMode == attackMode_falsification)
             DoFalsificationAttack(wsm);
-        }
-        else if(replayAttack)
-        {
+        else if(attackMode == attackMode_replay)
             DoReplayAttack(wsm);
-        }
     }
 
     delete msg;
@@ -148,10 +159,66 @@ void ApplAdversary::DoReplayAttack(BeaconVehicle * wsm)
 
 void ApplAdversary::DoJammingAttack()
 {
-    DummyMsg* dm = CreateDummyMessage();
+    // all NIC gates that are in the radio range of the adversary
+    auto gateList = cc->getGateList(getParentModule()->getSubmodule("nic")->getId());
+    // save in-range vehicle's name
+    std::vector<std::string> inRangeVehs;
+    for(auto &i : gateList)
+    {
+        std::string vehId = i.second->getOwnerModule()->getFullName();
+        inRangeVehs.push_back(vehId);
+    }
 
-    // send it
-    send(dm, lowerLayerOut);
+    static std::set<std::string> subscribedVehicles;
+
+    // check for vehicles that need subscribing to
+    std::set<std::string> needSubscribe;
+    std::set_difference(inRangeVehs.begin(), inRangeVehs.end(), subscribedVehicles.begin(), subscribedVehicles.end(), std::inserter(needSubscribe, needSubscribe.begin()));
+    for (auto i = needSubscribe.begin(); i != needSubscribe.end(); ++i)
+    {
+        subscribedVehicles.insert(*i);
+
+        // get a pointer to the vehicle module
+        cModule *module = omnetpp::getSimulation()->getSystemModule()->getModuleByPath((*i).c_str());
+        ASSERT(module);
+
+        cModule *appl = module->getSubmodule("appl");
+        ASSERT(appl);
+
+        // get a pointer to the application layer
+        ApplVManager *vehPtr = static_cast<ApplVManager *>(appl);
+        ASSERT(vehPtr);
+
+        // set jamming flag
+        vehPtr->jamming = true;
+    }
+
+    // check for vehicles that need unsubscribing from
+    std::set<std::string> needUnsubscribe;
+    std::set_difference(subscribedVehicles.begin(), subscribedVehicles.end(), inRangeVehs.begin(), inRangeVehs.end(), std::inserter(needUnsubscribe, needUnsubscribe.begin()));
+    for (auto i = needUnsubscribe.begin(); i != needUnsubscribe.end(); ++i)
+    {
+        subscribedVehicles.erase(*i);
+
+        // get a pointer to the vehicle module
+        cModule *module = omnetpp::getSimulation()->getSystemModule()->getModuleByPath((*i).c_str());
+        ASSERT(module);
+
+        cModule *appl = module->getSubmodule("appl");
+        ASSERT(appl);
+
+        // get a pointer to the application layer
+        ApplVManager *vehPtr = static_cast<ApplVManager *>(appl);
+        ASSERT(vehPtr);
+
+        // un-set jamming flag
+        vehPtr->jamming = false;
+    }
+
+    //    DummyMsg* dm = CreateDummyMessage();
+    //
+    //    // send it
+    //    send(dm, lowerLayerOut);
 }
 
 

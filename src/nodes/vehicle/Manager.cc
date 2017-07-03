@@ -104,21 +104,11 @@ void ApplVManager::handleLowerMsg(omnetpp::cMessage* msg)
         return;
     }
 
-    // check if jamming attack is effective?
-    // todo: change this later
-    cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("adversary", 0);
-    if(module != NULL)
+    // jamming attack is going on
+    if(jamming)
     {
-        cModule *applModule = module->getSubmodule("appl");
-
-        bool jammingActive = applModule->par("jammingAttack").boolValue();
-        double AttackT = applModule->par("AttackT").doubleValue();
-
-        if(jammingActive && omnetpp::simTime().dbl() > AttackT)
-        {
-            delete msg;
-            return;
-        }
+        delete msg;
+        return;
     }
 
     onMessageType(msg);

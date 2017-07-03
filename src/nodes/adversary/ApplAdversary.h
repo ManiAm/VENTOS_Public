@@ -41,19 +41,27 @@ private:
 
 protected:
     // NED variables
-    double AttackT;
-    bool falsificationAttack;
-    bool replayAttack;
-    bool jammingAttack;
+    int attackMode = -1;
+    double attackStartTime = -1;
 
-    omnetpp::cMessage* JammingEvt = NULL;
+    typedef enum attackMode
+    {
+        attackMode_falsification = 0,
+        attackMode_replay,
+        attackMode_jamming,
+
+        attackMode_MAX,
+
+    }attackMode_t;
+
+    BaseConnectionManager* cc;
+    omnetpp::simsignal_t Signal_executeEachTS;
 
 public:
     ~ApplAdversary();
     virtual void initialize(int stage);
     virtual void finish();
-
-protected:
+    virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, long, cObject *);
     virtual void handleLowerMsg(omnetpp::cMessage* msg);
     virtual void handleSelfMsg(omnetpp::cMessage* msg);
 

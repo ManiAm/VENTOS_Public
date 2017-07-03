@@ -34,6 +34,9 @@ namespace VENTOS {
 
 class ApplVManager : public ApplVPlatoonMg
 {
+public:
+    bool jamming = false;
+
 private:
     typedef ApplVPlatoonMg super;
 
