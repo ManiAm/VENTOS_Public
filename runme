@@ -524,6 +524,14 @@ EOF
 VENTOS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # change directory to VENTOS
 cd $VENTOS_DIR
+
+# get the git FETCH directory
+FETCH_DIR=$(basename `git remote show origin -n | grep "Fetch URL:" | awk '{print $NF}'`)
+if [[ "$FETCH_DIR" == "" ]]; then
+    echo "cannot get the Git FETCH URL."
+    exit 1
+fi
+
 # change directory to parent of VENTOS (Desktop)
 cd ..
 # make directory in tmp to store all downloaded files
@@ -1099,6 +1107,7 @@ if [[ "" != "$ver" ]]; then
     echo "found SUMO $ver in"
     echo "    $loc"
 
+    # look for 'VENTOS_SUMO' file in the bin folder
     VENTOS_SUMO_FILE=$(dirname "${loc}")"/VENTOS_SUMO"
     if [[ ! -f $VENTOS_SUMO_FILE ]]; then
         help="ERROR: The installed SUMO version interferes with VENTOS_SUMO.
@@ -1116,26 +1125,37 @@ else
     echo "Cloning SUMO git repository"
     echo "==========================="
 
+    if [[ "$FETCH_DIR" == "VENTOS" ]]; then
+        SUMO_DIR="VENTOS_SUMO"
+        VENTOS_SUMO_GIT="https://github.com/ManiAm/VENTOS_SUMO"
+    elif [[ "$FETCH_DIR" == "VENTOS_Public" ]]; then
+        SUMO_DIR="VENTOS_SUMO_Public"
+        VENTOS_SUMO_GIT="https://github.com/ManiAm/VENTOS_SUMO_Public"
+    else
+        echo "$FETCH_DIR is not valid!"
+        exit 1
+    fi
+
     # check if SUMO directory exists
-    if [ ! -d "VENTOS_SUMO" ]; then
+    if [ ! -d "$SUMO_DIR" ]; then
         # cloning git
-        if ! git clone https://github.com/ManiAm/VENTOS_SUMO; then
+        if ! git clone $VENTOS_SUMO_GIT; then
             exit 1
         fi
         # make sure the folder is created
-        if [[ ! -d "VENTOS_SUMO" ]]; then
-            echo "VENTOS_SUMO folder does not exist!"
+        if [[ ! -d "$SUMO_DIR" ]]; then
+            echo "$SUMO_DIR folder does not exist!"
             exit 1
         fi
     else
-        echo "VENTOS_SUMO folder already exists!"
+        echo "$SUMO_DIR folder already exists!"
     fi
 
     echo ""
     echo "Running SUMO configure"
     echo "======================"
 
-    cd VENTOS_SUMO
+    cd $SUMO_DIR
     if [[ $? -ne 0 ]]; then
         exit 1
     fi
