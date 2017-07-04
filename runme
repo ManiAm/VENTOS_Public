@@ -893,6 +893,9 @@ and open a new terminal and execute the runme script again!"
             exit 1 
         fi
 
+        JAVA_PATH_SET=0
+        OMNET_PATH_SET=0
+      
         while true; do
 
             # run configure
@@ -931,6 +934,11 @@ and open a new terminal and execute the runme script again!"
             check=$(echo "$confOut" | grep "configure: WARNING: JAVA_HOME")
             if [ "" != "$check" ]; then
 
+                if [ "$JAVA_PATH_SET" -eq "1" ]; then
+                    echo "cannot add JAVA_HOME in PATH"
+                    exit 1
+                fi
+
                 if [[ "$OS" == "Ubuntu" ]]; then
                     help="Adding JAVA_HOME to bashrc ..."
                     printf "\n\e[1;32m$help\e[0m \n\n"
@@ -951,12 +959,18 @@ and open a new terminal and execute the runme script again!"
                     export JAVA_HOME=/usr/libexec/java_home
                 fi
 
+                JAVA_PATH_SET=1
                 continue # run configure again
             fi
 
             # setting omnet path
             check=$(echo "$confOut" | grep "WARNING: your PATH doesn't contain")
             if [ "" != "$check" ]; then
+
+                if [ "$OMNET_PATH_SET" -eq "1" ]; then
+                    echo "cannot add OMNET++ bin folder to PATH"
+                    exit 1
+                fi
 
                 if [[ "$OS" == "Ubuntu" ]]; then
                     help="Adding OMNET++ bin folder to PATH ..."
@@ -977,6 +991,7 @@ and open a new terminal and execute the runme script again!"
                     export PATH=$PATH:$omnetFULLPATH/bin
                 fi
 
+                OMNET_PATH_SET=1
                 continue # run configure again
             fi
 
@@ -1169,6 +1184,8 @@ else
     echo "generating configure file ..."
     make -f Makefile.cvs > /dev/null
 
+    SUMO_PATH_SET=0
+
     while true; do
 
         echo "running configure ..."
@@ -1198,6 +1215,11 @@ else
                 echo "Your PATH contains $SUMO_BIN_DIR. Good!"
             else
 
+                if [ "$SUMO_PATH_SET" -eq "1" ]; then
+                    echo "cannot add SUMO bin folder to PATH"
+                    exit 1
+                fi
+
                 # setting sumo path
                 if [[ "$OS" == "Ubuntu" ]]; then
                     help="Adding SUMO bin folder to PATH ..."
@@ -1220,6 +1242,7 @@ else
 
                 # removing the prob file
                 rm $SUMO_BIN_DIR/$probefile
+                SUMO_PATH_SET=1
                 continue
             fi
 
