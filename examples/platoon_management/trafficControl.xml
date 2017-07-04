@@ -14,9 +14,9 @@
     
     <optSize begin="140" value="6" />
     
-    <pltLeave pltId="veh" leaveIndex="5" begin="160" leaveDirection="left"/>
-    <pltLeave pltId="veh" leaveIndex="3" begin="180"/>
-    <pltLeave pltId="veh" leaveIndex="0" begin="210"/>
+    <pltLeave pltId="veh" leaveIndex="5" begin="180" leaveDirection="left"/>
+    <pltLeave pltId="veh" leaveIndex="3" begin="200"/>
+    <pltLeave pltId="veh" leaveIndex="0" begin="240"/>
     
 </trafficControl>
 
