@@ -358,9 +358,7 @@ public:
     void vehicleSetComfDecel(std::string, double);                  // new command
 
     // used by the protocol
-    void vehiclePlatoonInit(std::string, int);
-    void vehiclePlatoonJoin(std::string, std::string, int, int);
-    void vehiclePlatoonLeave(std::string);
+    void vehiclePlatoonInit(std::string, std::deque<std::string>);
     void vehiclePlatoonViewUpdate(std::string, std::string);
 
     // ################################################################
@@ -495,11 +493,14 @@ public:
     // CMD_GET_GUI_VARIABLE
     TraCICoord GUIGetOffset(std::string);
     std::vector<double> GUIGetBoundry(std::string);
+    double GUIGetZoom(std::string);
 
     // CMD_SET_GUI_VARIABLE
     void GUISetZoom(std::string, double);
-    void GUISetTrackVehicle(std::string, std::string);
     void GUISetOffset(std::string, double, double);
+    void GUITakeScreenshot(std::string, std::string);
+    void GUISetTrackVehicle(std::string, std::string);
+    void GUIAddView(std::string);                                      // new command
 
     // ################################################################
     //                               polygon

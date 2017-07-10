@@ -39,63 +39,6 @@ simple AddNode
 }
 
 
-simple SpeedProfile
-{
-    parameters:
-        @class(VENTOS::SpeedProfile);
-        @display("i=block/network2");
-        
-        bool active = default(false);      
-        
-        // mode = 0: fixed speed
-        // mode = 1: accel/decel pulse
-        // mode = 2: accel/decel pulse (extreme)
-        // mode = 3: accel/decel pulse (stability test)
-        // mode = 4: accel/decel zik-zak 
-        // mode = 5: accel/decel periodic
-        // mode = 6: real stop-and-go traffic flow data (external file)
-        int mode = default(3);
-        
-        string laneId = default("1to2_0");   
-        string vehId = default("");   
-        double startTime = default(-1s) @unit(s);  // -1: simulation start
-        
-        bool warmUp = default(false);        
-        double stopPosition = default(9); 
-        double warmUpSpeed = default(0);  
-        double waitingTime = default(15);  // waiting time after all vehicles enter the simulation        
-        
-        double minSpeed = default(5);
-        double normalSpeed = default(20);
-        double maxSpeed = default(30);
-        double switchTime = default(40s) @unit(s);  // waiting time between speed change
-        string trajectoryPath = default("sumo/trajectory_StopAndGo.txt");
-}
-
-
-simple Tracking
-{
-    parameters:
-        @class(VENTOS::Tracking);
-        @display("i=block/network2");
-        
-        // trackingMode = -1: disable
-        // trackingMode =  0: zoom in
-        // trackingMode =  1: zoom in slowly
-        // trackingMode =  2: track a specific vehicle
-        // trackingMode =  3: move windows frame when all vehicles exit
-        int mode = default(-1);                
-        
-        double zoom = default(11512);
-        double winOffsetX = default(0);
-        double winOffsetY = default(0);
-        double trackingInterval = default(1);
-        string trackingV = default("veh3");       // in mode 2
-        string trackingLane = default("1to2_0");  // in mode 3
-        double windowsOffset = default(400);      // in mode 3
-}
-
-
 simple TrafficControl
 {
     parameters:
@@ -104,4 +47,15 @@ simple TrafficControl
         
         int headerLength = default(256bit) @unit(bit); //header length of the application 
         string id = default(""); 
+}
+
+
+simple gui
+{
+    parameters:
+        @class(VENTOS::gui);
+        @display("i=block/network2");
+        
+        int headerLength = default(256bit) @unit(bit); //header length of the application 
+        string id = default("");
 }

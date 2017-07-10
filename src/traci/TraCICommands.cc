@@ -28,6 +28,7 @@
 #include <cmath>
 #include <iomanip>
 #include <algorithm>
+#include <regex>
 #include "boost/format.hpp"
 
 #undef ev
@@ -1618,57 +1619,27 @@ void TraCI_Commands::vehicleRemove(std::string nodeId, uint8_t reason)
 }
 
 
-void TraCI_Commands::vehiclePlatoonInit(std::string nodeId, int platoonSize)
+void TraCI_Commands::vehiclePlatoonInit(std::string nodeId, std::deque<std::string> platoonMembers)
 {
     record_TraCI_activity_func("commandStart", CMD_SET_VEHICLE_VARIABLE, 0x26, "vehiclePlatoonInit");
 
     uint8_t variableId = 0x26;
-    uint8_t variableType = TYPE_STRING;
+    uint8_t variableType = TYPE_STRINGLIST;
 
-    TraCIBuffer buf = connection->query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << std::to_string(platoonSize));
+    TraCIBuffer buffer;
+    buffer << variableId << nodeId << variableType << (int32_t)platoonMembers.size();
+    for(auto &str : platoonMembers)
+    {
+        buffer << (int32_t)str.length();
+        for(unsigned int i = 0; i < str.length(); ++i)
+            buffer << (int8_t)str[i];
+    }
+
+    TraCIBuffer buf = connection->query(CMD_SET_VEHICLE_VARIABLE, buffer);
 
     ASSERT(buf.eof());
 
     record_TraCI_activity_func("commandComplete", CMD_SET_VEHICLE_VARIABLE, 0x26, "vehiclePlatoonInit");
-}
-
-
-void TraCI_Commands::vehiclePlatoonJoin(std::string nodeId, std::string platoonId, int platoonSize, int platoonDepth)
-{
-    record_TraCI_activity_func("commandStart", CMD_SET_VEHICLE_VARIABLE, 0x25, "vehiclePlatoonJoin");
-
-    std::ostringstream params;
-    params << "JOIN" << PARAMS_DELIM;
-    params << platoonId << PARAMS_DELIM;
-    params << platoonSize << PARAMS_DELIM;
-    params << platoonDepth;
-
-    uint8_t variableId = 0x25;
-    uint8_t variableType = TYPE_STRING;
-
-    TraCIBuffer buf = connection->query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << params.str());
-
-    ASSERT(buf.eof());
-
-    record_TraCI_activity_func("commandComplete", CMD_SET_VEHICLE_VARIABLE, 0x25, "vehiclePlatoonJoin");
-}
-
-
-void TraCI_Commands::vehiclePlatoonLeave(std::string nodeId)
-{
-    record_TraCI_activity_func("commandStart", CMD_SET_VEHICLE_VARIABLE, 0x25, "vehiclePlatoonLeave");
-
-    std::ostringstream params;
-    params << "LEAVE";
-
-    uint8_t variableId = 0x25;
-    uint8_t variableType = TYPE_STRING;
-
-    TraCIBuffer buf = connection->query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << params.str());
-
-    ASSERT(buf.eof());
-
-    record_TraCI_activity_func("commandComplete", CMD_SET_VEHICLE_VARIABLE, 0x25, "vehiclePlatoonLeave");
 }
 
 
@@ -2904,6 +2875,15 @@ std::vector<double> TraCI_Commands::GUIGetBoundry(std::string viewID)
     return result;
 }
 
+double TraCI_Commands::GUIGetZoom(std::string viewID)
+{
+    record_TraCI_activity_func("commandStart", CMD_GET_GUI_VARIABLE, VAR_VIEW_ZOOM, "GUIGetZoom");
+
+    double result = genericGetDouble(CMD_GET_GUI_VARIABLE, viewID, VAR_VIEW_ZOOM, RESPONSE_GET_GUI_VARIABLE);
+
+    record_TraCI_activity_func("commandComplete", CMD_GET_GUI_VARIABLE, VAR_VIEW_ZOOM, "GUIGetZoom");
+    return result;
+}
 
 // #####################
 // CMD_SET_GUI_VARIABLE
@@ -2937,6 +2917,20 @@ void TraCI_Commands::GUISetOffset(std::string viewID, double x, double y)
 }
 
 
+void TraCI_Commands::GUITakeScreenshot(std::string viewID, std::string filename)
+{
+    record_TraCI_activity_func("commandStart", CMD_SET_GUI_VARIABLE, VAR_SCREENSHOT, "GUITakeScreenshot");
+
+    uint8_t variableId = VAR_SCREENSHOT;
+    uint8_t variableType = TYPE_STRING;
+
+    TraCIBuffer buf = connection->query(CMD_SET_GUI_VARIABLE, TraCIBuffer() << variableId << viewID << variableType << filename);
+    ASSERT(buf.eof());
+
+    record_TraCI_activity_func("commandComplete", CMD_SET_GUI_VARIABLE, VAR_SCREENSHOT, "GUITakeScreenshot");
+}
+
+
 // very slow!
 void TraCI_Commands::GUISetTrackVehicle(std::string viewID, std::string nodeId)
 {
@@ -2949,6 +2943,25 @@ void TraCI_Commands::GUISetTrackVehicle(std::string viewID, std::string nodeId)
     ASSERT(buf.eof());
 
     record_TraCI_activity_func("commandComplete", CMD_SET_GUI_VARIABLE, VAR_TRACK_VEHICLE, "GUISetTrackVehicle");
+}
+
+
+void TraCI_Commands::GUIAddView(std::string viewID)
+{
+    record_TraCI_activity_func("commandStart", CMD_SET_GUI_VARIABLE, 0xa7, "GUIAddView");
+
+    // make sure the view ID is in the 'View #n' format
+    if (!std::regex_match (viewID, std::regex("(View #)([[:digit:]]+)") ))
+        throw omnetpp::cRuntimeError("The viewID should be in the 'View #n' format");
+
+    uint8_t variableId = 0xa7;
+    uint8_t variableType = TYPE_STRING;
+    std::string init_viewID = "View #0";
+
+    TraCIBuffer buf = connection->query(CMD_SET_GUI_VARIABLE, TraCIBuffer() << variableId << init_viewID << variableType << viewID);
+    ASSERT(buf.eof());
+
+    record_TraCI_activity_func("commandComplete", CMD_SET_GUI_VARIABLE, 0xa7, "GUIAddView");
 }
 
 
@@ -3674,7 +3687,14 @@ boost::filesystem::path TraCI_Commands::getFullPath_SUMOApplication()
     char output[10000];
     memset (output, 0, sizeof(output));
     if (!fgets(output, sizeof(output), pip))
-        throw omnetpp::cRuntimeError("'%s' application cannot be found. Check 'SUMOapplication' parameter", sumoAppl.c_str());
+    {
+        LOG_WARNING << boost::format(">>> '%s' application is not in your PATH. \n") % sumoAppl;
+        LOG_WARNING << boost::format("    1. Have you launched OMNET++ IDE from the Desktop launcher? If yes, then you probably forgot to follow 'Step 4' of installation. \n");
+        LOG_WARNING << boost::format("    2. Make sure the 'Network.TraCI.SUMOapplication' parameter in set correctly. \n");
+        LOG_WARNING << std::flush;
+
+        throw omnetpp::cRuntimeError("Cannot run SUMO application");
+    }
 
     std::string SUMOexeFullPath = std::string(output);
     // remove new line character at the end
@@ -3682,7 +3702,7 @@ boost::filesystem::path TraCI_Commands::getFullPath_SUMOApplication()
 
     // check if this file exists?
     if( !boost::filesystem::exists(SUMOexeFullPath) )
-        throw omnetpp::cRuntimeError("SUMO executable not found at %s", SUMOexeFullPath.c_str());
+        throw omnetpp::cRuntimeError("SUMO executable not found at '%s'", SUMOexeFullPath.c_str());
 
     return SUMOexeFullPath;
 }
@@ -3695,7 +3715,7 @@ boost::filesystem::path TraCI_Commands::getFullPath_SUMOConfig()
     boost::filesystem::path SUMOconfigFullPath = VENTOS_FullPath / SUMOconfig;
 
     if( !boost::filesystem::exists(SUMOconfigFullPath) || !boost::filesystem::is_regular_file(SUMOconfigFullPath) )
-        throw omnetpp::cRuntimeError("SUMO configure file is not found in %s", SUMOconfigFullPath.string().c_str());
+        throw omnetpp::cRuntimeError("SUMO configure file is not found in '%s'", SUMOconfigFullPath.string().c_str());
 
     return SUMOconfigFullPath;
 }
@@ -3714,7 +3734,7 @@ bool TraCI_Commands::IsGUI()
         else if(sumo_application == "sumo-gui" || sumo_application == "sumo-guiD")
             return true;
         else
-            throw omnetpp::cRuntimeError("SUMO application %s is not recognized", sumo_application.c_str());
+            throw omnetpp::cRuntimeError("SUMO application '%s' is not recognized. Make sure the Network.TraCI.SUMOapplication parameter in set correctly.", sumo_application.c_str());
     }
 }
 

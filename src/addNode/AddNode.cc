@@ -169,6 +169,8 @@ void AddNode::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t si
     if(signalID == Signal_initialize_withTraCI)
     {
         SUMO_timeStep = (double)TraCI->simulationGetTimeStep() / 1000.;
+        if(SUMO_timeStep <= 0)
+            throw omnetpp::cRuntimeError("Simulation time step '%d' is invalid", SUMO_timeStep);
 
         readInsertion("addNode.xml");
     }
@@ -242,7 +244,7 @@ void AddNode::readInsertion(std::string addNodePath)
                 nodeName != vehicle_platoon_tag &&
                 nodeName != ca_tag &&
                 nodeName != emulated_tag)
-            throw omnetpp::cRuntimeError("'%s' is not a valid node in id '%s'", nodeName.c_str(), this->id.c_str());
+            throw omnetpp::cRuntimeError("'%s' is not a valid element in id '%s' of addNode.xml file!", nodeName.c_str(), this->id.c_str());
     }
 
     parseAdversary(pNode);
@@ -1774,7 +1776,7 @@ void AddNode::parseVehiclePlatoon(rapidxml::xml_node<> *pNode)
         double departPos = xmlUtil::getAttrValue_double(cNode, "departPos", false, -1);
         double platoonMaxSpeed = xmlUtil::getAttrValue_double(cNode, "platoonMaxSpeed", false, 10);
         bool fastCatchUp = xmlUtil::getAttrValue_bool(cNode, "fastCatchUp", false, false);
-        double interGap = xmlUtil::getAttrValue_double(cNode, "interGap", false, 3.5);
+        double interGap = xmlUtil::getAttrValue_double(cNode, "interGap", false, -1);
         bool pltMgmtProt = xmlUtil::getAttrValue_bool(cNode, "pltMgmtProt", false, false);
         int maxSize = xmlUtil::getAttrValue_int(cNode, "maxSize", false, -1);
         int optSize = xmlUtil::getAttrValue_int(cNode, "optSize", false, -1);
@@ -1956,10 +1958,6 @@ void AddNode::addVehiclePlatoon()
                     0 /*depart speed*/,
                     entry.second.departLane);
 
-            double vehTimeGap = TraCI->vehicleGetTimeGap(vehID);
-            if(entry.second.interGap < vehTimeGap)
-                throw omnetpp::cRuntimeError("InterGap (=%d) in vehicle '%s' is smaller than intraGap (=%d).", entry.second.interGap, vehID.c_str(), vehTimeGap);
-
             // adding some parameters into deferred attributes
             auto ii = vehs_deferred_attributes.find(vehID);
             if(ii != vehs_deferred_attributes.end())
@@ -1970,6 +1968,7 @@ void AddNode::addVehiclePlatoon()
             deferred_entry.plnMode = 2;
             deferred_entry.plnDepth = i;
             deferred_entry.plnId = platoonID;
+
             // setting platoon size in leader ONLY
             if(i == 0)
                 deferred_entry.plnSize = platoonSize;
@@ -1978,7 +1977,7 @@ void AddNode::addVehiclePlatoon()
             {
                 deferred_entry.plnMode = 3;
 
-                // setting parameters in leader OLNY
+                // setting parameters in leader ONLY
                 if(i == 0)
                 {
                     deferred_entry.maxSize = entry.second.maxSize;
@@ -1987,9 +1986,6 @@ void AddNode::addVehiclePlatoon()
 
                 // gap between platoons
                 deferred_entry.interGap = entry.second.interGap;
-
-                // Note: in non-homogeneous platoon each vehicle has its own intraGap
-                deferred_entry.intraGap = TraCI->vehicleGetTimeGap(vehID);
             }
 
             vehs_deferred_attributes[vehID] = deferred_entry;
@@ -2002,9 +1998,9 @@ void AddNode::addVehiclePlatoon()
             }
             else
             {
-                // mark leader red
                 if(i == 0)
                 {
+                    // set the leader color to red
                     RGB newColor = Color::colorNameToRGB("red");
                     TraCI->vehicleSetColor(vehID, newColor);
                 }
@@ -2021,9 +2017,6 @@ void AddNode::addVehiclePlatoon()
 
             if(i == 0)
             {
-                // set the interGap in leader
-                TraCI->vehicleSetTimeGap(vehID, entry.second.interGap);
-
                 TraCI->vehicleSetSpeed(vehID, entry.second.platoonMaxSpeed);
             }
             else
@@ -2167,7 +2160,7 @@ void AddNode::addCA()
         // create an array of adversaries
         cModule* mod = nodeType->create(par("CA_ModuleName"), parentMod, num, i);
         mod->finalizeParameters();
-        mod->getDisplayString().parse(par("adversary_ModuleDisplayString"));
+        mod->getDisplayString().parse(par("CA_ModuleDisplayString"));
         mod->buildInside();
 
         TraCI->addMapping(entry.second.id_str, mod->getFullName());

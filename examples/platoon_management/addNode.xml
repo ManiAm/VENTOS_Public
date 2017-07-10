@@ -7,32 +7,29 @@
 </addNode>
 
 
-
-
-
-
 <addNode id="add_0">
 
-  <vehicle_flow id="veh" type="TypeCACC1" route="route1" begin="0" number="11" distribution="poisson" lambda="2000" seed="43" />
+  <vehicle_platoon id="veh" type="TypeCACC1" size="11" route="route1" departPos="100" departLane="1" platoonMaxSpeed="0" pltMgmtProt="true" optSize="5" maxSize="20" />
   
 </addNode>
 
 
 <addNode id="add_1">
 
-  <vehicle_flow id="veh" type="TypeCACC1" route="route1" begin="0" number="6" distribution="poisson" lambda="2000" seed="43" />
-  
-</addNode>
-
-
-<addNode id="add_2">
-
+  <vehicle_platoon id="veh" type="TypeCACC1" size="6" route="route1" departPos="100" departLane="1" platoonMaxSpeed="0" pltMgmtProt="true" optSize="6" maxSize="10" />
   
 </addNode>
 
 
 <addNode id="add_3">
 
-  <vehicle_flow id="veh" type="TypeCACC1" route="route1" begin="0" number="10" distribution="poisson" lambda="2000" seed="43" />
+  <vehicle_platoon id="veh" type="TypeCACC1" size="10" route="route1" departPos="100" departLane="1" platoonMaxSpeed="0" pltMgmtProt="true" optSize="10" maxSize="10" />
+  
+</addNode>
+
+
+<addNode id="add_4">
+
+  <vehicle_platoon id="veh" type="TypeCACC1" size="5" route="route1" departPos="100" departLane="1" platoonMaxSpeed="0" pltMgmtProt="true" optSize="5" maxSize="10" />
   
 </addNode>

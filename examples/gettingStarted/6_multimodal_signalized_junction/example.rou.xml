@@ -1,9 +1,9 @@
 
 <routes>
 
-  <!-- passenger vehicle -->
   <vType id="passenger" length="5.0" minGap="2.0" maxSpeed="30.0" vClass="passenger">
       <carFollowing-Krauss accel="3.0" decel="5.0" sigma="0" tau="1.64" />
+<<<<<<< HEAD
   </vType>
 
   <!-- emergency vehicle -->
@@ -26,6 +26,25 @@
   </vType>
 
   <!-- pedestrian -->
+=======
+  </vType> 
+  
+  <vType id="emergency" length="10.0" minGap="2.0" maxSpeed="30.0" vClass="emergency">
+      <carFollowing-Krauss accel="3.0" decel="5.0" sigma="0" tau="1.64" />
+  </vType> 
+  
+  <vType id="bus" length="10.0" minGap="4.0" maxSpeed="15.0" vClass="bus">
+      <carFollowing-Krauss accel="2.0" decel="3.0" sigma="0" tau="2.0" />
+  </vType> 
+  
+  <vType id="truck" length="10.0" minGap="4.0" maxSpeed="15.0" vClass="truck">
+      <carFollowing-Krauss accel="2.0" decel="3.0" sigma="0" tau="2.0" />
+  </vType> 
+  
+  <vType id="bicycle" length="1.6" width="0.6" minGap="0.5" maxSpeed="4.2" vClass="bicycle" guiShape="bicycle">
+  </vType>
+    
+>>>>>>> master
   <vType id="pedestrian" length="0.3" width="0.6" minGap="1.5" maxSpeed="1.4" vClass="pedestrian" guiShape="pedestrian" color="red">
   </vType>
 

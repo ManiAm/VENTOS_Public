@@ -1,7 +1,9 @@
 <?xml version="1.0"?>
+
 <!-- generated on 2015-04-28 10:29:48.083645 by $Id: randomTrips.py 18255 2015-04-21 11:46:31Z namdre $
   options: 
 -->
+
 <trips>
     <person id="ped0" depart="4.00" >
         <walk from="NC" to="CS" departPos="random" arrivalPos="random"/>

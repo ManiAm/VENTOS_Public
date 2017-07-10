@@ -64,6 +64,16 @@ std::string xmlUtil::getAttrValue_string(rapidxml::xml_node<> *cNode, std::strin
         else
             return defaultVal;
     }
+    // if the attribute exists
+    else
+    {
+        // make sure we do not have duplicate attributes
+        auto cAttr2 = cNode->last_attribute(attr.c_str());
+        if(cAttr != cAttr2)
+        {
+            throw omnetpp::cRuntimeError("multiple attribute '%s' is not allowed in element '%s'", attr.c_str(), tag.c_str());
+        }
+    }
 
     std::string val_str = cAttr->value();
     boost::trim(val_str);
@@ -84,11 +94,21 @@ TraCICoord xmlUtil::getAttrValue_coord(rapidxml::xml_node<> *cNode, std::string 
         else
             return defaultVal;
     }
+    // if the attribute exists
+    else
+    {
+        // make sure we do not have duplicate attributes
+        auto cAttr2 = cNode->last_attribute(attr.c_str());
+        if(cAttr != cAttr2)
+        {
+            throw omnetpp::cRuntimeError("multiple attribute '%s' is not allowed in element '%s'", attr.c_str(), tag.c_str());
+        }
+    }
 
     std::string coord_str = cAttr->value();
     boost::trim(coord_str);
 
-    // coord_str are separated by ,
+    // coord_str are separated by ','
     std::vector<std::string> pos;
     boost::split(pos, coord_str, boost::is_any_of(","));
 
@@ -130,6 +150,16 @@ bool xmlUtil::getAttrValue_bool(rapidxml::xml_node<> *cNode, std::string attr, b
         else
             return defaultVal;
     }
+    // if the attribute exists
+    else
+    {
+        // make sure we do not have duplicate attributes
+        auto cAttr2 = cNode->last_attribute(attr.c_str());
+        if(cAttr != cAttr2)
+        {
+            throw omnetpp::cRuntimeError("multiple attribute '%s' is not allowed in element '%s'", attr.c_str(), tag.c_str());
+        }
+    }
 
     std::string val_str = cAttr->value();
     boost::trim(val_str);
@@ -154,6 +184,16 @@ int xmlUtil::getAttrValue_int(rapidxml::xml_node<> *cNode, std::string attr, boo
             throw omnetpp::cRuntimeError("attribute '%s' is not found in element '%s'", attr.c_str(), tag.c_str());
         else
             return defaultVal;
+    }
+    // if the attribute exists
+    else
+    {
+        // make sure we do not have duplicate attributes
+        auto cAttr2 = cNode->last_attribute(attr.c_str());
+        if(cAttr != cAttr2)
+        {
+            throw omnetpp::cRuntimeError("multiple attribute '%s' is not allowed in element '%s'", attr.c_str(), tag.c_str());
+        }
     }
 
     std::string val_str = cAttr->value();
@@ -182,6 +222,16 @@ double xmlUtil::getAttrValue_double(rapidxml::xml_node<> *cNode, std::string att
         else
             return defaultVal;
     }
+    // if the attribute exists
+    else
+    {
+        // make sure we do not have duplicate attributes
+        auto cAttr2 = cNode->last_attribute(attr.c_str());
+        if(cAttr != cAttr2)
+        {
+            throw omnetpp::cRuntimeError("multiple attribute '%s' is not allowed in element '%s'", attr.c_str(), tag.c_str());
+        }
+    }
 
     std::string val_str = cAttr->value();
     boost::trim(val_str);
@@ -208,6 +258,16 @@ std::vector<std::string> xmlUtil::getAttrValue_stringVector(rapidxml::xml_node<>
             throw omnetpp::cRuntimeError("attribute '%s' is not found in element '%s'", attr.c_str(), tag.c_str());
         else
             return defaultVal;
+    }
+    // if the attribute exists
+    else
+    {
+        // make sure we do not have duplicate attributes
+        auto cAttr2 = cNode->last_attribute(attr.c_str());
+        if(cAttr != cAttr2)
+        {
+            throw omnetpp::cRuntimeError("multiple attribute '%s' is not allowed in element '%s'", attr.c_str(), tag.c_str());
+        }
     }
 
     std::string val_str = cAttr->value();
@@ -241,6 +301,16 @@ std::vector<double> xmlUtil::getAttrValue_doubleVector(rapidxml::xml_node<> *cNo
             throw omnetpp::cRuntimeError("attribute '%s' is not found in element '%s'", attr.c_str(), tag.c_str());
         else
             return defaultVal;
+    }
+    // if the attribute exists
+    else
+    {
+        // make sure we do not have duplicate attributes
+        auto cAttr2 = cNode->last_attribute(attr.c_str());
+        if(cAttr != cAttr2)
+        {
+            throw omnetpp::cRuntimeError("multiple attribute '%s' is not allowed in element '%s'", attr.c_str(), tag.c_str());
+        }
     }
 
     std::string val_str = cAttr->value();

@@ -20,7 +20,6 @@
   <flow id="route1" begin="10" end="1000" vehsPerHour="500" type="passenger" route="WtoE" />
   <flow id="route2" begin="10" end="1000" vehsPerHour="500" type="passenger" route="EtoW" />
 
-
   <person id="ped1" type="pedestrian" depart="10">
       <walk from="NC" to="CS" />
   </person>
@@ -55,8 +54,6 @@
   
     <person id="ped6" type="pedestrian" depart="15">
       <walk from="NC" to="CS" />
-  </person>  
- 
+  </person> 
 
 </routes>
-

@@ -65,6 +65,12 @@ private:
     typedef exprtk::expression<double>   expression_t;
     typedef exprtk::parser<double>       parser_t;
 
+    typedef struct format
+    {
+        double time = -1;
+        double speed = -1;
+    } format_t;
+
     typedef struct speedEntry
     {
         std::string id_str;
@@ -78,6 +84,9 @@ private:
         std::string value_str;
         double maxDecel;
         double maxAccel;
+        std::string file_str;
+        int headerLines;
+        std::string columns;
 
         // for internal use
         bool processingStarted = false;
@@ -93,6 +102,9 @@ private:
         double expressionVariable = 0;
         symbol_table_t symbol_table;
         expression_t expression;
+        // used in reading the external file
+        std::vector<format_t> fileContent;
+        bool endOfFile = false;
     } speedEntry_t;
 
     std::map<uint32_t, speedEntry_t> allSpeed;
@@ -184,14 +196,19 @@ private:
     uint32_t checkSpeedConflicts_begin(speedEntry_t &, uint32_t);
     uint32_t checkSpeedConflicts_edgeId(speedEntry_t &, uint32_t);
     uint32_t checkSpeedConflicts_laneId(speedEntry_t &, uint32_t);
-    void vehicleSetSpeedOnce(speedEntry_t &, std::string);
-    void vehicleSetSpeedExpression(speedEntry_t &, std::string);
     void controlSpeed();
     void controlSpeed_begin(speedEntry_t &);
     void controlSpeed_edgeId(speedEntry_t &);
     void controlSpeed_laneId(speedEntry_t &);
 
+    void readFile(speedEntry_t &);
+    void processFileTokens(std::vector<std::string> &, uint32_t &, speedEntry_t &speedEntry);
+    void verifyFile(speedEntry_t &);
+    bool isCSV(std::string);
+    void CSV2TXT(std::string, std::vector<std::vector<std::string>> &);
+
     void parseOptSize(rapidxml::xml_node<> *);
+    uint32_t checkOptSizeConflicts(optSizeEntry_t &, uint32_t);
     void controlOptSize();
 
     void parsePltMerge(rapidxml::xml_node<> *);

@@ -1,8 +1,8 @@
 /****************************************************************************/
-/// @file    NodeTrackingGUI.h
+/// @file    gui.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
-/// @date    August 2013
+/// @date    Jun 2017
 ///
 /****************************************************************************/
 // VENTOS, Vehicular Network Open Simulator; see http:?
@@ -25,43 +25,80 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef TRACKING_H
-#define TRACKING_H
+#ifndef GUI_H
+#define GUI_H
+
+#include <rapidxml.hpp>
+#include <rapidxml_utils.hpp>
+#include <rapidxml_print.hpp>
 
 #include "baseAppl/03_BaseApplLayer.h"
 #include "traci/TraCICommands.h"
 
 namespace VENTOS {
 
-class Tracking : public BaseApplLayer
+class gui : public BaseApplLayer
 {
 private:
     // NED variables
-    TraCI_Commands *TraCI;  // pointer to the TraCI module
+    TraCI_Commands *TraCI;
     omnetpp::simsignal_t Signal_initialize_withTraCI;
+    omnetpp::simsignal_t Signal_executeEachTS;
 
-    // NED variables (GUI)
-    int mode;
-    double zoom;
-    double winOffsetX;
-    double winOffsetY;
-    double trackingInterval;
-    std::string trackingV;
-    std::string trackingLane;
-    double windowsOffset;
+    double SUMO_timeStep = -1;
 
-    // class variables
-    omnetpp::cMessage* updataGUI = NULL;
+    const std::string viewport_tag = "viewport";
+    const std::string track_tag = "track";
+
+    std::string id;
+
+    typedef struct viewportEntry
+    {
+        std::string viewId_str;
+        double zoom;
+        double offsetX;
+        double offsetY;
+        double begin;
+        int steps;
+
+        // for internal use
+        bool processingStarted = false;
+        bool processingEnded = false;
+        double baseZoom = 100;
+        double zoomSteps = -1;
+    } viewportEntry_t;
+
+    std::map<uint32_t, viewportEntry> allViewport;
+
+    typedef struct trackEntry
+    {
+        std::string viewId_str;
+        std::string vehId_str;
+        double begin;
+        double updateRate;
+
+        // for internal use
+        bool processingStarted = false;
+        bool processingEnded = false;
+    } trackEntry_t;
+
+    std::map<uint32_t, trackEntry_t> allTracking;
 
 public:
-    virtual ~Tracking();
+    virtual ~gui();
     virtual void initialize(int stage);
     virtual void handleMessage(omnetpp::cMessage *msg);
     virtual void finish();
     virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, long, cObject* details);
 
 private:
-    void TrackingGUI();
+    void readInsertion(std::string);
+
+    void parseViewport(rapidxml::xml_node<> *);
+    void controlViewport();
+
+    void parseTracking(rapidxml::xml_node<> *);
+    void controlTracking();
 };
 
 }

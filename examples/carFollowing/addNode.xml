@@ -9,8 +9,16 @@
 
 <addNode id="add_1">
 
+<<<<<<< HEAD
   <vehicle_platoon id="veh" type="TypeCACC1" size="10" route="route1" departPos="100" platoonMaxSpeed="0" >
         <member index="0" type="TypeManual" />
   </vehicle_platoon>
+=======
+  <vehicle_platoon id="veh" type="TypeCACC1" size="10" route="route1" departPos="100" platoonMaxSpeed="0" />
+  
+</addNode>
+
+
+>>>>>>> master
 
 </addNode>

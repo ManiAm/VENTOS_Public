@@ -46,9 +46,9 @@
 							<tool id="cdt.managedbuild.tool.gnu.archiver.base.1952268473" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base.319999884"/>
 							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.base.784151936" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base.13888097">
 								<option id="gnu.cpp.compiler.option.include.paths.1952025022" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/VENTOS/libs/rapidxml-1.13}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/VENTOS/libs/UFT}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/VENTOS/libs/exprtk}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/libs/rapidxml-1.13&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/libs/exprtk&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/libs/UFT&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.2012468194" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
@@ -114,9 +114,9 @@
 							<tool id="cdt.managedbuild.tool.gnu.archiver.base.1936766297" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base.628142687"/>
 							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.base.1289843834" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base.1438167855">
 								<option id="gnu.cpp.compiler.option.include.paths.646295690" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/VENTOS/libs/rapidxml-1.13}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/VENTOS/libs/UFT}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/VENTOS/libs/exprtk}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/libs/exprtk&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/libs/UFT&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/libs/rapidxml-1.13&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.501890714" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
@@ -152,5 +152,12 @@
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
-	<storageModule moduleId="refreshScope"/>
+	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="debug">
+			<resource resourceType="PROJECT" workspacePath="/VENTOS_Public"/>
+		</configuration>
+		<configuration configurationName="release">
+			<resource resourceType="PROJECT" workspacePath="/VENTOS_Public"/>
+		</configuration>
+	</storageModule>
 </cproject>

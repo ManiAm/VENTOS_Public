@@ -17,7 +17,6 @@ Generating random trips
 
 
 
-
 Generate route from trips
 
 duarouter -n 02_stock_tl.net.xml -t trips.trip.xml -o 05_stock.rout.xml

@@ -2,7 +2,7 @@
 
 <trafficControl id="control_0">
 
-    <!-------change the speed of 'veh' between 5 and 20----->
+    <!-- change the speed of 'veh' between 5 and 20 -->
     <speed id="veh" begin="10" end="1000" value="((1 + (-1)^floor(2(t-10)/100))*(15/2))+5" maxAccel="1.5" maxDecel="2" />  
     
 </trafficControl>

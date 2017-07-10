@@ -1,2 +1,2 @@
-netconvertD --no-internal-links --node-files=hello.nod.xml --edge-files=hello.edg.xml --output-file=hello.net.xml
-netgenerate --no-internal-links --grid --grid.number=3 --grid.length=300 --grid.attach-length=300 --j=traffic_light --L=2 --output-file=hello.net.xml
+netconvertD --node-files=hello.nod.xml --edge-files=hello.edg.xml --output-file=hello.net.xml
+netgenerate --grid --grid.number=3 --grid.length=300 --grid.attach-length=300 --j=traffic_light --L=2 --output-file=hello.net.xml

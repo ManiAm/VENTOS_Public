@@ -13,7 +13,7 @@ simple TraCIStart
         bool active = default(false);
         int remotePort = default(-1);
         bool forkSUMO = default(true);
-                
+        
         string SUMOapplication = default("sumo-guiD");   // sumoD: command-line interface    sumo-guiD: graphical interface
         string SUMOconfig = default("");     // relative path to the SUMO configure file
         string SUMOcommandLine = default("--start --no-step-log --quit-on-end --seed 0");
@@ -30,5 +30,5 @@ simple TraCIStart
         
         string roiRoads = default("");  // which roads (e.g. "hwy1 hwy2") are considered to consitute the region of interest, if not empty
         string roiRects = default("");  // which rectangles (e.g. "0,0-10,10 20,20-30,30) are considered to consitute the region of interest, if not empty (in SUMO coordinate)
-        double roiSquareSizeRSU = default(0);
+        string roiRectsRSU = default("");
 }

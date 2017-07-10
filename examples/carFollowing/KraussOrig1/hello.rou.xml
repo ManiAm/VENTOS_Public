@@ -2,17 +2,17 @@
 
 <routes>
 
-  <vType id="TypeKraussOrig1_private" length="5.0" minGap="2.0" maxSpeed="28.0" vClass="passenger">
+  <vType id="private" length="5.0" minGap="2.0" maxSpeed="28.0" vClass="passenger">
       <carFollowing-KraussOrig1 accel="2.0" decel="5.0" sigma="0" tau="2" />
   </vType>
 
-  <vType id="TypeKraussOrig1_truck" length="10.0" minGap="2.0" maxSpeed="28.0" vClass="truck">
+  <vType id="truck" length="10.0" minGap="2.0" maxSpeed="28.0" vClass="truck">
       <carFollowing-KraussOrig1 accel="2.0" decel="2.0" sigma="0" tau="2" />
   </vType>
 
   <route id="route1" edges="1to2 2to3 3to4 4to6" />
 
-  <vehicle id="veh0" type="TypeKraussOrig1_private" route="route1" depart="1" />
-  <vehicle id="veh1" type="TypeKraussOrig1_truck" route="route1" depart="1" />
+  <vehicle id="veh0" type="private" route="route1" depart="1" />
+  <vehicle id="veh1" type="truck" route="route1" depart="1" />
 
 </routes>

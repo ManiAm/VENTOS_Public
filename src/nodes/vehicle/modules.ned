@@ -122,8 +122,8 @@ simple ApplVPlatoonMg extends ApplVPlatoon
         int maxPlatoonSize = default(-1);
         int optPlatoonSize = default(-1);
         
-        double TP = default(3.5s) @unit(s);   // inter-platoon time-gap (between platoons)
-        double TG = default(0.55s) @unit(s);  // intra-platoon time-gap (between vehicles in a platoon)
+        // inter-platoon time-gap (between platoons)
+        double TP = default(3.5s) @unit(s);
         bool adaptiveTG = default(true);
         
         bool entryEnabled = default(false);

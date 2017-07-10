@@ -2,6 +2,7 @@
 
 <addNode id="add_0">
 
+  <!-- the platoon is inserted into the network with 0 m/s -->
   <vehicle_platoon id="veh" type="TypeManual" size="10" route="route1" departPos="100" platoonMaxSpeed="0" />
   
 </addNode>
@@ -9,21 +10,24 @@
 
 <addNode id="add_1">
 
-  <vehicle_flow id="veh" type="TypeACC1" route="route1" begin="0" number="10" distribution="deterministic" period="1" />
+  <!-- the platoon is inserted into the network with 0 m/s -->
+  <vehicle_platoon id="veh" type="TypeACC1" size="10" route="route1" departPos="100" platoonMaxSpeed="0" />
   
 </addNode>
 
 
 <addNode id="add_2">
 
-  <vehicle_flow id="veh" type="TypeCACC1" route="route1" begin="0" number="10" distribution="deterministic" period="1" />
+  <!-- the platoon is inserted into the network with 0 m/s -->
+  <vehicle_platoon id="veh" type="TypeCACC1" size="10" route="route1" departPos="100" platoonMaxSpeed="0" />
   
 </addNode>
 
 
 <addNode id="add_3">
 
-  <vehicle_flow id="veh" type="TypeCACC2" route="route1" begin="0" number="10" distribution="deterministic" period="1" />
+  <!-- the platoon is inserted into the network with 0 m/s -->
+  <vehicle_platoon id="veh" type="TypeCACC2" size="10" route="route1" departPos="100" platoonMaxSpeed="0" />
   
 </addNode>
 
@@ -31,7 +35,8 @@
 
 <addNode id="add_4">
 
-  <vehicle_flow id="veh" type="TypeCACC3" route="route1" begin="0" number="10" distribution="deterministic" period="1" />
+  <!-- the platoon is inserted into the network with 0 m/s -->
+  <vehicle_platoon id="veh" type="TypeCACC3" size="10" route="route1" departPos="100" platoonMaxSpeed="0" />
   
 </addNode>
 
@@ -42,4 +47,3 @@
   <vehicle_flow id="veh" type="TypeManual" route="route1" begin="0" number="30" distribution="deterministic" period="1" />
   
 </addNode>
-

@@ -19,3 +19,10 @@
   <pltLeave pltId="veh" leaveIndex="0" begin="210"/>
 
 </trafficControl>
+
+
+<trafficControl id="control_4">
+
+    <speed id="veh.0" begin="1" file="../Stability_Test_Pair.txt" columns="1,3" />
+    
+</trafficControl>

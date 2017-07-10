@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<gui id="gui_0">
+
+    <viewport zoom="5909" offsetX="240" offsetY="11" />
+    <track vehId="veh" begin="5" />  
+        
+</gui>

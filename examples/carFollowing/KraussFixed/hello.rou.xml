@@ -3,7 +3,7 @@
 <routes>
 
   <vType id="Type1" length="5.0" minGap="2.0" maxSpeed="30.0" vClass="passenger" >
-      <carFollowing-KraussFixed accel="3.0" decel="5.0" tau="1.64" sigma="0" tau="1" />
+      <carFollowing-KraussFixed accel="3.0" decel="5.0" tau="1.64" sigma="0" />
   </vType>  
   
   <route id="route1" edges="1to2 2to3 3to4 4to6" />

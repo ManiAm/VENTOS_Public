@@ -14,7 +14,7 @@ module Adversary
         bool DSRCenabled = default(true);
         bool hasOBU = default(false);
         string IPaddress = default("");
-
+        
     gates:
         input radioIn; // gate for sendDirect
         
@@ -23,12 +23,12 @@ module Adversary
             parameters:
                 @display("p=60,50");
         }
-
+        
         nic: Nic80211p {
             parameters:
                 @display("p=60,166");
         }
-
+        
         mobility: ConstSpeedMobility {
             parameters:
                 @display("p=130,172;i=block/cogwheel");
@@ -39,7 +39,7 @@ module Adversary
         nic.upperLayerIn <-- appl.lowerLayerOut;
         nic.upperControlOut --> appl.lowerControlIn;
         nic.upperControlIn <-- appl.lowerControlOut;
-
+        
         radioIn --> nic.radioIn;
 }
 
@@ -51,10 +51,10 @@ simple ApplAdversary extends BaseWaveApplLayer
     parameters:
         @class(VENTOS::ApplAdversary);
         
-        bool active = default(false);
-          
-        double AttackT = default(100);
-        bool falsificationAttack = default(false);  
-        bool replayAttack = default(false); 
-        bool jammingAttack = default(false);
+        // attackMode = 0 : falsification
+        // attackMode = 1 : replay
+        // attackMode = 2, jamming        
+        int attackMode = default(-1);
+        
+        double attackStartTime = default(100);
 }

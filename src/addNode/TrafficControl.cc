@@ -30,6 +30,7 @@
 
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/tokenizer.hpp>
 #include <random>
 
 #include "TrafficControl.h"
@@ -89,6 +90,8 @@ void TrafficControl::receiveSignal(omnetpp::cComponent *source, omnetpp::simsign
     if(signalID == Signal_initialize_withTraCI)
     {
         SUMO_timeStep = (double)TraCI->simulationGetTimeStep() / 1000.;
+        if(SUMO_timeStep <= 0)
+            throw omnetpp::cRuntimeError("Simulation time step '%d' is invalid", SUMO_timeStep);
 
         readInsertion("trafficControl.xml");
     }
@@ -138,10 +141,10 @@ void TrafficControl::readInsertion(std::string addNodePath)
         // Get the value of this attribute
         std::string strValue = pAttr->value();
 
-        // We found the correct applDependency node
+        // We found the correct id
         if(strValue == this->id)
             break;
-        // Get the next applDependency
+        // Get the next id
         else
         {
             pNode = pNode->next_sibling();
@@ -161,7 +164,7 @@ void TrafficControl::readInsertion(std::string addNodePath)
                 nodeName != pltSplit_tag &&
                 nodeName != pltLeave_tag &&
                 nodeName != maneuver_tag)
-            throw omnetpp::cRuntimeError("'%s' is not a valid node in id '%s'", nodeName.c_str(), this->id.c_str());
+            throw omnetpp::cRuntimeError("'%s' is not a valid element in id '%s' of trafficControl.xml file!", nodeName.c_str(), this->id.c_str());
     }
 
     parseSpeed(pNode);
@@ -198,7 +201,7 @@ void TrafficControl::parseSpeed(rapidxml::xml_node<> *pNode)
             continue;
 
         std::vector<std::string> validAttr = {"id", "begin", "end", "duration", "edgeId", "edgePos", "laneId",
-                "lanePos", "value", "maxAccel", "maxDecel"};
+                "lanePos", "value", "maxAccel", "maxDecel", "file", "headerLines", "columns"};
         xmlUtil::validityCheck(cNode, validAttr);
 
         std::string id_str = xmlUtil::getAttrValue_string(cNode, "id");
@@ -209,9 +212,12 @@ void TrafficControl::parseSpeed(rapidxml::xml_node<> *pNode)
         double edgePos = xmlUtil::getAttrValue_double(cNode, "edgePos", false, 0);
         std::string laneId_str = xmlUtil::getAttrValue_string(cNode, "laneId", false, "");
         double lanePos = xmlUtil::getAttrValue_double(cNode, "lanePos", false, 0);
-        std::string value_str = xmlUtil::getAttrValue_string(cNode, "value");
+        std::string value_str = xmlUtil::getAttrValue_string(cNode, "value", false, "");
         double maxAccel = xmlUtil::getAttrValue_double(cNode, "maxAccel", false, -1);
         double maxDecel = xmlUtil::getAttrValue_double(cNode, "maxDecel", false, -1);
+        std::string file_str = xmlUtil::getAttrValue_string(cNode, "file", false, "");
+        uint32_t headerLines = xmlUtil::getAttrValue_int(cNode, "headerLines", false, 0);
+        std::string columns_str = xmlUtil::getAttrValue_string(cNode, "columns", false, "");
 
         if(begin != -1 && begin < 0)
             throw omnetpp::cRuntimeError("attribute 'begin' cannot be negative in element '%s'", speed_tag.c_str());
@@ -249,15 +255,24 @@ void TrafficControl::parseSpeed(rapidxml::xml_node<> *pNode)
         if(cNode->first_attribute("lanePos") && !cNode->first_attribute("laneId"))
             throw omnetpp::cRuntimeError("attribute 'lanePos' requires 'laneId' in element '%s'", speed_tag.c_str());
 
-        try
+        if(cNode->first_attribute("file") && cNode->first_attribute("value"))
+            throw omnetpp::cRuntimeError("attribute 'file' and 'value' cannot be present at the same time in element '%s'", speed_tag.c_str());
+
+        if(headerLines < 0)
+            throw omnetpp::cRuntimeError("attribute 'headerLine' is invalid in element '%s'", speed_tag.c_str());
+
+        if(value_str != "")
         {
-            boost::lexical_cast<double>(value_str);
-        }
-        catch(...)
-        {
-            // speed value is a function
-            if(!cNode->first_attribute("end") && !cNode->first_attribute("duration"))
-                throw omnetpp::cRuntimeError("attribute 'end' or 'duration' is mandatory when speed is a function in element '%s'", speed_tag.c_str());
+            try
+            {
+                boost::lexical_cast<double>(value_str);
+            }
+            catch(...)
+            {
+                // this is to check the conflicts more easily
+                if(!cNode->first_attribute("end") && !cNode->first_attribute("duration"))
+                    throw omnetpp::cRuntimeError("attribute 'end' or 'duration' is mandatory when speed is a function in element '%s'", speed_tag.c_str());
+            }
         }
 
         if(edgeId_str != "")
@@ -318,11 +333,17 @@ void TrafficControl::parseSpeed(rapidxml::xml_node<> *pNode)
             entry.value_str = value_str;
             entry.maxDecel = maxDecel;
             entry.maxAccel = maxAccel;
+            entry.file_str = file_str;
+            entry.headerLines = headerLines;
+            entry.columns = columns_str;
 
             // check for conflicts before adding
             checkSpeedConflicts(entry, nodeCount);
 
-            allSpeed.insert(std::make_pair(nodeCount, entry));
+            // read the external file line by line if present
+            readFile(entry);
+
+            allSpeed.insert(std::make_pair(nodeCount, std::move(entry)));
         }
         else
             throw omnetpp::cRuntimeError("Multiple %s with the same 'id' %s is not allowed!", speed_tag.c_str(), id_str.c_str());
@@ -334,6 +355,365 @@ void TrafficControl::parseSpeed(rapidxml::xml_node<> *pNode)
 
         nodeCount++;
     }
+}
+
+
+void TrafficControl::readFile(speedEntry_t &speedEntry)
+{
+    if(speedEntry.file_str == "")
+        return;
+
+    if(isCSV(speedEntry.file_str))
+    {
+        std::vector<std::vector<std::string>> result;
+        CSV2TXT(speedEntry.file_str, result);
+
+        uint32_t rowCount = speedEntry.headerLines + 1;
+        for(unsigned int k = speedEntry.headerLines; k < result.size(); ++k)
+        {
+            processFileTokens(result[k], rowCount, speedEntry);
+
+            rowCount++;
+        }
+    }
+    else
+    {
+        // open file for reading
+        std::ifstream ifile(speedEntry.file_str);
+        if(!ifile.is_open())
+            throw omnetpp::cRuntimeError("Cannot open file '%s' in element '%s'", speedEntry.file_str.c_str(), speed_tag.c_str());
+
+        // read the file line by line
+        std::string str;
+        uint32_t rowCount = 1;
+        while (std::getline(ifile, str))
+        {
+            if(rowCount <= (uint32_t)speedEntry.headerLines)
+            {
+                rowCount++;
+                continue;
+            }
+
+            // split this row
+            std::vector<std::string> tokens;
+            boost::split(tokens, str, boost::is_any_of("\t "), boost::token_compress_on);
+
+            processFileTokens(tokens, rowCount, speedEntry);
+
+            rowCount++;
+        }
+    }
+
+    if(speedEntry.fileContent.empty())
+        LOG_WARNING << boost::format("\nWARNING: External file '%s' is empty \n") % speedEntry.file_str << std::flush;
+
+    // at least two elements exists
+    if(speedEntry.fileContent.size() > 1)
+        verifyFile(speedEntry);
+}
+
+
+void TrafficControl::processFileTokens(std::vector<std::string> &tokens, uint32_t &rowCount, speedEntry_t &speedEntry)
+{
+    // skip the empty line
+    if(tokens.empty())
+        return;
+    // we have only one column denoting the speeds
+    else if(tokens.size() == 1)
+    {
+        try
+        {
+            boost::trim(tokens[0]);
+            if(tokens[0] == "")
+            {
+                rowCount++;
+                return;
+            }
+
+            format_t entry;
+            entry.speed = boost::lexical_cast<double>(tokens[0]);
+
+            // get the last inserted element and make sure it has the same format as mine
+            if(!speedEntry.fileContent.empty() && speedEntry.fileContent.back().time != -1)
+                throw omnetpp::cRuntimeError("External file '%s' is not formatted correctly", speedEntry.file_str.c_str());
+
+            speedEntry.fileContent.push_back(entry);
+        }
+        catch(...)
+        {
+            throw omnetpp::cRuntimeError("Cannot convert value '%s' to double located in row '%d' of external file '%s'!",
+                    tokens[0].c_str(),
+                    rowCount,
+                    speedEntry.file_str.c_str());
+        }
+
+        if(speedEntry.columns != "")
+            throw omnetpp::cRuntimeError("Attribute 'column' is redundant when the input file has one column");
+    }
+    // we have two columns denoting the time and speed
+    else if(tokens.size() == 2 && speedEntry.columns == "")
+    {
+        try
+        {
+            boost::trim(tokens[0]);
+            boost::trim(tokens[1]);
+            if(tokens[0] == "" || tokens[1] == "")
+            {
+                rowCount++;
+                return;
+            }
+
+            format_t entry;
+            entry.time = boost::lexical_cast<double>(tokens[0]);
+            entry.speed = boost::lexical_cast<double>(tokens[1]);
+
+            // get the last inserted element and make sure it has the same format as mine
+            if(!speedEntry.fileContent.empty() && speedEntry.fileContent.back().time == -1)
+                throw omnetpp::cRuntimeError("External file '%s' is not formatted correctly", speedEntry.file_str.c_str());
+
+            speedEntry.fileContent.push_back(entry);
+        }
+        catch(...)
+        {
+            throw omnetpp::cRuntimeError("Cannot convert value to double located in row '%d' of external file '%s'!",
+                    rowCount,
+                    speedEntry.file_str.c_str());
+        }
+    }
+    else if(speedEntry.columns != "")
+    {
+        std::vector<std::string> columns_num;
+        boost::split(columns_num, speedEntry.columns, boost::is_any_of(","));
+
+        if(columns_num.empty())
+            throw omnetpp::cRuntimeError("Attribute 'columns' is not formatted correctly");
+        else if(columns_num.size() == 1)
+        {
+            int column_speed = -1;
+            try
+            {
+                boost::trim(columns_num[0]);
+                column_speed = boost::lexical_cast<int>(columns_num[0]);
+            }
+            catch(...)
+            {
+                throw omnetpp::cRuntimeError("Cannot convert value '%s' to int in column attribute '%s'",
+                        columns_num[0].c_str(),
+                        speedEntry.columns.c_str());
+            }
+
+            if(column_speed <= 0 || column_speed > (int)tokens.size())
+                throw omnetpp::cRuntimeError("Attribute 'columns' is invalid: %d", column_speed);
+
+            // convert to vector index
+            column_speed--;
+
+            try
+            {
+                boost::trim(tokens[column_speed]);
+
+                format_t entry;
+                entry.speed = boost::lexical_cast<double>(tokens[column_speed]);
+
+                // get the last inserted element and make sure it has the same format as mine
+                if(!speedEntry.fileContent.empty() && speedEntry.fileContent.back().time != -1)
+                    throw omnetpp::cRuntimeError("External file '%s' is not formatted correctly", speedEntry.file_str.c_str());
+
+                speedEntry.fileContent.push_back(entry);
+            }
+            catch(...)
+            {
+                throw omnetpp::cRuntimeError("Cannot convert value '%s' to double located in row '%d' of external file '%s'!",
+                        tokens[column_speed].c_str(),
+                        rowCount,
+                        speedEntry.file_str.c_str());
+            }
+        }
+        else if(columns_num.size() == 2)
+        {
+            int column_time = -1;
+            int column_speed = -1;
+            try
+            {
+                boost::trim(columns_num[0]);
+                boost::trim(columns_num[1]);
+
+                column_time = boost::lexical_cast<int>(columns_num[0]);
+                column_speed = boost::lexical_cast<int>(columns_num[1]);
+            }
+            catch(...)
+            {
+                throw omnetpp::cRuntimeError("Cannot convert value to int in column attribute '%s'", speedEntry.columns.c_str());
+            }
+
+            if(column_time <= 0 || column_time > (int)tokens.size())
+                throw omnetpp::cRuntimeError("Attribute 'columns' is invalid: %d", column_time);
+
+            // convert to vector index
+            column_time--;
+
+            if(column_speed <= 0 || column_speed > (int)tokens.size())
+                throw omnetpp::cRuntimeError("Attribute 'columns' is invalid: %d", column_speed);
+
+            // convert to vector index
+            column_speed--;
+
+            try
+            {
+                boost::trim(tokens[column_time]);
+                boost::trim(tokens[column_speed]);
+
+                format_t entry;
+                entry.time = boost::lexical_cast<double>(tokens[column_time]);
+                entry.speed = boost::lexical_cast<double>(tokens[column_speed]);
+
+                // get the last inserted element and make sure it has the same format as mine
+                if(!speedEntry.fileContent.empty() && speedEntry.fileContent.back().time == -1)
+                    throw omnetpp::cRuntimeError("External file '%s' is not formatted correctly", speedEntry.file_str.c_str());
+
+                speedEntry.fileContent.push_back(entry);
+            }
+            catch(...)
+            {
+                throw omnetpp::cRuntimeError("Cannot convert value to double located in row '%d' of external file '%s'!",
+                        rowCount,
+                        speedEntry.file_str.c_str());
+            }
+        }
+        else
+            throw omnetpp::cRuntimeError("Attribute 'columns' is not formatted correctly");
+    }
+    else
+        throw omnetpp::cRuntimeError("External file '%s' has multiple columns and I don't know which columns to use. Forgot to use the 'columns' attribute?", speedEntry.file_str.c_str());
+}
+
+
+void TrafficControl::verifyFile(speedEntry_t &speedEntry)
+{
+    double maxAccel = -std::numeric_limits<double>::max();
+    double maxDecel = std::numeric_limits<double>::max();
+
+    // we have only one column denoting speed
+    if(speedEntry.fileContent[0].time == -1)
+    {
+        double prevSpeed = speedEntry.fileContent[0].speed;
+
+        // find the max acceleration/deceleration needed to follow the file
+        for(unsigned int i = 1; i < speedEntry.fileContent.size(); i++)
+        {
+            double currentSpeed = speedEntry.fileContent[i].speed;
+
+            double accel = (currentSpeed - prevSpeed) / SUMO_timeStep;
+            if(accel >= 0)
+                maxAccel = std::max(maxAccel, accel);
+            else
+                maxDecel = std::min(maxDecel, accel);
+
+            prevSpeed = currentSpeed;
+        }
+    }
+    // we have two columns
+    else
+    {
+        double prevSpeed = speedEntry.fileContent[0].speed;
+        double prevTime = speedEntry.fileContent[0].time;
+
+        // find the max acceleration/deceleration needed to follow the file
+        for(unsigned int i = 1; i < speedEntry.fileContent.size(); i++)
+        {
+            double currentTime = speedEntry.fileContent[i].time;
+            double currentSpeed = speedEntry.fileContent[i].speed;
+
+            // make sure times are in ascending order
+            if(currentTime < prevTime)
+                throw omnetpp::cRuntimeError("The time column in file '%s' is not in ascending order", speedEntry.file_str.c_str());
+
+            double accel = (currentSpeed - prevSpeed) / (currentTime - prevTime);
+            if(accel >= 0)
+                maxAccel = std::max(maxAccel, accel);
+            else
+                maxDecel = std::min(maxDecel, accel);
+
+            prevSpeed = currentSpeed;
+            prevTime = currentTime;
+        }
+    }
+
+    if(maxAccel != -std::numeric_limits<double>::max())
+    {
+        LOG_WARNING << boost::format("\nSpeed change of vehicle '%s' using file '%s' requires maximum acceleration of '%d' \n") %
+                speedEntry.id_str %
+                speedEntry.file_str %
+                maxAccel << std::flush;
+    }
+
+    if(maxDecel != std::numeric_limits<double>::max())
+    {
+        LOG_WARNING << boost::format("\nSpeed change of vehicle '%s' using file '%s' requires maximum deceleration of '%d' \n") %
+                speedEntry.id_str %
+                speedEntry.file_str %
+                maxDecel << std::flush;
+    }
+}
+
+
+bool TrafficControl::isCSV(std::string file)
+{
+    boost::filesystem::path p(file);
+
+    std::string extension = p.extension().string();
+
+    return (extension == ".csv");
+}
+
+
+// allows for quoted fields to contain embedded line breaks
+// check this: http://mybyteofcode.blogspot.com/2010/11/parse-csv-file-with-embedded-new-lines.html
+void TrafficControl::CSV2TXT(std::string file, std::vector<std::vector<std::string>> &result)
+{
+    std::ifstream inFile(file);
+    if (!inFile.is_open())
+        throw omnetpp::cRuntimeError("Cannot open CSV file '%s' in element '%s'", file.c_str(), speed_tag.c_str());
+
+    typedef boost::tokenizer< boost::escaped_list_separator<char> > Tokenizer;
+
+    boost::escaped_list_separator<char> sep('\\', ',', '\"');
+
+    std::vector<std::string> vec;
+    std::string line = "";
+    std::string buffer = "";
+    bool inside_quotes = false;
+    size_t last_quote = 0;
+
+    while (getline(inFile,buffer))
+    {
+        // --- deal with line breaks in quoted strings
+        last_quote = buffer.find_first_of('"');
+        while (last_quote != std::string::npos)
+        {
+            if (buffer[last_quote-1] != '\\')
+                inside_quotes = !inside_quotes;
+            last_quote = buffer.find_first_of('"',last_quote+1);
+        }
+
+        line.append(buffer);
+
+        if (inside_quotes)
+        {
+            line.append("\n");
+            continue;
+        }
+        // ---
+
+        Tokenizer tok(line, sep);
+        vec.assign(tok.begin(),tok.end());
+
+        line.clear(); // clear here, next check could fail
+
+        result.push_back(vec);
+    }
+
+    inFile.close();
 }
 
 
@@ -574,19 +954,114 @@ void TrafficControl::controlSpeed_begin(speedEntry_t &speedEntry)
         // save current speed for future
         speedEntry.oldSpeed = TraCI->vehicleGetSpeed(speedEntry.id_str);
 
-        // change the vehicle's speed
-        vehicleSetSpeedOnce(speedEntry, speedEntry.value_str);
+        if(speedEntry.maxAccel != -1)
+            TraCI->vehicleSetMaxAccel(speedEntry.id_str, speedEntry.maxAccel);
+
+        if(speedEntry.maxDecel != -1)
+            TraCI->vehicleSetMaxDecel(speedEntry.id_str, speedEntry.maxDecel);
+
+        if(speedEntry.value_str != "")
+        {
+            try
+            {
+                boost::trim(speedEntry.value_str);
+                double speedValue = boost::lexical_cast<double>(speedEntry.value_str);
+
+                // make sure the speed is not negative
+                ASSERT(speedValue >= 0);
+
+                // set vehicle's speed
+                TraCI->vehicleSetSpeed(speedEntry.id_str, speedValue);
+            }
+            catch(...)
+            {
+                // we cannot convert speed_str to a double!
+                // probably it is an arithmetic expression
+                // set the flag
+                speedEntry.expressionEvaluationRequired = true;
+            }
+        }
 
         speedEntry.processingStarted = true;
     }
 
     if(speedEntry.expressionEvaluationRequired)
-        vehicleSetSpeedExpression(speedEntry, speedEntry.value_str);
+    {
+        parser_t parser;
+        parser.compile(speedEntry.value_str, speedEntry.expression);
+
+        // evaluate the speed function at current point
+        speedEntry.expressionVariable = omnetpp::simTime().dbl();
+        double functionVal = speedEntry.expression.value();
+
+        // make sure the speed is not negative
+        functionVal = std::max(0., functionVal);
+
+        // set the speed
+        TraCI->vehicleSetSpeed(speedEntry.id_str, functionVal);
+    }
+
+    if(speedEntry.file_str != "" && !speedEntry.endOfFile)
+    {
+        if(!speedEntry.fileContent.empty())
+        {
+            // we have only speed data
+            if(speedEntry.fileContent[0].time == -1)
+            {
+                static uint32_t row = 0;
+
+                if(row < speedEntry.fileContent.size())
+                {
+                    // set the speed
+                    TraCI->vehicleSetSpeed(speedEntry.id_str, speedEntry.fileContent[row].speed);
+                    row++;
+                }
+                else
+                {
+                    // we reached the end of file
+                    speedEntry.endOfFile = true;
+                }
+            }
+            // we have time-speed data
+            else
+            {
+                static uint32_t row = 0;
+
+                for(unsigned int k = row; k < speedEntry.fileContent.size(); ++k)
+                {
+                    if(speedEntry.fileContent[k].time <= omnetpp::simTime().dbl())
+                    {
+                        TraCI->vehicleSetSpeed(speedEntry.id_str, speedEntry.fileContent[k].speed);
+                        row = k + 1;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+
+                if(row >= speedEntry.fileContent.size())
+                {
+                    // we reached the end of file
+                    speedEntry.endOfFile = true;
+                }
+            }
+        }
+        else
+        {
+            // file is empty
+            speedEntry.endOfFile = true;
+        }
+    }
 
     // if neither 'end' or 'duration' is specified
     if(speedEntry.end == -1 && speedEntry.duration == -1)
     {
-        if(!speedEntry.expressionEvaluationRequired)
+        // if the 'file' attribute does not exist
+        if(speedEntry.file_str == "")
+            speedEntry.processingEnded = true;
+        // if the 'file' attribute exists then end only when endOfFile is set
+        else if(speedEntry.endOfFile)
             speedEntry.processingEnded = true;
     }
     // 'end' is specified
@@ -756,52 +1231,6 @@ void TrafficControl::controlSpeed_laneId(speedEntry_t &speedEntry)
 }
 
 
-void TrafficControl::vehicleSetSpeedOnce(speedEntry_t &speedEntry, std::string speed_str)
-{
-    if(speedEntry.maxAccel != -1)
-        TraCI->vehicleSetMaxAccel(speedEntry.id_str, speedEntry.maxAccel);
-
-    if(speedEntry.maxDecel != -1)
-        TraCI->vehicleSetMaxDecel(speedEntry.id_str, speedEntry.maxDecel);
-
-    try
-    {
-        boost::trim(speed_str);
-        double speedValue = boost::lexical_cast<double>(speed_str);
-
-        // make sure the speed is not negative
-        ASSERT(speedValue >= 0);
-
-        // set vehicle's speed
-        TraCI->vehicleSetSpeed(speedEntry.id_str, speedValue);
-    }
-    catch(...)
-    {
-        // we cannot convert speed_str to a double!
-        // probably it is an arithmetic expression
-        // set the flag
-        speedEntry.expressionEvaluationRequired = true;
-    }
-}
-
-
-void TrafficControl::vehicleSetSpeedExpression(speedEntry_t &speedEntry, std::string expression_string)
-{
-    parser_t parser;
-    parser.compile(expression_string, speedEntry.expression);
-
-    // evaluate the speed function at current point
-    speedEntry.expressionVariable = omnetpp::simTime().dbl();
-    double functionVal = speedEntry.expression.value();
-
-    // make sure the speed is not negative
-    functionVal = std::max(0., functionVal);
-
-    // set the speed
-    TraCI->vehicleSetSpeed(speedEntry.id_str, functionVal);
-}
-
-
 void TrafficControl::parseOptSize(rapidxml::xml_node<> *pNode)
 {
     uint32_t nodeCount = 1;
@@ -834,12 +1263,65 @@ void TrafficControl::parseOptSize(rapidxml::xml_node<> *pNode)
             entry.begin = begin;
             entry.value = value;
 
+            // check for conflicts before adding
+            uint32_t conflictedOptSizeNode = checkOptSizeConflicts(entry, nodeCount);
+            if(conflictedOptSizeNode != 0)
+                throw omnetpp::cRuntimeError("optSize node '%d' and '%d' in TrafficControl with id '%s' have conflicts. "
+                        "They are both trying to change the optimal platoon size at time '%f'", conflictedOptSizeNode,
+                        nodeCount,
+                        this->id.c_str(),
+                        entry.begin);
+
             allOptSize.insert(std::make_pair(nodeCount, entry));
         }
         else
             throw omnetpp::cRuntimeError("Multiple %s with the same 'id' %s is not allowed!", optSize_tag.c_str(), pltId_str.c_str());
 
         nodeCount++;
+    }
+}
+
+
+uint32_t TrafficControl::checkOptSizeConflicts(optSizeEntry_t &optSizeEntry, uint32_t nodeCount)
+{
+    typedef struct optSizeChangeEntry
+    {
+        uint32_t nodeCount;
+        double time;
+    } optSizeChangeEntry_t;
+
+    static std::map<std::string /*platoonID*/, std::vector<optSizeChangeEntry_t>> allOptSizeChange;
+
+    ASSERT(optSizeEntry.begin != -1);
+
+    auto ii = allOptSizeChange.find(optSizeEntry.pltId_str);
+    // this is the first optSize for this platoon
+    if(ii == allOptSizeChange.end())
+    {
+        optSizeChangeEntry_t entry = {nodeCount, optSizeEntry.begin};
+        std::vector<optSizeChangeEntry_t> entry2 = {entry};
+        allOptSizeChange[optSizeEntry.pltId_str] = entry2;
+
+        return 0;
+    }
+    // there is an existing optSize for this platoon
+    else
+    {
+        // for each node on this lane
+        for(auto &optSizeNode : ii->second)
+        {
+            // check for overlap
+            if(optSizeEntry.begin == optSizeNode.time)
+            {
+                return optSizeNode.nodeCount;
+            }
+        }
+
+        // there is no overlap!
+        optSizeChangeEntry_t entry = {nodeCount, optSizeEntry.begin};
+        ii->second.push_back(entry);
+
+        return 0;
     }
 }
 
