@@ -280,6 +280,7 @@ public:
     // ################################################################
 
     // CMD_GET_VEHICLE_VARIABLE
+    bool vehicleCouldChangeLane(std::string nodeId, int direction);
     std::vector<std::string> vehicleGetIDList();
     uint32_t vehicleGetIDCount();
     double vehicleGetSpeed(std::string);

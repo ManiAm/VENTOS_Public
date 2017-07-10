@@ -474,6 +474,38 @@ void TraCI_Commands::simulationTerminate(bool TraCIclosed)
 // CMD_GET_VEHICLE_VARIABLE
 // #########################
 
+bool TraCI_Commands::vehicleCouldChangeLane(std::string nodeId, int direction) {
+  // is it a valid direction?
+  if (direction == -1 || direction == 1) {
+    // get required data
+    std::string myEdge = vehicleGetEdgeID(nodeId);
+    std::string vehClass = vehicleGetClass(nodeId);
+    int currentLane = vehicleGetLaneIndex(nodeId);
+    int numLanes = edgeGetLaneCount(myEdge);
+    auto allowedLanes = edgeGetAllowedLanes(myEdge, vehClass);
+
+    // set currentLane to be the lane in specified direction; -1 is left, 1 is right
+    currentLane -= direction;
+
+    // check boundaries
+    if (currentLane > numLanes || currentLane < 0)
+      return false;
+
+    // check if adjacent lanes matches the currentLane (in terms of vehicle class)
+    auto ii = std::find(allowedLanes.begin(), allowedLanes.end(), myEdge + "_" + std::to_string(currentLane));
+
+    // no matches
+    if(ii == allowedLanes.end())
+      return false;
+
+    return true;
+  }
+  else {
+    std::cout << "Not a valid direction!" << std::endl;
+    return false;
+  }
+}
+
 // gets a list of all vehicles in the network (alphabetically!!!)
 std::vector<std::string> TraCI_Commands::vehicleGetIDList()
 {
