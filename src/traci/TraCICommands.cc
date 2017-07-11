@@ -3661,8 +3661,11 @@ boost::filesystem::path TraCI_Commands::getFullPath_SUMOApplication()
         LOG_WARNING << boost::format("    2. Make sure the 'Network.TraCI.SUMOapplication' parameter in set correctly. \n");
         LOG_WARNING << std::flush;
 
+        fclose(pip);
         throw omnetpp::cRuntimeError("Cannot run SUMO application");
     }
+
+    fclose(pip);
 
     std::string SUMOexeFullPath = std::string(output);
     // remove new line character at the end
