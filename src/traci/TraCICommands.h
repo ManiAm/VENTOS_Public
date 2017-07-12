@@ -418,6 +418,7 @@ public:
     std::string laneGetEdgeID(std::string);
     double laneGetLength(std::string);
     double laneGetMaxSpeed(std::string);
+    double laneGetWidth(std::string);
     uint32_t laneGetLastStepVehicleNumber(std::string);
     std::vector<std::string> laneGetLastStepVehicleIDs(std::string);
     double laneGetLastStepMeanVehicleSpeed(std::string);

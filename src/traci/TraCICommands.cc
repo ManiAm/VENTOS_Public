@@ -2256,6 +2256,16 @@ double TraCI_Commands::laneGetMaxSpeed(std::string laneId)
     return result;
 }
 
+double TraCI_Commands::laneGetWidth(std::string laneId)
+{
+    record_TraCI_activity_func("commandStart", CMD_GET_LANE_VARIABLE, VAR_WIDTH, "laneGetWidth");
+
+    double result = genericGetDouble(CMD_GET_LANE_VARIABLE, laneId, VAR_WIDTH, RESPONSE_GET_LANE_VARIABLE);
+
+    record_TraCI_activity_func("commandComplete", CMD_GET_LANE_VARIABLE, VAR_WIDTH, "laneGetWidth");
+    return result;
+}
+
 
 uint32_t TraCI_Commands::laneGetLastStepVehicleNumber(std::string laneId)
 {
