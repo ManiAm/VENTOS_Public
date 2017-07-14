@@ -36,13 +36,13 @@
 #include <shark/ObjectiveFunctions/Loss/ZeroOneLoss.h>
 
 #include <shark/LinAlg/Base.h>
-//#include <shark/Models/Converter.h>
 #include <shark/Models/Kernels/GaussianRbfKernel.h>
 #include <shark/Algorithms/Trainers/CSvmTrainer.h>
 
 #undef ev
 #include "boost/filesystem.hpp"
 
+#include "global/gnuplot.h"
 #include "nodes/rsu/02_Monitor.h"
 
 namespace VENTOS {
@@ -58,7 +58,6 @@ private:
     double GPSerror;
     int debugLevel;
 
-    FILE *plotterPtr = NULL;
     boost::filesystem::path trainingFilePath;
 
     typedef struct sample
@@ -108,6 +107,8 @@ private:
 
     std::map< std::string /*entity id*/, std::vector<resultEntry_t> > classifyResults;
 
+    gnuplot *gnuplotPtr = NULL;
+
     typedef struct dataBlockEntry
     {
         unsigned int counter;
@@ -117,7 +118,7 @@ private:
     /* two-level categorization for plotting:
      *     level 1: beacons of the same class
      *     level 2: different entities within each class */
-    std::map< unsigned int /*class label*/, std::map< std::string /*entity id*/, dataBlockEntry > > dataBlockCounter;
+    std::map< unsigned int /*class label*/, std::map< std::string /*entity id*/, dataBlockEntry_t > > dataBlockCounter;
 
 public:
     ~ApplRSUCLASSIFY();
@@ -134,9 +135,6 @@ protected:
     virtual void onBeaconRSU(BeaconRSU*);
 
 private:
-    void initializeGnuPlot();
-    double getGnuPlotVersion();
-
     void loadTrainer();
     void readTrainingSamples();
     void trainClassifier(shark::CSvmTrainer<shark::RealVector, unsigned int> *);

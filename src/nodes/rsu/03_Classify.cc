@@ -79,7 +79,44 @@ void ApplRSUCLASSIFY::initialize(int stage)
             lanesTL[it] = myTLid;
 
         if(omnetpp::cSimulation::getActiveEnvir()->isGUI())
-            initializeGnuPlot();
+        {
+            gnuplotPtr = new gnuplot();
+
+            // we need feature in GNUPLOT 5.0 and above
+            double version = gnuplotPtr->getVersion();
+            if(version < 5)
+                throw omnetpp::cRuntimeError("GNUPLOT version should be >= 5");
+
+            // interactive gnuplot terminals: x11, wxt, qt (wxt and qt offer nicer output and a wider range of features)
+            // persist: keep the windows open even after simulation termination
+            // noraise: updating is done in the background
+            // link: http://gnuplot.sourceforge.net/docs_4.2/node441.html
+            // gnuplotPtr->sendCommand("set term wxt enhanced 0 font 'Helvetica,' noraise \n");
+
+            // set title name
+            gnuplotPtr->sendCommand("set title 'Sample Points' \n");
+
+            // set axis labels
+            gnuplotPtr->sendCommand("set xlabel 'X Pos' offset -5 \n");
+            gnuplotPtr->sendCommand("set ylabel 'Y Pos' offset 3 \n");
+            gnuplotPtr->sendCommand("set zlabel 'Approach Speed' offset -2 rotate left \n");
+
+            // change ticks
+            // gnuplotPtr->sendCommand("set xtics 20 \n");
+            // gnuplotPtr->sendCommand("set ytics 20 \n");
+
+            // set range
+            // gnuplotPtr->sendCommand("set yrange [885:902] \n");
+
+            // set grid and border
+            gnuplotPtr->sendCommand("set grid \n");
+            gnuplotPtr->sendCommand("set border 4095 \n");
+
+            // set agenda location
+            gnuplotPtr->sendCommand("set key outside right top box \n");
+
+            gnuplotPtr->flush();
+        }
 
         loadTrainer();
     }
@@ -98,14 +135,8 @@ void ApplRSUCLASSIFY::finish()
     else
         saveClassificationResults();
 
-    if(plotterPtr)
-    {
-#ifdef WIN32
-        _pclose(plotterPtr);
-#else
-        pclose(plotterPtr);
-#endif
-    }
+    if(gnuplotPtr)
+        delete gnuplotPtr;
 }
 
 
@@ -154,94 +185,13 @@ void ApplRSUCLASSIFY::onBeaconRSU(BeaconRSU* wsm)
 }
 
 
-void ApplRSUCLASSIFY::initializeGnuPlot()
-{
-    double version = getGnuPlotVersion();
-    // we need feature in GNUPLOT 5.0 and above
-    if(version < 5)
-        throw omnetpp::cRuntimeError("GNUPLOT version should be >= 5");
-
-#ifdef WIN32
-    plotterPtr = _popen("pgnuplot -persist", "w");
-#else
-    plotterPtr = popen("gnuplot", "w");
-#endif
-
-    if(plotterPtr == NULL)
-        throw omnetpp::cRuntimeError("Could not open pipe for write!");
-
-    // interactive gnuplot terminals: x11, wxt, qt (wxt and qt offer nicer output and a wider range of features)
-    // persist: keep the windows open even after simulation termination
-    // noraise: updating is done in the background
-    // link: http://gnuplot.sourceforge.net/docs_4.2/node441.html
-    // fprintf(plotterPtr, "set term wxt enhanced 0 font 'Helvetica,' noraise\n");
-
-    // set title name
-    fprintf(plotterPtr, "set title 'Sample Points' \n");
-
-    // set axis labels
-    fprintf(plotterPtr, "set xlabel 'X Pos' offset -5 \n");
-    fprintf(plotterPtr, "set ylabel 'Y Pos' offset 3 \n");
-    fprintf(plotterPtr, "set zlabel 'Approach Speed' offset -2 rotate left \n");
-
-    // change ticks
-    // fprintf(pipe, "set xtics 20 \n");
-    // fprintf(pipe, "set ytics 20 \n");
-
-    // set range
-    // fprintf(pipe, "set yrange [885:902] \n");
-
-    // set grid and border
-    fprintf(plotterPtr, "set grid \n");
-    fprintf(plotterPtr, "set border 4095 \n");
-
-    // set agenda location
-    fprintf(plotterPtr, "set key outside right top box \n");
-
-    fflush(plotterPtr);
-}
-
-
-double ApplRSUCLASSIFY::getGnuPlotVersion()
-{
-    FILE* pipversion = popen("gnuplot --version", "r");
-    if (!pipversion)
-        throw omnetpp::cRuntimeError("can not open pipe!");
-
-    char lineversion[128];
-    memset (lineversion, 0, sizeof(lineversion));
-    if (!fgets(lineversion, sizeof(lineversion), pipversion))
-        throw omnetpp::cRuntimeError("fgets error!");
-
-    // now parsing lineversion (gnuplot 5.0 patchlevel 1)
-    double vers = 0.0;
-    sscanf(lineversion, "gnuplot %lf", &vers);
-
-    int majvers = 0;
-    int minvers = 0;
-
-    int pos = -1;
-    char* restvers = NULL;
-    if (sscanf(lineversion, "gnuplot %d.%d %n", &majvers, &minvers, &pos) >= 2)
-    {
-        assert(pos>=0);
-        restvers = lineversion+pos;
-    }
-
-    pclose(pipversion);
-    pipversion = NULL;
-
-    return vers;
-}
-
-
 void ApplRSUCLASSIFY::loadTrainer()
 {
     auto kernel = new shark::GaussianRbfKernel<shark::RealVector> (0.5 /*gamma: kernel bandwidth parameter*/, false /*unconstrained*/);
 
     kc_model = new shark::KernelClassifier<shark::RealVector> (kernel);
 
-    // Training of a multi-class SVM by the one-versus-all (OVA) method
+    // training of a multi-class SVM by the one-versus-all (OVA) method
     auto trainer = new shark::CSvmTrainer<shark::RealVector, unsigned int>(kernel, 10.0 /*regularization parameter*/, true /*with offset*/);
     trainer->setMcSvmType(shark::McSvm::OVA);
 
@@ -501,8 +451,8 @@ void ApplRSUCLASSIFY::addError(beaconGeneral &wsm, double maxError)
     double posY = wsm->getPos().y;
 
     double speed = wsm->getSpeed();
-   // double accel = wsm->getAccel();
-   // double angle = wsm->getAngle();
+    // double accel = wsm->getAccel();
+    // double angle = wsm->getAngle();
 
     double r = 0;
 
@@ -620,8 +570,6 @@ void ApplRSUCLASSIFY::saveClassificationResults()
 template <typename beaconGeneral>
 void ApplRSUCLASSIFY::draw(beaconGeneral &wsm, unsigned int real_label)
 {
-    ASSERT(plotterPtr);
-
     auto it1 = dataBlockCounter.find(real_label);
     // this label already exists
     if(it1 != dataBlockCounter.end())
@@ -632,8 +580,8 @@ void ApplRSUCLASSIFY::draw(beaconGeneral &wsm, unsigned int real_label)
         if(it2 != (it1->second).end())
         {
             // append the new point to the datablock
-            fprintf(plotterPtr, "set print $data%d append \n", (it2->second).counter);
-            fprintf(plotterPtr, "print \"%0.2f %0.2f %0.2f\" \n", wsm->getPos().x, wsm->getPos().y, wsm->getSpeed());
+            gnuplotPtr->sendCommand("set print $data%d append \n", (it2->second).counter);
+            gnuplotPtr->sendCommand("print \"%0.2f %0.2f %0.2f\" \n", wsm->getPos().x, wsm->getPos().y, wsm->getSpeed());
         }
         else
         {
@@ -657,9 +605,9 @@ void ApplRSUCLASSIFY::draw(beaconGeneral &wsm, unsigned int real_label)
             }
 
             // creating a new datablock
-            fprintf(plotterPtr, "$data%d << EOD \n", size + 1);
-            fprintf(plotterPtr, "%0.2f %0.2f %0.2f \n", wsm->getPos().x, wsm->getPos().y, wsm->getSpeed());
-            fprintf(plotterPtr, "EOD \n");
+            gnuplotPtr->sendCommand("$data%d << EOD \n", size + 1);
+            gnuplotPtr->sendCommand("%0.2f %0.2f %0.2f \n", wsm->getPos().x, wsm->getPos().y, wsm->getSpeed());
+            gnuplotPtr->sendCommand("EOD \n");
         }
     }
     else
@@ -674,9 +622,9 @@ void ApplRSUCLASSIFY::draw(beaconGeneral &wsm, unsigned int real_label)
         dataBlockCounter[real_label].insert( std::make_pair(wsm->getSender(), entry) );
 
         // creating a new datablock
-        fprintf(plotterPtr, "$data%d << EOD \n", size + 1);
-        fprintf(plotterPtr, "%0.2f %0.2f %0.2f \n", wsm->getPos().x, wsm->getPos().y, wsm->getSpeed());
-        fprintf(plotterPtr, "EOD \n");
+        gnuplotPtr->sendCommand("$data%d << EOD \n", size + 1);
+        gnuplotPtr->sendCommand("%0.2f %0.2f %0.2f \n", wsm->getPos().x, wsm->getPos().y, wsm->getSpeed());
+        gnuplotPtr->sendCommand("EOD \n");
     }
 
     // debugging
@@ -702,19 +650,19 @@ void ApplRSUCLASSIFY::draw(beaconGeneral &wsm, unsigned int real_label)
     }
 
     // merge all small datablocks
-    fprintf(plotterPtr, "undefine $dataAll \n");
-    fprintf(plotterPtr, "set print $dataAll \n");
+    gnuplotPtr->sendCommand("undefine $dataAll \n");
+    gnuplotPtr->sendCommand("set print $dataAll \n");
     for(auto &i : dataBlockCounter)
     {
         for(auto &j : i.second)
         {
-            fprintf(plotterPtr, "print $data%d \n", j.second.counter);
-            fprintf(plotterPtr, "print \"\" \n");
+            gnuplotPtr->sendCommand("print $data%d \n", j.second.counter);
+            gnuplotPtr->sendCommand("print \"\" \n");
         }
     }
 
     // make plot
-    fprintf(plotterPtr, "splot ");
+    gnuplotPtr->sendCommand("splot ");
 
     int index = 0;
     for(auto &i : dataBlockCounter)
@@ -723,15 +671,15 @@ void ApplRSUCLASSIFY::draw(beaconGeneral &wsm, unsigned int real_label)
         {
             // get the color for this block
             HSV color = j.second.color;
-            fprintf(plotterPtr, "'$dataAll' index %d using 1:2:3 with points pointtype 7 pointsize 1 linecolor rgbcolor hsv2rgb(%f,%f,%f) linewidth 1 title 'class %d',", index, color.hue/360, color.saturation/100, color.value/100, i.first);
+            gnuplotPtr->sendCommand("'$dataAll' index %d using 1:2:3 with points pointtype 7 pointsize 1 linecolor rgbcolor hsv2rgb(%f,%f,%f) linewidth 1 title 'class %d',", index, color.hue/360, color.saturation/100, color.value/100, i.first);
             index++;
         }
     }
 
     // complete the splot command
-    fprintf(plotterPtr, " \n");
+    gnuplotPtr->sendCommand(" \n");
 
-    fflush(plotterPtr);
+    gnuplotPtr->flush();
 }
 
 }
