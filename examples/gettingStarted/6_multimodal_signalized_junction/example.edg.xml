@@ -8,7 +8,7 @@
         <lane index="3" disallow="bicycle pedestrian"/>
         <lane index="4" disallow="bicycle pedestrian"/>
     </edge>
-    
+
     <edge id="CN" from="C" to="N" priority="2" numLanes="5" speed="30">
         <lane index="0" allow="pedestrian" width="3.00"/>
         <lane index="1" disallow="all" width="1.50"/>
@@ -16,7 +16,7 @@
         <lane index="3" disallow="bicycle pedestrian"/>
         <lane index="4" disallow="bicycle pedestrian"/>
     </edge>
-    
+
     <edge id="CS" from="C" to="S" priority="2" numLanes="5" speed="30">
         <lane index="0" allow="pedestrian" width="3.00"/>
         <lane index="1" disallow="all" width="1.50"/>
@@ -24,7 +24,7 @@
         <lane index="3" disallow="bicycle pedestrian"/>
         <lane index="4" disallow="bicycle pedestrian"/>
     </edge>
-    
+
     <edge id="CW" from="C" to="W" priority="2" numLanes="5" speed="30">
         <lane index="0" allow="pedestrian" width="3.00"/>
         <lane index="1" disallow="all" width="1.50"/>
@@ -32,7 +32,7 @@
         <lane index="3" disallow="bicycle pedestrian"/>
         <lane index="4" disallow="bicycle pedestrian"/>
     </edge>
-    
+
     <edge id="EC" from="E" to="C" priority="2" numLanes="5" speed="30">
         <lane index="0" allow="pedestrian" width="3.00"/>
         <lane index="1" disallow="all" width="1.50"/>
@@ -40,7 +40,7 @@
         <lane index="3" disallow="bicycle pedestrian"/>
         <lane index="4" disallow="bicycle pedestrian"/>
     </edge>
-    
+
     <edge id="NC" from="N" to="C" priority="2" numLanes="5" speed="30">
         <lane index="0" allow="pedestrian" width="3.00"/>
         <lane index="1" disallow="all" width="1.50"/>
@@ -48,7 +48,7 @@
         <lane index="3" disallow="bicycle pedestrian"/>
         <lane index="4" disallow="bicycle pedestrian"/>
     </edge>
-    
+
     <edge id="SC" from="S" to="C" priority="2" numLanes="5" speed="30">
         <lane index="0" allow="pedestrian" width="3.00"/>
         <lane index="1" disallow="all" width="1.50"/>
@@ -56,7 +56,7 @@
         <lane index="3" disallow="bicycle pedestrian"/>
         <lane index="4" disallow="bicycle pedestrian"/>
     </edge>
-    
+
     <edge id="WC" from="W" to="C" priority="2" numLanes="5" speed="30">
         <lane index="0" allow="pedestrian" width="3.00"/>
         <lane index="1" disallow="all" width="1.50"/>

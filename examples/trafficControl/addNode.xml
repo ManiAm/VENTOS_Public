@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <addNode id="add_00">
-  
-  <vehicle id="veh.0" type="TypeManual" route="route0" departSpeed="20" />
-  
+
+<vehicle_platoon
+  id="veh" type="TypeACC1" size="6"
+  route="route0" departPos="100" departLane="1" platoonMaxSpeed="0" pltMgmtProt="true" optSize="4" maxSize="10" />
+
 </addNode>

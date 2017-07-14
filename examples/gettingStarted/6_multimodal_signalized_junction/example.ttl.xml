@@ -1,22 +1,22 @@
 
 <additional>
-    
+
     <tlLogic id="C" type="static" programID="my_fixTime" offset="20">
         <phase duration="20" state="GrGrGrrGrrGrGrGrrGrrrrrr"/>        
         <phase duration="4"  state="yrGryrrGrryrGryrrGrrrrrr"/>
         <phase duration="2"  state="rrGrrrrGrrrrGrrrrGrrrrrr"/>
-                        
+
         <phase duration="20" state="rGGGrrrGrrrGGGrrrGrrrGrG"/>
         <phase duration="4"  state="ryGyrrrGrrryGyrrrGrrryry"/>
         <phase duration="2"  state="rrGrrrrGrrrrGrrrrGrrrrrr"/>
-        
-        <phase duration="20" state="rrGrrGrGrGrrGrrGrGrGrrrr"/>   
-        <phase duration="4"  state="rrGrryrGryrrGrryrGryrrrr"/>  
-        <phase duration="2"  state="rrGrrrrGrrrrGrrrrGrrrrrr"/>      
-        
+
+        <phase duration="20" state="rrGrrGrGrGrrGrrGrGrGrrrr"/>
+        <phase duration="4"  state="rrGrryrGryrrGrryrGryrrrr"/>
+        <phase duration="2"  state="rrGrrrrGrrrrGrrrrGrrrrrr"/>
+
         <phase duration="20" state="rrGrrrGGGrrrGrrrGGGrGrGr"/>
         <phase duration="4"  state="rrGrrryGyrrrGrrryGyryryr"/>
-        <phase duration="2"  state="rrGrrrrGrrrrGrrrrGrrrrrr"/>        
+        <phase duration="2"  state="rrGrrrrGrrrrGrrrrGrrrrrr"/>
     </tlLogic>
-    
+
 </additional>

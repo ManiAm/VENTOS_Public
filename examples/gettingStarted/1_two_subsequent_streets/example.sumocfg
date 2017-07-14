@@ -1,6 +1,6 @@
 
 <configuration>
- 
+
     <input>
         <net-file value="example.net.xml"/>
         <route-files value="example.rou.xml"/>
@@ -8,10 +8,10 @@
 
     <time>
         <begin value="0"/>
-        <end value="-1"/>
+        <end value="1000"/>
         <step-length value="1" />
     </time>
-    
+
     <processing>
         <time-to-teleport value="0" />
         <xml-validation value="never" />
