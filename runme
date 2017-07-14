@@ -525,11 +525,17 @@ VENTOS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # change directory to VENTOS
 cd $VENTOS_DIR
 
-# get the git FETCH directory
-FETCH_DIR=$(basename `git remote show origin -n | grep "Fetch URL:" | awk '{print $NF}'`)
-if [[ "$FETCH_DIR" == "" ]]; then
-    echo "cannot get the Git FETCH URL."
-    exit 1
+DIR_NAME=$(basename $VENTOS_DIR)
+if [[ $DIR_NAME == *"VENTOS_Public"* ]]; then
+    FETCH_DIR="VENTOS_Public"
+elif [[ $DIR_NAME == *"VENTOS"* ]]; then
+    FETCH_DIR="VENTOS"
+else # the user cloned the repos under in a different name
+    FETCH_DIR=$(basename `git remote show origin -n | grep "Fetch URL:" | awk '{print $NF}'`)
+    if [[ "$FETCH_DIR" == "" ]]; then
+        echo "cannot get the Git FETCH URL."
+        exit 1
+    fi
 fi
 
 # change directory to parent of VENTOS (Desktop)

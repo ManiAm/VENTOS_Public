@@ -53,7 +53,7 @@ void AddNode::initialize(int stage)
 
     if(stage == 0)
     {
-        // check module names for duplcate -- even if addNode id is empty
+        // check module names for duplicate -- even if addNode id is empty
         checkDuplicateModuleName(par("vehicle_ModuleName").stringValue());
         checkDuplicateModuleName(par("bike_ModuleName").stringValue());
         checkDuplicateModuleName(par("ped_ModuleName").stringValue());
