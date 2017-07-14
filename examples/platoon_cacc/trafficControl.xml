@@ -30,5 +30,3 @@
     <speed id="veh" begin="60" end="1000" value="(((-1)^floor(2(t-60)/200)+1)*10)+10" maxAccel="2" maxDecel="5" />
 
 </trafficControl>
-
-</trafficControl>

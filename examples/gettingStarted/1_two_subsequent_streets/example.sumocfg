@@ -8,7 +8,7 @@
 
     <time>
         <begin value="0"/>
-        <end value="1000"/>
+        <end value="-1"/>
         <step-length value="1" />
     </time>
 

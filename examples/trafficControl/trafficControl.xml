@@ -2,22 +2,36 @@
 
 <trafficControl id="control_0">
 
-  <speed id="veh" begin="10" value="20" />
+    <speed id="veh.0" begin="40" value="5" />
+    <speed id="veh.0" begin="70" duration="20" value="30" />
+    <speed id="veh.0" begin="100" value="20" maxAccel="5" />
+    <speed id="veh.0" begin="120" value="5" maxDecel="7" /> 
+    
+</trafficControl>
 
-  <optSize begin="40" value="5" />
-  <optSize begin="60" value="3" />
 
-  <pltMerge pltId="veh.3" begin="80" />
+<trafficControl id="control_1">
 
-  <pltSplit pltId="veh" splitIndex="2" begin="100" />
-  <pltSplit splitVehId="veh.5" begin="120" />
+    <speed id="veh.0" begin="20" value="0" />
+    <speed id="veh.0" begin="60" end="150" value="0.5*(t-60)" />
+    <speed id="veh.0" begin="190" end="1000" value="30*sin(0.1*(t-190))" />
+    
+</trafficControl>
 
-  <optSize begin="140" value="6" />
 
-  <pltLeave pltId="veh" leaveIndex="0" begin="160" leaveDirection="right"/>
-  <pltLeave pltId="veh" leaveIndex="0" begin="180"/>
-  <pltLeave pltId="veh" leaveIndex="0" begin="210"/>
+<trafficControl id="control_2">
 
+    <speed id="veh.0" begin="20" value="0" />
+    <speed id="veh.0" begin="60" end="1000" value="30*(-1)^floor(2(t-60)/60)" />
+    
+</trafficControl>
+
+
+<trafficControl id="control_3">
+
+    <speed id="veh.0" begin="20" value="0" />
+    <speed id="veh.0" begin="60" end="1000" value="30*((t/60-1)-floor(t/60-1))" />
+    
 </trafficControl>
 
 

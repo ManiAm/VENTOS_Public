@@ -5,29 +5,6 @@
       <carFollowing-Krauss accel="3.0" decel="5.0" sigma="0" tau="1.64" />
   </vType>
 
-  <!-- emergency vehicle -->
-  <vType id="emergency" length="10.0" minGap="2.0" maxSpeed="30.0" vClass="emergency">
-      <carFollowing-Krauss accel="3.0" decel="5.0" sigma="0" tau="1.64" />
-  </vType>
-
-  <!-- bus -->
-  <vType id="bus" length="10.0" minGap="4.0" maxSpeed="15.0" vClass="bus">
-      <carFollowing-Krauss accel="2.0" decel="3.0" sigma="0" tau="2.0" />
-  </vType>
-
-  <!-- truck -->
-  <vType id="truck" length="10.0" minGap="4.0" maxSpeed="15.0" vClass="truck">
-      <carFollowing-Krauss accel="2.0" decel="3.0" sigma="0" tau="2.0" />
-  </vType>
-
-  <!-- bicycle -->
-  <vType id="bicycle" length="1.6" width="0.6" minGap="0.5" maxSpeed="4.2" vClass="bicycle" guiShape="bicycle">
-  </vType>
-
-  <!-- pedestrian -->
-
-  </vType>
-
   <vType id="emergency" length="10.0" minGap="2.0" maxSpeed="30.0" vClass="emergency">
       <carFollowing-Krauss accel="3.0" decel="5.0" sigma="0" tau="1.64" />
   </vType>

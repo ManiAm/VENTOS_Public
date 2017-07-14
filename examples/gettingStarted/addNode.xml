@@ -1,20 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <addNode id="add_0">
-  <!-- <vehicle id="veh_1" type="passenger" route="movement3" /> -->
-  <!-- <vehicle id="truck_1" type="truck" route="movement8" /> -->
-  <!-- <vehicle id="bike_1" type="bicycle" route="movement8" /> -->
-  <!-- <vehicle id="veh_2" type="passenger" route="movement5" departLane="3" departPos="10" /> -->
 
-  <!-- <vehicle_flow id="flow4" type="passenger" color="red" route="route1" begin="0" end="400" distribution="uniform" probability="0.2" seed="43" /> -->
-  <!-- <vehicle_flow id="flow5" type="passenger" color="green" route="route3" begin="0" number="20" distribution="deterministic" period="2" /> -->
-  <!-- <vehicle_flow id="flow6" type="passenger" color="red" from="WC" to="CS" distribution="deterministic" period="1" /> -->
-  <!-- <vehicle_flow id="flow8" type="passenger,truck" typeDist="70,30" route="route3" distribution="deterministic" period="2" /> -->
 
-  <!-- <vehicle_multiflow
-    id="multiFlow1"
-    type="passenger,truck"
-    typeDist="90,10"
-    route="movement2,movement5,route1" routeDist="70,30,0" begin="0" end="400"
-    distribution="poisson" lambda="200" seed="43" /> -->
 </addNode>

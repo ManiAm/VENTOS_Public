@@ -24,7 +24,6 @@
     <connection from="SC" to="CW" fromLane="4" toLane="4" />
 
     <connection from="WC" to="CS" fromLane="2" toLane="2" />
-    <!-- <connection from="WC" to="CE" fromLane="4" toLane="4" /> -->
     <connection from="WC" to="CE" fromLane="2" toLane="2" />
     <connection from="WC" to="CS" fromLane="3" toLane="3" />
     <connection from="WC" to="CE" fromLane="3" toLane="3" />

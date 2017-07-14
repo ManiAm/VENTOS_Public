@@ -1,20 +1,3 @@
-<<<<<<< HEAD
-<routes>
-
-  <!-- passenger vehicle type -->
-  <vType id="passenger" length="5.0" minGap="2.0" maxSpeed="30.0" >
-      <carFollowing-Krauss accel="3.0" decel="5.0" sigma="0" tau="1.64" />
-  </vType>
-
-  <!-- bus vehicle type -->
-  <vType id="bus" length="10.0" minGap="4.0" maxSpeed="15.0" >
-      <carFollowing-Krauss accel="2.0" decel="3.0" sigma="0" tau="2.0" />
-  </vType>
-
-  <trip id="veh0" type="passenger" color="1,1,0" from="8954606#8" to="8951448#0" depart="0" />
-
-</routes>
-=======
 <routes>
 
   <vType id="passenger" length="5.0" minGap="2.0" maxSpeed="30.0" >
@@ -29,4 +12,3 @@
 
 </routes>
 
->>>>>>> master
