@@ -1801,71 +1801,51 @@ void ApplVPlatoonMg::followerLeave_DataFSM(PlatoonMsg *wsm)
 
 void ApplVPlatoonMg::performLaneChange()
 {
-    std::string myEdge = TraCI->vehicleGetEdgeID(SUMOID);
-    int numLanes = TraCI->edgeGetLaneCount(myEdge);
-    int lane = TraCI->vehicleGetLaneIndex(SUMOID);
-    std::string vehClass = TraCI->vehicleGetClass(SUMOID);
-    auto allowedLanes = TraCI->edgeGetAllowedLanes(myEdge, vehClass);
-
     // change lane to the right
     if(leaveDirection == "right")
     {
-        lane--;
-
-        if(lane < 0)
+        bool can = TraCI->vehicleCouldChangeLane(SUMOID, -1);
+        if(!can)
             throw omnetpp::cRuntimeError("Vehicle '%s' cannot change lane to right!", SUMOID.c_str());
 
-        auto ii = std::find(allowedLanes.begin(), allowedLanes.end(), myEdge + "_" + std::to_string(lane));
-        if(ii == allowedLanes.end())
-            throw omnetpp::cRuntimeError("Vehicle '%s' is not allowed to change lane to right due to its vClass!", SUMOID.c_str());
-
-        TraCI->vehicleChangeLane(SUMOID, lane, 5);
+        int lane = TraCI->vehicleGetLaneIndex(SUMOID);
+        TraCI->vehicleChangeLane(SUMOID, lane-1, 5);
     }
     // change lane to the left
     else if(leaveDirection == "left")
     {
-        lane++;
-
-        if(lane >= numLanes)
+        bool can = TraCI->vehicleCouldChangeLane(SUMOID, 1);
+        if(!can)
             throw omnetpp::cRuntimeError("Vehicle '%s' cannot change lane to left!", SUMOID.c_str());
 
-        auto ii = std::find(allowedLanes.begin(), allowedLanes.end(), myEdge + "_" + std::to_string(lane));
-        if(ii == allowedLanes.end())
-            throw omnetpp::cRuntimeError("Vehicle '%s' is not allowed to change lane to left due to its vClass!", SUMOID.c_str());
-
-        TraCI->vehicleChangeLane(SUMOID, lane, 5);
+        int lane = TraCI->vehicleGetLaneIndex(SUMOID);
+        TraCI->vehicleChangeLane(SUMOID, lane+1, 5);
     }
     // change lane to whatever lane that is free
     else if(leaveDirection == "free")
     {
-        int rightLane = lane;
-
-        // try changing lane to right first
-        rightLane --;
-        auto ii = std::find(allowedLanes.begin(), allowedLanes.end(), myEdge + "_" + std::to_string(rightLane));
-        if(rightLane >= 0 && ii != allowedLanes.end())
+        bool can = TraCI->vehicleCouldChangeLane(SUMOID, -1);
+        // we can change lane to right
+        if(can)
         {
-            TraCI->vehicleChangeLane(SUMOID, rightLane, 5);
+            int lane = TraCI->vehicleGetLaneIndex(SUMOID);
+            TraCI->vehicleChangeLane(SUMOID, lane-1, 5);
         }
         else
         {
-            int leftLane = lane;
-
-            // try changing lane to left
-            leftLane ++;
-            auto ii = std::find(allowedLanes.begin(), allowedLanes.end(), myEdge + "_" + std::to_string(leftLane));
-            if(leftLane < numLanes && ii != allowedLanes.end())
+            bool can = TraCI->vehicleCouldChangeLane(SUMOID, 1);
+            // we can change lane to left
+            if(can)
             {
-                TraCI->vehicleChangeLane(SUMOID, leftLane, 5);
+                int lane = TraCI->vehicleGetLaneIndex(SUMOID);
+                TraCI->vehicleChangeLane(SUMOID, lane+1, 5);
             }
             else
-            {
                 throw omnetpp::cRuntimeError("Vehicle '%s' is not allowed to change lane to right or left!", SUMOID.c_str());
-            }
         }
     }
     else
-        throw omnetpp::cRuntimeError("Invalid leave direction '%s' for vehicle '%s'", leaveDirection.c_str(), SUMOID.c_str());
+        throw omnetpp::cRuntimeError("Vehicle '%s' has an invalid leave direction '%s'", SUMOID.c_str(), leaveDirection.c_str());
 }
 
 

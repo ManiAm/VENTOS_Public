@@ -487,7 +487,7 @@ bool TraCI_Commands::vehicleCouldChangeLane(std::string nodeId, int direction)
         int numLanes = edgeGetLaneCount(myEdge);
         auto allowedLanes = edgeGetAllowedLanes(myEdge, vehClass);
 
-        // set currentLane to be the lane in specified direction; -1 is left, 1 is right
+        // set currentLane to be the lane in specified direction; -1 is right, 1 is left
         currentLane -= direction;
 
         // check boundaries
@@ -504,9 +504,7 @@ bool TraCI_Commands::vehicleCouldChangeLane(std::string nodeId, int direction)
         return true;
     }
     else
-    {
         throw omnetpp::cRuntimeError("Not a valid direction in vehicleCouldChangeLane");
-    }
 }
 
 
