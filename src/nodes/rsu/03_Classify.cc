@@ -98,7 +98,11 @@ void ApplRSUCLASSIFY::finish()
     if(collectTrainingData)
     {
         saveTrainingDataToFile();
-        trainClassifier();
+
+        readTrainingSamples();
+
+        if(!trainingData.elements().empty())
+            trainClassifier();
     }
     else
         saveClassificationResults();
@@ -236,19 +240,7 @@ void ApplRSUCLASSIFY::loadTrainer()
 
     // read training data
     if(trainingData.elements().empty())
-    {
-        // construct file name for training data
-        std::stringstream trainingDataFileName;
-        trainingDataFileName << boost::format("%03d_trainData_%0.3f_%0.3f.txt") %
-                currentRun %
-                trainError_position %
-                trainError_speed;
-
-        trainingDataFilePath = boost::filesystem::path("results") / trainingDataFileName.str();
-
-        LOG_INFO << boost::format("\n>>> Reading training samples from '%s'... ") % trainingDataFilePath.string() << std::flush;
         readTrainingSamples();
-    }
 
     // if no training data is present, then collect!
     if(trainingData.elements().empty())
@@ -268,6 +260,19 @@ void ApplRSUCLASSIFY::loadTrainer()
 
 void ApplRSUCLASSIFY::readTrainingSamples()
 {
+    int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
+
+    // construct file name for training data
+    std::stringstream trainingDataFileName;
+    trainingDataFileName << boost::format("%03d_trainData_%0.3f_%0.3f.txt") %
+            currentRun %
+            trainError_position %
+            trainError_speed;
+
+    trainingDataFilePath = boost::filesystem::path("results") / trainingDataFileName.str();
+
+    LOG_INFO << boost::format("\n>>> Reading training samples from '%s'... ") % trainingDataFilePath.string() << std::flush;
+
     try
     {
         // Load data from external file
