@@ -72,8 +72,12 @@ simple ApplRSUClassify extends ApplRSUMonitor
         @class(VENTOS::ApplRSUCLASSIFY);   
         
         bool classifier = default(false);
-        double trainError @unit("m") = default(0m);  // adding error to training data
-        double GPSerror @unit("m") = default(0m);    // adding error to received beacon
+        
+        double trainError_position @unit("m") = default(0m);  // adding error to training data
+        double trainError_speed = default(0);
+        
+        double GPSError_position @unit("m") = default(0m);    // adding error to received beacon
+        double GPSError_speed = default(0);    // adding error to received beacon
 }
 
 

@@ -51,21 +51,23 @@ void ApplRSUCLASSIFY::initialize(int stage)
         if(myTLid == "")
             throw omnetpp::cRuntimeError("The id of %s does not match with any TL. Check RSUsLocation.xml file!", myFullId);
 
-        trainError = par("trainError").doubleValue();
-        if(trainError < 0)
-            throw omnetpp::cRuntimeError("trainError value is not correct!");
+        trainError_position = par("trainError_position").doubleValue();
+        if(trainError_position < 0)
+            throw omnetpp::cRuntimeError("trainError_position value is not correct!");
 
-        GPSerror = par("GPSerror").doubleValue();
-        if(GPSerror < 0)
-            throw omnetpp::cRuntimeError("GPSerror value is not correct!");
+        trainError_speed = par("trainError_speed").doubleValue();
+        if(trainError_speed < 0)
+            throw omnetpp::cRuntimeError("trainError_speed value is not correct!");
+
+        GPSError_position = par("GPSError_position").doubleValue();
+        if(GPSError_position < 0)
+            throw omnetpp::cRuntimeError("GPSError_position value is not correct!");
+
+        GPSError_speed = par("GPSError_speed").doubleValue();
+        if(GPSError_speed < 0)
+            throw omnetpp::cRuntimeError("GPSError_speed value is not correct!");
 
         debugLevel = omnetpp::getSimulation()->getSystemModule()->par("debugLevel").longValue();
-
-        // construct file name for training data
-        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
-        std::stringstream fileName;
-        fileName << boost::format("%03d_trainData_%0.3f.txt") % currentRun % trainError;
-        trainingFilePath = boost::filesystem::path("results") / fileName.str();
 
         // get incoming lane in this TL
         auto lan = TraCI->TLGetControlledLanes(myTLid);
@@ -79,44 +81,7 @@ void ApplRSUCLASSIFY::initialize(int stage)
             lanesTL[it] = myTLid;
 
         if(omnetpp::cSimulation::getActiveEnvir()->isGUI())
-        {
-            gnuplotPtr = new gnuplot();
-
-            // we need feature in GNUPLOT 5.0 and above
-            double version = gnuplotPtr->getVersion();
-            if(version < 5)
-                throw omnetpp::cRuntimeError("GNUPLOT version should be >= 5");
-
-            // interactive gnuplot terminals: x11, wxt, qt (wxt and qt offer nicer output and a wider range of features)
-            // persist: keep the windows open even after simulation termination
-            // noraise: updating is done in the background
-            // link: http://gnuplot.sourceforge.net/docs_4.2/node441.html
-            // gnuplotPtr->sendCommand("set term wxt enhanced 0 font 'Helvetica,' noraise \n");
-
-            // set title name
-            gnuplotPtr->sendCommand("set title 'Sample Points' \n");
-
-            // set axis labels
-            gnuplotPtr->sendCommand("set xlabel 'X Pos' offset -5 \n");
-            gnuplotPtr->sendCommand("set ylabel 'Y Pos' offset 3 \n");
-            gnuplotPtr->sendCommand("set zlabel 'Approach Speed' offset -2 rotate left \n");
-
-            // change ticks
-            // gnuplotPtr->sendCommand("set xtics 20 \n");
-            // gnuplotPtr->sendCommand("set ytics 20 \n");
-
-            // set range
-            // gnuplotPtr->sendCommand("set yrange [885:902] \n");
-
-            // set grid and border
-            gnuplotPtr->sendCommand("set grid \n");
-            gnuplotPtr->sendCommand("set border 4095 \n");
-
-            // set agenda location
-            gnuplotPtr->sendCommand("set key outside right top box \n");
-
-            gnuplotPtr->flush();
-        }
+            init_gnuplot();
 
         loadTrainer();
     }
@@ -131,7 +96,10 @@ void ApplRSUCLASSIFY::finish()
         return;
 
     if(collectTrainingData)
+    {
         saveTrainingDataToFile();
+        trainClassifier();
+    }
     else
         saveClassificationResults();
 
@@ -185,6 +153,47 @@ void ApplRSUCLASSIFY::onBeaconRSU(BeaconRSU* wsm)
 }
 
 
+void ApplRSUCLASSIFY::init_gnuplot()
+{
+    gnuplotPtr = new gnuplot();
+
+    // we need feature in GNUPLOT 5.0 and above
+    double version = gnuplotPtr->getVersion();
+    if(version < 5)
+        throw omnetpp::cRuntimeError("GNUPLOT version should be >= 5");
+
+    // interactive gnuplot terminals: x11, wxt, qt (wxt and qt offer nicer output and a wider range of features)
+    // persist: keep the windows open even after simulation termination
+    // noraise: updating is done in the background
+    // link: http://gnuplot.sourceforge.net/docs_4.2/node441.html
+    // gnuplotPtr->sendCommand("set term wxt enhanced 0 font 'Helvetica,' noraise \n");
+
+    // set title name
+    gnuplotPtr->sendCommand("set title 'Sample Points' \n");
+
+    // set axis labels
+    gnuplotPtr->sendCommand("set xlabel 'X Pos' offset -5 \n");
+    gnuplotPtr->sendCommand("set ylabel 'Y Pos' offset 3 \n");
+    gnuplotPtr->sendCommand("set zlabel 'Approach Speed' offset -2 rotate left \n");
+
+    // change ticks
+    // gnuplotPtr->sendCommand("set xtics 20 \n");
+    // gnuplotPtr->sendCommand("set ytics 20 \n");
+
+    // set range
+    // gnuplotPtr->sendCommand("set yrange [885:902] \n");
+
+    // set grid and border
+    gnuplotPtr->sendCommand("set grid \n");
+    gnuplotPtr->sendCommand("set border 4095 \n");
+
+    // set agenda location
+    gnuplotPtr->sendCommand("set key outside right top box \n");
+
+    gnuplotPtr->flush();
+}
+
+
 void ApplRSUCLASSIFY::loadTrainer()
 {
     auto kernel = new shark::GaussianRbfKernel<shark::RealVector> (0.5 /*gamma: kernel bandwidth parameter*/, false /*unconstrained*/);
@@ -192,18 +201,25 @@ void ApplRSUCLASSIFY::loadTrainer()
     kc_model = new shark::KernelClassifier<shark::RealVector> (kernel);
 
     // training of a multi-class SVM by the one-versus-all (OVA) method
-    auto trainer = new shark::CSvmTrainer<shark::RealVector, unsigned int>(kernel, 10.0 /*regularization parameter*/, true /*with offset*/);
+    trainer = new shark::CSvmTrainer<shark::RealVector, unsigned int>(kernel, 10.0 /*regularization parameter*/, true /*with offset*/);
     trainer->setMcSvmType(shark::McSvm::OVA);
 
-    std::stringstream fileName;
     int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
-    fileName << boost::format("%03d_%s_%s_%0.3f.model") % currentRun % trainer->name() % (trainer->trainOffset() ? "withOffset" : "withoutOffset") % trainError;
-    boost::filesystem::path filePath = boost::filesystem::path("results") / fileName.str();
 
-    LOG_INFO << "\n>>> Looking for '" << fileName.str() << "'... ";
+    std::stringstream trainingModelFileName;
+    trainingModelFileName << boost::format("%03d_%s_%s_%0.3f_%0.3f.model") %
+            currentRun %
+            trainer->name() %
+            (trainer->trainOffset() ? "withOffset" : "withoutOffset") %
+            trainError_position %
+            trainError_speed;
+
+    trainingModelFilePath = boost::filesystem::path("results") / trainingModelFileName.str();
+
+    LOG_INFO << "\n>>> Looking for '" << trainingModelFileName.str() << "'... ";
 
     // check if this model was trained before
-    std::ifstream ifs(filePath.string());
+    std::ifstream ifs(trainingModelFilePath.string());
     if(!ifs.fail())
     {
         LOG_INFO << "found! \n" << std::flush;
@@ -221,7 +237,16 @@ void ApplRSUCLASSIFY::loadTrainer()
     // read training data
     if(trainingData.elements().empty())
     {
-        LOG_INFO << boost::format("\n>>> Reading training samples from '%s'... ") % trainingFilePath.string() << std::flush;
+        // construct file name for training data
+        std::stringstream trainingDataFileName;
+        trainingDataFileName << boost::format("%03d_trainData_%0.3f_%0.3f.txt") %
+                currentRun %
+                trainError_position %
+                trainError_speed;
+
+        trainingDataFilePath = boost::filesystem::path("results") / trainingDataFileName.str();
+
+        LOG_INFO << boost::format("\n>>> Reading training samples from '%s'... ") % trainingDataFilePath.string() << std::flush;
         readTrainingSamples();
     }
 
@@ -235,16 +260,8 @@ void ApplRSUCLASSIFY::loadTrainer()
     else
     {
         collectTrainingData = false;
-
-        trainClassifier(trainer);
-
-        LOG_INFO << ">>> Saving the training model to file for future runs! \n";
-
-        // save the model to file for future runs
-        std::ofstream ofs(filePath.string());
-        shark::TextOutArchive oa(ofs);
-        kc_model->write(oa);
-        ofs.close();
+        LOG_INFO << ">>> Training the model... Please wait \n" << std::flush;
+        trainClassifier();
     }
 }
 
@@ -254,7 +271,7 @@ void ApplRSUCLASSIFY::readTrainingSamples()
     try
     {
         // Load data from external file
-        shark::importCSV(trainingData, trainingFilePath.string(), shark::LAST_COLUMN /*label position*/, ' ' /*separator*/);
+        shark::importCSV(trainingData, trainingDataFilePath.string(), shark::LAST_COLUMN /*label position*/, ' ' /*separator*/);
     }
     catch (std::exception& e)
     {
@@ -286,10 +303,8 @@ void ApplRSUCLASSIFY::readTrainingSamples()
 }
 
 
-void ApplRSUCLASSIFY::trainClassifier(shark::CSvmTrainer<shark::RealVector, unsigned int> *trainer)
+void ApplRSUCLASSIFY::trainClassifier()
 {
-    LOG_INFO << ">>> Training the model... Please wait \n" << std::flush;
-
     // start training --- on Mars server, the training takes around 20 min for 29162 training samples collected
     // during 300s with training error 0m. For training error of 3m, training takes around 50 min!
     trainer->train(*kc_model, trainingData);
@@ -307,6 +322,14 @@ void ApplRSUCLASSIFY::trainClassifier(shark::CSvmTrainer<shark::RealVector, unsi
     double train_error = loss.eval(trainingData.labels(), output);
 
     LOG_INFO << train_error << "\n\n" << std::flush;
+
+    LOG_INFO << ">>> Saving the training model to file for future runs! \n";
+
+    // save the model to file for future runs
+    std::ofstream ofs(trainingModelFilePath.string());
+    shark::TextOutArchive oa(ofs);
+    kc_model->write(oa);
+    ofs.close();
 }
 
 
@@ -334,8 +357,8 @@ void ApplRSUCLASSIFY::onBeaconAny(beaconGeneral wsm)
     if(collectTrainingData)
     {
         // add trainError to beacon
-        if(trainError != 0)
-            addError(wsm_dup, trainError);
+        if(trainError_position != 0 || trainError_speed != 0)
+            addError(wsm_dup, trainError_position, trainError_speed);
 
         // make an instance and push it to samples
         sample_t m = {TraCICoord(wsm_dup->getPos().x, wsm_dup->getPos().y), wsm_dup->getSpeed(), wsm_dup->getAccel(), wsm_dup->getAngle()};
@@ -353,8 +376,8 @@ void ApplRSUCLASSIFY::onBeaconAny(beaconGeneral wsm)
     }
 
     // add GPSerror to beacon
-    if(GPSerror != 0)
-        addError(wsm_dup, GPSerror);
+    if(GPSError_position != 0 || GPSError_speed != 0)
+        addError(wsm_dup, GPSError_position, GPSError_speed);
 
     // get the predicted label
     unsigned int predicted_label = makePrediction(wsm_dup);
@@ -409,7 +432,7 @@ unsigned int ApplRSUCLASSIFY::makePrediction(beaconGeneral wsm)
     shark_sample(0,1) = wsm->getPos().y;
     shark_sample(0,2) = wsm->getSpeed();
     shark_sample(0,3) = wsm->getAccel();
-    shark_sample(0,4) = wsm->getAngle();
+    shark_sample(0,4) = wsm->getAngle(); // heading
 
     // make prediction
     unsigned int predicted_label = (*kc_model)(shark_sample)[0];
@@ -444,45 +467,61 @@ unsigned int ApplRSUCLASSIFY::makePrediction(beaconGeneral wsm)
 
 
 template <typename beaconGeneral>
-void ApplRSUCLASSIFY::addError(beaconGeneral &wsm, double maxError)
+void ApplRSUCLASSIFY::addError(beaconGeneral &wsm, double maxError_position, double maxError_speed)
 {
+    double r = 0;
+
+    // ############################
+    // add inaccuracy into position
+    // ############################
+
     // retrieve info from beacon
     double posX = wsm->getPos().x;
     double posY = wsm->getPos().y;
 
-    double speed = wsm->getSpeed();
-    // double accel = wsm->getAccel();
-    // double angle = wsm->getAngle();
-
-    double r = 0;
-
     // Produce a random double in the range [0,1) using generator 0, then scale it to -1 <= r < 1
     r = (dblrand() - 0.5) * 2;
     // add error to posX
-    posX += (r * maxError);
+    posX += (r * maxError_position);
 
     // Produce a random double in the range [0,1) using generator 0, then scale it to -1 <= r < 1
     r = (dblrand() - 0.5) * 2;
     // add error to posY
-    posY += (r * maxError);
+    posY += (r * maxError_position);
+
+    // set the changes
+    wsm->setPos( TraCICoord(posX, posY) );
+
+    // #########################
+    // add inaccuracy into speed
+    // #########################
+
+    double speed = wsm->getSpeed();
 
     // Produce a random double in the range [0,1) using generator 0, then scale it to -1 <= r < 1
     r = (dblrand() - 0.5) * 2;
     // add error to speed
-    speed = speed + speed * (r * maxError);  // todo: how to set error for speed?
+    speed += (r * maxError_speed);
 
-    // set the changes
-    wsm->setPos( TraCICoord(posX, posY) );
+    //set the changes
+    wsm->setSpeed(speed);
+
+
+
+
+
+    // double accel = wsm->getAccel();
+    // double angle = wsm->getAngle();
 }
 
 
 void ApplRSUCLASSIFY::saveTrainingDataToFile()
 {
-    LOG_INFO << boost::format("\nSaving collected training data into '%s' \n") % trainingFilePath.string();
+    LOG_INFO << boost::format("\nSaving collected training data into '%s' \n") % trainingDataFilePath.string();
     LOG_INFO << boost::format("Re-run the simulation to train the model ... \n");
     LOG_INFO << std::flush;
 
-    FILE *filePtr = fopen (trainingFilePath.c_str(), "w");
+    FILE *filePtr = fopen (trainingDataFilePath.c_str(), "w");
 
     for(unsigned int i = 0; i < samples.size(); ++i)
         fprintf (filePtr, "%0.3f  %0.3f  %0.3f  %0.3f  %0.3f  %d \n", samples[i].pos.x, samples[i].pos.y, samples[i].speed, samples[i].accel, samples[i].angle, labels[i]);

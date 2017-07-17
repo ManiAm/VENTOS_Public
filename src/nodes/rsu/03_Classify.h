@@ -54,11 +54,16 @@ private:
 
     bool classifier;
     bool collectTrainingData = false;
-    double trainError;
-    double GPSerror;
+    double trainError_position;
+    double trainError_speed;
+    double GPSError_position;
+    double GPSError_speed;
     int debugLevel;
 
-    boost::filesystem::path trainingFilePath;
+    boost::filesystem::path trainingDataFilePath = "";
+    boost::filesystem::path trainingModelFilePath = "";
+
+    shark::CSvmTrainer<shark::RealVector, unsigned int> *trainer;
 
     typedef struct sample
     {
@@ -135,12 +140,13 @@ protected:
     virtual void onBeaconRSU(BeaconRSU*);
 
 private:
+    void init_gnuplot();
     void loadTrainer();
     void readTrainingSamples();
-    void trainClassifier(shark::CSvmTrainer<shark::RealVector, unsigned int> *);
+    void trainClassifier();
     template <typename beaconGeneral> void onBeaconAny(beaconGeneral);
     template <typename beaconGeneral> unsigned int makePrediction(beaconGeneral);
-    template <typename beaconGeneral> void addError(beaconGeneral &, double);
+    template <typename beaconGeneral> void addError(beaconGeneral &, double, double);
 
     void saveTrainingDataToFile();
     void saveClassificationResults();
