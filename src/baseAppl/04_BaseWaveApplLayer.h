@@ -55,8 +55,8 @@ protected:
         TYPE_CRL_PIECE,
         TYPE_SAEJ2735_BSM,
         TYPE_BROADCAST_DATA,
-        TYPE_PAYMENT_RSU,
-        TYPE_PAYMENT_CONFIRMATION,
+        TYPE_PAYMENT_REQUEST,
+        TYPE_PAYMENT_RESPONSE,
     };
 
     static const simsignalwrap_t mobilityStateChangedSignal;
