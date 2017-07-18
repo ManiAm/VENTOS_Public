@@ -3724,9 +3724,9 @@ boost::filesystem::path TraCI_Commands::getFullPath_SUMOApplication()
 
 boost::filesystem::path TraCI_Commands::getFullPath_SUMOConfig()
 {
-    boost::filesystem::path VENTOS_FullPath = omnetpp::getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
+    boost::filesystem::path config_FullPath = omnetpp::getEnvir()->getConfig()->getConfigEntry("description").getBaseDirectory();
     std::string SUMOconfig = par("SUMOconfig").stringValue();
-    boost::filesystem::path SUMOconfigFullPath = VENTOS_FullPath / SUMOconfig;
+    boost::filesystem::path SUMOconfigFullPath = config_FullPath / SUMOconfig;
 
     if( !boost::filesystem::exists(SUMOconfigFullPath) || !boost::filesystem::is_regular_file(SUMOconfigFullPath) )
         throw omnetpp::cRuntimeError("SUMO configure file is not found in '%s'", SUMOconfigFullPath.string().c_str());
