@@ -67,10 +67,6 @@ protected:
     virtual void handlePositionUpdate(omnetpp::cObject*);
 
     virtual void onBeaconVehicle(BeaconVehicle*);
-    virtual void onBeaconBicycle(BeaconBicycle*);
-    virtual void onBeaconPedestrian(BeaconPedestrian*);
-    virtual void onBeaconRSU(BeaconRSU*);
-    virtual void onPlatoonMsg(PlatoonMsg*);
 
     void onMessageType(omnetpp::cMessage*);
     bool dropBeacon(double time, double plr);
