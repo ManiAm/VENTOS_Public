@@ -188,8 +188,8 @@ void TraCI_Start::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_
             node.vehicleTypeId = vehicleGetTypeID(SUMOID);
             node.routeId = vehicleGetRouteID(SUMOID);
             node.pos = vehicleGetLanePosition(SUMOID);
-            node.speed = 0; /*vehicleGetSpeed(SUMOID)*/       // todo
-            node.lane = 0; /*vehicleGetLaneIndex(SUMOID)*/    // we don't know which lane the vehicle will be insrted!
+            node.speed = 0; /*vehicleGetSpeed(SUMOID)*/
+            node.lane = vehicleGetLaneIndex(SUMOID);
             node.color = vehicleGetColor(SUMOID);
             node.IPaddress = vehicleId2ip(SUMOID);
 
@@ -214,17 +214,19 @@ void TraCI_Start::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_
 
             LOG_INFO << boost::format("t=%1%: vehicle '%2%' arrived. Inserting it again ... \n") % omnetpp::simTime().dbl() % node.vehicleId << std::flush;
 
-            // remove this entry before adding
-            equilibrium_departedVehs.erase(it);
-
             // add the vehicle into SUMO
             vehicleAdd(node.vehicleId, node.vehicleTypeId, node.routeId, (omnetpp::simTime().dbl() * 1000)+1, node.pos, node.speed, node.lane);
 
             // set the same vehicle color
             vehicleSetColor(node.vehicleId, node.color);
 
+            // remove this entry before calling add2Emulated
+            removeMapping_emulated(SUMOID);
+
             if(node.IPaddress != "")
                 add2Emulated(node.vehicleId, node.IPaddress);
+
+            equilibrium_departedVehs.erase(it);
         }
     }
 }
@@ -1121,7 +1123,9 @@ void TraCI_Start::deleteManagedModule(std::string nodeId /*sumo id*/)
     std::string SUMOID = mod->par("SUMOID");
     ASSERT(SUMOID != "");
     removeMapping(SUMOID);
-    removeMapping_emulated(SUMOID);
+    // if equilibrium_vehicle is true then will take care of it in the signal function
+    if(!equilibrium_vehicle)
+        removeMapping_emulated(SUMOID);
 
     hosts.erase(nodeId);
     mod->callFinish();
