@@ -774,7 +774,8 @@ colorVal_t TraCI_Commands::vehicleGetColor(std::string nodeId)
 {
     record_TraCI_activity_func("commandStart", CMD_GET_VEHICLE_VARIABLE, VAR_COLOR, "vehicleGetColor");
 
-    TraCIBuffer buf = connection->query(CMD_GET_VEHICLE_VARIABLE, TraCIBuffer() << TYPE_COLOR << nodeId);
+    uint8_t variableId = VAR_COLOR;
+    TraCIBuffer buf = connection->query(CMD_GET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId);
 
     uint8_t cmdLength; buf >> cmdLength;
     if (cmdLength == 0) {
@@ -1432,19 +1433,32 @@ void TraCI_Commands::vehicleMoveTo(std::string nodeId, std::string laneId, doubl
 }
 
 
-void TraCI_Commands::vehicleSetColor(std::string nodeId, const RGB color)
+void TraCI_Commands::vehicleSetColor(std::string nodeId, const colorVal_t color)
 {
     record_TraCI_activity_func("commandStart", CMD_SET_VEHICLE_VARIABLE, VAR_COLOR, "vehicleSetColor");
 
     TraCIBuffer p;
     p << static_cast<uint8_t>(VAR_COLOR);
     p << nodeId;
-    p << static_cast<uint8_t>(TYPE_COLOR) << (uint8_t)color.red << (uint8_t)color.green << (uint8_t)color.blue << (uint8_t)255 /*alpha*/;
+    p << static_cast<uint8_t>(TYPE_COLOR) << (uint8_t)color.red << (uint8_t)color.green << (uint8_t)color.blue << (uint8_t)color.alpha;
     TraCIBuffer buf = connection->query(CMD_SET_VEHICLE_VARIABLE, p);
 
     ASSERT(buf.eof());
 
     record_TraCI_activity_func("commandComplete", CMD_SET_VEHICLE_VARIABLE, VAR_COLOR, "vehicleSetColor");
+}
+
+
+void TraCI_Commands::vehicleSetColor(std::string nodeId, const RGB color)
+{
+    colorVal_t color_sumo;
+
+    color_sumo.red = color.red;
+    color_sumo.green = color.green;
+    color_sumo.blue = color.blue;
+    color_sumo.alpha = 255;
+
+    vehicleSetColor(nodeId, color_sumo);
 }
 
 
@@ -3644,19 +3658,24 @@ double TraCI_Commands::convertAngle_omnet2traci(double angle) const
 //                    Hardware in the loop (HIL)
 // ################################################################
 
+// is called by AddNode class
 void TraCI_Commands::add2Emulated(std::string id, std::string ipAddress)
 {
-    if(ipAddress == "")
-        throw omnetpp::cRuntimeError("ip address is empty");
-
     if(id == "")
         throw omnetpp::cRuntimeError("vehicle id is empty");
+
+    if(ipAddress == "")
+        throw omnetpp::cRuntimeError("ip address is empty");
 
     auto it = SUMOid_ipv4_mapping.find(id);
     if(it != SUMOid_ipv4_mapping.end())
         throw omnetpp::cRuntimeError("vehicle id %s is already an emulated vehicle", id.c_str());
-
     SUMOid_ipv4_mapping[id] = ipAddress;
+
+    auto itt = ipv4_SUMOid_mapping.find(ipAddress);
+    if(itt != ipv4_SUMOid_mapping.end())
+        throw omnetpp::cRuntimeError("IP address '%s' is not unique!", ipAddress.c_str());
+    ipv4_SUMOid_mapping[ipAddress] = id;
 }
 
 
@@ -3787,20 +3806,6 @@ void TraCI_Commands::removeMapping(std::string SUMOID)
     if(i2 == OMNETid_SUMOid_mapping.end())
         throw omnetpp::cRuntimeError("OMNET++ id %s does not exist in the network!", OMNETID.c_str());
     OMNETid_SUMOid_mapping.erase(i2);
-}
-
-
-void TraCI_Commands::addMapping_emulated(std::string SUMOID)
-{
-    auto ii = SUMOid_ipv4_mapping.find(SUMOID);
-    if(ii != SUMOid_ipv4_mapping.end())
-    {
-        // save ipAddress <--> omnetId mapping
-        auto jj = ipv4_SUMOid_mapping.find(ii->second);
-        if(jj != ipv4_SUMOid_mapping.end())
-            throw omnetpp::cRuntimeError("IP address '%s' is not unique!", ii->second.c_str());
-        ipv4_SUMOid_mapping[ii->second] = SUMOID;
-    }
 }
 
 
