@@ -24,11 +24,11 @@ VENTOS is an open-source VANET C++ simulator for studying vehicular traffic flow
 + adding traffic signal controls
 + introducing the VENTOS manual
 
-### VENTOS 0.5 (2015) ###
+### VENTOS 0.5 (Oct 21, 2015) ###
 
 + first public release
 + first implementation of our platoon management protocol
-+ first implementation of our acc/CACC car-following model
++ first implementation of our ACC/CACC car-following model
 + adversary module to simulate security attacks
 
 ## Contact Info ##
