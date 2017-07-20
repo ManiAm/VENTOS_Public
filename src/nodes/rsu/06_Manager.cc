@@ -129,6 +129,8 @@ void ApplRSUManager::handleLowerMsg(omnetpp::cMessage* msg)
 
         ApplRSUManager::onLanechange(wsm);
     }
+    else
+        throw omnetpp::cRuntimeError("RSU %s received unsupported msg %s of type %d!", SUMOID.c_str(), msg->getName(), msg->getKind());
 
     delete msg;
 }
