@@ -339,6 +339,7 @@ public:
     void vehicleSetRouteID(std::string, std::string);
     void vehicleChangeTarget(std::string, std::string);
     void vehicleMoveTo(std::string, std::string, double);
+    void vehicleSetColor(std::string, const colorVal_t);
     void vehicleSetColor(std::string, const RGB);
     void vehicleSetClass(std::string, std::string);
     void vehicleSetLength(std::string, double);
@@ -614,7 +615,6 @@ public:
     void addMapping(std::string SUMOID, std::string OMNETID);
     void removeMapping(std::string SUMOID);
 
-    void addMapping_emulated(std::string SUMOID);
     void removeMapping_emulated(std::string SUMOID);
 
 protected:

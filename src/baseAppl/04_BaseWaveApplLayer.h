@@ -53,9 +53,12 @@ protected:
         TYPE_LANECHANGE_DATA,    // laneChange
         TYPE_PLATOON_DATA,       // platoonMsg
         TYPE_CRL_PIECE,
-        TYPE_SAEJ2735_BSM,
-        TYPE_BROADCAST_DATA,
-        TYPE_PAYMENT_REQUEST,
+
+        TYPE_BROADCAST_DATA,     // message dissemination
+
+        // on-air messages sent from OBU/RSU
+        TYPE_ONAIR_BSM,
+        TYPE_ONAIR_PAYMENT_REQUEST,
         TYPE_PAYMENT_RESPONSE,
     };
 

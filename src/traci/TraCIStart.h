@@ -82,10 +82,12 @@ private:
         double pos;
         double speed;
         uint32_t lane;
+        colorVal_t color;
+        std::string IPaddress;
     } departedNodes_t;
 
     bool equilibrium_vehicle;
-    std::map<std::string /*SUMO id*/, departedNodes_t> departedVehicles;
+    std::map<std::string /*SUMO id*/, departedNodes_t> equilibrium_departedVehs;
 
 public:
     TraCI_Start();

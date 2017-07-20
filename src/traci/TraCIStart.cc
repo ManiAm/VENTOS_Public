@@ -187,15 +187,17 @@ void TraCI_Start::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_
             node.vehicleId = SUMOID;
             node.vehicleTypeId = vehicleGetTypeID(SUMOID);
             node.routeId = vehicleGetRouteID(SUMOID);
-            node.pos = 0; /*vehicleGetLanePosition(SUMOID)*/  // todo
-            node.speed = 0; /*vehicleGetSpeed(SUMOID)*/       // todo
+            node.pos = vehicleGetLanePosition(SUMOID);
+            node.speed = 0; /*vehicleGetSpeed(SUMOID)*/
             node.lane = vehicleGetLaneIndex(SUMOID);
+            node.color = vehicleGetColor(SUMOID);
+            node.IPaddress = vehicleId2ip(SUMOID);
 
-            auto it = departedVehicles.find(SUMOID);
-            if(it != departedVehicles.end())
+            auto it = equilibrium_departedVehs.find(SUMOID);
+            if(it != equilibrium_departedVehs.end())
                 throw omnetpp::cRuntimeError("%s was added before!", SUMOID);
             else
-                departedVehicles.insert(std::make_pair(SUMOID, node));
+                equilibrium_departedVehs.insert(std::make_pair(SUMOID, node));
         }
     }
     else if(signalID == Signal_arrived_vehs)
@@ -204,17 +206,27 @@ void TraCI_Start::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_
 
         if(equilibrium_vehicle)
         {
-            auto it = departedVehicles.find(SUMOID);
-            if(it == departedVehicles.end())
-                throw omnetpp::cRuntimeError("cannot find %s in the departedVehicles map!", SUMOID);
+            auto it = equilibrium_departedVehs.find(SUMOID);
+            if(it == equilibrium_departedVehs.end())
+                throw omnetpp::cRuntimeError("cannot find %s in the equilibrium_departedVehs map!", SUMOID);
 
             departedNodes node = it->second;
 
-            LOG_INFO << boost::format("t=%1%: %2% of type %3% arrived. Inserting it again on edge %4% in pos %5% with entrySpeed of %6% from lane %7% \n")
-            % omnetpp::simTime().dbl() % node.vehicleId % node.vehicleTypeId % node.routeId % node.pos % node.speed % node.lane << std::flush;
+            LOG_INFO << boost::format("t=%1%: vehicle '%2%' arrived. Inserting it again ... \n") % omnetpp::simTime().dbl() % node.vehicleId << std::flush;
 
-            departedVehicles.erase(it);  // remove this entry before adding
+            // add the vehicle into SUMO
             vehicleAdd(node.vehicleId, node.vehicleTypeId, node.routeId, (omnetpp::simTime().dbl() * 1000)+1, node.pos, node.speed, node.lane);
+
+            // set the same vehicle color
+            vehicleSetColor(node.vehicleId, node.color);
+
+            // remove this entry before calling add2Emulated
+            removeMapping_emulated(SUMOID);
+
+            if(node.IPaddress != "")
+                add2Emulated(node.vehicleId, node.IPaddress);
+
+            equilibrium_departedVehs.erase(it);
         }
     }
 }
@@ -1111,7 +1123,9 @@ void TraCI_Start::deleteManagedModule(std::string nodeId /*sumo id*/)
     std::string SUMOID = mod->par("SUMOID");
     ASSERT(SUMOID != "");
     removeMapping(SUMOID);
-    removeMapping_emulated(SUMOID);
+    // if equilibrium_vehicle is true then will take care of it in the signal function
+    if(!equilibrium_vehicle)
+        removeMapping_emulated(SUMOID);
 
     hosts.erase(nodeId);
     mod->callFinish();
@@ -1255,7 +1269,6 @@ omnetpp::cModule* TraCI_Start::addVehicle(std::string SUMOID, std::string type, 
     // this allows the initialize code of vehicles to have
     // access to the latest mapping
     addMapping(SUMOID, mod->getFullName());
-    addMapping_emulated(SUMOID);
 
     mod->scheduleStart(omnetpp::simTime() + updateInterval);
 

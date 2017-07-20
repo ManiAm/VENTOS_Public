@@ -164,7 +164,7 @@ void ApplVManager::onMessageType(omnetpp::cMessage* msg)
 
         BeaconBikeCount++;
 
-        onBeaconBicycle(wsm);
+        //onBeaconBicycle(wsm);
     }
     else if (msg->getKind() == TYPE_BEACON_PEDESTRIAN)
     {
@@ -173,7 +173,7 @@ void ApplVManager::onMessageType(omnetpp::cMessage* msg)
 
         BeaconPedCount++;
 
-        onBeaconPedestrian(wsm);
+        //onBeaconPedestrian(wsm);
     }
     else if (msg->getKind() == TYPE_BEACON_RSU)
     {
@@ -253,34 +253,6 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
             TraCI->vehiclePlatoonViewUpdate(SUMOID, params.str());
         }
     }
-}
-
-
-void ApplVManager::onBeaconBicycle(BeaconBicycle* wsm)
-{
-    // pass it down
-    //super::onBeaconBicycle(wsm);
-}
-
-
-void ApplVManager::onBeaconPedestrian(BeaconPedestrian* wsm)
-{
-    // pass it down
-    //super::onBeaconPedestrian(wsm);
-}
-
-
-void ApplVManager::onBeaconRSU(BeaconRSU* wsm)
-{
-    // pass it down
-    super::onBeaconRSU(wsm);
-}
-
-
-void ApplVManager::onPlatoonMsg(PlatoonMsg* wsm)
-{
-    // pass it down
-    super::onPlatoonMsg(wsm);
 }
 
 
