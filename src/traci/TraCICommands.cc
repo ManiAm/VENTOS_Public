@@ -488,7 +488,7 @@ bool TraCI_Commands::vehicleCouldChangeLane(std::string nodeId, int direction)
         auto allowedLanes = edgeGetAllowedLanes(myEdge, vehClass);
 
         // set currentLane to be the lane in specified direction; -1 is right, 1 is left
-        currentLane -= direction;
+        currentLane += direction;
 
         // check boundaries
         if (currentLane > numLanes || currentLane < 0)
