@@ -44,6 +44,7 @@ private:
 
     // NED variables
     std::string loggingWindowPath = "";
+    std::string loggingWindowTitle = "";
     bool syntaxHighlighting;
     std::string syntaxHighlightingExpression = "";
 

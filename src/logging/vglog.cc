@@ -74,6 +74,13 @@ void vglog::initialize(int stage)
     if(stage == 0)
     {
         loggingWindowPath = par("loggingWindowPath").stringValue();
+        if(loggingWindowPath == "")
+            throw omnetpp::cRuntimeError("loggingWindowPath parameter is invalid");
+
+        loggingWindowTitle = par("loggingWindowTitle").stringValue();
+        if(loggingWindowTitle == "")
+            throw omnetpp::cRuntimeError("loggingWindowTitle parameter is invalid");
+
         syntaxHighlighting = par("syntaxHighlighting").boolValue();
 
         if(syntaxHighlighting)
@@ -230,9 +237,12 @@ void vglog::openLogWindow()
         // make the child process ignore the SIGINT signal
         signal(SIGINT, SIG_IGN);
 
+        std::ostringstream cmd;
+        cmd << boost::format("%s \"%s\"") % loggingWindowPath % loggingWindowTitle;
+
         // run 'logWindow' inside this child process
         // if execution is successful then child will be blocked at this line
-        int r = system(loggingWindowPath.c_str());
+        int r = system(cmd.str().c_str());
 
         if (r == -1)
             throw omnetpp::cRuntimeError("Running logWindow failed during system()");
