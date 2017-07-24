@@ -28,6 +28,7 @@ simple vglog extends vlog
         
         // relative path to mainWindow
         string loggingWindowPath = default("src/loggingWindow/mainWindow");  
+        string loggingWindowTitle = default("Log window"); 
         
         bool syntaxHighlighting = default(true);
         string syntaxHighlightingExpression = default("");              

@@ -44,12 +44,12 @@
 
 namespace VENTOS {
 
-mainWindow::mainWindow(std::string filePath)
+mainWindow::mainWindow(std::string filePath, std::string title)
 {
     boost::filesystem::path full_path(filePath);
     std::string logoPath = (full_path.parent_path() / "log_128.png").string();
 
-    set_title("Log window");
+    set_title(title.c_str());
     set_border_width(1);
     set_default_size(1200, 550 /*height*/);
     set_icon_from_file(logoPath.c_str());
