@@ -135,10 +135,4 @@ void ApplRSUManager::handleLowerMsg(omnetpp::cMessage* msg)
     delete msg;
 }
 
-
-void ApplRSUManager::executeEachTimeStep()
-{
-    super::executeEachTimeStep();
-}
-
 }

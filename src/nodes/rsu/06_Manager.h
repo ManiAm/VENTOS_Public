@@ -47,15 +47,6 @@ public:
     virtual void handleSelfMsg(omnetpp::cMessage* msg);
     virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, long, cObject* details);
     virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, cObject *, cObject* details);
-
-protected:
-    void virtual executeEachTimeStep();
-
-    virtual void onBeaconVehicle(BeaconVehicle*);
-    virtual void onBeaconBicycle(BeaconBicycle*);
-    virtual void onBeaconPedestrian(BeaconPedestrian*);
-    virtual void onBeaconRSU(BeaconRSU*);
-    virtual void onLanechange(LaneChangeMsg*);
 };
 
 }
