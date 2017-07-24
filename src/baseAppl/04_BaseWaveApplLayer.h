@@ -58,7 +58,6 @@ protected:
 
         // on-air messages sent from OBU/RSU
         TYPE_ONAIR_WSM,
-        TYPE_ONAIR_PAYMENT_REQUEST,
         TYPE_PAYMENT_RESPONSE,
     };
 
