@@ -99,35 +99,35 @@ void ApplRSUManager::handleLowerMsg(omnetpp::cMessage* msg)
         BeaconVehicle* wsm = dynamic_cast<BeaconVehicle*>(msg);
         ASSERT(wsm);
 
-        ApplRSUManager::onBeaconVehicle(wsm);
+        onBeaconVehicle(wsm);
     }
     else if (msg->getKind() == TYPE_BEACON_BICYCLE)
     {
         BeaconBicycle* wsm = dynamic_cast<BeaconBicycle*>(msg);
         ASSERT(wsm);
 
-        ApplRSUManager::onBeaconBicycle(wsm);
+        onBeaconBicycle(wsm);
     }
     else if (msg->getKind() == TYPE_BEACON_PEDESTRIAN)
     {
         BeaconPedestrian* wsm = dynamic_cast<BeaconPedestrian*>(msg);
         ASSERT(wsm);
 
-        ApplRSUManager::onBeaconPedestrian(wsm);
+        onBeaconPedestrian(wsm);
     }
     else if (msg->getKind() == TYPE_BEACON_RSU)
     {
         BeaconRSU* wsm = dynamic_cast<BeaconRSU*>(msg);
         ASSERT(wsm);
 
-        ApplRSUManager::onBeaconRSU(wsm);
+        onBeaconRSU(wsm);
     }
     else if(msg->getKind() == TYPE_LANECHANGE_DATA)
     {
         LaneChangeMsg* wsm = dynamic_cast<LaneChangeMsg*>(msg);
         ASSERT(wsm);
 
-        ApplRSUManager::onLanechange(wsm);
+        onLanechange(wsm);
     }
     else
         throw omnetpp::cRuntimeError("RSU %s received unsupported msg %s of type %d!", SUMOID.c_str(), msg->getName(), msg->getKind());
@@ -139,36 +139,6 @@ void ApplRSUManager::handleLowerMsg(omnetpp::cMessage* msg)
 void ApplRSUManager::executeEachTimeStep()
 {
     super::executeEachTimeStep();
-}
-
-
-void ApplRSUManager::onBeaconVehicle(BeaconVehicle* wsm)
-{
-    super::onBeaconVehicle(wsm);
-}
-
-
-void ApplRSUManager::onBeaconBicycle(BeaconBicycle* wsm)
-{
-    super::onBeaconBicycle(wsm);
-}
-
-
-void ApplRSUManager::onBeaconPedestrian(BeaconPedestrian* wsm)
-{
-    super::onBeaconPedestrian(wsm);
-}
-
-
-void ApplRSUManager::onBeaconRSU(BeaconRSU* wsm)
-{
-    super::onBeaconRSU(wsm);
-}
-
-
-void ApplRSUManager::onLanechange(LaneChangeMsg* wsm)
-{
-    super::onLanechange(wsm);
 }
 
 }
