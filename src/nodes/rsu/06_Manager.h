@@ -47,6 +47,9 @@ public:
     virtual void handleSelfMsg(omnetpp::cMessage* msg);
     virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, long, cObject* details);
     virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, cObject *, cObject* details);
+
+    virtual void onBeaconVehicle(BeaconVehicle*);
+
 };
 
 }

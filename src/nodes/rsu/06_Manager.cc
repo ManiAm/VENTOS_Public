@@ -135,4 +135,8 @@ void ApplRSUManager::handleLowerMsg(omnetpp::cMessage* msg)
     delete msg;
 }
 
+void ApplRSUManager::onBeaconVehicle(BeaconVehicle* wsm) {
+    super::onBeaconVehicle(wsm);
+}
+
 }
