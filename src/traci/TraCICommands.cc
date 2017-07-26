@@ -3501,18 +3501,7 @@ std::vector<std::string> TraCI_Commands::obstacleGetIDList()
 
 uint32_t TraCI_Commands::obstacleGetIDCount()
 {
-    omnetpp::cModule *add_node_module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("addNode");
-    ASSERT(add_node_module);
-
-    std::string obstacle_name = add_node_module->par("obstacle_ModuleName");
-
-    // get a pointer to the first obstacle
-    cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule(obstacle_name.c_str(), 0);
-    if(module == NULL)
-        return 0;
-
-    // how many obstacles are in the network?
-    return module->getVectorSize();
+    return obstacleGetIDList().size();
 }
 
 
@@ -3835,13 +3824,7 @@ std::pair<uint32_t, std::string> TraCI_Commands::getVersion()
     record_TraCI_activity_func("commandStart", CMD_GETVERSION, 0xff, "getVersion");
 
     bool success = false;
-    TraCIBuffer buf = connection->queryOptional(CMD_GETVERSION, TraCIBuffer(), success);
-
-    if (!success)
-    {
-        ASSERT(buf.eof());
-        return std::make_pair(0, "(unknown)");
-    }
+    TraCIBuffer buf = connection->query(CMD_GETVERSION, TraCIBuffer());
 
     uint8_t cmdLength; buf >> cmdLength;
     uint8_t commandResp; buf >> commandResp;
@@ -3872,6 +3855,7 @@ std::pair<TraCIBuffer, uint32_t> TraCI_Commands::simulationTimeStep(uint32_t tar
     record_TraCI_activity_func("commandStart", CMD_SIMSTEP2, 0xff, "simulationTimeStep");
 
     TraCIBuffer buf = connection->query(CMD_SIMSTEP2, TraCIBuffer() << targetTime);
+
     uint32_t count;
     buf >> count;  // count: number of subscription results
 
