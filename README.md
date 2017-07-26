@@ -16,7 +16,7 @@ VENTOS is an open-source VANET C++ simulator for studying vehicular traffic flow
 + gnuplot has its own class now
 + vehicle equilibrium is now working for emulated cars
 + enable parallel build
-+ loggingWindowTitle sets the vglog window title name
++ can now set the vglog window title with loggingWindowTitle
 + updating the manual
 + various small improvements
 
