@@ -50,6 +50,7 @@ namespace VENTOS {
 
 pid_t TraCIConnection::child_pid = -1;
 void* TraCIConnection::socketPtr = NULL;
+std::mutex TraCIConnection::lock_TraCI;
 
 SOCKET socket(void* ptr)
 {
@@ -289,6 +290,9 @@ TraCIConnection* TraCIConnection::connect(const char* host, int port)
 
 TraCIBuffer TraCIConnection::query(uint8_t commandGroupId, const TraCIBuffer& buf)
 {
+    // protect simultaneous access to TraCI
+    std::lock_guard<std::mutex> lock(lock_TraCI);
+
     sendMessage(makeTraCICommand(commandGroupId, buf));
 
     TraCIBuffer obuf(receiveMessage());
@@ -305,24 +309,6 @@ TraCIBuffer TraCIConnection::query(uint8_t commandGroupId, const TraCIBuffer& bu
         throw omnetpp::cRuntimeError("TraCI server reported throw cRuntimeError executing command 0x%2x (\"%s\").", commandGroupId, description.c_str());
 
     ASSERT(result == RTYPE_OK);
-
-    return obuf;
-}
-
-
-TraCIBuffer TraCIConnection::queryOptional(uint8_t commandGroupId, const TraCIBuffer& buf, bool& success, std::string* errorMsg)
-{
-    sendMessage(makeTraCICommand(commandGroupId, buf));
-
-    TraCIBuffer obuf(receiveMessage());
-    uint8_t cmdLength; obuf >> cmdLength;
-    uint8_t commandResp; obuf >> commandResp;
-    ASSERT(commandResp == commandGroupId);
-    uint8_t result; obuf >> result;
-    std::string description; obuf >> description;
-    success = (result == RTYPE_OK);
-    if (errorMsg)
-        *errorMsg = description;
 
     return obuf;
 }

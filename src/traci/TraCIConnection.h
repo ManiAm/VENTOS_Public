@@ -29,6 +29,7 @@
 #define TRACICONNECTION_H_
 
 #include <stdint.h>
+#include <mutex>
 
 #include "mobility/Coord.h"
 #include "mobility/TraCICoord.h"
@@ -41,6 +42,7 @@ class TraCIConnection
 private:
     static void* socketPtr;
     static pid_t child_pid;
+    static std::mutex lock_TraCI;
 
 public:
     static void startSUMO(std::string SUMOexe, std::string SUMOconfig, std::string SUMOswitches, int port);
@@ -52,11 +54,6 @@ public:
      * sends a single command via TraCI, checks status response, returns additional responses
      */
     TraCIBuffer query(uint8_t commandId, const TraCIBuffer& buf = TraCIBuffer());
-
-    /**
-     * sends a single command via TraCI, expects no reply, returns true if successful
-     */
-    TraCIBuffer queryOptional(uint8_t commandId, const TraCIBuffer& buf, bool& success, std::string* errorMsg = 0);
 
     /**
      * sends a message via TraCI (after adding the header)
