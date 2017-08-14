@@ -1195,7 +1195,7 @@ void PhyLayer80211p::record_PHY_stat_func()
 }
 
 
-void PhyLayer80211p::record_frameTxRx_stat_func(VENTOS::PhyToMacReport* msg, std::string report)
+void PhyLayer80211p::record_frameTxRx_stat_error(VENTOS::PhyToMacReport* msg, std::string report)
 {
     VENTOS::PhyToMacReport *phyReport = dynamic_cast<VENTOS::PhyToMacReport *>(msg);
     ASSERT(phyReport);
@@ -1203,12 +1203,31 @@ void PhyLayer80211p::record_frameTxRx_stat_func(VENTOS::PhyToMacReport* msg, std
     long int frameId = phyReport->getMsgId();
     long int nicId = this->getParentModule()->getId();
 
+    std::string omnetId = this->getParentModule()->getParentModule()->getFullName();
+
     auto it = STAT->global_frameTxRx_stat.find(std::make_pair(frameId, nicId));
     if(it == STAT->global_frameTxRx_stat.end())
-        throw omnetpp::cRuntimeError("received frame '%d' has never been transmitted!", frameId);
+        throw omnetpp::cRuntimeError("'%s' received frame '%d' from a sender with inactive 'record_frameTxRx'", omnetId.c_str(), frameId);
 
     it->second.ReceivedAt = omnetpp::simTime().dbl();
     it->second.FrameRxStatus = report;
+}
+
+
+void PhyLayer80211p::record_frameTxRx_stat_healthy(AirFrame* frame)
+{
+    // we need the id of the message assigned by OMNET++
+    long int frameId = (dynamic_cast<omnetpp::cPacket *>(frame))->getId();
+    long int nicId = this->getParentModule()->getId();
+
+    std::string omnetId = this->getParentModule()->getParentModule()->getFullName();
+
+    auto it = STAT->global_frameTxRx_stat.find(std::make_pair(frameId, nicId));
+    if(it == STAT->global_frameTxRx_stat.end())
+        throw omnetpp::cRuntimeError("'%s' received frame '%d' from a sender with inactive 'record_frameTxRx'", omnetId.c_str(), frameId);
+
+    it->second.ReceivedAt = omnetpp::simTime().dbl();
+    it->second.FrameRxStatus = "HEALTHY";
 }
 
 // ######## implementation of MacToPhyInterface #########
@@ -1365,21 +1384,21 @@ void PhyLayer80211p::sendControlMsgToMac(VENTOS::PhyToMacReport* msg)
         NumLostFrames_BiteError++;
 
         if(record_stat) record_PHY_stat_func();
-        if(record_frameTxRx) record_frameTxRx_stat_func(msg, "BITERROR");
+        if(record_frameTxRx) record_frameTxRx_stat_error(msg, "BITERROR");
     }
     else if(msg->getKind() == Decider80211p::COLLISION)
     {
         NumLostFrames_Collision++;
 
         if(record_stat) record_PHY_stat_func();
-        if(record_frameTxRx) record_frameTxRx_stat_func(msg, "COLLISION");
+        if(record_frameTxRx) record_frameTxRx_stat_error(msg, "COLLISION");
     }
     else if(msg->getKind() == Decider80211p::RECWHILESEND)
     {
         NumLostFrames_TXRX++;
 
         if(record_stat) record_PHY_stat_func();
-        if(record_frameTxRx) record_frameTxRx_stat_func(msg, "RECWHILESEND");
+        if(record_frameTxRx) record_frameTxRx_stat_error(msg, "RECWHILESEND");
     }
 
     send(msg, upperControlOut);
@@ -1388,19 +1407,7 @@ void PhyLayer80211p::sendControlMsgToMac(VENTOS::PhyToMacReport* msg)
 
 void PhyLayer80211p::sendUp(AirFrame* frame, DeciderResult80211* result)
 {
-    if(record_frameTxRx)
-    {
-        // we need the id of the message assigned by OMNET++
-        long int frameId = (dynamic_cast<omnetpp::cPacket *>(frame))->getId();
-        long int nicId = this->getParentModule()->getId();
-
-        auto it = STAT->global_frameTxRx_stat.find(std::make_pair(frameId, nicId));
-        if(it == STAT->global_frameTxRx_stat.end())
-            throw omnetpp::cRuntimeError("received frame '%d' has never been transmitted!", frameId);
-
-        it->second.ReceivedAt = omnetpp::simTime().dbl();
-        it->second.FrameRxStatus = "HEALTHY";
-    }
+    if(record_frameTxRx) record_frameTxRx_stat_healthy(frame);
 
     NumReceivedFrames++;
 
