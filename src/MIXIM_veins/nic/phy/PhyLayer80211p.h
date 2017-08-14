@@ -589,7 +589,8 @@ private:
     double getCCAThreshold();
 
     void record_PHY_stat_func();
-    void record_frameTxRx_stat_func(VENTOS::PhyToMacReport* msg, std::string report);
+    void record_frameTxRx_stat_error(VENTOS::PhyToMacReport* msg, std::string report);
+    void record_frameTxRx_stat_healthy(AirFrame* frame);
 };
 
 }

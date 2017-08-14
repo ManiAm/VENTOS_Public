@@ -3823,7 +3823,6 @@ std::pair<uint32_t, std::string> TraCI_Commands::getVersion()
 {
     record_TraCI_activity_func("commandStart", CMD_GETVERSION, 0xff, "getVersion");
 
-    bool success = false;
     TraCIBuffer buf = connection->query(CMD_GETVERSION, TraCIBuffer());
 
     uint8_t cmdLength; buf >> cmdLength;
