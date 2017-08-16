@@ -37,30 +37,30 @@
 
 namespace VENTOS {
 
+typedef enum WaveApplMessageTypes {
+    TYPE_BEACON_VEHICLE,     // beaconVehicle
+    TYPE_BEACON_BICYCLE,     // beaconBicycle
+    TYPE_BEACON_OBSTACLE,
+    TYPE_BEACON_PEDESTRIAN,  // beaconPedestrian
+    TYPE_BEACON_RSU,         // beaconRSU
+
+    TYPE_LANECHANGE_DATA,    // laneChange
+    TYPE_PLATOON_DATA,       // platoonMsg
+    TYPE_CRL_PIECE,
+
+    TYPE_BROADCAST_DATA,     // message dissemination
+
+    // on-air messages sent from OBU/RSU
+    TYPE_ONAIR_WSM,
+    TYPE_PAYMENT_RESPONSE,
+} WaveApplMessageTypes_t;
+
 class BaseWaveApplLayer : public BaseApplLayer
 {
 private:
     typedef BaseApplLayer super;
 
 protected:
-    enum WaveApplMessageTypes {
-        TYPE_BEACON_VEHICLE,     // beaconVehicle
-        TYPE_BEACON_BICYCLE,     // beaconBicycle
-        TYPE_BEACON_OBSTACLE,
-        TYPE_BEACON_PEDESTRIAN,  // beaconPedestrian
-        TYPE_BEACON_RSU,         // beaconRSU
-
-        TYPE_LANECHANGE_DATA,    // laneChange
-        TYPE_PLATOON_DATA,       // platoonMsg
-        TYPE_CRL_PIECE,
-
-        TYPE_BROADCAST_DATA,     // message dissemination
-
-        // on-air messages sent from OBU/RSU
-        TYPE_ONAIR_WSM,
-        TYPE_PAYMENT_RESPONSE,
-    };
-
     static const simsignalwrap_t mobilityStateChangedSignal;
     static const simsignalwrap_t parkingStateChangedSignal;
 
