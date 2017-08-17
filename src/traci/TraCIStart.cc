@@ -115,7 +115,7 @@ void TraCI_Start::finish()
     super::finish();
 
     // if the TraCI link was not closed due to error
-    if(!TraCIclosed)
+    if(!TraCIclosedOnError)
     {
         // close TraCI interface with SUMO
         if (connection)
@@ -272,7 +272,7 @@ void TraCI_Start::init_traci()
     if (apiVersionS != 14)
         throw omnetpp::cRuntimeError("Unsupported TraCI server API version!");
 
-    TraCIclosed = false;
+    TraCIclosedOnError = false;
 
     updateInterval = (double)simulationGetTimeStep() / 1000.;
     if(updateInterval <= 0)

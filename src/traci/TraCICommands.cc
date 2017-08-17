@@ -437,10 +437,10 @@ std::string TraCI_Commands::simulationGetDuration()
 }
 
 
-void TraCI_Commands::simulationTerminate(bool TraCIclosed)
+void TraCI_Commands::simulationTerminate(bool error)
 {
     // is used in TraCI_Start::finish()
-    this->TraCIclosed = TraCIclosed;
+    this->TraCIclosedOnError = error;
 
     // current date/time based on current system
     // is show the number of sec since January 1,1970

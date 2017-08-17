@@ -84,7 +84,7 @@ void Statistics::finish()
     save_FrameTxRx_stat_toFile();
 
     // record simulation data one last time before closing TraCI
-    if(!TraCI->TraCIclosed)
+    if(!TraCI->TraCIclosedOnError)
         record_Sim_data();
 
     save_Sim_data_toFile();

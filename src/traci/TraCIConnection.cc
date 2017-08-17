@@ -330,13 +330,13 @@ std::string TraCIConnection::receiveMessage()
             if (receivedBytes > 0)
                 bytesRead += receivedBytes;
             else if (receivedBytes == 0)
-                terminateSimulation("ERROR in receiveMessage: Connection to TraCI server closed unexpectedly. \n\n");
+                terminateSimulationOnError("ERROR in receiveMessage: Connection to TraCI server closed unexpectedly. \n\n");
             else
             {
                 if (sock_errno() == EINTR) continue;
                 if (sock_errno() == EAGAIN) continue;
 
-                terminateSimulation("ERROR in receiveMessage: Connection to TraCI server closed unexpectedly. \n\n");
+                terminateSimulationOnError("ERROR in receiveMessage: Connection to TraCI server closed unexpectedly. \n\n");
             }
         }
 
@@ -354,13 +354,13 @@ std::string TraCIConnection::receiveMessage()
             if (receivedBytes > 0)
                 bytesRead += receivedBytes;
             else if (receivedBytes == 0)
-                terminateSimulation("ERROR in receiveMessage: Connection to TraCI server closed unexpectedly. \n\n");
+                terminateSimulationOnError("ERROR in receiveMessage: Connection to TraCI server closed unexpectedly. \n\n");
             else
             {
                 if (sock_errno() == EINTR) continue;
                 if (sock_errno() == EAGAIN) continue;
 
-                terminateSimulation("ERROR in receiveMessage: Connection to TraCI server closed unexpectedly. \n\n");
+                terminateSimulationOnError("ERROR in receiveMessage: Connection to TraCI server closed unexpectedly. \n\n");
             }
         }
     }
@@ -389,7 +389,7 @@ void TraCIConnection::sendMessage(std::string buf)
                 if (sock_errno() == EINTR) continue;
                 if (sock_errno() == EAGAIN) continue;
 
-                terminateSimulation("ERROR in receiveMessage: Connection to TraCI server closed unexpectedly. \n\n");
+                terminateSimulationOnError("ERROR in receiveMessage: Connection to TraCI server closed unexpectedly. \n\n");
             }
         }
     }
@@ -406,7 +406,7 @@ void TraCIConnection::sendMessage(std::string buf)
                 if (sock_errno() == EINTR) continue;
                 if (sock_errno() == EAGAIN) continue;
 
-                terminateSimulation("ERROR in receiveMessage: Connection to TraCI server closed unexpectedly. \n\n");
+                terminateSimulationOnError("ERROR in receiveMessage: Connection to TraCI server closed unexpectedly. \n\n");
             }
         }
     }
@@ -426,7 +426,7 @@ std::string makeTraCICommand(uint8_t commandId, const TraCIBuffer& buf)
 }
 
 
-void TraCIConnection::terminateSimulation(std::string err)
+void TraCIConnection::terminateSimulationOnError(std::string err)
 {
     LOG_ERROR << "\n" << err << std::flush;
 
@@ -434,7 +434,7 @@ void TraCIConnection::terminateSimulation(std::string err)
     auto TraCI = TraCI_Commands::getTraCI();
 
     // end the simulation
-    TraCI->simulationTerminate(true /*TraCIclosed?*/);
+    TraCI->simulationTerminate(true /*error?*/);
 }
 
 
