@@ -38,8 +38,8 @@
 namespace VENTOS {
 
 typedef enum WaveApplMessageTypes {
-    TYPE_BEACON_VEHICLE,     // beaconVehicle
-    TYPE_BEACON_BICYCLE,     // beaconBicycle
+    TYPE_BEACON_VEHICLE = 0xab,     // beaconVehicle
+    TYPE_BEACON_BICYCLE,            // beaconBicycle
     TYPE_BEACON_OBSTACLE,
     TYPE_BEACON_PEDESTRIAN,  // beaconPedestrian
     TYPE_BEACON_RSU,         // beaconRSU
@@ -51,6 +51,7 @@ typedef enum WaveApplMessageTypes {
     TYPE_BROADCAST_DATA,     // message dissemination
 
     // on-air messages sent from OBU/RSU
+    TYPE_RX_MSG,  // data or signal received from the OBU/RSU
     TYPE_ONAIR_WSM,
     TYPE_PAYMENT_RESPONSE,
 } WaveApplMessageTypes_t;
