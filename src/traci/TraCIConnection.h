@@ -67,7 +67,7 @@ public:
 
 private:
     TraCIConnection(void*);
-    void terminateSimulation(std::string);
+    void terminateSimulationOnError(std::string);
     static std::string getSUMOversion(std::string path);
 };
 

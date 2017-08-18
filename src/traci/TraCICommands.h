@@ -181,7 +181,8 @@ public:
     // this is necessary to circumvent the SUMO bug in getting the loaded vehicles list after vehicleRemove
     std::vector<std::string> removed_vehicles;
 
-    bool TraCIclosed = true;
+    bool TraCIclosedOnError = true;
+    TraCIConnection* connection = NULL;
 
     typedef struct departureArrivalEntry
     {
@@ -197,7 +198,6 @@ public:
 
 protected:
     double updateInterval = -1;
-    TraCIConnection* connection = NULL;
 
     // network boundaries
     TraCICoord netbounds1;
