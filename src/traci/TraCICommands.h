@@ -327,6 +327,8 @@ public:
     std::string vehicleGetPlatoonId(std::string);    // new command
     int vehicleGetPlatoonDepth(std::string);    // new command
 
+    bool vehicleExist(std::string);
+
     // CMD_SET_VEHICLE_VARIABLE
     void vehicleSetStop(std::string, std::string, double, uint8_t, int32_t, uint8_t);
     void vehicleResume(std::string);
