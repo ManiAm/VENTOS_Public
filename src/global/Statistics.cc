@@ -872,14 +872,32 @@ void Statistics::save_FrameTxRx_stat_toFile()
         fprintf (filePtr, "%-20s", y.entry.MsgName.c_str());
         fprintf (filePtr, "%-20s", y.entry.SenderNode.c_str());
         fprintf (filePtr, "%-20s", y.entry.ReceiverNode.c_str());
-        fprintf (filePtr, "%-20ld", y.nic);
+
+        if(y.nic != -1)
+            fprintf (filePtr, "%-20ld", y.nic);
+        else
+            fprintf (filePtr, "%-20s", "-");
+
         fprintf (filePtr, "%-20.8f", y.entry.SentAt);
         fprintf (filePtr, "%-20d", y.entry.FrameSize);
         fprintf (filePtr, "%-20.2f", y.entry.TransmissionSpeed);
         fprintf (filePtr, "%-20.8f", y.entry.TransmissionTime);
-        fprintf (filePtr, "%-20.8f", y.entry.DistanceToReceiver);
-        fprintf (filePtr, "%-22.13f", y.entry.PropagationDelay);
-        fprintf (filePtr, "%-20.8f", y.entry.ReceivedAt);
+
+        if(y.entry.DistanceToReceiver != -1)
+            fprintf (filePtr, "%-20.8f", y.entry.DistanceToReceiver);
+        else
+            fprintf (filePtr, "%-20.8s", "-");
+
+        if(y.entry.PropagationDelay != -1)
+            fprintf (filePtr, "%-22.13f", y.entry.PropagationDelay);
+        else
+            fprintf (filePtr, "%-22.13s", "-");
+
+        if(y.entry.ReceivedAt != -1)
+            fprintf (filePtr, "%-20.8f", y.entry.ReceivedAt);
+        else
+            fprintf (filePtr, "%-20.8s", "-");
+
         fprintf (filePtr, "%-20s\n", y.entry.FrameRxStatus.c_str());
     }
 

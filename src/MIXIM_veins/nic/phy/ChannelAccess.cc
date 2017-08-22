@@ -143,6 +143,13 @@ void ChannelAccess::sendToChannel(omnetpp::cPacket *msg)
         else
         {
             coreEV << "Nic is not connected to any gates!" << std::endl;
+
+            if(record_frameTxRx)
+            {
+                prop_t entry = {-1, -1};
+                recordFrameTx(msg, NULL, entry);
+            }
+
             delete msg;
         }
     }
@@ -204,8 +211,8 @@ void ChannelAccess::recordFrameTx(omnetpp::cPacket *msg /*AirFrame11p*/, omnetpp
     // only SendDirect is supported (for now!)
     ASSERT(useSendDirect);
 
-    long int frameId = msg->getId();  // unique message id assigned by OMNET++
-    long int nicId = gate->getOwnerModule()->getSubmodule("nic")->getId();
+    uint32_t frameId = msg->getId();  // unique message id assigned by OMNET++
+    int32_t nicId = (gate != NULL) ? gate->getOwnerModule()->getSubmodule("nic")->getId() : -1;  // receiver nic
 
     auto it = STAT->global_frameTxRx_stat.find(std::make_pair(frameId, nicId));
     if(it != STAT->global_frameTxRx_stat.end())
@@ -219,14 +226,16 @@ void ChannelAccess::recordFrameTx(omnetpp::cPacket *msg /*AirFrame11p*/, omnetpp
 
         entry.MsgName = msg->getFullName();
         entry.SenderNode = this->getParentModule()->getParentModule()->getFullName();
-        entry.ReceiverNode = gate->getOwnerModule()->getFullName();
+        entry.ReceiverNode = (gate != NULL) ? gate->getOwnerModule()->getFullName() : "-";
         entry.SentAt = omnetpp::simTime().dbl();
         entry.FrameSize = msg->getBitLength();
         entry.TransmissionSpeed = 6; //signal.getBitrate();
         entry.TransmissionTime = frame->getDuration().dbl();
         entry.DistanceToReceiver = propDelay.distance;
         entry.PropagationDelay = propDelay.propagationDelay.dbl();
+        // these two fields are set in the receiver
         entry.ReceivedAt = -1;
+        entry.FrameRxStatus = (gate != NULL) ? "" : "-";
 
         STAT->global_frameTxRx_stat.insert(std::make_pair(std::make_pair(frameId, nicId), entry));
     }

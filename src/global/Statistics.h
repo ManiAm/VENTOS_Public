@@ -132,7 +132,7 @@ public:
 
     std::map<std::string /*vehId*/, MAC_stat_t> global_MAC_stat;
     std::map<std::string /*vehId*/, PHY_stat_t> global_PHY_stat;
-    std::map<std::pair<long int /*msg id*/, long int /*nicId of receiver*/>, msgTxRxStat_t> global_frameTxRx_stat;
+    std::map<std::pair<uint32_t /*msg id*/, int32_t /*nicId of receiver*/>, msgTxRxStat_t> global_frameTxRx_stat;
 
     uint32_t departedVehicleCount = 0; // accumulated number of departed vehicles
     uint32_t arrivedVehicleCount = 0;  // accumulated number of arrived vehicles
