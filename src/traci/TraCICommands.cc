@@ -1232,6 +1232,17 @@ int TraCI_Commands::vehicleGetPlatoonDepth(std::string nodeId)
 }
 
 
+bool TraCI_Commands::vehicleExist(std::string nodeId)
+{
+    auto it = hosts.find(nodeId);
+
+    if(it == hosts.end())
+        return false;
+    else
+        return true;
+}
+
+
 // #########################
 // CMD_SET_VEHICLE_VARIABLE
 // #########################

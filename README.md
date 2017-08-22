@@ -18,6 +18,7 @@ VENTOS is an open-source VANET C++ simulator for studying vehicular traffic flow
 + enable parallel build
 + can now set the vglog window title with loggingWindowTitle
 + recording PHY frames that are sent but not received in statistics
++ adding vehicleExist TraCI command
 + updating the manual
 + various small improvements
 
