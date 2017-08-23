@@ -54,6 +54,7 @@ typedef enum WaveApplMessageTypes {
     TYPE_RX_MSG,  // data or signal received from the OBU/RSU
     TYPE_ONAIR_WSM,
     TYPE_PAYMENT_RESPONSE,
+    TYPE_IMA_REQUEST,
 } WaveApplMessageTypes_t;
 
 class BaseWaveApplLayer : public BaseApplLayer
