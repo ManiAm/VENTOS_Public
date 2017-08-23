@@ -346,6 +346,7 @@ public:
     void vehicleSetClass(std::string, std::string);
     void vehicleSetLength(std::string, double);
     void vehicleSetWidth(std::string, double);
+    void vehicleSlowDown(std::string, double, int);
     void vehicleSetSignalStatus(std::string, int32_t);
     void vehicleSetMaxSpeed(std::string, double);
     void vehicleSetMaxAccel(std::string, double);

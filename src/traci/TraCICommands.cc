@@ -1517,6 +1517,30 @@ void TraCI_Commands::vehicleSetWidth(std::string nodeId, double value)
     record_TraCI_activity_func("commandComplete", CMD_SET_VEHICLE_VARIABLE, VAR_WIDTH, "vehicleSetWidth");
 }
 
+void TraCI_Commands::vehicleSlowDown(std::string nodeId, double speed, int duration)
+{
+    record_TraCI_activity_func("commandStart", CMD_SET_VEHICLE_VARIABLE, CMD_SLOWDOWN, "vehicleSlowDown");
+
+    uint8_t variableId = CMD_SLOWDOWN;
+
+    uint8_t variableType = TYPE_COMPOUND;
+    int32_t count = 2;
+
+    uint8_t speedT = TYPE_DOUBLE;
+    
+    uint8_t durationT = TYPE_INTEGER;
+    uint32_t durationMS = duration * 1000;
+
+    TraCIBuffer buf = connection->query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() 
+            << variableId << nodeId
+            << variableType << count
+            << speedT << speed
+            << durationT << durationMS);
+
+    ASSERT(buf.eof());
+
+    record_TraCI_activity_func("commandComplete", CMD_SET_VEHICLE_VARIABLE, CMD_SLOWDOWN, "vehicleSlowDown");
+}
 
 void TraCI_Commands::vehicleSetSignalStatus(std::string nodeId, int32_t bitset)
 {
