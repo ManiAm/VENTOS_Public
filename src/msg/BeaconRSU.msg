@@ -41,4 +41,5 @@ packet BeaconRSU extends WaveShortMessage
         string senderType;
         string recipient;
         TraCICoord pos;
+        double curveRadius;
 };
