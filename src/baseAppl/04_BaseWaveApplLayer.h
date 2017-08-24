@@ -55,6 +55,7 @@ typedef enum WaveApplMessageTypes {
     TYPE_ONAIR_WSM,
     TYPE_PAYMENT_RESPONSE,
     TYPE_IMA_REQUEST,
+    TYPE_CURVE_SPEED_WARNING,
 } WaveApplMessageTypes_t;
 
 class BaseWaveApplLayer : public BaseApplLayer
