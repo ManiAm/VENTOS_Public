@@ -116,7 +116,7 @@ BeaconRSU* ApplRSUBeacon::generateBeacon()
     wsm->setPos(rsu_pos);
 
     // set my curve radius
-    wsm->setCurveRadius(11);
+    wsm->setCurveRadius(curveRadius);
 
     return wsm;
 }
