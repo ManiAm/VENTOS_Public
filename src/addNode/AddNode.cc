@@ -2195,7 +2195,7 @@ void AddNode::parseEmulated(rapidxml::xml_node<> *pNode)
 
         std::string id_str = xmlUtil::getAttrValue_string(cNode, "id");
         std::string ip_str = xmlUtil::getAttrValue_string(cNode, "ip");
-        std::string color_str = xmlUtil::getAttrValue_string(cNode, "color", false, "yellow");
+        std::string color_str = xmlUtil::getAttrValue_string(cNode, "color", false, "");
 
         auto it = allEmulated.find(id_str);
         if(it == allEmulated.end())
@@ -2237,8 +2237,11 @@ void AddNode::addEmulated()
         TraCI->add2Emulated(vehID, entry.second.ip_str);
 
         // change its color
-        RGB newColor = Color::colorNameToRGB(entry.second.color_str);
-        TraCI->vehicleSetColor(vehID, newColor);
+        if(entry.second.color_str != "")
+        {
+            RGB newColor = Color::colorNameToRGB(entry.second.color_str);
+            TraCI->vehicleSetColor(vehID, newColor);
+        }
     }
 }
 
