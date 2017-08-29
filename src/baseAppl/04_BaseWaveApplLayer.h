@@ -53,6 +53,7 @@ typedef enum WaveApplMessageTypes {
     // on-air messages sent from OBU/RSU
     TYPE_RX_MSG,  // data or signal received from the OBU/RSU
     TYPE_ONAIR_WSM,
+    TYPE_PAYMENT_REQUEST,
     TYPE_PAYMENT_RESPONSE,
     TYPE_IMA_REQUEST,
 } WaveApplMessageTypes_t;
