@@ -1430,7 +1430,7 @@ echo "==========="
 
 # Eigen consists only of header files, hence there is nothing to compile before you can use it. The header files will be copied into /usr/local/include.
 
-if [ -d "/usr/local/include/eigen3" ]; then
+if [ -d "/usr/local/include/eigen3/Eigen" ]; then
     echo "eigen is already installed!"
 else
     if [ ! -d "eigen" ]; then
