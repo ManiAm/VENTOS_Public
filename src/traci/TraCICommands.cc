@@ -439,6 +439,8 @@ std::string TraCI_Commands::simulationGetDuration()
 
 void TraCI_Commands::simulationTerminate(bool error)
 {
+    Enter_Method("simulationTerminate()");
+
     // is used in TraCI_Start::finish()
     this->TraCIclosedOnError = error;
 
