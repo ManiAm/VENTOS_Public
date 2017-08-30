@@ -56,6 +56,132 @@ typedef struct veh_deferred_attributes
     double interGap = -1;    // time-gap between platoons
 }veh_deferred_attributes_t;
 
+typedef struct adversaryEntry
+{
+    std::string id_str;
+    TraCICoord pos;
+    bool drawMaxIntfDist;
+    std::string color_str;
+    bool filled;
+    omnetpp::cModule* module;
+} adversaryEntry_t;
+
+typedef struct RSUEntry
+{
+    std::string id_str;
+    TraCICoord pos;
+    bool drawMaxIntfDist;
+    std::string color_str;
+    bool filled;
+    omnetpp::cModule* module;
+} RSUEntry_t;
+
+typedef struct obstacleEntry
+{
+    std::string id_str;
+    std::string edge_str;
+    int lane;
+    double lanePos;
+    bool onRoad;
+    int length;
+    std::string color_str;
+    double begin;
+    double end;
+    double duration;
+} obstacleEntry_t;
+
+typedef struct vehicleEntry
+{
+    std::string id_str;
+    std::string type_str;
+    std::string routeID_str;
+    std::string from_str;
+    std::string to_str;
+    std::vector<std::string> via_str_tokenize;
+    std::string color_str;
+    double depart;
+    int departLane;
+    double departPos;
+    double departSpeed;
+    int laneChangeMode;
+    std::string status_str;
+    double duration;
+    double DSRCprob;
+} vehicleEntry_t;
+
+typedef struct vehicleFlowEntry
+{
+    std::string id_str;
+    std::vector<std::string> type_str_tokenize;
+    std::vector<double> typeDist_tokenize;
+    std::string routeID_str;
+    std::string from_str;
+    std::string to_str;
+    std::vector<std::string> via_str_tokenize;
+    std::string color_str;
+    int departLane;
+    double departPos;
+    double departSpeed;
+    int laneChangeMode;
+    double begin;
+    int number;
+    double end;
+    int seed;
+    std::string distribution_str;
+    double period;
+    double lambda;
+    double probability;
+    double DSRCprob;
+} vehicleFlowEntry_t;
+
+// vehicleMultiFlow does not have 'from', 'to', 'via'
+typedef struct vehicleMultiFlowEntry : vehicleFlowEntry
+{
+    std::vector<std::string> routeID_str_tokenize;
+    std::vector<double> routeDist_tokenize;
+} vehicleMultiFlowEntry_t;
+
+typedef struct vehiclePlatoonEntry
+{
+    std::string id_str;
+    std::string type_str;
+    int size;
+    std::string routeID_str;
+    std::string from_str;
+    std::string to_str;
+    std::vector<std::string> via_str_tokenize;
+    std::string color_str;
+    double depart;
+    int departLane;
+    double departPos;
+    double platoonMaxSpeed;
+    bool fastCatchUp;
+    double interGap;
+    bool pltMgmtProt;
+    int maxSize;
+    int optSize;
+    std::map<int /*index*/, std::string /*veh type*/> platoonChild;
+
+    // for internal use
+    bool processed = false;
+    uint32_t retryCount = 0;
+} vehiclePlatoonEntry_t;
+
+typedef struct emulatedEntry
+{
+    std::string id_str;
+    std::string ip_str;
+    std::string color_str;
+} emulatedEntry_t;
+
+typedef struct CAEntry
+{
+    std::string id_str;
+    TraCICoord pos;
+    omnetpp::cModule* module;
+} CAEntry_t;
+
+
 class AddNode : public BaseApplLayer
 {
 private:
@@ -87,152 +213,33 @@ private:
         TYPE_TIMER_STOPPED_VEHICLE
     };
 
-    typedef struct adversaryEntry
-    {
-        std::string id_str;
-        TraCICoord pos;
-        bool drawMaxIntfDist;
-        std::string color_str;
-        bool filled;
-        cModule* module;
-    } adversaryEntry_t;
+    // list of all deferred attributes for each vehicle
+    std::map<std::string /*SUMO id*/, veh_deferred_attributes_t> vehs_deferred_attributes;
 
     std::map<std::string, adversaryEntry_t> allAdversary;
-
-    typedef struct RSUEntry
-    {
-        std::string id_str;
-        TraCICoord pos;
-        bool drawMaxIntfDist;
-        std::string color_str;
-        bool filled;
-        cModule* module;
-    } RSUEntry_t;
-
     std::map<std::string, RSUEntry_t> allRSU;
-
-    typedef struct obstacleEntry
-    {
-        std::string id_str;
-        std::string edge_str;
-        int lane;
-        double lanePos;
-        bool onRoad;
-        int length;
-        std::string color_str;
-        double begin;
-        double end;
-        double duration;
-    } obstacleEntry_t;
-
     std::map<std::string, obstacleEntry_t> allObstacle;
-
-    typedef struct vehicleEntry
-    {
-        std::string id_str;
-        std::string type_str;
-        std::string routeID_str;
-        std::string from_str;
-        std::string to_str;
-        std::vector<std::string> via_str_tokenize;
-        std::string color_str;
-        double depart;
-        int departLane;
-        double departPos;
-        double departSpeed;
-        int laneChangeMode;
-        std::string status_str;
-        double duration;
-        double DSRCprob;
-    } vehicleEntry_t;
-
     std::map<std::string, vehicleEntry_t> allVehicle;
-
-    typedef struct vehicleFlowEntry
-    {
-        std::string id_str;
-        std::vector<std::string> type_str_tokenize;
-        std::vector<double> typeDist_tokenize;
-        std::string routeID_str;
-        std::string from_str;
-        std::string to_str;
-        std::vector<std::string> via_str_tokenize;
-        std::string color_str;
-        int departLane;
-        double departPos;
-        double departSpeed;
-        int laneChangeMode;
-        double begin;
-        int number;
-        double end;
-        int seed;
-        std::string distribution_str;
-        double period;
-        double lambda;
-        double probability;
-        double DSRCprob;
-    } vehicleFlowEntry_t;
-
     std::map<std::string, vehicleFlowEntry_t> allVehicleFlow;
-
-    // vehicleMultiFlow does not have 'from', 'to', 'via'
-    typedef struct vehicleMultiFlowEntry : vehicleFlowEntry
-    {
-        std::vector<std::string> routeID_str_tokenize;
-        std::vector<double> routeDist_tokenize;
-    } vehicleMultiFlowEntry_t;
-
     std::map<std::string, vehicleMultiFlowEntry_t> allVehicleMultiFlow;
-
-    typedef struct vehiclePlatoonEntry
-    {
-        std::string id_str;
-        std::string type_str;
-        int size;
-        std::string routeID_str;
-        std::string from_str;
-        std::string to_str;
-        std::vector<std::string> via_str_tokenize;
-        std::string color_str;
-        double depart;
-        int departLane;
-        double departPos;
-        double platoonMaxSpeed;
-        bool fastCatchUp;
-        double interGap;
-        bool pltMgmtProt;
-        int maxSize;
-        int optSize;
-        std::map<int /*index*/, std::string /*veh type*/> platoonChild;
-
-        // for internal use
-        bool processed = false;
-        uint32_t retryCount = 0;
-    } vehiclePlatoonEntry_t;
-
     std::map<std::string, vehiclePlatoonEntry_t> allVehiclePlatoon;
-
-    typedef struct emulatedEntry
-    {
-        std::string id_str;
-        std::string ip_str;
-        std::string color_str;
-    } emulatedEntry_t;
-
     std::map<std::string, emulatedEntry_t> allEmulated;
-
-    typedef struct CAEntry
-    {
-        std::string id_str;
-        TraCICoord pos;
-        cModule* module;
-    } CAEntry_t;
-
     std::map<std::string, CAEntry_t> allCA;
 
 public:
-    // list of all deferred attributes for each vehicle
-    std::map<std::string /*SUMO id*/, veh_deferred_attributes_t> vehs_deferred_attributes;
+    static AddNode * getAddNodeInterface();
+
+    veh_deferred_attributes_t addNodeGetDeferredAttribute(std::string vehID);
+
+    adversaryEntry_t addNodeGetAdversary(std::string advID);
+    RSUEntry_t addNodeGetRSU(std::string RSUID);
+    obstacleEntry_t addNodeGetObstacle(std::string obsID);
+    vehicleEntry_t addNodeGetVehicle(std::string vehID);
+    vehicleFlowEntry_t addNodeGetVehicleFlow(std::string flowID);
+    vehicleMultiFlowEntry_t addNodeGetMultiFlow(std::string multiFlowID);
+    vehiclePlatoonEntry_t addNodeGetPlatoon(std::string platoonID);
+    emulatedEntry_t addNodeGetEmulated(std::string vehID);
+    CAEntry_t addNodeGetCA(std::string CAID);
 
 public:
     virtual ~AddNode();

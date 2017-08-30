@@ -78,9 +78,7 @@ void TraCI_Start::initialize(int stage)
             ASSERT(cc);
 
             // get a pointer to the AddNode module
-            module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("addNode");
-            ADDNODE = static_cast<AddNode*>(module);
-            ASSERT(ADDNODE);
+            ADDNODE = AddNode::getAddNodeInterface();
 
             // get a pointer to the Statistics module
             module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("statistics");
@@ -1227,42 +1225,40 @@ omnetpp::cModule* TraCI_Start::addVehicle(std::string SUMOID, std::string type, 
         mod->getSubmodule("mobility")->par("y") = position.y;
     }
 
-    // get all deferred attributes
-    auto allDeferredAttributes = ADDNODE->vehs_deferred_attributes;
-    // look for this vehicle
-    auto ii = allDeferredAttributes.find(SUMOID);
-    if(ii != allDeferredAttributes.end())
     {
+        // get any deferred attributes for this vehicle
+        veh_deferred_attributes_t def = ADDNODE->addNodeGetDeferredAttribute(SUMOID);
+
         // if an attribute is -1, then the attribute is not defined for this vehicle.
         // So we do not touch the corresponding parameter!
         // The configuration file determines the value of parameter
 
-        if(ii->second.DSRC_status != -1)
-            mod->par("DSRCenabled") = (bool)ii->second.DSRC_status;
+        if(def.DSRC_status != -1)
+            mod->par("DSRCenabled") = (bool)def.DSRC_status;
 
         omnetpp::cModule *appl = mod->getSubmodule("appl");
 
-        if(ii->second.plnMode != -1)
-            appl->par("plnMode") = ii->second.plnMode;
+        if(def.plnMode != -1)
+            appl->par("plnMode") = def.plnMode;
 
-        if(ii->second.plnId != "")
-            appl->par("myPlnID") = ii->second.plnId;
+        if(def.plnId != "")
+            appl->par("myPlnID") = def.plnId;
 
-        if(ii->second.plnDepth != -1)
-            appl->par("myPlnDepth") = ii->second.plnDepth;
+        if(def.plnDepth != -1)
+            appl->par("myPlnDepth") = def.plnDepth;
 
-        if(ii->second.plnSize != -1)
-            appl->par("plnSize") = ii->second.plnSize;
+        if(def.plnSize != -1)
+            appl->par("plnSize") = def.plnSize;
 
-        if(ii->second.maxSize != -1)
-            appl->par("maxPlatoonSize") = ii->second.maxSize;
+        if(def.maxSize != -1)
+            appl->par("maxPlatoonSize") = def.maxSize;
 
-        if(ii->second.optSize != -1)
-            appl->par("optPlatoonSize") = ii->second.optSize;
+        if(def.optSize != -1)
+            appl->par("optPlatoonSize") = def.optSize;
 
         // between platoons
-        if(ii->second.interGap != -1)
-            appl->par("TP") = ii->second.interGap;
+        if(def.interGap != -1)
+            appl->par("TP") = def.interGap;
     }
 
     // updating the mapping before calling scheduleStart.

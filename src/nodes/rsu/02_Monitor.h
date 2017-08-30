@@ -37,14 +37,13 @@
 
 namespace VENTOS {
 
-typedef struct vehicleEntry
+typedef struct vehicleEntryRSU
 {
     std::string vehType;
     double entryTime;
     double entrySpeed;
     double currentSpeed;
-} vehicleEntry_t;
-
+} vehicleEntryRSU_t;
 
 typedef struct laneInfoEntry
 {
@@ -53,7 +52,7 @@ typedef struct laneInfoEntry
     double lastDetectedTime;
     double passageTime;
     int totalVehCount;
-    std::map<std::string /*vehicle id*/, vehicleEntry_t> allVehicles;
+    std::map<std::string /*vehicle id*/, vehicleEntryRSU_t> allVehicles;
 } laneInfoEntry_t;
 
 

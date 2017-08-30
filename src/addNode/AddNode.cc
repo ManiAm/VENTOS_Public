@@ -2344,4 +2344,158 @@ void AddNode::printLoadedStatistics()
     LOG_DEBUG << "\n" << std::flush;
 }
 
+
+AddNode * AddNode::getAddNodeInterface()
+{
+    // get a pointer to the AddNode module
+    omnetpp::cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("addNode");
+    // make sure module AddNode exists
+    ASSERT(module);
+
+    AddNode *ADDNODE = static_cast<AddNode*>(module);
+    ASSERT(ADDNODE);
+
+    return ADDNODE;
+}
+
+
+veh_deferred_attributes_t AddNode::addNodeGetDeferredAttribute(std::string SUMOID)
+{
+    auto ii = vehs_deferred_attributes.find(SUMOID);
+
+    if(ii != vehs_deferred_attributes.end())
+        return ii->second;
+    else
+    {
+        veh_deferred_attributes_t empty = {};
+        return empty;
+    }
+}
+
+
+adversaryEntry_t AddNode::addNodeGetAdversary(std::string advID)
+{
+    auto ii = allAdversary.find(advID);
+
+    if(ii != allAdversary.end())
+        return ii->second;
+    else
+    {
+        adversaryEntry_t empty = {};
+        return empty;
+    }
+}
+
+
+RSUEntry_t AddNode::addNodeGetRSU(std::string RSUID)
+{
+    auto ii = allRSU.find(RSUID);
+
+    if(ii != allRSU.end())
+        return ii->second;
+    else
+    {
+        RSUEntry_t empty = {};
+        return empty;
+    }
+}
+
+
+obstacleEntry_t AddNode::addNodeGetObstacle(std::string obsID)
+{
+    auto ii = allObstacle.find(obsID);
+
+    if(ii != allObstacle.end())
+        return ii->second;
+    else
+    {
+        obstacleEntry_t empty = {};
+        return empty;
+    }
+}
+
+
+vehicleEntry_t AddNode::addNodeGetVehicle(std::string vehID)
+{
+    auto ii = allVehicle.find(vehID);
+
+    if(ii != allVehicle.end())
+        return ii->second;
+    else
+    {
+        vehicleEntry_t empty = {};
+        return empty;
+    }
+}
+
+
+vehicleFlowEntry_t AddNode::addNodeGetVehicleFlow(std::string flowID)
+{
+    auto ii = allVehicleFlow.find(flowID);
+
+    if(ii != allVehicleFlow.end())
+        return ii->second;
+    else
+    {
+        vehicleFlowEntry_t empty = {};
+        return empty;
+    }
+}
+
+
+vehicleMultiFlowEntry_t AddNode::addNodeGetMultiFlow(std::string multiFlowID)
+{
+    auto ii = allVehicleMultiFlow.find(multiFlowID);
+
+    if(ii != allVehicleMultiFlow.end())
+        return ii->second;
+    else
+    {
+        vehicleMultiFlowEntry_t empty = {};
+        return empty;
+    }
+}
+
+
+vehiclePlatoonEntry_t AddNode::addNodeGetPlatoon(std::string platoonID)
+{
+    auto ii = allVehiclePlatoon.find(platoonID);
+
+    if(ii != allVehiclePlatoon.end())
+        return ii->second;
+    else
+    {
+        vehiclePlatoonEntry_t empty = {};
+        return empty;
+    }
+}
+
+
+emulatedEntry_t AddNode::addNodeGetEmulated(std::string vehID)
+{
+    auto ii = allEmulated.find(vehID);
+
+    if(ii != allEmulated.end())
+        return ii->second;
+    else
+    {
+        emulatedEntry_t empty = {};
+        return empty;
+    }
+}
+
+
+CAEntry_t AddNode::addNodeGetCA(std::string CAID)
+{
+    auto ii = allCA.find(CAID);
+
+    if(ii != allCA.end())
+        return ii->second;
+    else
+    {
+        CAEntry_t empty = {};
+        return empty;
+    }
+}
+
 }

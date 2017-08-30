@@ -300,7 +300,7 @@ void ApplRSUMonitor::LaneInfoAdd(std::string lane, std::string sender, std::stri
     loc->second.lastDetectedTime = omnetpp::simTime().dbl();
 
     // add it to vehicle list on this lane
-    vehicleEntry_t newVeh = {};
+    vehicleEntryRSU_t newVeh = {};
 
     newVeh.vehType = senderType;
     newVeh.entryTime = omnetpp::simTime().dbl();
