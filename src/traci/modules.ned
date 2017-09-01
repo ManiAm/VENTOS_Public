@@ -10,20 +10,23 @@ simple TraCIStart
         @signal[initializeWithTraCISignal]();        
         @signal[executeEachTimeStepSignal]();
         
-        bool active = default(false);
-        int remotePort = default(-1);
-        bool forkSUMO = default(true);
+        bool active = default(false);   // should SUMO get started?
+        int remotePort = default(-1);   // remote TCP server port for SUMO TraCI
+        bool forkSUMO = default(true);  // should we fork the SUMO process?
         
         string SUMOapplication = default("sumo-guiD");   // sumoD: command-line interface    sumo-guiD: graphical interface
         string SUMOconfig = default("");     // relative path to the SUMO configure file
-        string SUMOcommandLine = default("--start --no-step-log --quit-on-end --seed 0");
-        
-        bool record_TraCI_activity = default(false);   // logging all exchanged TraCI commands
+        // SUMO options sent from command line
+        //    --start: (GUI only) start the simulation after loading
+        //    --quit-on-end: (GUI only) quits the GUI when the simulation stops
+        //    --no-step-log: disable console output of current simulation step        
+        string SUMOcommandLine = default("--start --quit-on-end --no-step-log --seed 0");
         
         double terminateTime = default(-1s) @unit(s); // maximum simulation time. -1 means simulate forever!
         bool autoTerminate = default(true);           // terminate simulation as soon as no more vehicles are in the simulation        
         bool equilibrium_vehicle = default(false);    // arrived vehicles are re-inserted
         
+        bool record_TraCI_activity = default(false);   // logging all exchanged TraCI commands
         bool debug = default(false);  // emit debug messages?       
         
         int margin = default(25);  // margin to add to all received vehicle positions
