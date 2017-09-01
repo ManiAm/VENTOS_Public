@@ -232,10 +232,6 @@ void TraCI_Start::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_
 
 void TraCI_Start::init_traci()
 {
-    // always use sumo in the command-line mode
-    if(!omnetpp::cSimulation::getActiveEnvir()->isGUI())
-        par("SUMOapplication").setStringValue("sumo");
-
     // make sure the sumo application is correct
     std::string appl = par("SUMOapplication").stringValue();
     if(appl != "sumo" && appl != "sumoD" && appl != "sumo-gui" && appl != "sumo-guiD")

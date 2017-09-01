@@ -1529,7 +1529,7 @@ void TraCI_Commands::vehicleSlowDown(std::string nodeId, double speed, int durat
     int32_t count = 2;
 
     uint8_t speedT = TYPE_DOUBLE;
-    
+
     uint8_t durationT = TYPE_INTEGER;
     uint32_t durationMS = duration * 1000;
 
@@ -3782,19 +3782,14 @@ boost::filesystem::path TraCI_Commands::getFullPath_SUMOConfig()
 
 bool TraCI_Commands::IsGUI()
 {
-    if(!omnetpp::cSimulation::getActiveEnvir()->isGUI())
-        return false;
-    else
-    {
-        std::string sumo_application = this->par("SUMOapplication").stdstringValue();
+    std::string sumo_application = this->par("SUMOapplication").stdstringValue();
 
-        if(sumo_application == "sumo" || sumo_application == "sumoD")
-            return false;
-        else if(sumo_application == "sumo-gui" || sumo_application == "sumo-guiD")
-            return true;
-        else
-            throw omnetpp::cRuntimeError("SUMO application '%s' is not recognized. Make sure the Network.TraCI.SUMOapplication parameter in set correctly.", sumo_application.c_str());
-    }
+    if(sumo_application == "sumo" || sumo_application == "sumoD")
+        return false;
+    else if(sumo_application == "sumo-gui" || sumo_application == "sumo-guiD")
+        return true;
+    else
+        throw omnetpp::cRuntimeError("SUMO application '%s' is not recognized. Make sure the Network.TraCI.SUMOapplication parameter in set correctly.", sumo_application.c_str());
 }
 
 
