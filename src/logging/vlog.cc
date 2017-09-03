@@ -37,7 +37,17 @@ Define_Module(VENTOS::vlog);
 
 vlog::~vlog()
 {
+    if(buff)
+    {
+        delete(buff);
+        buff = NULL;
+    }
 
+    if(out)
+    {
+        delete(out);
+        out = NULL;
+    }
 }
 
 

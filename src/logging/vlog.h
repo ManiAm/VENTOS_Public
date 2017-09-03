@@ -69,7 +69,6 @@ private:
     std::string lastLogPrefix = "";
     std::string logPrefix = "";
 
-protected:
     bool logRecordCMD = false;
 
 public:

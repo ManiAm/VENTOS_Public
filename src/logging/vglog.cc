@@ -63,7 +63,14 @@ vglog::~vglog()
 #endif
 
     if(socketPtr)
+    {
         closesocket(*static_cast<int*>(socketPtr));
+        delete(socketPtr);
+        socketPtr = NULL;
+    }
+
+    for(auto &item : allCategories)
+        delete(item.second);
 }
 
 
@@ -96,6 +103,9 @@ void vglog::initialize(int stage)
             syntaxHighlightingExpression += "text='warning' caseSensitive='false' fcolor='orange' | ";
             syntaxHighlightingExpression += "text='error' caseSensitive='false' fcolor='red'";
         }
+
+        glogRecordCMD = par("glogRecordCMD").boolValue();
+        active = par("active").boolValue();
 
         // store the pointer to class object
         objPtr = this;
@@ -133,6 +143,9 @@ vglog& vglog::GLOGF(std::string tab, std::string pane)
 
 void vglog::GFLUSH(std::string tab, std::string pane)
 {
+    if(!objPtr->logActive())
+        return;
+
     if(tab == "")
         throw omnetpp::cRuntimeError("tab name can't be empty!");
 
@@ -145,6 +158,9 @@ void vglog::GFLUSH(std::string tab, std::string pane)
 
 void vglog::GFLUSHALL()
 {
+    if(!objPtr->logActive())
+        return;
+
     // iterate over all tab/pane and flush each
     for(auto &ii : objPtr->allCategories)
     {
@@ -159,8 +175,11 @@ void vglog::GFLUSHALL()
 
 bool vglog::logActive()
 {
-    if( logRecordCMD || omnetpp::cSimulation::getActiveEnvir()->isGUI() )
-        return true;
+    if( glogRecordCMD || omnetpp::cSimulation::getActiveEnvir()->isGUI() )
+    {
+        if(active)
+            return true;
+    }
 
     return false;
 }

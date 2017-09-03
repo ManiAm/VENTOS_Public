@@ -32,11 +32,11 @@ namespace VENTOS {
 
 // logs are redirected to the 'logWindow'
 
-#define GLOG(category, subcategory) \
-        std::lock_guard<std::mutex>{VENTOS::vlog::lock_log}, VENTOS::vglog::GLOGF(category, subcategory)
+#define GLOG(tab, pane) \
+        std::lock_guard<std::mutex>{VENTOS::vlog::lock_log}, VENTOS::vglog::GLOGF(tab, pane)
 
-#define GLOG_FLUSH(category, subcategory) \
-        std::lock_guard<std::mutex>{VENTOS::vlog::lock_log}, VENTOS::vglog::GFLUSH(category, subcategory)
+#define GLOG_FLUSH(tab, pane) \
+        std::lock_guard<std::mutex>{VENTOS::vlog::lock_log}, VENTOS::vglog::GFLUSH(tab, pane)
 
 #define GLOG_FLUSH_ALL \
         std::lock_guard<std::mutex>{VENTOS::vlog::lock_log}, VENTOS::vglog::GFLUSHALL()
