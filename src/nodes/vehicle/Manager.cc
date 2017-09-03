@@ -112,8 +112,6 @@ void ApplVManager::handleLowerMsg(omnetpp::cMessage* msg)
     }
 
     onMessageType(msg);
-
-    delete msg;
 }
 
 
@@ -156,6 +154,8 @@ void ApplVManager::onMessageType(omnetpp::cMessage* msg)
                 STAT->global_Beacon_stat.push_back(entry);
             }
         }
+
+        delete msg;
     }
     else if (msg->getKind() == TYPE_BEACON_BICYCLE)
     {
@@ -165,6 +165,8 @@ void ApplVManager::onMessageType(omnetpp::cMessage* msg)
         BeaconBikeCount++;
 
         //onBeaconBicycle(wsm);
+
+        delete msg;
     }
     else if (msg->getKind() == TYPE_BEACON_PEDESTRIAN)
     {
@@ -174,6 +176,8 @@ void ApplVManager::onMessageType(omnetpp::cMessage* msg)
         BeaconPedCount++;
 
         //onBeaconPedestrian(wsm);
+
+        delete msg;
     }
     else if (msg->getKind() == TYPE_BEACON_RSU)
     {
@@ -183,6 +187,8 @@ void ApplVManager::onMessageType(omnetpp::cMessage* msg)
         BeaconRSUCount++;
 
         onBeaconRSU(wsm);
+
+        delete msg;
     }
     else if(msg->getKind() == TYPE_PLATOON_DATA)
     {
@@ -192,12 +198,14 @@ void ApplVManager::onMessageType(omnetpp::cMessage* msg)
         PlatoonCount++;
 
         onPlatoonMsg(wsm);
+
+        delete msg;
     }
     // todo
     else if(msg->getKind() == TYPE_CRL_PIECE)
     {
 
-
+        delete msg;
     }
     else
         throw omnetpp::cRuntimeError("Vehicle %s received unsupported msg %s of type %d!", SUMOID.c_str(), msg->getName(), msg->getKind());
