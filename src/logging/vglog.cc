@@ -105,7 +105,7 @@ void vglog::initialize(int stage)
         }
 
         glogRecordCMD = par("glogRecordCMD").boolValue();
-        active = par("active").boolValue();
+        glogActive = par("glogActive").boolValue();
 
         // store the pointer to class object
         objPtr = this;
@@ -177,7 +177,7 @@ bool vglog::logActive()
 {
     if( glogRecordCMD || omnetpp::cSimulation::getActiveEnvir()->isGUI() )
     {
-        if(active)
+        if(glogActive)
             return true;
     }
 

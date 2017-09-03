@@ -43,5 +43,5 @@ simple vglog extends vlog
         
         bool glogRecordCMD = default(false);  // show vglog in command line mode? 
         
-        bool active = default(true);     
+        bool glogActive = default(true);     
 }

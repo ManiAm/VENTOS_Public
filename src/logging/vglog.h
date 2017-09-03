@@ -48,7 +48,7 @@ private:
     bool syntaxHighlighting;
     std::string syntaxHighlightingExpression = "";
     bool glogRecordCMD = false;
-    bool active = true;
+    bool glogActive = true;
 
     std::string delimiter = "<||?>";
     std::map< std::string, std::vector <std::string> * > allCategories;
