@@ -351,7 +351,7 @@ void BaseMobility::updatePosition()
             osDisplayTag << (move.getStartPos().y);
         }
 
-        disp.setTagArg("p", 1, osDisplayTag.str().c_str());
+        disp.setTagArg("p", 1, osDisplayTag.str().data());
 
         if(!world->use2D() && scaleNodeByDepth)
         {
