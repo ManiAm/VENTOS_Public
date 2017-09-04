@@ -62,6 +62,9 @@ void TraCI_Commands::initialize(int stage)
         if(par("active").boolValue())
         {
             simStartTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+
+            // set initial value for end time
+            simEndTime = simStartTime;
         }
     }
 }
