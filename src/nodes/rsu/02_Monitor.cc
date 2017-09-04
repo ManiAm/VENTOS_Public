@@ -422,9 +422,9 @@ void ApplRSUMonitor::save_VehApproach_toFile()
         fprintf (filePtr, "currentRun      %d\n", currentRun);
         fprintf (filePtr, "currentConfig   %s\n", iterVar[0].c_str());
         fprintf (filePtr, "sim timeStep    %u ms\n", TraCI->simulationGetTimeStep());
-        fprintf (filePtr, "startDateTime   %s\n", TraCI->simulationGetStartTime().c_str());
-        fprintf (filePtr, "endDateTime     %s\n", TraCI->simulationGetEndTime().c_str());
-        fprintf (filePtr, "duration        %s\n\n\n", TraCI->simulationGetDuration().c_str());
+        fprintf (filePtr, "startDateTime   %s\n", TraCI->simulationGetStartTime_str().c_str());
+        fprintf (filePtr, "endDateTime     %s\n", TraCI->simulationGetEndTime_str().c_str());
+        fprintf (filePtr, "duration        %s\n\n\n", TraCI->simulationGetDuration_str().c_str());
     }
 
     // write header
@@ -505,9 +505,9 @@ void ApplRSUMonitor::save_VehApproachPerLane_toFile()
         fprintf (filePtr, "currentRun      %d\n", currentRun);
         fprintf (filePtr, "currentConfig   %s\n", iterVar[0].c_str());
         fprintf (filePtr, "sim timeStep    %u ms\n", TraCI->simulationGetTimeStep());
-        fprintf (filePtr, "startDateTime   %s\n", TraCI->simulationGetStartTime().c_str());
-        fprintf (filePtr, "endDateTime     %s\n", TraCI->simulationGetEndTime().c_str());
-        fprintf (filePtr, "duration        %s\n\n\n", TraCI->simulationGetDuration().c_str());
+        fprintf (filePtr, "startDateTime   %s\n", TraCI->simulationGetStartTime_str().c_str());
+        fprintf (filePtr, "endDateTime     %s\n", TraCI->simulationGetEndTime_str().c_str());
+        fprintf (filePtr, "duration        %s\n\n\n", TraCI->simulationGetDuration_str().c_str());
     }
 
     // write header

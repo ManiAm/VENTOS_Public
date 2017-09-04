@@ -179,6 +179,17 @@ typedef struct departureArrivalEntry
     double arrival;
 } departureArrivalEntry_t;
 
+typedef struct
+{
+    uint32_t year;
+    uint32_t month;
+    uint32_t day;
+    uint32_t hour;
+    uint32_t minute;
+    uint32_t second;
+    uint32_t millisecond;
+} date_t;
+
 
 class TraCI_Commands : public BaseApplLayer
 {
@@ -207,20 +218,16 @@ protected:
 private:
     typedef omnetpp::cSimpleModule super;
 
-    typedef std::chrono::high_resolution_clock::time_point Htime_t;
-
     // start/end/duration of simulation
-    std::string simStartDateTime = "";
-    std::string simEndDateTime = "";
-    Htime_t simStartTime;
-    Htime_t simEndTime;
+    std::chrono::milliseconds simStartTime;
+    std::chrono::milliseconds simEndTime;
 
     // logging TraCI command exchange
     typedef struct TraCIcommandEntry
     {
         double timeStamp;
-        Htime_t sentAt;
-        Htime_t completeAt;
+        std::chrono::milliseconds sentAt;
+        std::chrono::milliseconds completeAt;
         uint8_t commandGroupId;
         uint8_t commandId;
         std::string commandName;
@@ -270,9 +277,14 @@ public:
     uint32_t simulationGetTimeStep();
     uint32_t simulationGetCurrentTime();
 
-    std::string simulationGetStartTime();    // new command [returns the simulation start time]
-    std::string simulationGetEndTime();      // new command [returns the simulation stop time]
-    std::string simulationGetDuration();     // new command [returns the duration of the simulation]
+    date_t simulationGetStartTime();     // new command [returns the simulation start time]
+    date_t simulationGetEndTime();       // new command [returns the simulation stop time]
+    date_t simulationGetDuration();      // new command [returns the duration of the simulation]
+
+    std::string simulationGetStartTime_str();     // new command [returns the simulation start time in string]
+    std::string simulationGetEndTime_str();       // new command [returns the simulation stop time in string]
+    std::string simulationGetDuration_str();      // new command [returns the duration of the simulation in string]
+
     void simulationTerminate(bool TraCIclosed = false);  // new command [terminate the simulation]
 
     // ################################################################

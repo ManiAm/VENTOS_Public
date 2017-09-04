@@ -61,26 +61,7 @@ void TraCI_Commands::initialize(int stage)
 
         if(par("active").boolValue())
         {
-            if(simStartDateTime == "")
-            {
-                // current date/time based on current system
-                // is show the number of sec since January 1,1970
-                time_t now = time(0);
-
-                tm *ltm = localtime(&now);
-
-                std::ostringstream dateTime;
-                dateTime << boost::format("%4d%02d%02d-%02d:%02d:%02d") %
-                        (1900 + ltm->tm_year) %
-                        (1 + ltm->tm_mon) %
-                        (ltm->tm_mday) %
-                        (ltm->tm_hour) %
-                        (ltm->tm_min) %
-                        (ltm->tm_sec);
-
-                simStartDateTime = dateTime.str();
-                simStartTime = std::chrono::high_resolution_clock::now();
-            }
+            simStartTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
         }
     }
 }
@@ -409,19 +390,53 @@ uint32_t TraCI_Commands::simulationGetCurrentTime()
 }
 
 
-std::string TraCI_Commands::simulationGetStartTime()
+date_t TraCI_Commands::simulationGetStartTime()
 {
-    return simStartDateTime;
+    // seconds since the epoch in seconds
+    std::time_t t = std::chrono::duration_cast<std::chrono::seconds>(simStartTime).count();
+
+    // convert to local time
+    struct tm *timeinfo = std::localtime(&t);
+
+    date_t startTime = {};
+
+    // save it into our own structure
+    startTime.year = timeinfo->tm_year + 1900;
+    startTime.month = timeinfo->tm_mon + 1;
+    startTime.day = timeinfo->tm_mday;
+    startTime.hour = timeinfo->tm_hour;
+    startTime.minute = timeinfo->tm_min;
+    startTime.second = timeinfo->tm_sec;
+    startTime.millisecond = simStartTime.count() % 1000; // fractional_seconds
+
+    return startTime;
 }
 
 
-std::string TraCI_Commands::simulationGetEndTime()
+date_t TraCI_Commands::simulationGetEndTime()
 {
-    return simEndDateTime;
+    // seconds since the epoch in seconds
+    std::time_t t = std::chrono::duration_cast<std::chrono::seconds>(simEndTime).count();
+
+    // convert to local time
+    struct tm *timeinfo = std::localtime(&t);
+
+    date_t endTime = {};
+
+    // save it into our own structure
+    endTime.year = timeinfo->tm_year + 1900;
+    endTime.month = timeinfo->tm_mon + 1;
+    endTime.day = timeinfo->tm_mday;
+    endTime.hour = timeinfo->tm_hour;
+    endTime.minute = timeinfo->tm_min;
+    endTime.second = timeinfo->tm_sec;
+    endTime.millisecond = simStartTime.count() % 1000; // fractional_seconds
+
+    return endTime;
 }
 
 
-std::string TraCI_Commands::simulationGetDuration()
+date_t TraCI_Commands::simulationGetDuration()
 {
     std::chrono::duration<double, std::milli> fp_ms = simEndTime - simStartTime;
     int duration_ms = fp_ms.count();
@@ -430,10 +445,64 @@ std::string TraCI_Commands::simulationGetDuration()
     int minutes = (int) ((duration_ms / (1000*60)) % 60);
     int hours   = (int) ((duration_ms / (1000*60*60)) % 24);
 
-    std::ostringstream duration;
-    duration << boost::format("%1% hour, %2% minute, %3% second") % hours % minutes % seconds;
+    date_t duration = {};
 
-    return duration.str();
+    duration.hour = hours;
+    duration.minute = minutes;
+    duration.second = seconds;
+
+    return duration;
+}
+
+
+
+std::string TraCI_Commands::simulationGetStartTime_str()
+{
+    date_t startTime = simulationGetStartTime();
+
+    std::ostringstream startTime_s;
+    startTime_s << boost::format("%04u-%02u-%02u %02u:%02u:%02u.%03u") %
+            (startTime.year) %
+            (startTime.month) %
+            (startTime.day) %
+            (startTime.hour) %
+            (startTime.minute) %
+            (startTime.second) %
+            (startTime.millisecond);
+
+    return startTime_s.str();
+}
+
+
+std::string TraCI_Commands::simulationGetEndTime_str()
+{
+    date_t endTime = simulationGetEndTime();
+
+    std::ostringstream endTime_s;
+    endTime_s << boost::format("%04u-%02u-%02u %02u:%02u:%02u.%03u") %
+            (endTime.year) %
+            (endTime.month) %
+            (endTime.day) %
+            (endTime.hour) %
+            (endTime.minute) %
+            (endTime.second) %
+            (endTime.millisecond);
+
+    return endTime_s.str();
+}
+
+
+std::string TraCI_Commands::simulationGetDuration_str()
+{
+    date_t duration = simulationGetDuration();
+
+    std::ostringstream duration_s;
+    duration_s << boost::format("%1% hour, %2% minute, %3% second") %
+            (duration.hour) %
+            (duration.minute) %
+            (duration.second);
+
+    return duration_s.str();
 }
 
 
@@ -444,25 +513,8 @@ void TraCI_Commands::simulationTerminate(bool error)
     // is used in TraCI_Start::finish()
     this->TraCIclosedOnError = error;
 
-    // current date/time based on current system
-    // is show the number of sec since January 1,1970
-    time_t now = time(0);
-
-    tm *ltm = localtime(&now);
-
-    std::ostringstream dateTime;
-    dateTime << boost::format("%4d%02d%02d-%02d:%02d:%02d") %
-            (1900 + ltm->tm_year) %
-            (1 + ltm->tm_mon) %
-            (ltm->tm_mday) %
-            (ltm->tm_hour) %
-            (ltm->tm_min) %
-            (ltm->tm_sec);
-
-    simEndDateTime = dateTime.str();
-
     // record simulation end time
-    simEndTime = std::chrono::high_resolution_clock::now();
+    simEndTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
 
     // TraCI connection is closed in TraCI_Start::finish()
     endSimulation();
@@ -4191,7 +4243,7 @@ void TraCI_Commands::record_TraCI_activity_func(std::string state, uint8_t comma
 
     if(state == "commandStart")
     {
-        Htime_t startTime = std::chrono::high_resolution_clock::now();
+        std::chrono::milliseconds startTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
 
         TraCIcommandEntry_t entry = {omnetpp::simTime().dbl(), startTime /*sendAt*/, startTime /*completeAt*/, commandGroupId, commandId, commandName};
         exchangedTraCIcommands.push_back(entry);
@@ -4199,7 +4251,7 @@ void TraCI_Commands::record_TraCI_activity_func(std::string state, uint8_t comma
     else if(state == "commandComplete")
     {
         // save time here (do not include vector search in the command finish time)
-        Htime_t endTime = std::chrono::high_resolution_clock::now();
+        std::chrono::milliseconds endTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
 
         bool found = false;
         for (auto it = exchangedTraCIcommands.rbegin(); it != exchangedTraCIcommands.rend(); ++it)
@@ -4269,9 +4321,9 @@ void TraCI_Commands::save_TraCI_activity_toFile()
         fprintf (filePtr, "currentRun      %d\n", currentRun);
         fprintf (filePtr, "currentConfig   %s\n", iterVar[0].c_str());
         fprintf (filePtr, "sim timeStep    %u ms\n", simulationGetTimeStep());
-        fprintf (filePtr, "startDateTime   %s\n", simulationGetStartTime().c_str());
-        fprintf (filePtr, "endDateTime     %s\n", simulationGetEndTime().c_str());
-        fprintf (filePtr, "duration        %s\n\n\n", simulationGetDuration().c_str());
+        fprintf (filePtr, "startDateTime   %s\n", simulationGetStartTime_str().c_str());
+        fprintf (filePtr, "endDateTime     %s\n", simulationGetEndTime_str().c_str());
+        fprintf (filePtr, "duration        %s\n\n\n", simulationGetDuration_str().c_str());
     }
 
     // write header
