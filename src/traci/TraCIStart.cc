@@ -118,6 +118,9 @@ void TraCI_Start::finish()
 {
     super::finish();
 
+    // When TraCI is active, throws Segmentation fault!
+    // cancelAndDelete(executeOneTimestepTrigger);
+
     // if the TraCI link was not closed due to error
     if(!TraCIclosedOnError)
     {
@@ -128,8 +131,6 @@ void TraCI_Start::finish()
 
     while (hosts.begin() != hosts.end())
         deleteManagedModule(hosts.begin()->first);
-
-    cancelAndDelete(executeOneTimestepTrigger);
 
     delete connection;
     connection = NULL;
