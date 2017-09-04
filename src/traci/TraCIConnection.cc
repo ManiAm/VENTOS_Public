@@ -28,6 +28,10 @@
 #define WANT_WINSOCK2
 #include <platdep/sockets.h>
 
+#ifdef __APPLE__
+#define MSG_NOSIGNAL 0x4000
+#endif
+
 #if defined(_WIN32) || defined(__WIN32__) || defined(WIN32) || defined(__CYGWIN__) || defined(_WIN64)
 #include <ws2tcpip.h>
 #else
@@ -317,26 +321,26 @@ TraCIBuffer TraCIConnection::query(uint8_t commandGroupId, const TraCIBuffer& bu
 std::string TraCIConnection::receiveMessage()
 {
     if (!socketPtr)
-        throw omnetpp::cRuntimeError("Not connected to TraCI server. Is 'Network.TraCI.active' set to true ?");
+        throw std::runtime_error("Cannot receive command: TraCI is disconnected");
 
-    uint32_t msgLength;
+    uint32_t msgLength = 0;
 
     {
         char buf2[sizeof(uint32_t)];
         uint32_t bytesRead = 0;
         while (bytesRead < sizeof(uint32_t))
         {
-            int receivedBytes = ::recv(socket(socketPtr), reinterpret_cast<char*>(&buf2) + bytesRead, sizeof(uint32_t) - bytesRead, 0);
+            int receivedBytes = ::recv(socket(socketPtr), reinterpret_cast<char*>(&buf2) + bytesRead, sizeof(uint32_t) - bytesRead, MSG_NOSIGNAL);
             if (receivedBytes > 0)
                 bytesRead += receivedBytes;
             else if (receivedBytes == 0)
-                terminateSimulationOnError("ERROR in receiveMessage: Connection to TraCI server closed unexpectedly. \n\n");
+                terminateSimulationOnError("ERROR in receiveMessage");
             else
             {
                 if (sock_errno() == EINTR) continue;
                 if (sock_errno() == EAGAIN) continue;
 
-                terminateSimulationOnError("ERROR in receiveMessage: Connection to TraCI server closed unexpectedly. \n\n");
+                terminateSimulationOnError("ERROR in receiveMessage");
             }
         }
 
@@ -350,17 +354,17 @@ std::string TraCIConnection::receiveMessage()
         uint32_t bytesRead = 0;
         while (bytesRead < bufLength)
         {
-            int receivedBytes = ::recv(socket(socketPtr), reinterpret_cast<char*>(&buf) + bytesRead, bufLength - bytesRead, 0);
+            int receivedBytes = ::recv(socket(socketPtr), reinterpret_cast<char*>(&buf) + bytesRead, bufLength - bytesRead, MSG_NOSIGNAL);
             if (receivedBytes > 0)
                 bytesRead += receivedBytes;
             else if (receivedBytes == 0)
-                terminateSimulationOnError("ERROR in receiveMessage: Connection to TraCI server closed unexpectedly. \n\n");
+                terminateSimulationOnError("ERROR in receiveMessage");
             else
             {
                 if (sock_errno() == EINTR) continue;
                 if (sock_errno() == EAGAIN) continue;
 
-                terminateSimulationOnError("ERROR in receiveMessage: Connection to TraCI server closed unexpectedly. \n\n");
+                terminateSimulationOnError("ERROR in receiveMessage");
             }
         }
     }
@@ -372,7 +376,7 @@ std::string TraCIConnection::receiveMessage()
 void TraCIConnection::sendMessage(std::string buf)
 {
     if (!socketPtr)
-        throw omnetpp::cRuntimeError("Not connected to TraCI server. Is 'Network.TraCI.active' set to true ?");
+        throw std::runtime_error("Cannot send command: TraCI is disconnected");
 
     {
         uint32_t msgLength = sizeof(uint32_t) + buf.length();
@@ -381,7 +385,7 @@ void TraCIConnection::sendMessage(std::string buf)
         uint32_t bytesWritten = 0;
         while (bytesWritten < sizeof(uint32_t))
         {
-            size_t sentBytes = ::send(socket(socketPtr), buf2.str().c_str() + bytesWritten, sizeof(uint32_t) - bytesWritten, 0);
+            size_t sentBytes = ::send(socket(socketPtr), buf2.str().c_str() + bytesWritten, sizeof(uint32_t) - bytesWritten, MSG_NOSIGNAL);
             if (sentBytes > 0)
                 bytesWritten += sentBytes;
             else
@@ -389,7 +393,7 @@ void TraCIConnection::sendMessage(std::string buf)
                 if (sock_errno() == EINTR) continue;
                 if (sock_errno() == EAGAIN) continue;
 
-                terminateSimulationOnError("ERROR in receiveMessage: Connection to TraCI server closed unexpectedly. \n\n");
+                terminateSimulationOnError("ERROR in sendMessage");
             }
         }
     }
@@ -398,7 +402,7 @@ void TraCIConnection::sendMessage(std::string buf)
         uint32_t bytesWritten = 0;
         while (bytesWritten < buf.length())
         {
-            size_t sentBytes = ::send(socket(socketPtr), buf.c_str() + bytesWritten, buf.length() - bytesWritten, 0);
+            size_t sentBytes = ::send(socket(socketPtr), buf.c_str() + bytesWritten, buf.length() - bytesWritten, MSG_NOSIGNAL);
             if (sentBytes > 0)
                 bytesWritten += sentBytes;
             else
@@ -406,7 +410,7 @@ void TraCIConnection::sendMessage(std::string buf)
                 if (sock_errno() == EINTR) continue;
                 if (sock_errno() == EAGAIN) continue;
 
-                terminateSimulationOnError("ERROR in receiveMessage: Connection to TraCI server closed unexpectedly. \n\n");
+                terminateSimulationOnError("ERROR in sendMessage");
             }
         }
     }
@@ -428,7 +432,8 @@ std::string makeTraCICommand(uint8_t commandId, const TraCIBuffer& buf)
 
 void TraCIConnection::terminateSimulationOnError(std::string err)
 {
-    LOG_ERROR << "\n" << err << std::flush;
+    err = "\n" + err + ": Connection to TraCI server closed unexpectedly. \n\n";
+    LOG_ERROR << err << std::flush;
 
     // get a pointer to the TraCI module
     auto TraCI = TraCI_Commands::getTraCI();
