@@ -59,8 +59,9 @@ protected:
 
     // Class variables
     omnetpp::cMessage* sendSystemMsgEvt = NULL;
-    omnetpp::simsignal_t Signal_router;
-    omnetpp::simsignal_t Signal_system;
+
+    omnetpp::simsignal_t Signal_router = -1;
+    omnetpp::simsignal_t Signal_system = -1;
 
     // Routing
     std::string targetNode;
