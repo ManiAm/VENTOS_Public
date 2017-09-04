@@ -51,6 +51,12 @@ TraCI_Start::TraCI_Start()
 }
 
 
+TraCI_Start::~TraCI_Start()
+{
+
+}
+
+
 void TraCI_Start::initialize(int stage)
 {
     super::initialize(stage);
@@ -123,10 +129,7 @@ void TraCI_Start::finish()
     while (hosts.begin() != hosts.end())
         deleteManagedModule(hosts.begin()->first);
 
-    // todo: for some reasons canceling this message when
-    // TraCI is not active throws exception!
-    if(active)
-        cancelAndDelete(executeOneTimestepTrigger);
+    cancelAndDelete(executeOneTimestepTrigger);
 
     delete connection;
     connection = NULL;

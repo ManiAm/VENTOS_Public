@@ -91,6 +91,7 @@ private:
 
 public:
     TraCI_Start();
+    ~TraCI_Start();
 
     virtual void initialize(int stage);
     virtual int numInitStages() const

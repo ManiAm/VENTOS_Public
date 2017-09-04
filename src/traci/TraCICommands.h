@@ -173,6 +173,12 @@ typedef struct colorVal
     uint8_t alpha;
 } colorVal_t;
 
+typedef struct departureArrivalEntry
+{
+    double departure;
+    double arrival;
+} departureArrivalEntry_t;
+
 
 class TraCI_Commands : public BaseApplLayer
 {
@@ -182,13 +188,6 @@ public:
     std::vector<std::string> removed_vehicles;
 
     bool TraCIclosedOnError = true;
-    TraCIConnection* connection = NULL;
-
-    typedef struct departureArrivalEntry
-    {
-        double departure;
-        double arrival;
-    } departureArrivalEntry_t;
 
     // record the departure and arrival time of each vehicle
     std::map<std::string /*SUMOID*/, departureArrivalEntry_t> departureArrival;
@@ -198,6 +197,7 @@ public:
 
 protected:
     double updateInterval = -1;
+    TraCIConnection* connection = NULL;
 
     // network boundaries
     TraCICoord netbounds1;
