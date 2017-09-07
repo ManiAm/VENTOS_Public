@@ -40,11 +40,10 @@ protected:
 
     std::string myTLid;
     TraCICoord rsu_pos;
-    double curveRadius = 11;
 
     int TLControlMode = -1;
     double minGreenTime = -1;
-
+    
 private:
     typedef BaseWaveApplLayer super;
 

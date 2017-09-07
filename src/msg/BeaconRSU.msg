@@ -28,10 +28,12 @@
 cplusplus {{
         #include "msg/WaveShortMessage_m.h"
         #include "mobility/TraCICoord.h"
+        typedef std::set<std::string> stringSet;
 }}
 
 class Veins::WaveShortMessage;
 class noncobject TraCICoord;
+class noncobject stringSet;
 
 namespace VENTOS;
 
@@ -41,5 +43,14 @@ packet BeaconRSU extends WaveShortMessage
         string senderType;
         string recipient;
         TraCICoord pos;
+
+        stringSet inboundEdges;
+        
+        bool electronicTollCollection;
+        unsigned int laneIndex;
+
+        bool curveSpeedWarning;
         double curveRadius;
+        TraCICoord curvePt1;
+        TraCICoord curvePt2;
 };
