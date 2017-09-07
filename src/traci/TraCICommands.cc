@@ -3372,10 +3372,15 @@ std::vector<std::string> TraCI_Commands::rsuGetIDList()
     std::vector<std::string> result;
     for(int i = 0; i < module->getVectorSize(); i++)
     {
-        std::string omnetID = omnetpp::getSimulation()->getSystemModule()->getSubmodule(rsu_name.c_str(), i)->getFullName();
-        std::string sumoId = convertId_omnet2traci(omnetID);
-        ASSERT(sumoId != "");
-        result.push_back(sumoId);
+        omnetpp::cModule *mod = omnetpp::getSimulation()->getSystemModule()->getSubmodule(rsu_name.c_str(), i);
+
+        if(mod)
+        {
+            std::string sumoId = convertId_omnet2traci(mod->getFullName());
+            ASSERT(sumoId != "");
+
+            result.push_back(sumoId);
+        }
     }
 
     return result;
@@ -3414,8 +3419,8 @@ TraCICoord TraCI_Commands::rsuGetPosition(std::string rsuId)
             ASSERT(module);
 
             // get x-y coordinates of the rsu
-            double xPos = std::atof( module->getDisplayString().getTagArg("p",0) );
-            double yPos = std::atof( module->getDisplayString().getTagArg("p",1) );
+            double xPos = module->getSubmodule("mobility")->par("x").doubleValue();
+            double yPos = module->getSubmodule("mobility")->par("y").doubleValue();
 
             return convertCoord_omnet2traci(Coord(xPos, yPos));
         }
