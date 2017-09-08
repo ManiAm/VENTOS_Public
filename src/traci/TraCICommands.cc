@@ -896,6 +896,15 @@ double TraCI_Commands::vehicleGetMinGap(std::string nodeId)
     return result;
 }
 
+double TraCI_Commands::vehicleGetWaitingTime(std::string nodeId)
+{
+    record_TraCI_activity_func("commandStart", CMD_GET_VEHICLE_VARIABLE, VAR_WAITING_TIME, "vehicleGetWaitingTime");
+    
+    double result = genericGetDouble(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_WAITING_TIME, RESPONSE_GET_VEHICLE_VARIABLE);
+    
+    record_TraCI_activity_func("commandComplete", CMD_GET_VEHICLE_VARIABLE, VAR_WAITING_TIME, "vehicleGetWaitingTime");
+    return result;
+}
 
 double TraCI_Commands::vehicleGetMaxSpeed(std::string nodeId)
 {

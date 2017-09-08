@@ -313,6 +313,7 @@ public:
     VehicleSignal_t vehicleGetSignalStatus(std::string);
     double vehicleGetLength(std::string);
     double vehicleGetMinGap(std::string);
+    double vehicleGetWaitingTime(std::string);
     double vehicleGetMaxSpeed(std::string);
     double vehicleGetMaxAccel(std::string);
     double vehicleGetMaxDecel(std::string);
