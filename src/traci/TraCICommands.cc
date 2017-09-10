@@ -899,9 +899,9 @@ double TraCI_Commands::vehicleGetMinGap(std::string nodeId)
 double TraCI_Commands::vehicleGetWaitingTime(std::string nodeId)
 {
     record_TraCI_activity_func("commandStart", CMD_GET_VEHICLE_VARIABLE, VAR_WAITING_TIME, "vehicleGetWaitingTime");
-    
+
     double result = genericGetDouble(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_WAITING_TIME, RESPONSE_GET_VEHICLE_VARIABLE);
-    
+
     record_TraCI_activity_func("commandComplete", CMD_GET_VEHICLE_VARIABLE, VAR_WAITING_TIME, "vehicleGetWaitingTime");
     return result;
 }
@@ -3753,24 +3753,77 @@ double TraCI_Commands::convertAngle_omnet2traci(double angle) const
 //                    Hardware in the loop (HIL)
 // ################################################################
 
-// is called by AddNode class
-void TraCI_Commands::add2Emulated(std::string id, std::string ipAddress)
+void TraCI_Commands::emulatedAdd(std::string ipAddress, std::string vID, std::string color)
 {
-    if(id == "")
-        throw omnetpp::cRuntimeError("vehicle id is empty");
+    if(vID == "")
+        throw omnetpp::cRuntimeError("vehicle id is empty in emulatedAdd");
 
     if(ipAddress == "")
-        throw omnetpp::cRuntimeError("ip address is empty");
+        throw omnetpp::cRuntimeError("ip address is empty in emulatedAdd");
 
-    auto it = SUMOid_ipv4_mapping.find(id);
+    auto it = SUMOid_ipv4_mapping.find(vID);
     if(it != SUMOid_ipv4_mapping.end())
-        throw omnetpp::cRuntimeError("vehicle id %s is already an emulated vehicle", id.c_str());
-    SUMOid_ipv4_mapping[id] = ipAddress;
+        throw omnetpp::cRuntimeError("vehicle id %s is already an emulated vehicle", vID.c_str());
+    SUMOid_ipv4_mapping[vID] = ipAddress;
 
     auto itt = ipv4_SUMOid_mapping.find(ipAddress);
     if(itt != ipv4_SUMOid_mapping.end())
         throw omnetpp::cRuntimeError("IP address '%s' is not unique!", ipAddress.c_str());
-    ipv4_SUMOid_mapping[ipAddress] = id;
+    ipv4_SUMOid_mapping[ipAddress] = vID;
+
+    // change its color
+    if(color != "")
+    {
+        RGB newColor = Color::colorNameToRGB(color);
+        vehicleSetColor(vID, newColor);
+    }
+}
+
+
+void TraCI_Commands::emulatedRemove(std::string vID)
+{
+    if(vID == "")
+        throw omnetpp::cRuntimeError("vehicle id is empty in emulatedRemove");
+
+    auto ii = SUMOid_ipv4_mapping.find(vID);
+    if(ii != SUMOid_ipv4_mapping.end())
+    {
+        std::string ipv4 = ii->second;
+        SUMOid_ipv4_mapping.erase(ii);
+
+        // then remove mapping of IPv4 and OMNET id
+        auto jj = ipv4_SUMOid_mapping.find(ipv4);
+        if(jj == ipv4_SUMOid_mapping.end())
+            throw omnetpp::cRuntimeError("IP address '%s' does not exist in the map!", ipv4.c_str());
+        ipv4_SUMOid_mapping.erase(jj);
+    }
+}
+
+
+void TraCI_Commands::emulatedChange(std::string ipAddress, std::string vID, std::string color)
+{
+    if(vID == "")
+        throw omnetpp::cRuntimeError("vehicle id is empty in emulatedChange");
+
+    if(ipAddress == "")
+        throw omnetpp::cRuntimeError("ip address is empty in emulatedChange");
+
+    // find the ipAddress
+    auto ii = ipv4_SUMOid_mapping.find(ipAddress);
+    if(ii == ipv4_SUMOid_mapping.end())
+        throw omnetpp::cRuntimeError("IP address %s has not assigned to any vehicles", ipAddress.c_str());
+
+    // find the corresponding vehicle
+    auto jj = SUMOid_ipv4_mapping.find(ii->second);
+    if(jj == SUMOid_ipv4_mapping.end())
+        throw omnetpp::cRuntimeError("vehicle %s is not an emulated vehicle", ii->second.c_str());
+
+    // remove them both
+    ipv4_SUMOid_mapping.erase(ii);
+    SUMOid_ipv4_mapping.erase(jj);
+
+    // add the new entry
+    emulatedAdd(ipAddress, vID, color);
 }
 
 
@@ -3896,23 +3949,6 @@ void TraCI_Commands::removeMapping(std::string SUMOID)
     if(i2 == OMNETid_SUMOid_mapping.end())
         throw omnetpp::cRuntimeError("OMNET++ id %s does not exist in the network!", OMNETID.c_str());
     OMNETid_SUMOid_mapping.erase(i2);
-}
-
-
-void TraCI_Commands::removeMapping_emulated(std::string SUMOID)
-{
-    auto ii = SUMOid_ipv4_mapping.find(SUMOID);
-    if(ii != SUMOid_ipv4_mapping.end())
-    {
-        std::string ipv4 = ii->second;
-        SUMOid_ipv4_mapping.erase(ii);
-
-        // then remove mapping of IPv4 and OMNET id
-        auto jj = ipv4_SUMOid_mapping.find(ipv4);
-        if(jj == ipv4_SUMOid_mapping.end())
-            throw omnetpp::cRuntimeError("IP address '%s' does not exist in the map!", ipv4.c_str());
-        ipv4_SUMOid_mapping.erase(jj);
-    }
 }
 
 

@@ -223,10 +223,10 @@ void TraCI_Start::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_
             vehicleSetColor(node.vehicleId, node.color);
 
             // remove this entry before calling add2Emulated
-            removeMapping_emulated(SUMOID);
+            emulatedRemove(SUMOID);
 
             if(node.IPaddress != "")
-                add2Emulated(node.vehicleId, node.IPaddress);
+                emulatedAdd(node.IPaddress, node.vehicleId);
 
             equilibrium_departedVehs.erase(it);
         }
@@ -1123,7 +1123,7 @@ void TraCI_Start::deleteManagedModule(std::string nodeId /*sumo id*/)
     removeMapping(SUMOID);
     // if equilibrium_vehicle is true then will take care of it in the signal function
     if(!equilibrium_vehicle)
-        removeMapping_emulated(SUMOID);
+        emulatedRemove(SUMOID);
 
     hosts.erase(nodeId);
     mod->callFinish();

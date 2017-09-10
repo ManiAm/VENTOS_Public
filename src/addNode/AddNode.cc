@@ -2234,14 +2234,7 @@ void AddNode::addEmulated()
         if(it == loadedVehList.end())
             throw omnetpp::cRuntimeError("Node '%s' marked as emulated does not exist", vehID.c_str());
 
-        TraCI->add2Emulated(vehID, entry.second.ip_str);
-
-        // change its color
-        if(entry.second.color_str != "")
-        {
-            RGB newColor = Color::colorNameToRGB(entry.second.color_str);
-            TraCI->vehicleSetColor(vehID, newColor);
-        }
+        TraCI->emulatedAdd(entry.second.ip_str, vehID, entry.second.color_str);
     }
 }
 
