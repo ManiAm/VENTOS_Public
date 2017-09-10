@@ -86,7 +86,6 @@ private:
         std::string IPaddress;
     } departedNodes_t;
 
-    bool equilibrium_vehicle;
     std::map<std::string /*SUMO id*/, departedNodes_t> equilibrium_departedVehs;
 
 public:

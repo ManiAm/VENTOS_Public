@@ -222,11 +222,11 @@ void TraCI_Start::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_
             // set the same vehicle color
             vehicleSetColor(node.vehicleId, node.color);
 
-            // remove this entry before calling add2Emulated
-            emulatedRemove(SUMOID);
-
             if(node.IPaddress != "")
+            {
+                emulatedRemove(node.vehicleId); // remove first so that emulatedAdd does not throw error
                 emulatedAdd(node.IPaddress, node.vehicleId);
+            }
 
             equilibrium_departedVehs.erase(it);
         }
@@ -1117,13 +1117,13 @@ void TraCI_Start::deleteManagedModule(std::string nodeId /*sumo id*/)
         this->emit(Signal_module_deleted, mod);
     }
 
-    // remove the mapping after sending out the signal
     std::string SUMOID = mod->par("SUMOID");
     ASSERT(SUMOID != "");
+
+    // remove mapping after sending the DeletedSignal
     removeMapping(SUMOID);
-    // if equilibrium_vehicle is true then will take care of it in the signal function
-    if(!equilibrium_vehicle)
-        emulatedRemove(SUMOID);
+    if(!equilibrium_vehicle)     // if equilibrium_vehicle is true then we have already marked
+        emulatedRemove(SUMOID);  // the vehicle as emulated in Signal_arrived_vehs
 
     hosts.erase(nodeId);
     mod->callFinish();
@@ -1261,7 +1261,7 @@ omnetpp::cModule* TraCI_Start::addVehicle(std::string SUMOID, std::string type, 
             appl->par("TP") = def.interGap;
     }
 
-    // updating the mapping before calling scheduleStart.
+    // update the mapping before calling scheduleStart.
     // this allows the initialize code of vehicles to have
     // access to the latest mapping
     addMapping(SUMOID, mod->getFullName());
