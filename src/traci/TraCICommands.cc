@@ -524,6 +524,12 @@ void TraCI_Commands::simulationTerminate(bool error)
 }
 
 
+bool TraCI_Commands::simulationIsEquilibriumActive()
+{
+    return this->equilibrium_vehicle;
+}
+
+
 // ################################################################
 //                            vehicle
 // ################################################################
@@ -3763,12 +3769,12 @@ void TraCI_Commands::emulatedAdd(std::string ipAddress, std::string vID, std::st
 
     auto it = SUMOid_ipv4_mapping.find(vID);
     if(it != SUMOid_ipv4_mapping.end())
-        throw omnetpp::cRuntimeError("vehicle id %s is already an emulated vehicle", vID.c_str());
+        throw omnetpp::cRuntimeError("vehicle '%s' is already an emulated vehicle", vID.c_str());
     SUMOid_ipv4_mapping[vID] = ipAddress;
 
     auto itt = ipv4_SUMOid_mapping.find(ipAddress);
     if(itt != ipv4_SUMOid_mapping.end())
-        throw omnetpp::cRuntimeError("IP address '%s' is not unique!", ipAddress.c_str());
+        throw omnetpp::cRuntimeError("ip '%s' is already assigned to vehicle '%s'", ipAddress.c_str(), itt->second.c_str());
     ipv4_SUMOid_mapping[ipAddress] = vID;
 
     // change its color
