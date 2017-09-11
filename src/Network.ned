@@ -17,6 +17,7 @@ network Network
         double playgroundSizeZ @unit(m); // z size of the area the nodes are in (in meters)
 
         string statisticsType;
+        string addNodeType;
 
         // 0=no debug. 
         // Higher numbers output more debug info
@@ -44,7 +45,7 @@ network Network
             parameters:
                 @display("p=337,135;i=block/circle");
         }
-        addNode: AddNode {
+        addNode: <addNodeType> like IBaseAddNode {
             parameters:
                 @display("p=144,135;i=old/bwsink");
         }

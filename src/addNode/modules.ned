@@ -1,6 +1,12 @@
 package VENTOS.src.addNode;
 
-simple AddNode
+// Interface for AddNode module
+moduleinterface IBaseAddNode
+{
+        
+}
+
+simple AddNode like IBaseAddNode
 {
     parameters:
         @class(VENTOS::AddNode);

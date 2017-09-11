@@ -47,6 +47,8 @@ typedef struct veh_deferred_attributes
     // -1 means not defined
 
     int DSRC_status = -1;    // 0: without DSRC, 1: with DSRC
+    std::string ipv4 = "";   // if the vehicle is emulated?
+
     int plnMode = -1;        // platooning mode
     int plnDepth = -1;       // position of this vehicle in platoon
     std::string plnId = "";  // platoon id
@@ -167,13 +169,6 @@ typedef struct vehiclePlatoonEntry
     uint32_t retryCount = 0;
 } vehiclePlatoonEntry_t;
 
-typedef struct emulatedEntry
-{
-    std::string id_str;
-    std::string ip_str;
-    std::string color_str;
-} emulatedEntry_t;
-
 typedef struct CAEntry
 {
     std::string id_str;
@@ -187,6 +182,7 @@ class AddNode : public BaseApplLayer
 private:
     typedef BaseApplLayer super;
 
+protected:
     TraCI_Commands *TraCI;
     omnetpp::simsignal_t Signal_initialize_withTraCI;
     omnetpp::simsignal_t Signal_executeEachTS;
@@ -202,7 +198,6 @@ private:
     const std::string vehicle_flow_tag = "vehicle_flow";
     const std::string vehicle_multiFlow_tag = "vehicle_multiflow";
     const std::string vehicle_platoon_tag = "vehicle_platoon";
-    const std::string emulated_tag = "emulated";
     const std::string ca_tag = "ca";
 
     std::string id;
@@ -223,13 +218,14 @@ private:
     std::map<std::string, vehicleFlowEntry_t> allVehicleFlow;
     std::map<std::string, vehicleMultiFlowEntry_t> allVehicleMultiFlow;
     std::map<std::string, vehiclePlatoonEntry_t> allVehiclePlatoon;
-    std::map<std::string, emulatedEntry_t> allEmulated;
     std::map<std::string, CAEntry_t> allCA;
 
 public:
     static AddNode * getAddNodeInterface();
 
+    void addNodeAppendDeferredAttribute(std::string vehID, veh_deferred_attributes_t def);
     veh_deferred_attributes_t addNodeGetDeferredAttribute(std::string vehID);
+    void addNodeRemoveDeferredAttribute(std::string vehID);
 
     adversaryEntry_t addNodeGetAdversary(std::string advID);
     RSUEntry_t addNodeGetRSU(std::string RSUID);
@@ -238,7 +234,6 @@ public:
     vehicleFlowEntry_t addNodeGetVehicleFlow(std::string flowID);
     vehicleMultiFlowEntry_t addNodeGetMultiFlow(std::string multiFlowID);
     vehiclePlatoonEntry_t addNodeGetPlatoon(std::string platoonID);
-    emulatedEntry_t addNodeGetEmulated(std::string vehID);
     CAEntry_t addNodeGetCA(std::string CAID);
 
 public:
@@ -248,10 +243,14 @@ public:
     virtual void finish();
     virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, long, cObject* details);
 
+protected:
+    virtual void readXMLFile(std::string);
+    virtual void parsXMLFile(rapidxml::xml_node<> *);
+    virtual void insertNodes();
+
 private:
     void checkDuplicateModuleName(std::string);
 
-    void readInsertion(std::string);
     void printLoadedStatistics();
 
     void parseAdversary(rapidxml::xml_node<> *);
@@ -283,9 +282,6 @@ private:
 
     void parseCA(rapidxml::xml_node<> *);
     void addCA();
-
-    void parseEmulated(rapidxml::xml_node<> *);
-    void addEmulated();
 
     void addCircle(std::string, std::string, const RGB, bool, TraCICoord, double);
 };

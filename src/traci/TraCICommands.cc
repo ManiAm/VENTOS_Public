@@ -3767,22 +3767,16 @@ void TraCI_Commands::emulatedAdd(std::string ipAddress, std::string vID, std::st
     if(ipAddress == "")
         throw omnetpp::cRuntimeError("ip address is empty in emulatedAdd");
 
-    auto it = SUMOid_ipv4_mapping.find(vID);
-    if(it != SUMOid_ipv4_mapping.end())
-        throw omnetpp::cRuntimeError("vehicle '%s' is already an emulated vehicle", vID.c_str());
-    SUMOid_ipv4_mapping[vID] = ipAddress;
+    auto ii = ipv4_SUMOid_mapping.find(ipAddress);
+    if(ii != ipv4_SUMOid_mapping.end())
+        throw omnetpp::cRuntimeError("IP address '%s' is already assigned to vehicle '%s'", ipAddress.c_str(), ii->second.c_str());
 
-    auto itt = ipv4_SUMOid_mapping.find(ipAddress);
-    if(itt != ipv4_SUMOid_mapping.end())
-        throw omnetpp::cRuntimeError("ip '%s' is already assigned to vehicle '%s'", ipAddress.c_str(), itt->second.c_str());
-    ipv4_SUMOid_mapping[ipAddress] = vID;
+    auto jj = SUMOid_ipv4_mapping.find(vID);
+    if(jj != SUMOid_ipv4_mapping.end())
+        throw omnetpp::cRuntimeError("vehicle '%s' is already an emulated vehicle with IP address '%s'", vID.c_str(), jj->second.c_str());
 
-    // change its color
-    if(color != "")
-    {
-        RGB newColor = Color::colorNameToRGB(color);
-        vehicleSetColor(vID, newColor);
-    }
+
+
 }
 
 
@@ -3791,18 +3785,8 @@ void TraCI_Commands::emulatedRemove(std::string vID)
     if(vID == "")
         throw omnetpp::cRuntimeError("vehicle id is empty in emulatedRemove");
 
-    auto ii = SUMOid_ipv4_mapping.find(vID);
-    if(ii != SUMOid_ipv4_mapping.end())
-    {
-        std::string ipv4 = ii->second;
-        SUMOid_ipv4_mapping.erase(ii);
 
-        // then remove mapping of IPv4 and OMNET id
-        auto jj = ipv4_SUMOid_mapping.find(ipv4);
-        if(jj == ipv4_SUMOid_mapping.end())
-            throw omnetpp::cRuntimeError("IP address '%s' does not exist in the map!", ipv4.c_str());
-        ipv4_SUMOid_mapping.erase(jj);
-    }
+
 }
 
 
@@ -3814,22 +3798,22 @@ void TraCI_Commands::emulatedChange(std::string ipAddress, std::string vID, std:
     if(ipAddress == "")
         throw omnetpp::cRuntimeError("ip address is empty in emulatedChange");
 
-    // find the ipAddress
-    auto ii = ipv4_SUMOid_mapping.find(ipAddress);
-    if(ii == ipv4_SUMOid_mapping.end())
-        throw omnetpp::cRuntimeError("IP address %s has not assigned to any vehicles", ipAddress.c_str());
-
-    // find the corresponding vehicle
-    auto jj = SUMOid_ipv4_mapping.find(ii->second);
-    if(jj == SUMOid_ipv4_mapping.end())
-        throw omnetpp::cRuntimeError("vehicle %s is not an emulated vehicle", ii->second.c_str());
-
-    // remove them both
-    ipv4_SUMOid_mapping.erase(ii);
-    SUMOid_ipv4_mapping.erase(jj);
-
-    // add the new entry
-    emulatedAdd(ipAddress, vID, color);
+    //    // find the ipAddress
+    //    auto ii = ipv4_SUMOid_mapping.find(ipAddress);
+    //    if(ii == ipv4_SUMOid_mapping.end())
+    //        throw omnetpp::cRuntimeError("IP address %s has not assigned to any vehicles", ipAddress.c_str());
+    //
+    //    // find the corresponding vehicle
+    //    auto jj = SUMOid_ipv4_mapping.find(ii->second);
+    //    if(jj == SUMOid_ipv4_mapping.end())
+    //        throw omnetpp::cRuntimeError("vehicle %s is not an emulated vehicle", ii->second.c_str());
+    //
+    //    // remove them both
+    //    ipv4_SUMOid_mapping.erase(ii);
+    //    SUMOid_ipv4_mapping.erase(jj);
+    //
+    //    // add the new entry
+    //    emulatedAdd(ipAddress, vID, color);
 }
 
 
@@ -3955,6 +3939,46 @@ void TraCI_Commands::removeMapping(std::string SUMOID)
     if(i2 == OMNETid_SUMOid_mapping.end())
         throw omnetpp::cRuntimeError("OMNET++ id %s does not exist in the network!", OMNETID.c_str());
     OMNETid_SUMOid_mapping.erase(i2);
+}
+
+
+void TraCI_Commands::addMappingEmulated(std::string ipAddress, std::string vID)
+{
+    if(vID == "")
+        throw omnetpp::cRuntimeError("vehicle id is empty in addMappingEmulated");
+
+    if(ipAddress == "")
+        throw omnetpp::cRuntimeError("ip address is empty in addMappingEmulated");
+
+    auto it = SUMOid_ipv4_mapping.find(vID);
+    if(it != SUMOid_ipv4_mapping.end())
+        throw omnetpp::cRuntimeError("vehicle '%s' is already an emulated vehicle", vID.c_str());
+    SUMOid_ipv4_mapping[vID] = ipAddress;
+
+    auto itt = ipv4_SUMOid_mapping.find(ipAddress);
+    if(itt != ipv4_SUMOid_mapping.end())
+        throw omnetpp::cRuntimeError("ip '%s' is already assigned to vehicle '%s'", ipAddress.c_str(), itt->second.c_str());
+    ipv4_SUMOid_mapping[ipAddress] = vID;
+}
+
+
+void TraCI_Commands::removeMappingEmulated(std::string vID)
+{
+    if(vID == "")
+        throw omnetpp::cRuntimeError("vehicle id is empty in removeMappingEmulated");
+
+    auto ii = SUMOid_ipv4_mapping.find(vID);
+    if(ii != SUMOid_ipv4_mapping.end())
+    {
+        std::string ipv4 = ii->second;
+        SUMOid_ipv4_mapping.erase(ii);
+
+        // then remove mapping of IPv4 and OMNET id
+        auto jj = ipv4_SUMOid_mapping.find(ipv4);
+        if(jj == ipv4_SUMOid_mapping.end())
+            throw omnetpp::cRuntimeError("IP address '%s' does not exist in the map!", ipv4.c_str());
+        ipv4_SUMOid_mapping.erase(jj);
+    }
 }
 
 

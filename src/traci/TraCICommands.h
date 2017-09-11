@@ -615,9 +615,9 @@ public:
     //                    Hardware in the loop (HIL)
     // ################################################################
 
-    void emulatedAdd(std::string ip, std::string vID, std::string color = "");     // assign OBU with ip to vehicle vID and change its color (optional)
-    void emulatedRemove(std::string vID);                                          // remove vID as an emulated vehicle
-    void emulatedChange(std::string ip, std::string vID, std::string color = "");  // assign existing OBU with ip to new vehicle vID and change its color (optional)
+    void emulatedAdd(std::string ip, std::string vID, std::string = "");     // assign OBU with ip to vehicle vID and change its color (optional)
+    void emulatedRemove(std::string vID);                                    // remove vID as an emulated vehicle
+    void emulatedChange(std::string ip, std::string vID, std::string = "");  // assign existing OBU with ip to new vehicle vID and change its color (optional)
 
     std::string ip2vehicleId(std::string ip) const;   // HIL ipv4 address --> SUMO id of emulated vehicle
     std::string vehicleId2ip(std::string vID) const;  // SUMO id of emulated vehicle --> HIL ipv4 address
@@ -637,6 +637,9 @@ public:
 
     void addMapping(std::string SUMOID, std::string OMNETID);
     void removeMapping(std::string SUMOID);
+
+    void addMappingEmulated(std::string ip, std::string vID);
+    void removeMappingEmulated(std::string vID);
 
 protected:
 

@@ -53,7 +53,7 @@ private:
     BaseWorldUtility* world = NULL;
     ConnectionManager* cc = NULL;
     AddNode *ADDNODE = NULL;
-    Statistics* STAT = NULL;
+    Statistics *STAT = NULL;
 
     omnetpp::simsignal_t Signal_departed_vehs;
     omnetpp::simsignal_t Signal_arrived_vehs;

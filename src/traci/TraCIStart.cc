@@ -193,7 +193,9 @@ void TraCI_Start::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_
             node.speed = 0; /*vehicleGetSpeed(SUMOID)*/
             node.lane = vehicleGetLaneIndex(SUMOID);
             node.color = vehicleGetColor(SUMOID);
-            node.IPaddress = vehicleId2ip(SUMOID);
+
+            veh_deferred_attributes_t def = ADDNODE->addNodeGetDeferredAttribute(SUMOID);
+            node.IPaddress = def.ipv4;
 
             auto it = equilibrium_departedVehs.find(SUMOID);
             if(it != equilibrium_departedVehs.end())
@@ -224,8 +226,9 @@ void TraCI_Start::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_
 
             if(node.IPaddress != "")
             {
-                emulatedRemove(node.vehicleId); // remove first so that emulatedAdd does not throw error
-                emulatedAdd(node.IPaddress, node.vehicleId);
+                veh_deferred_attributes_t entry = {};
+                entry.ipv4 = node.IPaddress;
+                ADDNODE->addNodeAppendDeferredAttribute(node.vehicleId, entry);
             }
 
             equilibrium_departedVehs.erase(it);
@@ -1120,10 +1123,21 @@ void TraCI_Start::deleteManagedModule(std::string nodeId /*sumo id*/)
     std::string SUMOID = mod->par("SUMOID");
     ASSERT(SUMOID != "");
 
+    std::string ipv4 = vehicleId2ip(SUMOID);
+    if(ipv4 != "")
+    {
+        // double check!
+        std::string v_ipv4 = mod->par("IPaddress").stdstringValue();
+        ASSERT(v_ipv4 == ipv4);
+
+        // signal to those interested that an emulated module is deleted
+        omnetpp::simsignal_t Signal_emulated_module_deleted = registerSignal("emulatedVehicleModuleDeletedSignal");
+        this->emit(Signal_emulated_module_deleted, mod);
+    }
+
     // remove mapping after sending the DeletedSignal
     removeMapping(SUMOID);
-    if(!equilibrium_vehicle)     // if equilibrium_vehicle is true then we have already marked
-        emulatedRemove(SUMOID);  // the vehicle as emulated in Signal_arrived_vehs
+    removeMappingEmulated(SUMOID);
 
     hosts.erase(nodeId);
     mod->callFinish();
@@ -1188,6 +1202,18 @@ void TraCI_Start::addVehicleModule(std::string nodeId /*sumo id*/, const Coord& 
     // signal to those interested that a new module is inserted
     omnetpp::simsignal_t Signal_module_added = registerSignal("vehicleModuleAddedSignal");
     this->emit(Signal_module_added, addedModule);
+
+    std::string ipv4 = vehicleId2ip(nodeId);
+    if(ipv4 != "")
+    {
+        // double check!
+        std::string v_ipv4 = addedModule->par("IPaddress").stdstringValue();
+        ASSERT(v_ipv4 == ipv4);
+
+        // signal to those interested that an emulated module is inserted
+        omnetpp::simsignal_t Signal_emulated_module_added = registerSignal("emulatedVehicleModuleAddedSignal");
+        this->emit(Signal_emulated_module_added, addedModule);
+    }
 }
 
 
@@ -1213,10 +1239,6 @@ omnetpp::cModule* TraCI_Start::addVehicle(std::string SUMOID, std::string type, 
     mod->par("SUMOID") = SUMOID;
     mod->par("SUMOType") = vehicleGetTypeID(SUMOID);
     mod->par("vehicleClass") = vClass;
-
-    std::string IPaddress_val = vehicleId2ip(SUMOID);
-    mod->par("hasOBU") = (IPaddress_val != "") ? true : false;
-    mod->par("IPaddress") = IPaddress_val;
 
     // update initial position in obstacle
     if(vClass == "custom1")
@@ -1259,12 +1281,25 @@ omnetpp::cModule* TraCI_Start::addVehicle(std::string SUMOID, std::string type, 
         // between platoons
         if(def.interGap != -1)
             appl->par("TP") = def.interGap;
+
+        if(def.ipv4 != "")
+        {
+            mod->par("hasOBU") = true;
+            mod->par("IPaddress") = def.ipv4;
+        }
+
+        ADDNODE->addNodeRemoveDeferredAttribute(SUMOID);
     }
 
     // update the mapping before calling scheduleStart.
     // this allows the initialize code of vehicles to have
     // access to the latest mapping
+
     addMapping(SUMOID, mod->getFullName());
+
+    std::string ipv4 = mod->par("IPaddress");
+    if(ipv4 != "")
+        addMappingEmulated(ipv4, SUMOID);
 
     mod->scheduleStart(omnetpp::simTime() + updateInterval);
 
