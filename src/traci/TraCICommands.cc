@@ -3756,88 +3756,6 @@ double TraCI_Commands::convertAngle_omnet2traci(double angle) const
 
 
 // ################################################################
-//                    Hardware in the loop (HIL)
-// ################################################################
-
-void TraCI_Commands::emulatedAdd(std::string ipAddress, std::string vID, std::string color)
-{
-    if(vID == "")
-        throw omnetpp::cRuntimeError("vehicle id is empty in emulatedAdd");
-
-    if(ipAddress == "")
-        throw omnetpp::cRuntimeError("ip address is empty in emulatedAdd");
-
-    auto ii = ipv4_SUMOid_mapping.find(ipAddress);
-    if(ii != ipv4_SUMOid_mapping.end())
-        throw omnetpp::cRuntimeError("IP address '%s' is already assigned to vehicle '%s'", ipAddress.c_str(), ii->second.c_str());
-
-    auto jj = SUMOid_ipv4_mapping.find(vID);
-    if(jj != SUMOid_ipv4_mapping.end())
-        throw omnetpp::cRuntimeError("vehicle '%s' is already an emulated vehicle with IP address '%s'", vID.c_str(), jj->second.c_str());
-
-
-
-}
-
-
-void TraCI_Commands::emulatedRemove(std::string vID)
-{
-    if(vID == "")
-        throw omnetpp::cRuntimeError("vehicle id is empty in emulatedRemove");
-
-
-
-}
-
-
-void TraCI_Commands::emulatedChange(std::string ipAddress, std::string vID, std::string color)
-{
-    if(vID == "")
-        throw omnetpp::cRuntimeError("vehicle id is empty in emulatedChange");
-
-    if(ipAddress == "")
-        throw omnetpp::cRuntimeError("ip address is empty in emulatedChange");
-
-    //    // find the ipAddress
-    //    auto ii = ipv4_SUMOid_mapping.find(ipAddress);
-    //    if(ii == ipv4_SUMOid_mapping.end())
-    //        throw omnetpp::cRuntimeError("IP address %s has not assigned to any vehicles", ipAddress.c_str());
-    //
-    //    // find the corresponding vehicle
-    //    auto jj = SUMOid_ipv4_mapping.find(ii->second);
-    //    if(jj == SUMOid_ipv4_mapping.end())
-    //        throw omnetpp::cRuntimeError("vehicle %s is not an emulated vehicle", ii->second.c_str());
-    //
-    //    // remove them both
-    //    ipv4_SUMOid_mapping.erase(ii);
-    //    SUMOid_ipv4_mapping.erase(jj);
-    //
-    //    // add the new entry
-    //    emulatedAdd(ipAddress, vID, color);
-}
-
-
-std::string TraCI_Commands::ip2vehicleId(std::string ipAddress) const
-{
-    auto ii = ipv4_SUMOid_mapping.find(ipAddress);
-    if(ii != ipv4_SUMOid_mapping.end())
-        return ii->second;
-    else
-        return "";
-}
-
-
-std::string TraCI_Commands::vehicleId2ip(std::string id) const
-{
-    auto ii = SUMOid_ipv4_mapping.find(id);
-    if(ii != SUMOid_ipv4_mapping.end())
-        return ii->second;
-    else
-        return "";
-}
-
-
-// ################################################################
 //                       SUMO directory
 // ################################################################
 
@@ -3902,6 +3820,30 @@ bool TraCI_Commands::IsGUI()
         return true;
     else
         throw omnetpp::cRuntimeError("SUMO application '%s' is not recognized. Make sure the Network.TraCI.SUMOapplication parameter in set correctly.", sumo_application.c_str());
+}
+
+
+// ################################################################
+//                    Hardware in the loop (HIL)
+// ################################################################
+
+std::string TraCI_Commands::ip2vehicleId(std::string ipAddress) const
+{
+    auto ii = ipv4_SUMOid_mapping.find(ipAddress);
+    if(ii != ipv4_SUMOid_mapping.end())
+        return ii->second;
+    else
+        return "";
+}
+
+
+std::string TraCI_Commands::vehicleId2ip(std::string id) const
+{
+    auto ii = SUMOid_ipv4_mapping.find(id);
+    if(ii != SUMOid_ipv4_mapping.end())
+        return ii->second;
+    else
+        return "";
 }
 
 

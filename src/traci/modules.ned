@@ -1,7 +1,13 @@
 
 package VENTOS.src.traci;
 
-simple TraCIStart
+// Interface for TraCI module
+moduleinterface IBaseTraCI
+{
+        
+}
+
+simple TraCIStart like IBaseTraCI
 {
     parameters:
         @display("i=block/network2");

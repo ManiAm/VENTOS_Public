@@ -206,6 +206,9 @@ public:
     // all hosts managed by us
     std::map<std::string /*SUMOID*/, cModule*> hosts;
 
+private:
+    typedef omnetpp::cSimpleModule super;
+
 protected:
     double updateInterval = -1;
     TraCIConnection* connection = NULL;
@@ -216,9 +219,6 @@ protected:
     int margin;
 
     bool equilibrium_vehicle = false;
-
-private:
-    typedef omnetpp::cSimpleModule super;
 
     // start/end/duration of simulation
     std::chrono::milliseconds simStartTime;
@@ -612,17 +612,6 @@ public:
     double convertAngle_omnet2traci(double angle) const;  // convert OMNeT++ angle (in rad) to TraCI angle
 
     // ################################################################
-    //                    Hardware in the loop (HIL)
-    // ################################################################
-
-    void emulatedAdd(std::string ip, std::string vID, std::string = "");     // assign OBU with ip to vehicle vID and change its color (optional)
-    void emulatedRemove(std::string vID);                                    // remove vID as an emulated vehicle
-    void emulatedChange(std::string ip, std::string vID, std::string = "");  // assign existing OBU with ip to new vehicle vID and change its color (optional)
-
-    std::string ip2vehicleId(std::string ip) const;   // HIL ipv4 address --> SUMO id of emulated vehicle
-    std::string vehicleId2ip(std::string vID) const;  // SUMO id of emulated vehicle --> HIL ipv4 address
-
-    // ################################################################
     //                       SUMO directory
     // ################################################################
 
@@ -630,6 +619,13 @@ public:
     boost::filesystem::path getFullPath_SUMOConfig();
 
     bool IsGUI();
+
+    // ################################################################
+    //                    Hardware in the loop (HIL)
+    // ################################################################
+
+    std::string ip2vehicleId(std::string ip) const;   // HIL ipv4 address --> SUMO id of emulated vehicle
+    std::string vehicleId2ip(std::string vID) const;  // SUMO id of emulated vehicle --> HIL ipv4 address
 
     // ################################################################
     //                            Mapping

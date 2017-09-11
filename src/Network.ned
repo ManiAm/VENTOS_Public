@@ -16,6 +16,7 @@ network Network
         double playgroundSizeY @unit(m); // y size of the area the nodes are in (in meters)
         double playgroundSizeZ @unit(m); // z size of the area the nodes are in (in meters)
 
+        string traciType;
         string statisticsType;
         string addNodeType;
 
@@ -75,7 +76,7 @@ network Network
         }
         // TraCI is the last module so that its finish method
         // is called after all other modules
-        TraCI: TraCIStart {
+        TraCI: <traciType> like IBaseTraCI {
             parameters:
                 @display("p=48,135");
         }
