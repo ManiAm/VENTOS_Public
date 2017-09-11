@@ -50,8 +50,8 @@ private:
     double terminateTime;
     bool autoTerminate;
 
-    BaseWorldUtility* world = NULL;
-    ConnectionManager* cc = NULL;
+    BaseWorldUtility *world = NULL;
+    ConnectionManager *cc = NULL;
     AddNode *ADDNODE = NULL;
     Statistics *STAT = NULL;
 
