@@ -627,6 +627,16 @@ public:
     std::string ip2vehicleId(std::string ip) const;   // HIL ipv4 address --> SUMO id of emulated vehicle
     std::string vehicleId2ip(std::string vID) const;  // SUMO id of emulated vehicle --> HIL ipv4 address
 
+    virtual void emulatedAdd(std::string ip, std::string vID, std::string = "") {
+        throw omnetpp::cRuntimeError("derived class should implement this method!");
+    };
+    virtual void emulatedRemove(std::string vID) {
+        throw omnetpp::cRuntimeError("derived class should implement this method!");
+    };
+    virtual void emulatedChange(std::string ip, std::string vID, std::string = "") {
+        throw omnetpp::cRuntimeError("derived class should implement this method!");
+    };
+
     // ################################################################
     //                            Mapping
     // ################################################################

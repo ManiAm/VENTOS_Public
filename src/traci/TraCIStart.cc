@@ -1139,7 +1139,9 @@ void TraCI_Start::deleteManagedModule(std::string nodeId /*sumo id*/)
     removeMapping(SUMOID);
     removeMappingEmulated(SUMOID);
 
+    // remove from managed hosts
     hosts.erase(nodeId);
+
     mod->callFinish();
     mod->deleteModule();
 }
