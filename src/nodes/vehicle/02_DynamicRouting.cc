@@ -35,7 +35,7 @@ Define_Module(VENTOS::ApplVDynamicRouting);
 
 ApplVDynamicRouting::~ApplVDynamicRouting()
 {
-
+    cancelAndDelete(sendSystemMsgEvt);
 }
 
 
@@ -130,14 +130,6 @@ void ApplVDynamicRouting::finish()
 
     //Prepare to send a system message
     this->getParentModule()->emit(Signal_system, new systemData("", "", SUMOID, DONE, std::string("system")));
-
-    if(requestReroutes)
-    {
-        if (sendSystemMsgEvt->isScheduled())
-            cancelAndDelete(sendSystemMsgEvt);
-        else
-            delete sendSystemMsgEvt;
-    }
 
     omnetpp::getSimulation()->getSystemModule()->unsubscribe("router",this);
     omnetpp::getSimulation()->getSystemModule()->unsubscribe("system",this);

@@ -34,7 +34,9 @@ Define_Module(VENTOS::ApplRSUCRL);
 
 ApplRSUCRL::~ApplRSUCRL()
 {
-
+    cancelAndDelete(Timer1);
+    cancelAndDelete(Timer2);
+    cancelAndDelete(Timer3);
 }
 
 void ApplRSUCRL::initialize(int stage)
@@ -88,10 +90,6 @@ void ApplRSUCRL::finish()
 
     if(CRLdistAlg == 0)
         return;
-
-    cancelAndDelete(Timer1);
-    cancelAndDelete(Timer2);
-    cancelAndDelete(Timer3);
 
     // unsubscribe
     omnetpp::getSimulation()->getSystemModule()->unsubscribe("CRL_pieces", this);

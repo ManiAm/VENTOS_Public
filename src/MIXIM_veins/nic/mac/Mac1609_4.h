@@ -110,10 +110,10 @@ private:
     VENTOS::Statistics* STAT;
 
     /** @brief Self message to indicate that the current channel shall be switched.*/
-    omnetpp::cMessage* nextChannelSwitch;
+    omnetpp::cMessage* nextChannelSwitch = NULL;
 
     /** @brief Self message to wake up at next MacEvent */
-    omnetpp::cMessage* nextMacEvent;
+    omnetpp::cMessage* nextMacEvent = NULL;
 
     /** @brief Last time the channel went idle */
     omnetpp::simtime_t lastIdle;
@@ -152,7 +152,7 @@ public:
 
     Mac1609_4() : BaseLayer(), phy(NULL) { }
     Mac1609_4(unsigned stacksize) : BaseLayer(stacksize), phy(NULL) { }
-    ~Mac1609_4() { };
+    ~Mac1609_4();
 
     // ######### implementations of WaveAppToMac1609_4Interface ############
 

@@ -33,7 +33,7 @@ Define_Module(VENTOS::ApplVPlatoon);
 
 ApplVPlatoon::~ApplVPlatoon()
 {
-
+    cancelAndDelete(platoonMonitorTIMER);
 }
 
 
@@ -97,8 +97,6 @@ void ApplVPlatoon::initialize(int stage)
 void ApplVPlatoon::finish()
 {
     super::finish();
-
-    cancelAndDelete(platoonMonitorTIMER);
 }
 
 

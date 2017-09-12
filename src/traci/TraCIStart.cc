@@ -53,6 +53,8 @@ TraCI_Start::TraCI_Start()
 
 TraCI_Start::~TraCI_Start()
 {
+    cancelAndDelete(executeOneTimestepTrigger);
+
     // if the TraCI link was not closed due to error
     if(!TraCIclosedOnError)
     {
@@ -126,9 +128,6 @@ void TraCI_Start::initialize(int stage)
 void TraCI_Start::finish()
 {
     super::finish();
-
-    // When TraCI is active, throws Segmentation fault!
-    // cancelAndDelete(executeOneTimestepTrigger);
 
     // delete all modules
     while (hosts.begin() != hosts.end())

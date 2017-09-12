@@ -30,6 +30,13 @@ namespace Veins {
 
 Define_Module(Veins::Mac1609_4);
 
+Mac1609_4::~Mac1609_4()
+{
+    cancelAndDelete(nextMacEvent);
+    cancelAndDelete(nextChannelSwitch);
+}
+
+
 void Mac1609_4::initialize(int stage)
 {
     BaseLayer::initialize(stage);
@@ -152,14 +159,6 @@ void Mac1609_4::finish()
         record_MAC_stat_func();
 
     myEDCA.clear();
-
-    if (nextMacEvent->isScheduled())
-        cancelAndDelete(nextMacEvent);
-    else
-        delete nextMacEvent;
-
-    if (nextChannelSwitch && nextChannelSwitch->isScheduled())
-        cancelAndDelete(nextChannelSwitch);
 }
 
 
