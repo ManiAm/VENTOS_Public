@@ -11,6 +11,8 @@ VENTOS is an open-source VANET C++ simulator for studying vehicular traffic flow
 + vehicleGetColor is now working correctly
 + fix various memory leakes
 + measure sim start/end/duration more accuratly
++ fix simulation end time recording
++ fix getRSUposition when calling from initialize
 
 **enhancements**
 + adding more TraCI commands
@@ -26,6 +28,7 @@ VENTOS is an open-source VANET C++ simulator for studying vehicular traffic flow
 + can now run omnet++ in cmd mode without forc-running sumo in cmd mode
 + adding glogActive parameters to turn glog window off/on
 + runme script checks eigen installation more accuratly
++ adding vehicleGetWaitingTime TraCI command
 + updating the manual
 + various small improvements
 
