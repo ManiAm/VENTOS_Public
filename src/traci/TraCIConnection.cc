@@ -79,12 +79,12 @@ TraCIConnection::~TraCIConnection()
         socketPtr = NULL;
     }
 
-#if defined(_WIN32) || defined(__WIN32__) || defined(WIN32) || defined(__CYGWIN__) || defined(_WIN64)
-#else
-    // send SIGINT
-    if (child_pid > 0)
-        kill(child_pid, 15);
-#endif
+// #if defined(_WIN32) || defined(__WIN32__) || defined(WIN32) || defined(__CYGWIN__) || defined(_WIN64)
+// #else
+//     // send SIGINT
+//     if (child_pid > 0)
+//         kill(child_pid, 15);
+// #endif
 }
 
 
