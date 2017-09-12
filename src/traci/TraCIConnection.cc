@@ -49,7 +49,6 @@
 #include "traci/TraCICommands.h"
 #include "logging/VENTOS_logging.h"
 
-
 namespace VENTOS {
 
 pid_t TraCIConnection::child_pid = -1;
@@ -79,12 +78,15 @@ TraCIConnection::~TraCIConnection()
         socketPtr = NULL;
     }
 
-// #if defined(_WIN32) || defined(__WIN32__) || defined(WIN32) || defined(__CYGWIN__) || defined(_WIN64)
-// #else
-//     // send SIGINT
-//     if (child_pid > 0)
-//         kill(child_pid, 15);
-// #endif
+    // Note: do not kill the SUMO process.
+    // Closing the TraCI connection will automatically terminates SUMO
+
+    // #if defined(_WIN32) || defined(__WIN32__) || defined(WIN32) || defined(__CYGWIN__) || defined(_WIN64)
+    // #else
+    //     // send SIGINT
+    //     if (child_pid > 0)
+    //         kill(child_pid, 15);
+    // #endif
 }
 
 
