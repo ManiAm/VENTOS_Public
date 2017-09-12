@@ -55,12 +55,7 @@ Define_Module(VENTOS::vglog);
 
 vglog::~vglog()
 {
-#if defined(_WIN32) || defined(__WIN32__) || defined(WIN32) || defined(__CYGWIN__) || defined(_WIN64)
-#else
-    // send SIGINT
-    if (child_pid > 0)
-        kill(child_pid, 15);
-#endif
+    std::lock_guard<std::mutex> lock(lock_socket);
 
     if(socketPtr)
     {
@@ -71,6 +66,13 @@ vglog::~vglog()
 
     for(auto &item : allCategories)
         delete(item.second);
+
+#if defined(_WIN32) || defined(__WIN32__) || defined(WIN32) || defined(__CYGWIN__) || defined(_WIN64)
+#else
+    // send SIGINT
+    if (child_pid > 0)
+        kill(child_pid, 15);
+#endif
 }
 
 
@@ -337,6 +339,16 @@ void vglog::connect_to_TCP_server()
 
 void vglog::sendToLogWindow(std::string msg)
 {
+    // protect socket from the destructor
+    std::lock_guard<std::mutex> lock(lock_socket);
+
+    // if socketPtr is closed in the destructor, then WARN the user instead of throwing error
+    if(!socketPtr)
+    {
+        std::cout << "WARNING: Cannot send the message to GLOG window: window is closed." << std::flush;
+        return;
+    }
+
     try
     {
         // sending the msg size first

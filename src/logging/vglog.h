@@ -50,6 +50,8 @@ private:
     bool glogRecordCMD = false;
     bool glogActive = true;
 
+    std::mutex lock_socket;
+
     std::string delimiter = "<||?>";
     std::map< std::string, std::vector <std::string> * > allCategories;
     static vglog *objPtr;
