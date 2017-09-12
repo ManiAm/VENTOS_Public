@@ -27,6 +27,12 @@ network Network
 
         @display("bgb=529,283");
     submodules:
+        // TraCI is the first module so that its finish method
+        // is called before all other modules to record simulation end time
+        TraCI: <traciType> like IBaseTraCI {
+            parameters:
+                @display("p=48,135");
+        }
         world: BaseWorldUtility {
             parameters:
                 playgroundSizeX = playgroundSizeX;
@@ -73,12 +79,6 @@ network Network
         tutorial: tutorial {
             parameters:
                 @display("p=245,216;i=old/ring");
-        }
-        // TraCI is the last module so that its finish method
-        // is called after all other modules
-        TraCI: <traciType> like IBaseTraCI {
-            parameters:
-                @display("p=48,135");
         }
 
     connections allowunconnected:

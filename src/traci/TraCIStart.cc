@@ -53,7 +53,16 @@ TraCI_Start::TraCI_Start()
 
 TraCI_Start::~TraCI_Start()
 {
+    // if the TraCI link was not closed due to error
+    if(!TraCIclosedOnError)
+    {
+        // close TraCI interface with SUMO
+        if (connection)
+            close_TraCI_connection();
+    }
 
+    delete connection;
+    connection = NULL;
 }
 
 
@@ -121,19 +130,9 @@ void TraCI_Start::finish()
     // When TraCI is active, throws Segmentation fault!
     // cancelAndDelete(executeOneTimestepTrigger);
 
-    // if the TraCI link was not closed due to error
-    if(!TraCIclosedOnError)
-    {
-        // close TraCI interface with SUMO
-        if (connection)
-            close_TraCI_connection();
-    }
-
+    // delete all modules
     while (hosts.begin() != hosts.end())
         deleteManagedModule(hosts.begin()->first);
-
-    delete connection;
-    connection = NULL;
 
     // flush all output buffer
     LOG_FLUSH;

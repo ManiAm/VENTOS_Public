@@ -72,6 +72,9 @@ void TraCI_Commands::initialize(int stage)
 
 void TraCI_Commands::finish()
 {
+    // record simulation end time
+    simEndTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+
     save_TraCI_activity_toFile();
 }
 
@@ -515,9 +518,6 @@ void TraCI_Commands::simulationTerminate(bool error)
 
     // is used in TraCI_Start::finish()
     this->TraCIclosedOnError = error;
-
-    // record simulation end time
-    simEndTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
 
     // TraCI connection is closed in TraCI_Start::finish()
     endSimulation();
