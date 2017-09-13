@@ -25,16 +25,25 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
+#include <glibmm/exception.h>
+#include <signal.h>     // signal interruptions (Ctrl-C)
+
 #include "mainWindow.h"
 #include "iostream"
-#include <glibmm/exception.h>
+
+void freeResources();
+void sigint(int sigint);
 
 int main(int argc, char* argv[])
 {
+    signal(SIGINT, sigint);
+
     try
     {
         auto app = Gtk::Application::create("VENTOS.vglog");
 
+        // Note: logWindow is a local variable and goes out of scope when main finishes
+        // This causes the destructor ~logWindow to be called
         VENTOS::mainWindow logWindow(argv[0] /*path to mainWindow file*/, argv[1] /*window title*/);
 
         // Shows the window and returns when it is closed
@@ -45,12 +54,16 @@ int main(int argc, char* argv[])
         std::cout << ex.what() << std::endl;
         std::cout.flush();
 
+        freeResources();
+
         return 1;
     }
     catch(const std::exception& ex)
     {
         std::cout << ex.what() << std::endl;
         std::cout.flush();
+
+        freeResources();
 
         return 1;
     }
@@ -59,6 +72,22 @@ int main(int argc, char* argv[])
         std::cout << "Exception is thrown! \n";
         std::cout.flush();
 
+        freeResources();
+
         return 1;
     }
+}
+
+
+void freeResources()
+{
+
+}
+
+
+void sigint(int signum)
+{
+    freeResources();
+
+    exit(0);
 }

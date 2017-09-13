@@ -55,6 +55,23 @@ enum logWindowCMD
 
 class mainWindow : public Gtk::Window
 {
+protected:
+    // widgets on main window
+    Gtk::Box *m_VBox = NULL;
+    Gtk::Notebook *m_Notebook = NULL;
+    Gtk::ButtonBox *m_ButtonBox = NULL;
+    Gtk::Button *m_Button_Quit = NULL;
+    Glib::Dispatcher *m_Dispatcher = NULL;
+
+    std::mutex mtx;
+    std::condition_variable cv;
+    std::string response = "";
+    std::string syntaxHighlighting = "";
+
+    std::map< std::pair<std::string /*tab*/, std::string /*pane*/>, std::ostream *> vLogStreams;
+    std::map< std::string, Gtk::Box *> notebookBox;
+    int newsockfd = -1;
+    std::string rx_cmd = "";
 
 public:
     mainWindow(std::string filePath, std::string title);
@@ -76,20 +93,7 @@ private:
     void writeStr(std::string, std::string, std::string &);
     void flushStr(std::string, std::string);
 
-protected:
-    // widgets
-    Gtk::Notebook *m_Notebook;
-    Glib::Dispatcher *m_Dispatcher;
-
-    std::mutex mtx;
-    std::condition_variable cv;
-    std::string response = "";
-    std::string syntaxHighlighting = "";
-
-    std::map< std::pair<std::string /*tab*/, std::string /*pane*/>, std::ostream *> vLogStreams;
-    std::map< std::string, Gtk::Box *> notebookBox;
-    int newsockfd;
-    std::string rx_cmd = "";
+    void freeResources();
 };
 
 }

@@ -28,6 +28,7 @@
 #include <iostream>
 #include <thread>
 #include <stdexcept>
+#include <cstdlib>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -54,7 +55,7 @@ mainWindow::mainWindow(std::string filePath, std::string title)
     set_default_size(1200, 550 /*height*/);
     set_icon_from_file(logoPath.c_str());
 
-    Gtk::Box *m_VBox = new Gtk::Box(Gtk::ORIENTATION_VERTICAL);
+    m_VBox = new Gtk::Box(Gtk::ORIENTATION_VERTICAL);
     add(*m_VBox);
 
     // create the Notebook and add it to m_VBox
@@ -64,11 +65,11 @@ mainWindow::mainWindow(std::string filePath, std::string title)
     m_VBox->pack_start(*m_Notebook);
 
     // create a ButtonBox and add it to m_VBox
-    Gtk::ButtonBox *m_ButtonBox = new Gtk::ButtonBox();
+    m_ButtonBox = new Gtk::ButtonBox();
     m_VBox->pack_start(*m_ButtonBox, Gtk::PACK_SHRINK);
 
     // create a quit button and add it to m_ButtonBox
-    Gtk::Button *m_Button_Quit = new Gtk::Button("_Close", true);
+    m_Button_Quit = new Gtk::Button("_Close", true);
     m_ButtonBox->pack_start(*m_Button_Quit, Gtk::PACK_SHRINK);
 
     // emit signal on clicking the button
@@ -80,6 +81,7 @@ mainWindow::mainWindow(std::string filePath, std::string title)
 
     show_all_children();
 
+    // start TCP server and block here until VENTOS is connected
     start_TCP_server();
 
     std::thread thd(&mainWindow::listenToClient, this, this);
@@ -91,6 +93,24 @@ mainWindow::~mainWindow()
 {
     if(newsockfd)
         ::close(newsockfd);
+
+    freeResources();
+}
+
+
+void mainWindow::freeResources()
+{
+    delete m_Dispatcher;
+    delete m_Button_Quit;
+    delete m_ButtonBox;
+    delete m_Notebook;
+    delete m_VBox;
+
+    for(auto &item : vLogStreams)
+        delete item.second;
+
+    for(auto &item : notebookBox)
+        delete item.second;
 }
 
 
@@ -151,11 +171,16 @@ void mainWindow::start_TCP_server()
     }
     catch(const std::exception& ex)
     {
-        // silently ignore the exceptions
-        //std::cout << std::endl << ex.what() << std::endl;
-        //std::cout.flush();
+        std::cout << std::endl << ex.what() << std::endl;
+        std::cout.flush();
 
-        return;
+        delete m_Dispatcher;
+        delete m_Button_Quit;
+        delete m_ButtonBox;
+        delete m_Notebook;
+        delete m_VBox;
+
+        exit (1);
     }
 }
 
@@ -204,10 +229,13 @@ void mainWindow::listenToClient(mainWindow *windowPtr)
             if(response == "")
                 throw std::runtime_error("response msg is empty!");
 
-            // sending the response
+            // sending the response back to VENTOS
             n = ::send(newsockfd, response.c_str(), response.size(), MSG_NOSIGNAL);
             if (n < 0)
                 throw std::runtime_error("ERROR sending response to socket");
+
+            if(response != "ok!")
+                throw std::runtime_error(response.c_str());
 
             response = "";  // reset response
         }
@@ -217,9 +245,10 @@ void mainWindow::listenToClient(mainWindow *windowPtr)
     }
     catch(const std::exception& ex)
     {
-        // silently ignore the exceptions
-        //std::cout << std::endl << ex.what() << std::endl;
-        //std::cout.flush();
+        std::cout << std::endl << ex.what() << std::endl;
+        std::cout.flush();
+
+        freeResources();
 
         return;
     }
@@ -268,6 +297,8 @@ void mainWindow::processCMD()
     }
     catch(const std::exception& ex)
     {
+        // save the error in response variable to send
+        // it back to VENTOS
         response = ex.what();
 
         // notify listenToClient thread to proceed
