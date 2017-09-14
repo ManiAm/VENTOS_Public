@@ -44,6 +44,7 @@ class TraCI_Start :  public TraCI_Commands
 private:
     typedef TraCI_Commands super;
 
+protected:
     // NED
     bool active;  // run SUMO and establish TraCI?
     bool debug;
