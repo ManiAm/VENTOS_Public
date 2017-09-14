@@ -827,11 +827,11 @@ void AddNode::addVehicle()
                 DSRC_status = 1;
             else
                 DSRC_status = 0;
-        }
 
-        veh_deferred_attributes_t deferred_entry;
-        deferred_entry.DSRC_status = DSRC_status;
-        addNodeAppendDeferredAttribute(vehID, deferred_entry);
+            veh_deferred_attributes_t deferred_entry;
+            deferred_entry.DSRC_status = DSRC_status;
+            addDeferredAttribute(vehID, deferred_entry);
+        }
     }
 }
 
@@ -1132,11 +1132,11 @@ void AddNode::addVehicleFlow()
                         DSRC_status = 1;
                     else
                         DSRC_status = 0;
-                }
 
-                veh_deferred_attributes_t deferred_entry;
-                deferred_entry.DSRC_status = DSRC_status;
-                addNodeAppendDeferredAttribute(vehID, deferred_entry);
+                    veh_deferred_attributes_t deferred_entry;
+                    deferred_entry.DSRC_status = DSRC_status;
+                    addDeferredAttribute(vehID, deferred_entry);
+                }
             }
         }
         else if(entry.second.distribution_str == "poisson")
@@ -1186,11 +1186,11 @@ void AddNode::addVehicleFlow()
                             DSRC_status = 1;
                         else
                             DSRC_status = 0;
-                    }
 
-                    veh_deferred_attributes_t deferred_entry;
-                    deferred_entry.DSRC_status = DSRC_status;
-                    addNodeAppendDeferredAttribute(vehID, deferred_entry);
+                        veh_deferred_attributes_t deferred_entry;
+                        deferred_entry.DSRC_status = DSRC_status;
+                        addDeferredAttribute(vehID, deferred_entry);
+                    }
 
                     vehCount++;
 
@@ -1246,11 +1246,11 @@ void AddNode::addVehicleFlow()
                             DSRC_status = 1;
                         else
                             DSRC_status = 0;
-                    }
 
-                    veh_deferred_attributes_t deferred_entry;
-                    deferred_entry.DSRC_status = DSRC_status;
-                    addNodeAppendDeferredAttribute(vehID, deferred_entry);
+                        veh_deferred_attributes_t deferred_entry;
+                        deferred_entry.DSRC_status = DSRC_status;
+                        addDeferredAttribute(vehID, deferred_entry);
+                    }
 
                     vehCount++;
 
@@ -1532,11 +1532,11 @@ void AddNode::addVehicleMultiFlow()
                         DSRC_status = 1;
                     else
                         DSRC_status = 0;
-                }
 
-                veh_deferred_attributes_t deferred_entry;
-                deferred_entry.DSRC_status = DSRC_status;
-                addNodeAppendDeferredAttribute(vehID, deferred_entry);
+                    veh_deferred_attributes_t deferred_entry;
+                    deferred_entry.DSRC_status = DSRC_status;
+                    addDeferredAttribute(vehID, deferred_entry);
+                }
             }
         }
         else if(entry.second.distribution_str == "poisson")
@@ -1593,11 +1593,11 @@ void AddNode::addVehicleMultiFlow()
                             DSRC_status = 1;
                         else
                             DSRC_status = 0;
-                    }
 
-                    veh_deferred_attributes_t deferred_entry;
-                    deferred_entry.DSRC_status = DSRC_status;
-                    addNodeAppendDeferredAttribute(vehID, deferred_entry);
+                        veh_deferred_attributes_t deferred_entry;
+                        deferred_entry.DSRC_status = DSRC_status;
+                        addDeferredAttribute(vehID, deferred_entry);
+                    }
 
                     vehCount++;
 
@@ -1660,11 +1660,11 @@ void AddNode::addVehicleMultiFlow()
                             DSRC_status = 1;
                         else
                             DSRC_status = 0;
-                    }
 
-                    veh_deferred_attributes_t deferred_entry;
-                    deferred_entry.DSRC_status = DSRC_status;
-                    addNodeAppendDeferredAttribute(vehID, deferred_entry);
+                        veh_deferred_attributes_t deferred_entry;
+                        deferred_entry.DSRC_status = DSRC_status;
+                        addDeferredAttribute(vehID, deferred_entry);
+                    }
 
                     vehCount++;
 
@@ -1932,7 +1932,7 @@ void AddNode::addVehiclePlatoon()
                 deferred_entry.interGap = entry.second.interGap;
             }
 
-            addNodeAppendDeferredAttribute(vehID, deferred_entry);
+            addDeferredAttribute(vehID, deferred_entry);
 
             if(!entry.second.pltMgmtProt)
             {
@@ -2234,17 +2234,7 @@ AddNode * AddNode::getAddNodeInterface()
 }
 
 
-void AddNode::addNodeAppendDeferredAttribute(std::string SUMOID, veh_deferred_attributes_t def)
-{
-    auto ii = vehs_deferred_attributes.find(SUMOID);
-    if(ii != vehs_deferred_attributes.end())
-        throw omnetpp::cRuntimeError("Vehicle '%s' is already assigned a deferred attribute.", SUMOID);
-
-    vehs_deferred_attributes[SUMOID] = def;
-}
-
-
-veh_deferred_attributes_t AddNode::addNodeGetDeferredAttribute(std::string SUMOID)
+veh_deferred_attributes_t AddNode::getDeferredAttribute(std::string SUMOID)
 {
     auto ii = vehs_deferred_attributes.find(SUMOID);
 
@@ -2258,12 +2248,53 @@ veh_deferred_attributes_t AddNode::addNodeGetDeferredAttribute(std::string SUMOI
 }
 
 
-void AddNode::addNodeRemoveDeferredAttribute(std::string SUMOID)
+bool AddNode::hasDeferredAttribute(std::string SUMOID)
+{
+    auto ii = vehs_deferred_attributes.find(SUMOID);
+
+    if(ii != vehs_deferred_attributes.end())
+        return true;
+
+    return false;
+}
+
+
+void AddNode::addDeferredAttribute(std::string SUMOID, veh_deferred_attributes_t def)
+{
+    auto ii = vehs_deferred_attributes.find(SUMOID);
+    if(ii != vehs_deferred_attributes.end())
+        throw omnetpp::cRuntimeError("Vehicle '%s' is already assigned a deferred attribute.", SUMOID);
+
+    vehs_deferred_attributes[SUMOID] = def;
+}
+
+
+void AddNode::removeDeferredAttribute(std::string SUMOID)
 {
     auto ii = vehs_deferred_attributes.find(SUMOID);
 
     if(ii != vehs_deferred_attributes.end())
         vehs_deferred_attributes.erase(ii);
+}
+
+
+void AddNode::updateDeferredAttribute_ip(std::string SUMOID, std::string ip)
+{
+    auto ii = vehs_deferred_attributes.find(SUMOID);
+
+    // if the vehicle has no deferred attributes, then
+    // create a new entry and update ipv4
+    if(ii == vehs_deferred_attributes.end())
+    {
+        veh_deferred_attributes_t entry = {};
+        entry.ipv4 = ip;
+
+        vehs_deferred_attributes[SUMOID] = entry;
+    }
+    // if the vehicle already has a deferred attribute, then
+    // update the ipv4 entry only
+    else
+        ii->second.ipv4 = ip;
 }
 
 

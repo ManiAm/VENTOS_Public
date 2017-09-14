@@ -192,8 +192,10 @@ void TraCI_Start::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_
             node.lane = vehicleGetLaneIndex(SUMOID);
             node.color = vehicleGetColor(SUMOID);
 
-            veh_deferred_attributes_t def = ADDNODE->addNodeGetDeferredAttribute(SUMOID);
-            node.IPaddress = def.ipv4;
+            // the vehicle just departed, but addVehicleModule hasn't been called yet!
+            // so, we can look for any pending deferred attributes
+            veh_deferred_attributes_t allDeferred = ADDNODE->getDeferredAttribute(SUMOID);
+            node.IPaddress = allDeferred.ipv4;
 
             auto it = equilibrium_departedVehs.find(SUMOID);
             if(it != equilibrium_departedVehs.end())
@@ -214,20 +216,16 @@ void TraCI_Start::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_
 
             departedNodes node = it->second;
 
-            LOG_INFO << boost::format("t=%1%: vehicle '%2%' arrived. Inserting it again ... \n") % omnetpp::simTime().dbl() % node.vehicleId << std::flush;
+            LOG_INFO << boost::format("t=%1%: vehicle '%2%' arrived. Inserting it again ... \n") % omnetpp::simTime().dbl() % SUMOID << std::flush;
 
             // add the vehicle into SUMO
-            vehicleAdd(node.vehicleId, node.vehicleTypeId, node.routeId, (omnetpp::simTime().dbl() * 1000)+1, node.pos, node.speed, node.lane);
+            vehicleAdd(SUMOID, node.vehicleTypeId, node.routeId, (omnetpp::simTime().dbl() * 1000)+1, node.pos, node.speed, node.lane);
 
             // set the same vehicle color
-            vehicleSetColor(node.vehicleId, node.color);
+            vehicleSetColor(SUMOID, node.color);
 
             if(node.IPaddress != "")
-            {
-                veh_deferred_attributes_t entry = {};
-                entry.ipv4 = node.IPaddress;
-                ADDNODE->addNodeAppendDeferredAttribute(node.vehicleId, entry);
-            }
+                ADDNODE->updateDeferredAttribute_ip(SUMOID, node.IPaddress);
 
             equilibrium_departedVehs.erase(it);
         }
@@ -1146,7 +1144,7 @@ void TraCI_Start::deleteManagedModule(std::string nodeId /*sumo id*/)
 
 
 // responsible for adding obstacles, motor-vehicles (car, bus, truck, etc.) and bicycle
-void TraCI_Start::addVehicleModule(std::string nodeId /*sumo id*/, const Coord& position /*omnet coordinates*/, std::string road_id, double speed, double angle)
+void TraCI_Start::addVehicleModule(std::string nodeId /*SUMOID*/, const Coord& position /*omnet coordinates*/, std::string road_id, double speed, double angle)
 {
     if (hosts.find(nodeId) != hosts.end())
         throw omnetpp::cRuntimeError("tried adding duplicate module");
@@ -1247,9 +1245,10 @@ omnetpp::cModule* TraCI_Start::addVehicle(std::string SUMOID, std::string type, 
         mod->getSubmodule("mobility")->par("y") = position.y;
     }
 
+    if(ADDNODE->hasDeferredAttribute(SUMOID))
     {
-        // get any deferred attributes for this vehicle
-        veh_deferred_attributes_t def = ADDNODE->addNodeGetDeferredAttribute(SUMOID);
+        // get all deferred attributes for this vehicle
+        veh_deferred_attributes_t def = ADDNODE->getDeferredAttribute(SUMOID);
 
         // if an attribute is -1, then the attribute is not defined for this vehicle.
         // So we do not touch the corresponding parameter!
@@ -1288,7 +1287,7 @@ omnetpp::cModule* TraCI_Start::addVehicle(std::string SUMOID, std::string type, 
             mod->par("IPaddress") = def.ipv4;
         }
 
-        ADDNODE->addNodeRemoveDeferredAttribute(SUMOID);
+        ADDNODE->removeDeferredAttribute(SUMOID);
     }
 
     // update the mapping before calling scheduleStart.
