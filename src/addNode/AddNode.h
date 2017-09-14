@@ -223,9 +223,11 @@ protected:
 public:
     static AddNode * getAddNodeInterface();
 
-    void addNodeAppendDeferredAttribute(std::string vehID, veh_deferred_attributes_t def);
-    veh_deferred_attributes_t addNodeGetDeferredAttribute(std::string vehID);
-    void addNodeRemoveDeferredAttribute(std::string vehID);
+    veh_deferred_attributes_t getDeferredAttribute(std::string vehID);
+    bool hasDeferredAttribute(std::string SUMOID);
+    void addDeferredAttribute(std::string vehID, veh_deferred_attributes_t def);
+    void removeDeferredAttribute(std::string vehID);
+    void updateDeferredAttribute_ip(std::string vehID, std::string ip);
 
     adversaryEntry_t addNodeGetAdversary(std::string advID);
     RSUEntry_t addNodeGetRSU(std::string RSUID);
