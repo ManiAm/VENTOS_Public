@@ -139,6 +139,18 @@ void BaseWaveApplLayer::receiveSignal(omnetpp::cComponent* source, omnetpp::sims
 }
 
 
+void BaseWaveApplLayer::setIPaddress(std::string ipv4)
+{
+    this->IPaddress = ipv4;
+}
+
+
+void BaseWaveApplLayer::setHasOBU(bool hasOBU)
+{
+    this->hasOBU = hasOBU;
+}
+
+
 void BaseWaveApplLayer::handlePositionUpdate(omnetpp::cObject* obj)
 {
     ChannelMobilityPtrType const mobility = omnetpp::check_and_cast<ChannelMobilityPtrType>(obj);

@@ -107,6 +107,9 @@ public:
 
     virtual void receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, omnetpp::cObject* obj, omnetpp::cObject* details);
 
+    void setIPaddress(std::string ipv4);
+    void setHasOBU(bool hasOBU);
+
 protected:
     /** @brief handle messages from below */
     virtual void handleLowerMsg(omnetpp::cMessage* msg);
