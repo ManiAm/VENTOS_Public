@@ -347,7 +347,7 @@ void vglog::sendToLogWindow(std::string msg)
     // if socketPtr is closed in the destructor, then WARN the user instead of throwing error
     if(!socketPtr)
     {
-        std::cout << "WARNING: Cannot send the message to GLOG window: window is closed." << std::flush;
+        std::cout << "WARNING: Cannot send the message to GLOG window: socket to window is closed. \n" << std::flush;
         return;
     }
 
