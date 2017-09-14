@@ -64,9 +64,6 @@ vglog::~vglog()
         socketPtr = NULL;
     }
 
-    for(auto &item : allCategories)
-        delete(item.second);
-
     // Note: do not kill the log window process.
 
     // #if defined(_WIN32) || defined(__WIN32__) || defined(WIN32) || defined(__CYGWIN__) || defined(_WIN64)
@@ -165,14 +162,12 @@ void vglog::GFLUSHALL()
     if(!objPtr->logActive())
         return;
 
-    // iterate over all tab/pane and flush each
+    // iterate over all tabs
     for(auto &ii : objPtr->allCategories)
     {
-        std::string tab = ii.first;
-        std::vector<std::string> *panes = ii.second;
-
-        for(auto &jj : *panes)
-            objPtr->sendToLogWindow(std::to_string(CMD_FLUSH) + objPtr->delimiter + tab + objPtr->delimiter + jj);
+        // iterate over all panes in this tab and flush each
+        for(auto &jj : ii.second)
+            objPtr->sendToLogWindow(std::to_string(CMD_FLUSH) + objPtr->delimiter + ii.first + objPtr->delimiter + jj);
     }
 }
 
@@ -214,8 +209,8 @@ vglog& vglog::setGLog(std::string tab, std::string pane)
         sendToLogWindow(std::to_string(CMD_ADD_TAB) + objPtr->delimiter + tab + objPtr->delimiter + pane);
 
         // inserting the pane
-        std::vector <std::string> *vec = new std::vector <std::string>;
-        vec->push_back(pane);
+        std::vector <std::string> vec;
+        vec.push_back(pane);
         allCategories[tab] = vec;
 
         this->lastTab = tab;
@@ -223,15 +218,14 @@ vglog& vglog::setGLog(std::string tab, std::string pane)
         return *this;
     }
 
-    // get the panes for this tab
-    auto panes = it->second;
-    auto ii = find(panes->begin(), panes->end(), pane);
+    // look for pane name
+    auto ii = find(it->second.begin(), it->second.end(), pane);
     // no such pane exists
-    if(ii == panes->end())
+    if(ii == it->second.end())
     {
         // adding a new pane inside this tab
         sendToLogWindow(std::to_string(CMD_ADD_SUB_TEXTVIEW) + objPtr->delimiter + tab + objPtr->delimiter + pane);
-        panes->push_back(pane);
+        it->second.push_back(pane);
     }
 
     this->lastTab = tab;

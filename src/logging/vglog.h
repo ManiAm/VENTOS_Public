@@ -53,10 +53,10 @@ private:
     std::mutex lock_socket;
 
     std::string delimiter = "<||?>";
-    std::map< std::string, std::vector <std::string> * > allCategories;
+    std::map< std::string /*tab name*/, std::vector <std::string>> allCategories;
     static vglog *objPtr;
     pid_t child_pid = -1;
-    int* socketPtr = NULL;
+    int *socketPtr = NULL;
 
     std::string lastTab = "";
     std::string lastPane = "";
