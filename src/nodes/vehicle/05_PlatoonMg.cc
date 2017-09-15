@@ -48,6 +48,7 @@ ApplVPlatoonMg::~ApplVPlatoonMg()
     cancelAndDelete(plnTIMER1a);
     cancelAndDelete(plnTIMER2);
     cancelAndDelete(plnTIMER3);
+    cancelAndDelete(plnTIMER3a);
 
     cancelAndDelete(plnTIMER4);
     cancelAndDelete(plnTIMER5);
