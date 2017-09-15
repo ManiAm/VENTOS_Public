@@ -148,6 +148,14 @@ TrafficLightRouter::TrafficLightRouter()    //Crashes immediately upon execution
 
 }
 
+
+TrafficLightRouter::~TrafficLightRouter()
+{
+    for(auto &item : phases)
+        delete item;
+}
+
+
 void TrafficLightRouter::build(std::string id, std::string type, std::string programID, double offset, std::vector<Phase*>& phases, Net* net)
 {
     this->id = id;

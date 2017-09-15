@@ -81,7 +81,7 @@ public:
 
 Router::~Router()
 {
-
+    delete nonReroutingVehicles;
 }
 
 

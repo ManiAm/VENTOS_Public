@@ -1,5 +1,5 @@
 /****************************************************************************/
-    /// @file    Edge.cc
+/// @file    Edge.cc
 /// @author  Dylan Smith <dilsmith@ucdavis.edu>
 /// @author  second author here
 /// @date    August 2013
@@ -30,10 +30,10 @@
 namespace VENTOS {
 
 Lane::Lane(std::string id, double speed, double length):
-                  id(id), speed(speed), length(length){}
+                                  id(id), speed(speed), length(length){}
 
 Edge::Edge(std::string id, Node* from, Node* to, int priority, std::vector<Lane*> lanes):
-                  id(id), from(from), to(to), priority(priority), lanes(lanes)
+                                  id(id), from(from), to(to), priority(priority), lanes(lanes)
 {
     debugLevel = omnetpp::getSimulation()->getSystemModule()->par("debugLevel").longValue();
 
@@ -71,14 +71,13 @@ double Edge::getCost()
 std::ostream& operator<<(std::ostream& os, Edge &rhs) // Print an Edge
 {
     os << "id: "         << std::setw(3) << std::left << rhs.id
-       << " from: "      << std::setw(3) << std::left << rhs.from->id
-       << " to: "        << std::setw(3) << std::left << rhs.to->id
-       << " priority: "  << std::setw(4) << std::left << rhs.priority
-       << " numLanes: "  << std::setw(3) << std::left << rhs.numLanes
-       << " speed: "     << std::setw(5) << std::left << rhs.speed;
+            << " from: "      << std::setw(3) << std::left << rhs.from->id
+            << " to: "        << std::setw(3) << std::left << rhs.to->id
+            << " priority: "  << std::setw(4) << std::left << rhs.priority
+            << " numLanes: "  << std::setw(3) << std::left << rhs.numLanes
+            << " speed: "     << std::setw(5) << std::left << rhs.speed;
 
     return os;
 }
 
 }
-

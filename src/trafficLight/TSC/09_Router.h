@@ -54,6 +54,7 @@ class TrafficLightRouter : public TrafficLight_FMSC
 {
 public:
     TrafficLightRouter();
+    ~TrafficLightRouter();
     virtual void finish();
     virtual void initialize(int stage);
     virtual void handleMessage(omnetpp::cMessage *);

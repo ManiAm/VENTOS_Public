@@ -31,6 +31,24 @@ namespace VENTOS {
 
 Net::~Net()
 {
+    for(auto &items : TLs)
+        delete items.second;
+
+    for(auto &items : edges)
+        delete items.second;
+
+    for(auto &items : nodes)
+        delete items.second;
+
+    for(auto &items : vehicles)
+        delete items.second;
+
+    for(auto &items : connections)
+        for(auto &items2: items.second)
+            delete items2;
+
+    for(auto &item : transitions)
+        delete item.second;
 
 }
 

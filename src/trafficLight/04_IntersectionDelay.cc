@@ -33,7 +33,9 @@ Define_Module(VENTOS::IntersectionDelay);
 
 IntersectionDelay::~IntersectionDelay()
 {
-
+    for(auto &item : vehDelay_perTL)
+        for(auto &item2 : item.second)
+            delete item2;
 }
 
 

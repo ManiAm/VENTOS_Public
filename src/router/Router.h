@@ -68,7 +68,7 @@ public:
     int currentVehicleCount; //The current number of vehicles in the sim
     int totalVehicleCount;   //The total number of vehicles added to the sim
     double nonReroutingVehiclePercent; //% of vehicles which will not re-route
-    std::set<std::string>* nonReroutingVehicles; //Set of vehicles which will not re-route
+    std::set<std::string>* nonReroutingVehicles = NULL; //Set of vehicles which will not re-route
     Net* net; //Network description (TLs, edges, nodes, etc)
     void sendRerouteSignal(std::string vid);     //Forces a vehicle to reroute
     bool UseHysteresis; //If true, re-routes based on # of turns rather than time
