@@ -34,6 +34,15 @@ Mac1609_4::~Mac1609_4()
 {
     cancelAndDelete(nextMacEvent);
     cancelAndDelete(nextChannelSwitch);
+
+    // clean up queues
+    for (auto &iter : myEDCA)
+    {
+        iter.second->cleanUp();
+        delete iter.second;
+    }
+
+    myEDCA.clear();
 }
 
 
@@ -143,22 +152,16 @@ void Mac1609_4::initialize(int stage)
 
 void Mac1609_4::finish()
 {
-    // clean up queues
-
+    // update variables one last time
     for (auto &iter : myEDCA)
     {
         NumInternalContention += iter.second->NumInternalContention;
         NumBackoff += iter.second->NumBackoff;
         SlotsBackoff += iter.second->SlotsBackoff;
-
-        iter.second->cleanUp();
-        delete iter.second;
     }
 
     if(record_stat)
         record_MAC_stat_func();
-
-    myEDCA.clear();
 }
 
 

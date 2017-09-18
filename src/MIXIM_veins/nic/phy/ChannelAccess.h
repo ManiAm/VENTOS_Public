@@ -59,7 +59,7 @@ class MIXIM_API ChannelAccess : public BaseModule, protected ChannelMobilityAcce
 {
 private:
 
-    VENTOS::Statistics* STAT;
+    VENTOS::Statistics* STAT = NULL;
     bool record_frameTxRx;
 
 protected:

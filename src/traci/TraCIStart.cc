@@ -55,6 +55,10 @@ TraCI_Start::~TraCI_Start()
 {
     cancelAndDelete(executeOneTimestepTrigger);
 
+    // delete all modules
+    while (hosts.begin() != hosts.end())
+        deleteManagedModule(hosts.begin()->first);
+
     // if the TraCI link was not closed due to error
     if(!TraCIclosedOnError)
     {
@@ -128,10 +132,6 @@ void TraCI_Start::initialize(int stage)
 void TraCI_Start::finish()
 {
     super::finish();
-
-    // delete all modules
-    while (hosts.begin() != hosts.end())
-        deleteManagedModule(hosts.begin()->first);
 
     // flush all output buffer
     LOG_FLUSH;
