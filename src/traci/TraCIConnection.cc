@@ -48,6 +48,7 @@
 #include "traci/TraCIConstants.h"
 #include "traci/TraCICommands.h"
 #include "logging/VENTOS_logging.h"
+#include "global/utility.h"
 
 namespace VENTOS {
 
@@ -235,24 +236,12 @@ TraCIConnection* TraCIConnection::connect(const char* host, int port)
     if (initsocketlibonce() != 0)
         throw omnetpp::cRuntimeError("Could not init socketlib");
 
-    in_addr addr;
-    struct hostent* host_ent;
-    struct in_addr saddr;
-
-    saddr.s_addr = inet_addr(host);
-    if (saddr.s_addr != static_cast<unsigned int>(-1))
-        addr = saddr;
-    else if ((host_ent = gethostbyname(host)))
-        addr = *((struct in_addr*) host_ent->h_addr_list[0]);
-    else
-        throw omnetpp::cRuntimeError("Invalid TraCI server address: %s", host);
-
     sockaddr_in address;
     sockaddr* address_p = (sockaddr*)&address;
     memset(address_p, 0, sizeof(address));
     address.sin_family = AF_INET;
     address.sin_port = htons(port);
-    address.sin_addr.s_addr = addr.s_addr;
+    address.sin_addr.s_addr = utility::getIPv4ByHostName(host).ipv4_n;
 
     SOCKET* socketPtr = new SOCKET();
     if (*socketPtr < 0)

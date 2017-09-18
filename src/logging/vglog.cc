@@ -45,6 +45,7 @@
 #include <sys/poll.h>
 
 #include "logging/vglog.h"
+#include "global/utility.h"
 
 
 namespace VENTOS {
@@ -281,20 +282,12 @@ void vglog::connect_to_TCP_server()
     if (initsocketlibonce() != 0)
         throw omnetpp::cRuntimeError("Could not init socketlib");
 
-    in_addr addr;
-    struct hostent* host_ent;
-
-    if ((host_ent = gethostbyname("localhost")))
-        addr = *((struct in_addr*) host_ent->h_addr_list[0]);
-    else
-        throw omnetpp::cRuntimeError("Invalid TCP server address");
-
     sockaddr_in address;
     sockaddr* address_p = (sockaddr*)&address;
     memset(address_p, 0, sizeof(address));
     address.sin_family = AF_INET;
     address.sin_port = htons(45676);
-    address.sin_addr.s_addr = addr.s_addr;
+    address.sin_addr.s_addr = utility::getIPv4ByHostName("localhost").ipv4_n;
 
     socketPtr = new int();
     if (*socketPtr < 0)
