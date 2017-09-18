@@ -20,6 +20,7 @@
 
 #include <baseAppl/01_BaseModule.h>
 #include <cassert>
+
 #include "global/FindModule.h"
 
 // Could not initialize simsignal_t it here!? I got the POST_MODEL_CHANGE id!?

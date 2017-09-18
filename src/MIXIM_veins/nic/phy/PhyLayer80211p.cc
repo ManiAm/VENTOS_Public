@@ -1374,6 +1374,11 @@ ConstMapping* PhyLayer80211p::getThermalNoise(omnetpp::simtime_t_cref from, omne
 
 void PhyLayer80211p::sendControlMsgToMac(VENTOS::PhyToMacReport* msg)
 {
+    Enter_Method("sendControlMsgToMac");
+
+    // take ownership of the message
+    take(msg);
+
     if(msg->getKind() == CHANNEL_SENSE_REQUEST)
     {
         if(channelInfo.isRecording())
