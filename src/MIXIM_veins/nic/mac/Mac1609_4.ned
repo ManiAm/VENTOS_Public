@@ -25,13 +25,7 @@ import VENTOS.src.baseAppl.BaseLayer;
 
 // Base module for every mac layer module
 moduleinterface IWirelessMac
-{
-    parameters:
-        @class(BaseMacLayer);
-        
-        double headerLength @unit(bit);  // length of the MAC packet header (in bits)
-        string address;                  // MAC address as hex string (12 hex digits), or "auto". "auto" values will be replaced by a generated MAC address in init stage 1.
-        
+{        
     gates:
         input upperLayerIn;     // from upper layer
         output upperLayerOut;   // to uppe layer
