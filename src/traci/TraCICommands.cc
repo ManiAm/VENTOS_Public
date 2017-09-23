@@ -341,7 +341,7 @@ uint32_t TraCI_Commands::simulationGetArrivedNumber()
 
 uint32_t TraCI_Commands::simulationGetTimeStep()
 {
-    // do not ask SUMO if we alreayd know the time step
+    // do not ask SUMO if we already know the time step
     // this is also a workaround to call simulationGetTimeStep() in finish()
     if(updateInterval != -1)
         return (uint32_t)(updateInterval * 1000);

@@ -76,19 +76,13 @@ void TraCI_Start::initialize(int stage)
 {
     super::initialize(stage);
 
-    // this code should be initialized at the last last stage
-    if (stage == 2)
+    if (stage == 0)
     {
         active = par("active").boolValue();
         debug = par("debug");
         terminateTime = par("terminateTime").doubleValue();
 
-        // no need to bring up SUMO
-        if(!active)
-        {
-            updateInterval = 1;
-        }
-        else
+        if(active)
         {
             cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("world");
             world = static_cast<BaseWorldUtility*>(module);
@@ -114,17 +108,32 @@ void TraCI_Start::initialize(int stage)
 
             autoTerminate = par("autoTerminate");
             equilibrium_vehicle = par("equilibrium_vehicle").boolValue();
+        }
+        // no need to bring up SUMO
+        else
+        {
+            updateInterval = 1;
 
+            executeOneTimestepTrigger = new omnetpp::cMessage("step");
+            scheduleAt(updateInterval, executeOneTimestepTrigger);
+        }
+    }
+    // TraCI connection is established in the last last stage
+    else if(stage == 2)
+    {
+        if(active)
+        {
             init_traci();
+
+            // updateInterval is set in init_traci()
+            executeOneTimestepTrigger = new omnetpp::cMessage("step");
+            scheduleAt(updateInterval, executeOneTimestepTrigger);
 
             init_obstacles();
 
             // should be called after 'init_traci'
             init_roi();
         }
-
-        executeOneTimestepTrigger = new omnetpp::cMessage("step");
-        scheduleAt(updateInterval, executeOneTimestepTrigger);
     }
 }
 
