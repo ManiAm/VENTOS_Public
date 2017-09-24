@@ -26,7 +26,7 @@ simple TraCIStart like IBaseTraCI
         //    --start: (GUI only) start the simulation after loading
         //    --quit-on-end: (GUI only) quits the GUI when the simulation stops
         //    --no-step-log: disable console output of current simulation step        
-        string SUMOcommandLine = default("--start --quit-on-end --no-step-log --seed 0");
+        string SUMOcommandLine = default("--start --no-step-log --seed 0");
         
         double terminateTime = default(-1s) @unit(s); // maximum simulation time. -1 means simulate forever!
         bool autoTerminate = default(true);           // terminate simulation as soon as no more vehicles are in the simulation        
