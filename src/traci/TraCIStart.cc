@@ -45,6 +45,8 @@ namespace VENTOS {
 
 Define_Module(VENTOS::TraCI_Start);
 
+#define STEP_MSG_KIND   30461  // reserved msg kind for step
+
 TraCI_Start::TraCI_Start()
 {
 
@@ -81,6 +83,7 @@ void TraCI_Start::initialize(int stage)
         active = par("active").boolValue();
         debug = par("debug");
         terminateTime = par("terminateTime").doubleValue();
+        executeOneTimestepTrigger = new omnetpp::cMessage("step", STEP_MSG_KIND);
 
         if(active)
         {
@@ -114,7 +117,6 @@ void TraCI_Start::initialize(int stage)
         {
             updateInterval = 1;
 
-            executeOneTimestepTrigger = new omnetpp::cMessage("step");
             scheduleAt(updateInterval, executeOneTimestepTrigger);
         }
     }
@@ -126,7 +128,6 @@ void TraCI_Start::initialize(int stage)
             init_traci();
 
             // updateInterval is set in init_traci()
-            executeOneTimestepTrigger = new omnetpp::cMessage("step");
             scheduleAt(updateInterval, executeOneTimestepTrigger);
 
             init_obstacles();
