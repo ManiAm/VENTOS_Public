@@ -80,7 +80,7 @@ void TraCIMobilityMod::handleSelfMsg(omnetpp::cMessage *msg)
 void TraCIMobilityMod::preInitialize(std::string external_id, const Coord& position, std::string road_id, double speed, double angle)
 {
 	this->external_id = external_id;
-	this->lastUpdate = 0;
+	this->lastUpdate = -1;
 	this->roadPosition = position;
 	this->road_id = road_id;
 	this->speed = speed;

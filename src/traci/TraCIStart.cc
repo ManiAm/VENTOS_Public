@@ -153,12 +153,12 @@ void TraCI_Start::handleMessage(omnetpp::cMessage *msg)
 {
     if (msg == executeOneTimestepTrigger)
     {
+        // get current simulation time (in ms)
+        uint32_t targetTime = static_cast<uint32_t>(round(omnetpp::simTime().dbl() * 1000));
+        ASSERT(targetTime > 0);
+
         if (active)
         {
-            // get current simulation time (in ms)
-            uint32_t targetTime = static_cast<uint32_t>(round(omnetpp::simTime().dbl() * 1000));
-            ASSERT(targetTime > 0);
-
             // proceed SUMO simulation to advance to targetTime
             auto output = simulationTimeStep(targetTime);
 
@@ -167,8 +167,9 @@ void TraCI_Start::handleMessage(omnetpp::cMessage *msg)
         }
 
         // notify other modules to run one simulation TS
+        // note that this signal notifies the beginning of the time step (targetTime)
         omnetpp::simsignal_t Signal_executeEachTS = registerSignal("executeEachTimeStepSignal");
-        this->emit(Signal_executeEachTS, 0);
+        this->emit(Signal_executeEachTS, (long)targetTime);
 
         // we reached max simtime and should terminate OMNET++ simulation
         if(terminateTime != -1 && omnetpp::simTime().dbl() >= terminateTime)
