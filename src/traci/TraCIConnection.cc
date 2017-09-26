@@ -99,11 +99,11 @@ void TraCIConnection::startSUMO(std::string SUMOapplication, std::string SUMOcon
             << " --configuration-file " << SUMOconfig
             << (" " + SUMOcommandLine);
 
-    LOG_INFO << "\n>>> Starting SUMO process ... \n";
-    LOG_INFO << boost::format("    Executable file: %1% \n") % SUMOapplication;
-    LOG_INFO << boost::format("    Config file: %1% \n") % SUMOconfig;
-    LOG_INFO << boost::format("    Switches: %1% \n") % SUMOcommandLine;
-    LOG_INFO << boost::format("    TraCI server is listening on port %1% \n") % port;
+    LOG_DEBUG << "\n>>> Starting SUMO process ... \n";
+    LOG_DEBUG << boost::format("    Executable file: %1% \n") % SUMOapplication;
+    LOG_DEBUG << boost::format("    Config file: %1% \n") % SUMOconfig;
+    LOG_DEBUG << boost::format("    Switches: %1% \n") % SUMOcommandLine;
+    LOG_DEBUG << boost::format("    TraCI server is listening on port %1% \n") % port;
     LOG_FLUSH;
 
     // assemble full command
@@ -173,10 +173,10 @@ void TraCIConnection::startSUMO(std::string SUMOapplication, std::string SUMOcon
 
         if (WEXITSTATUS(r) != 0)
         {
-            LOG_INFO << boost::format("\nERROR in launching SUMO application. Exit code is '%d'. \n") % WEXITSTATUS(r);
-            LOG_INFO << boost::format("Command-line argument was: \n");
-            LOG_INFO << boost::format("  %s \n") % fullCommand.str();
-            LOG_INFO << "\n" << std::flush;
+            LOG_ERROR << boost::format("\nERROR in launching SUMO application. Exit code is '%d'. \n") % WEXITSTATUS(r);
+            LOG_ERROR << boost::format("Command-line argument was: \n");
+            LOG_ERROR << boost::format("  %s \n") % fullCommand.str();
+            LOG_ERROR << "\n" << std::flush;
 
             // stop the simulation
             throw omnetpp::cRuntimeError("Error launching SUMO");
@@ -186,10 +186,10 @@ void TraCIConnection::startSUMO(std::string SUMOapplication, std::string SUMOcon
     }
     else
     {
-        LOG_INFO << boost::format("    SUMO has started successfully in process %1%  \n") % child_pid << std::flush;
+        LOG_DEBUG << boost::format("    SUMO has started successfully in process %1%  \n") % child_pid << std::flush;
 
         // show SUMO version
-        LOG_INFO << boost::format("    %1%  \n") % getSUMOversion(SUMOapplication) << std::flush;
+        LOG_DEBUG << boost::format("    %1%  \n") % getSUMOversion(SUMOapplication) << std::flush;
     }
 
 #endif
@@ -250,7 +250,7 @@ TraCIConnection* TraCIConnection::connect(const char* host, int port)
     // wait for 1 second and then try connecting to TraCI server
     std::this_thread::sleep_for(std::chrono::seconds(1));
 
-    LOG_INFO << boost::format("\n>>> Connecting to TraCI server on port %1% ... \n") % port << std::flush;
+    LOG_DEBUG << boost::format("\n>>> Connecting to TraCI server on port %1% ... \n") % port << std::flush;
 
     const int MAX_RETRY = 10;
     for (int tries = 1; ; ++tries)
@@ -263,7 +263,7 @@ TraCIConnection* TraCIConnection::connect(const char* host, int port)
 
         int sleepDuration = tries * .25 + 1;
 
-        LOG_INFO << boost::format("    Could not connect to the TraCI server: %1% -- retry %2%/%3% in %4% seconds. \n") % strerror(sock_errno()) % tries % MAX_RETRY % sleepDuration << std::flush;
+        LOG_ERROR << boost::format("    Could not connect to the TraCI server: %1% -- retry %2%/%3% in %4% seconds. \n") % strerror(sock_errno()) % tries % MAX_RETRY % sleepDuration << std::flush;
 
         if(tries == MAX_RETRY)
             throw omnetpp::cRuntimeError("Could not connect to TraCI server after %d retries!", MAX_RETRY);

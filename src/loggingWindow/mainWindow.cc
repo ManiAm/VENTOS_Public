@@ -45,7 +45,7 @@
 
 namespace VENTOS {
 
-mainWindow::mainWindow(std::string filePath, std::string title)
+mainWindow::mainWindow(std::string filePath, std::string title, uint8_t systemLogLevel)
 {
     boost::filesystem::path full_path(filePath);
     std::string logoPath = (full_path.parent_path() / "log_128.png").string();
@@ -54,6 +54,9 @@ mainWindow::mainWindow(std::string filePath, std::string title)
     set_border_width(1);
     set_default_size(1200, 550 /*height*/);
     set_icon_from_file(logoPath.c_str());
+
+    // if the debug bit is set in the systemLogLevel
+    debugActive = ((systemLogLevel & 8) == 8) ? true : false;
 
     m_VBox = new Gtk::Box(Gtk::ORIENTATION_VERTICAL);
     add(*m_VBox);
@@ -118,8 +121,11 @@ void mainWindow::start_TCP_server()
 {
     try
     {
-        std::cout << "    (logWindow) starting the TCP server. \n";
-        std::cout.flush();
+        if(debugActive)
+        {
+            std::cout << "    (logWindow) starting the TCP server. \n";
+            std::cout.flush();
+        }
 
         // create a socket
         int sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -162,8 +168,11 @@ void mainWindow::start_TCP_server()
         if (newsockfd < 0)
             throw std::runtime_error("ERROR on accept");
 
-        std::cout << "    (logWindow) incoming connection from " << inet_ntoa(cli_addr.sin_addr) << " port " << ntohs(cli_addr.sin_port) << ". \n";
-        std::cout.flush();
+        if(debugActive)
+        {
+            std::cout << "    (logWindow) incoming connection from " << inet_ntoa(cli_addr.sin_addr) << " port " << ntohs(cli_addr.sin_port) << ". \n";
+            std::cout.flush();
+        }
 
         // close the welcoming socket
         // only one client (VENTOS) is allowed to connect to this TCP server
@@ -187,8 +196,11 @@ void mainWindow::start_TCP_server()
 
 void mainWindow::listenToClient(mainWindow *windowPtr)
 {
-    std::cout << "    (logWindow) waiting for log messages from VENTOS ... \n";
-    std::cout.flush();
+    if(debugActive)
+    {
+        std::cout << "    (logWindow) waiting for log messages from VENTOS ... \n";
+        std::cout.flush();
+    }
 
     try
     {

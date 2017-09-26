@@ -237,8 +237,8 @@ vglog& vglog::setGLog(std::string tab, std::string pane)
 
 void vglog::openLogWindow()
 {
-    INFO(__FILE__, __LINE__) << "\n>>> Starting logWindow process ... \n";
-    INFO(__FILE__, __LINE__) << "    Executable file: " << loggingWindowPath << " \n";
+    DEBUG(__FILE__, __LINE__) << "\n>>> Starting logWindow process ... \n";
+    DEBUG(__FILE__, __LINE__) << "    Executable file: " << loggingWindowPath << " \n";
     FLUSH();
 
     // create a child process
@@ -256,7 +256,7 @@ void vglog::openLogWindow()
         signal(SIGINT, SIG_IGN);
 
         std::ostringstream cmd;
-        cmd << boost::format("%s \"%s\"") % loggingWindowPath % loggingWindowTitle;
+        cmd << boost::format("%s \"%s\" \"%s\" ") % loggingWindowPath % loggingWindowTitle % std::to_string(systemLogLevel);
 
         // run 'logWindow' inside this child process
         // if execution is successful then child will be blocked at this line
@@ -272,7 +272,7 @@ void vglog::openLogWindow()
     }
     else
     {
-        INFO(__FILE__, __LINE__) << "    logWindow has started successfully in process " << child_pid << " \n" << std::flush;
+        DEBUG(__FILE__, __LINE__) << "    logWindow has started successfully in process " << child_pid << " \n" << std::flush;
     }
 }
 

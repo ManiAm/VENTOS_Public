@@ -50,6 +50,9 @@ class vlog : public BaseApplLayer
 public:
     static std::mutex lock_log; // global lock
 
+protected:
+    uint8_t systemLogLevel = 0;
+
 private:
     typedef BaseApplLayer super;
 
@@ -59,17 +62,18 @@ private:
     bool printFileName = false;
     bool printLineNumber = false;
 
+    // NED variables
+    bool logRecordCMD = false;
+    bool saveLog2File = false;
+
     debugStreamLog *buff = NULL;
     std::ostream *out = NULL;
     static vlog *objPtr;
 
-    uint8_t systemLogLevel = 0;
-    bool saveLog2File = false;
+    // internal use
     uint8_t logLevel = 0;
     std::string lastLogPrefix = "";
     std::string logPrefix = "";
-
-    bool logRecordCMD = false;
 
 public:
     virtual ~vlog();

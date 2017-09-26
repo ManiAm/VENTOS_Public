@@ -275,7 +275,7 @@ void TraCI_Start::init_traci()
     uint32_t apiVersionS = versionS.first;
     std::string serverVersionS = versionS.second;
 
-    LOG_INFO << boost::format("    TraCI server \"%1%\" reports API version %2% \n") % serverVersionS % apiVersionS << std::flush;
+    LOG_DEBUG << boost::format("    TraCI server \"%1%\" reports API version %2% \n") % serverVersionS % apiVersionS << std::flush;
 
     if (apiVersionS != 14)
         throw omnetpp::cRuntimeError("Unsupported TraCI server API version!");
@@ -286,12 +286,12 @@ void TraCI_Start::init_traci()
     if(updateInterval <= 0)
         throw omnetpp::cRuntimeError("step-length value should be >0");
 
-    LOG_INFO << boost::format("    Simulation time step is %f seconds \n") %  updateInterval << std::flush;
+    LOG_DEBUG << boost::format("    Simulation time step is %f seconds \n") %  updateInterval << std::flush;
 
     // query road network boundaries from SUMO
     simBoundary_t boundaries = simulationGetNetBoundary();
 
-    LOG_INFO << boost::format("    TraCI reports network boundaries (%1%,%2%)-(%3%,%4%) \n") % boundaries.x1 % boundaries.y1 % boundaries.x2 % boundaries.y2 << std::flush;
+    LOG_DEBUG << boost::format("    TraCI reports network boundaries (%1%,%2%)-(%3%,%4%) \n") % boundaries.x1 % boundaries.y1 % boundaries.x2 % boundaries.y2 << std::flush;
 
     netbounds1 = TraCICoord(boundaries.x1, boundaries.y1);
     netbounds2 = TraCICoord(boundaries.x2, boundaries.y2);
@@ -333,7 +333,7 @@ void TraCI_Start::init_traci()
     //        ASSERT(buf.eof());
     //    }
 
-    LOG_INFO << "    Initializing modules with TraCI support ... \n\n" << std::flush;
+    LOG_DEBUG << "    Initializing modules with TraCI support ... \n\n" << std::flush;
 
     omnetpp::simsignal_t Signal_initialize_withTraCI = registerSignal("initializeWithTraCISignal");
     this->emit(Signal_initialize_withTraCI, 1);

@@ -73,8 +73,10 @@ protected:
     int newsockfd = -1;
     std::string rx_cmd = "";
 
+    bool debugActive = 0;
+
 public:
-    mainWindow(std::string filePath, std::string title);
+    mainWindow(std::string filePath, std::string title, uint8_t systemLogLevel);
     virtual ~mainWindow();
 
 protected:

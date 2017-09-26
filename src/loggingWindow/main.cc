@@ -42,9 +42,13 @@ int main(int argc, char* argv[])
     {
         auto app = Gtk::Application::create("VENTOS.vglog");
 
+        std::string path2File = argv[0];         // first (default) argument
+        std::string windowTitle = argv[1];       // second argument
+        uint8_t systemLogLevel = atoi(argv[2]);  // third argument
+
         // Note: logWindow is a local variable and goes out of scope when main finishes
         // This causes the destructor ~logWindow to be called
-        VENTOS::mainWindow logWindow(argv[0] /*path to mainWindow file*/, argv[1] /*window title*/);
+        VENTOS::mainWindow logWindow(path2File, windowTitle, systemLogLevel);
 
         // Shows the window and returns when it is closed
         return app->run(logWindow);
