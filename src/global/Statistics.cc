@@ -1155,7 +1155,7 @@ void Statistics::record_Veh_data(std::string SUMOID, bool arrived)
             if(i->vehId == SUMOID)
             {
                 // then update the arrival/route duration
-                i->arrival = (omnetpp::simTime()-updateInterval).dbl();
+                i->arrival = omnetpp::simTime().dbl();
                 i->routeDuration = i->arrival - i->departure;
 
                 // break out of for loop
@@ -1168,7 +1168,7 @@ void Statistics::record_Veh_data(std::string SUMOID, bool arrived)
 
     veh_data_entry entry = {};
 
-    entry.timeStep = (omnetpp::simTime()-updateInterval).dbl();
+    entry.timeStep = omnetpp::simTime().dbl();
 
     static int columnNumber = 0;
     for(std::string record : it->second.record_list)

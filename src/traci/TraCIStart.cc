@@ -83,7 +83,10 @@ void TraCI_Start::initialize(int stage)
         active = par("active").boolValue();
         debug = par("debug");
         terminateTime = par("terminateTime").doubleValue();
+
+        // the first simulation time step is always at 0
         executeOneTimestepTrigger = new omnetpp::cMessage("step", STEP_MSG_KIND);
+        scheduleAt(0, executeOneTimestepTrigger);
 
         if(active)
         {
@@ -116,8 +119,6 @@ void TraCI_Start::initialize(int stage)
         else
         {
             updateInterval = 1;
-
-            scheduleAt(updateInterval, executeOneTimestepTrigger);
         }
     }
     // TraCI connection is established in the last last stage
@@ -126,9 +127,6 @@ void TraCI_Start::initialize(int stage)
         if(active)
         {
             init_traci();
-
-            // updateInterval is set in init_traci()
-            scheduleAt(updateInterval, executeOneTimestepTrigger);
 
             init_obstacles();
 
@@ -155,7 +153,6 @@ void TraCI_Start::handleMessage(omnetpp::cMessage *msg)
     {
         // get current simulation time (in ms)
         uint32_t targetTime = static_cast<uint32_t>(round(omnetpp::simTime().dbl() * 1000));
-        ASSERT(targetTime > 0);
 
         if (active)
         {
@@ -203,8 +200,8 @@ void TraCI_Start::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_
             node.lane = vehicleGetLaneIndex(SUMOID);
             node.color = vehicleGetColor(SUMOID);
 
-            // the vehicle just departed, but addVehicleModule hasn't been called yet!
-            // so, we can look for any pending deferred attributes
+            // the vehicle just departed in SUMO, but its module has not been created yet in
+            // OMNET (addVehicleModule is not called yet!). So, we can look for any pending deferred attributes
             veh_deferred_attributes_t allDeferred = ADDNODE->getDeferredAttribute(SUMOID);
             node.IPaddress = allDeferred.ipv4;
 
@@ -227,10 +224,16 @@ void TraCI_Start::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_
 
             departedNodes node = it->second;
 
-            LOG_INFO << boost::format("t=%1%: vehicle '%2%' arrived. Inserting it again ... \n") % omnetpp::simTime().dbl() % SUMOID << std::flush;
+            // SUMO is one time step ahead!
+            uint32_t SUMOtime_ms = simulationGetCurrentTime() + simulationGetTimeStep();
+
+            LOG_INFO << boost::format("Vehicle '%1%' arrived at %2%. Inserting it again at %3% ... \n") %
+                    SUMOID %
+                    omnetpp::simTime().dbl() %
+                    (SUMOtime_ms / 1000.) << std::flush;
 
             // add the vehicle into SUMO
-            vehicleAdd(SUMOID, node.vehicleTypeId, node.routeId, (omnetpp::simTime().dbl() * 1000)+1, node.pos, node.speed, node.lane);
+            vehicleAdd(SUMOID, node.vehicleTypeId, node.routeId, SUMOtime_ms, node.pos, node.speed, node.lane);
 
             // set the same vehicle color
             vehicleSetColor(SUMOID, node.color);
@@ -305,8 +308,7 @@ void TraCI_Start::init_traci()
 
     {
         // subscribe to a bunch of stuff in simulation
-        std::vector<uint8_t> variables {VAR_TIME_STEP,
-            VAR_DEPARTED_VEHICLES_IDS, VAR_ARRIVED_VEHICLES_IDS,
+        std::vector<uint8_t> variables {VAR_DEPARTED_VEHICLES_IDS, VAR_ARRIVED_VEHICLES_IDS,
             VAR_TELEPORT_STARTING_VEHICLES_IDS, VAR_TELEPORT_ENDING_VEHICLES_IDS,
             VAR_PARKING_STARTING_VEHICLES_IDS, VAR_PARKING_ENDING_VEHICLES_IDS};
 
@@ -529,15 +531,7 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
             throw omnetpp::cRuntimeError("TraCI server reported error subscribing to variable 0x%2x (\"%s\").", variable1_resp, description.c_str());
         }
 
-        if (variable1_resp == VAR_TIME_STEP)
-        {
-            uint8_t varType; buf >> varType;
-            ASSERT(varType == TYPE_INTEGER);
-            uint32_t serverTimestep; buf >> serverTimestep; // serverTimestep: current timestep reported by server in ms
-            uint32_t omnetTimestep = static_cast<uint32_t>(round(omnetpp::simTime().dbl() * 1000));
-            ASSERT(omnetTimestep == serverTimestep);
-        }
-        else if (variable1_resp == VAR_DEPARTED_VEHICLES_IDS)
+        if (variable1_resp == VAR_DEPARTED_VEHICLES_IDS)
         {
             uint8_t varType; buf >> varType;
             ASSERT(varType == TYPE_STRINGLIST);

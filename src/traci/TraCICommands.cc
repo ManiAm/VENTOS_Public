@@ -372,27 +372,12 @@ uint32_t TraCI_Commands::simulationGetTimeStep()
 
 uint32_t TraCI_Commands::simulationGetCurrentTime()
 {
-    record_TraCI_activity_func("commandStart", CMD_GET_SIM_VARIABLE, VAR_TIME_STEP, "simulationGetCurrentTime");
+    // note: do not use TraCI CMD_GET_SIM_VARIABLE call!
+    // it is one step ahead!
 
-    TraCIBuffer buf = connection->query(CMD_GET_SIM_VARIABLE, TraCIBuffer() << static_cast<uint8_t>(VAR_TIME_STEP) << std::string("sim0"));
-
-    uint8_t cmdLength_resp; buf >> cmdLength_resp;
-    uint8_t commandId_resp; buf >> commandId_resp;
-    ASSERT(commandId_resp == RESPONSE_GET_SIM_VARIABLE);
-    uint8_t variableId_resp; buf >> variableId_resp;
-    ASSERT(variableId_resp == VAR_TIME_STEP);
-    std::string simId; buf >> simId;
-    uint8_t typeId_resp; buf >> typeId_resp;
-    ASSERT(typeId_resp == TYPE_INTEGER);
-
-    uint32_t val;
-    buf >> val;
-
-    ASSERT(buf.eof());
-
-    record_TraCI_activity_func("commandComplete", CMD_GET_SIM_VARIABLE, VAR_TIME_STEP, "simulationGetCurrentTime");
-
-    return val;
+    omnetpp::simtime_t timeStep_ms = simulationGetTimeStep();
+    omnetpp::simtime_t t = omnetpp::simTime() / (timeStep_ms / 1000.);
+    return trunc(t.dbl()) * timeStep_ms.dbl();
 }
 
 

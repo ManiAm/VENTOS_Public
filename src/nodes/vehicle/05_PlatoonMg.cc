@@ -377,7 +377,7 @@ void ApplVPlatoonMg::reportConfigToStat()
 
             plnConfig_t entry;
 
-            entry.timestamp = ((double)TraCI->simulationGetCurrentTime() / 1000.) - updateInterval;
+            entry.timestamp = omnetpp::simTime().dbl();
             entry.vehId = vehId;
             entry.pltMode = vehPtr->getPlatoonMode();
             entry.pltId = vehPtr->getPlatoonId();
