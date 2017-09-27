@@ -234,6 +234,16 @@ void AddNode::readXMLFile(std::string addNodePath)
     for(rapidxml::xml_node<> *cNode = pNode->first_node(); cNode; cNode = cNode->next_sibling())
         parsXMLFile(cNode);
 
+    if(allAdversary.empty() &&
+            allRSU.empty() &&
+            allObstacle.empty() &&
+            allVehicle.empty() &&
+            allVehicleFlow.empty() &&
+            allVehicleMultiFlow.empty() &&
+            allVehiclePlatoon.empty() &&
+            allCA.empty())
+        LOG_WARNING << boost::format("\nWARNING: Add node with id '%1%' is empty! \n") % this->id << std::flush;
+
     insertNodes();
 
     if(!allVehicle.empty() || !allVehicleFlow.empty() || !allVehicleMultiFlow.empty() || !allVehiclePlatoon.empty())
@@ -266,16 +276,6 @@ void AddNode::parsXMLFile(rapidxml::xml_node<> *cNode)
         parseCA(cNode);
     else
         throw omnetpp::cRuntimeError("'%s' is not a valid element in id '%s' of addNode.xml file!", nodeName.c_str(), this->id.c_str());
-
-    if(allAdversary.empty() &&
-            allRSU.empty() &&
-            allObstacle.empty() &&
-            allVehicle.empty() &&
-            allVehicleFlow.empty() &&
-            allVehicleMultiFlow.empty() &&
-            allVehiclePlatoon.empty() &&
-            allCA.empty())
-        LOG_WARNING << boost::format("\nWARNING: Add node with id '%1%' is empty! \n") % this->id << std::flush;
 }
 
 
