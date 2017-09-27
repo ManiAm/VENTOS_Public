@@ -84,7 +84,7 @@ void ApplVPlatoon::initialize(int stage)
             scheduleAt(omnetpp::simTime(), platoonMonitorTIMER);
         }
 
-        updateInterval = (double)TraCI->simulationGetTimeStep() / 1000.;
+        updateInterval = (double)TraCI->simulationGetDelta() / 1000.;
 
         WATCH(plnMode);
         WATCH(myPlnID);

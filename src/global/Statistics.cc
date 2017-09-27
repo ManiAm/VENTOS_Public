@@ -108,7 +108,7 @@ void Statistics::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t
 
     if(signalID == Signal_initialize_withTraCI)
     {
-        updateInterval = (double)TraCI->simulationGetTimeStep() / 1000.;
+        updateInterval = (double)TraCI->simulationGetDelta() / 1000.;
 
         init_Sim_data();
     }
@@ -219,7 +219,7 @@ void Statistics::save_beacon_stat_toFile()
         fprintf (filePtr, "totalRun        %d\n", totalRun);
         fprintf (filePtr, "currentRun      %d\n", currentRun);
         fprintf (filePtr, "currentConfig   %s\n", iterVar[0].c_str());
-        fprintf (filePtr, "sim timeStep    %u ms\n", TraCI->simulationGetTimeStep());
+        fprintf (filePtr, "sim timeStep    %u ms\n", TraCI->simulationGetDelta());
         fprintf (filePtr, "startDateTime   %s\n", TraCI->simulationGetStartTime_str().c_str());
         fprintf (filePtr, "endDateTime     %s\n", TraCI->simulationGetEndTime_str().c_str());
         fprintf (filePtr, "duration        %s\n\n\n", TraCI->simulationGetDuration_str().c_str());
@@ -291,7 +291,7 @@ void Statistics::save_plnConfig_toFile()
         fprintf (filePtr, "totalRun        %d\n", totalRun);
         fprintf (filePtr, "currentRun      %d\n", currentRun);
         fprintf (filePtr, "currentConfig   %s\n", iterVar[0].c_str());
-        fprintf (filePtr, "sim timeStep    %u ms\n", TraCI->simulationGetTimeStep());
+        fprintf (filePtr, "sim timeStep    %u ms\n", TraCI->simulationGetDelta());
         fprintf (filePtr, "startDateTime   %s\n", TraCI->simulationGetStartTime_str().c_str());
         fprintf (filePtr, "endDateTime     %s\n", TraCI->simulationGetEndTime_str().c_str());
         fprintf (filePtr, "duration        %s\n\n\n", TraCI->simulationGetDuration_str().c_str());
@@ -414,7 +414,7 @@ void Statistics::save_plnData_toFile()
         fprintf (filePtr, "totalRun        %d\n", totalRun);
         fprintf (filePtr, "currentRun      %d\n", currentRun);
         fprintf (filePtr, "currentConfig   %s\n", iterVar[0].c_str());
-        fprintf (filePtr, "sim timeStep    %u ms\n", TraCI->simulationGetTimeStep());
+        fprintf (filePtr, "sim timeStep    %u ms\n", TraCI->simulationGetDelta());
         fprintf (filePtr, "startDateTime   %s\n", TraCI->simulationGetStartTime_str().c_str());
         fprintf (filePtr, "endDateTime     %s\n", TraCI->simulationGetEndTime_str().c_str());
         fprintf (filePtr, "duration        %s\n\n\n", TraCI->simulationGetDuration_str().c_str());
@@ -644,7 +644,7 @@ void Statistics::save_MAC_stat_toFile()
         fprintf (filePtr, "totalRun        %d\n", totalRun);
         fprintf (filePtr, "currentRun      %d\n", currentRun);
         fprintf (filePtr, "currentConfig   %s\n", iterVar[0].c_str());
-        fprintf (filePtr, "sim timeStep    %u ms\n", TraCI->simulationGetTimeStep());
+        fprintf (filePtr, "sim timeStep    %u ms\n", TraCI->simulationGetDelta());
         fprintf (filePtr, "startDateTime   %s\n", TraCI->simulationGetStartTime_str().c_str());
         fprintf (filePtr, "endDateTime     %s\n", TraCI->simulationGetEndTime_str().c_str());
         fprintf (filePtr, "duration        %s\n\n\n", TraCI->simulationGetDuration_str().c_str());
@@ -725,7 +725,7 @@ void Statistics::save_PHY_stat_toFile()
         fprintf (filePtr, "totalRun        %d\n", totalRun);
         fprintf (filePtr, "currentRun      %d\n", currentRun);
         fprintf (filePtr, "currentConfig   %s\n", iterVar[0].c_str());
-        fprintf (filePtr, "sim timeStep    %u ms\n", TraCI->simulationGetTimeStep());
+        fprintf (filePtr, "sim timeStep    %u ms\n", TraCI->simulationGetDelta());
         fprintf (filePtr, "startDateTime   %s\n", TraCI->simulationGetStartTime_str().c_str());
         fprintf (filePtr, "endDateTime     %s\n", TraCI->simulationGetEndTime_str().c_str());
         fprintf (filePtr, "duration        %s\n\n\n", TraCI->simulationGetDuration_str().c_str());
@@ -837,7 +837,7 @@ void Statistics::save_FrameTxRx_stat_toFile()
         fprintf (filePtr, "totalRun        %d\n", totalRun);
         fprintf (filePtr, "currentRun      %d\n", currentRun);
         fprintf (filePtr, "currentConfig   %s\n", iterVar[0].c_str());
-        fprintf (filePtr, "sim timeStep    %u ms\n", TraCI->simulationGetTimeStep());
+        fprintf (filePtr, "sim timeStep    %u ms\n", TraCI->simulationGetDelta());
         fprintf (filePtr, "startDateTime   %s\n", TraCI->simulationGetStartTime_str().c_str());
         fprintf (filePtr, "endDateTime     %s\n", TraCI->simulationGetEndTime_str().c_str());
         fprintf (filePtr, "duration        %s\n\n\n", TraCI->simulationGetDuration_str().c_str());
@@ -1016,7 +1016,7 @@ void Statistics::save_Sim_data_toFile()
         fprintf (filePtr, "totalRun        %d\n", totalRun);
         fprintf (filePtr, "currentRun      %d\n", currentRun);
         fprintf (filePtr, "currentConfig   %s\n", iterVar[0].c_str());
-        fprintf (filePtr, "sim timeStep    %u ms\n", TraCI->simulationGetTimeStep());
+        fprintf (filePtr, "sim timeStep    %u ms\n", TraCI->simulationGetDelta());
         fprintf (filePtr, "startDateTime   %s\n", TraCI->simulationGetStartTime_str().c_str());
         fprintf (filePtr, "endDateTime     %s\n", TraCI->simulationGetEndTime_str().c_str());
         fprintf (filePtr, "duration        %s\n\n\n", TraCI->simulationGetDuration_str().c_str());
@@ -1347,7 +1347,7 @@ void Statistics::save_Veh_data_toFile()
         fprintf (filePtr, "totalRun        %d\n", totalRun);
         fprintf (filePtr, "currentRun      %d\n", currentRun);
         fprintf (filePtr, "currentConfig   %s\n", iterVar[0].c_str());
-        fprintf (filePtr, "sim timeStep    %u ms\n", TraCI->simulationGetTimeStep());
+        fprintf (filePtr, "sim timeStep    %u ms\n", TraCI->simulationGetDelta());
         fprintf (filePtr, "startDateTime   %s\n", TraCI->simulationGetStartTime_str().c_str());
         fprintf (filePtr, "endDateTime     %s\n", TraCI->simulationGetEndTime_str().c_str());
         fprintf (filePtr, "duration        %s\n\n\n", TraCI->simulationGetDuration_str().c_str());
@@ -1675,7 +1675,7 @@ void Statistics::save_Veh_emission_toFile()
         fprintf (filePtr, "totalRun        %d\n", totalRun);
         fprintf (filePtr, "currentRun      %d\n", currentRun);
         fprintf (filePtr, "currentConfig   %s\n", iterVar[0].c_str());
-        fprintf (filePtr, "sim timeStep    %u ms\n", TraCI->simulationGetTimeStep());
+        fprintf (filePtr, "sim timeStep    %u ms\n", TraCI->simulationGetDelta());
         fprintf (filePtr, "startDateTime   %s\n", TraCI->simulationGetStartTime_str().c_str());
         fprintf (filePtr, "endDateTime     %s\n", TraCI->simulationGetEndTime_str().c_str());
         fprintf (filePtr, "duration        %s\n\n\n", TraCI->simulationGetDuration_str().c_str());

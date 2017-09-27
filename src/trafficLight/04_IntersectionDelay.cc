@@ -469,7 +469,7 @@ IntersectionDelay::delayEntry_t* IntersectionDelay::generateEmptyDelay(std::stri
     entry->totalDelay = 0;
 
     // get simulation time step in seconds
-    double TS = (double)TraCI->simulationGetTimeStep() / 1000.;
+    double TS = (double)TraCI->simulationGetDelta() / 1000.;
 
     // how much further we need to look at speed/accel/signal data
     int buffSize = std::floor(1. / TS);
@@ -569,7 +569,7 @@ void IntersectionDelay::vehiclesDelayToFile()
         fprintf (filePtr, "totalRun        %d\n", totalRun);
         fprintf (filePtr, "currentRun      %d\n", currentRun);
         fprintf (filePtr, "currentConfig   %s\n", iterVar[0].c_str());
-        fprintf (filePtr, "sim timeStep    %u ms\n", TraCI->simulationGetTimeStep());
+        fprintf (filePtr, "sim timeStep    %u ms\n", TraCI->simulationGetDelta());
         fprintf (filePtr, "startDateTime   %s\n", TraCI->simulationGetStartTime_str().c_str());
         fprintf (filePtr, "endDateTime     %s\n", TraCI->simulationGetEndTime_str().c_str());
         fprintf (filePtr, "duration        %s\n\n\n", TraCI->simulationGetDuration_str().c_str());

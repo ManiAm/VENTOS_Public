@@ -276,7 +276,7 @@ public:
     uint32_t simulationGetMinExpectedNumber();
     std::vector<std::string> simulationGetLoadedVehiclesIDList();
     simBoundary_t simulationGetNetBoundary();
-    uint32_t simulationGetTimeStep();
+    uint32_t simulationGetDelta();  // delta is time-step length
     uint32_t simulationGetCurrentTime();
 
     date_t simulationGetStartTime();     // new command [returns the simulation start time]

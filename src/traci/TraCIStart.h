@@ -68,7 +68,7 @@ protected:
     size_t nextBikeVectorIndex = 0;
     size_t nextPersonVectorIndex = 0;
 
-    omnetpp::cMessage* executeOneTimestepTrigger = NULL; // self-message scheduled for when to next call executeOneTimestep
+    omnetpp::cMessage* sumo_step = NULL; // self-message scheduled for when to next call simulationTimeStep
 
     std::list<std::string> roiRoads; // which roads (e.g. "hwy1 hwy2") are considered to constitute the region of interest, if not empty
     std::list<std::pair<TraCICoord, TraCICoord> > roiRects; // which rectangles (e.g. "0,0-10,10 20,20-30,30) are considered to constitute the region of interest, if not empty

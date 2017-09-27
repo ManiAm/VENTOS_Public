@@ -72,7 +72,7 @@ void TrafficLightBase::handleMessage(omnetpp::cMessage *msg)
 
 void TrafficLightBase::initialize_withTraCI()
 {
-    updateInterval = (double)TraCI->simulationGetTimeStep() / 1000.;
+    updateInterval = (double)TraCI->simulationGetDelta() / 1000.;
 }
 
 

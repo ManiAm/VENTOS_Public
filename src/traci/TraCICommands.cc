@@ -339,14 +339,14 @@ uint32_t TraCI_Commands::simulationGetArrivedNumber()
 }
 
 
-uint32_t TraCI_Commands::simulationGetTimeStep()
+uint32_t TraCI_Commands::simulationGetDelta()
 {
     // do not ask SUMO if we already know the time step
-    // this is also a workaround to call simulationGetTimeStep() in finish()
+    // this is also a workaround to call simulationGetDelta() in finish()
     if(updateInterval != -1)
         return (uint32_t)(updateInterval * 1000);
 
-    record_TraCI_activity_func("commandStart", CMD_GET_SIM_VARIABLE, VAR_DELTA_T, "simulationGetTimeStep");
+    record_TraCI_activity_func("commandStart", CMD_GET_SIM_VARIABLE, VAR_DELTA_T, "simulationGetDelta");
 
     TraCIBuffer buf = connection->query(CMD_GET_SIM_VARIABLE, TraCIBuffer() << static_cast<uint8_t>(VAR_DELTA_T) << std::string("sim0"));
 
@@ -364,7 +364,7 @@ uint32_t TraCI_Commands::simulationGetTimeStep()
 
     ASSERT(buf.eof());
 
-    record_TraCI_activity_func("commandComplete", CMD_GET_SIM_VARIABLE, VAR_DELTA_T, "simulationGetTimeStep");
+    record_TraCI_activity_func("commandComplete", CMD_GET_SIM_VARIABLE, VAR_DELTA_T, "simulationGetDelta");
 
     return val;
 }
@@ -372,12 +372,27 @@ uint32_t TraCI_Commands::simulationGetTimeStep()
 
 uint32_t TraCI_Commands::simulationGetCurrentTime()
 {
-    // note: do not use TraCI CMD_GET_SIM_VARIABLE call!
-    // it is one step ahead!
+    record_TraCI_activity_func("commandStart", CMD_GET_SIM_VARIABLE, VAR_TIME_STEP, "simulationGetCurrentTime");
 
-    omnetpp::simtime_t timeStep_ms = simulationGetTimeStep();
-    omnetpp::simtime_t t = omnetpp::simTime() / (timeStep_ms / 1000.);
-    return trunc(t.dbl()) * timeStep_ms.dbl();
+    TraCIBuffer buf = connection->query(CMD_GET_SIM_VARIABLE, TraCIBuffer() << static_cast<uint8_t>(VAR_TIME_STEP) << std::string("sim0"));
+
+    uint8_t cmdLength_resp; buf >> cmdLength_resp;
+    uint8_t commandId_resp; buf >> commandId_resp;
+    ASSERT(commandId_resp == RESPONSE_GET_SIM_VARIABLE);
+    uint8_t variableId_resp; buf >> variableId_resp;
+    ASSERT(variableId_resp == VAR_TIME_STEP);
+    std::string simId; buf >> simId;
+    uint8_t typeId_resp; buf >> typeId_resp;
+    ASSERT(typeId_resp == TYPE_INTEGER);
+
+    uint32_t val;
+    buf >> val;
+
+    ASSERT(buf.eof());
+
+    record_TraCI_activity_func("commandComplete", CMD_GET_SIM_VARIABLE, VAR_TIME_STEP, "simulationGetCurrentTime");
+
+    return val;
 }
 
 
@@ -4330,7 +4345,7 @@ void TraCI_Commands::save_TraCI_activity_toFile()
         fprintf (filePtr, "totalRun        %d\n", totalRun);
         fprintf (filePtr, "currentRun      %d\n", currentRun);
         fprintf (filePtr, "currentConfig   %s\n", iterVar[0].c_str());
-        fprintf (filePtr, "sim timeStep    %u ms\n", simulationGetTimeStep());
+        fprintf (filePtr, "sim timeStep    %u ms\n", simulationGetDelta());
         fprintf (filePtr, "startDateTime   %s\n", simulationGetStartTime_str().c_str());
         fprintf (filePtr, "endDateTime     %s\n", simulationGetEndTime_str().c_str());
         fprintf (filePtr, "duration        %s\n\n\n", simulationGetDuration_str().c_str());

@@ -86,7 +86,7 @@ void gui::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t signal
 
     if(signalID == Signal_initialize_withTraCI)
     {
-        SUMO_timeStep = (double)TraCI->simulationGetTimeStep() / 1000.;
+        SUMO_timeStep = (double)TraCI->simulationGetDelta() / 1000.;
         if(SUMO_timeStep <= 0)
             throw omnetpp::cRuntimeError("Simulation time step '%d' is invalid", SUMO_timeStep);
 

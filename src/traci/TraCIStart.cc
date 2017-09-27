@@ -55,7 +55,7 @@ TraCI_Start::TraCI_Start()
 
 TraCI_Start::~TraCI_Start()
 {
-    cancelAndDelete(executeOneTimestepTrigger);
+    cancelAndDelete(sumo_step);
 
     // delete all modules
     while (hosts.begin() != hosts.end())
@@ -84,9 +84,11 @@ void TraCI_Start::initialize(int stage)
         debug = par("debug");
         terminateTime = par("terminateTime").doubleValue();
 
+        sumo_step = new omnetpp::cMessage("step", STEP_MSG_KIND);
+        // sumo_step has the highest priority among all other msgs scheduled in the same time
+        sumo_step->setSchedulingPriority(std::numeric_limits<short>::max());
         // the first simulation time step is always at 0
-        executeOneTimestepTrigger = new omnetpp::cMessage("step", STEP_MSG_KIND);
-        scheduleAt(0, executeOneTimestepTrigger);
+        scheduleAt(0, sumo_step);
 
         if(active)
         {
@@ -149,7 +151,7 @@ void TraCI_Start::finish()
 
 void TraCI_Start::handleMessage(omnetpp::cMessage *msg)
 {
-    if (msg == executeOneTimestepTrigger)
+    if (msg == sumo_step)
     {
         // get current simulation time (in ms)
         uint32_t targetTime = static_cast<uint32_t>(round(omnetpp::simTime().dbl() * 1000));
@@ -166,13 +168,13 @@ void TraCI_Start::handleMessage(omnetpp::cMessage *msg)
         // notify other modules to run one simulation TS
         // note that this signal notifies the beginning of the time step (targetTime)
         omnetpp::simsignal_t Signal_executeEachTS = registerSignal("executeEachTimeStepSignal");
-        this->emit(Signal_executeEachTS, (long)targetTime);
+        this->emit(Signal_executeEachTS, 0);
 
         // we reached max simtime and should terminate OMNET++ simulation
         if(terminateTime != -1 && omnetpp::simTime().dbl() >= terminateTime)
             simulationTerminate();
 
-        scheduleAt(omnetpp::simTime() + updateInterval, executeOneTimestepTrigger);
+        scheduleAt(omnetpp::simTime() + updateInterval, sumo_step);
     }
     else
         super::handleMessage(msg);
@@ -225,7 +227,7 @@ void TraCI_Start::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_
             departedNodes node = it->second;
 
             // SUMO is one time step ahead!
-            uint32_t SUMOtime_ms = simulationGetCurrentTime() + simulationGetTimeStep();
+            uint32_t SUMOtime_ms = simulationGetCurrentTime();
 
             LOG_INFO << boost::format("Vehicle '%1%' arrived at %2%. Inserting it again at %3% ... \n") %
                     SUMOID %
@@ -285,7 +287,7 @@ void TraCI_Start::init_traci()
 
     TraCIclosedOnError = false;
 
-    updateInterval = (double)simulationGetTimeStep() / 1000.;
+    updateInterval = (double)simulationGetDelta() / 1000.;
     if(updateInterval <= 0)
         throw omnetpp::cRuntimeError("step-length value should be >0");
 
