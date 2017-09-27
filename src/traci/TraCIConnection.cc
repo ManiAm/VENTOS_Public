@@ -173,13 +173,16 @@ void TraCIConnection::startSUMO(std::string SUMOapplication, std::string SUMOcon
 
         if (WEXITSTATUS(r) != 0)
         {
-            LOG_ERROR << boost::format("\nERROR in launching SUMO application. Exit code is '%d'. \n") % WEXITSTATUS(r);
-            LOG_ERROR << boost::format("Command-line argument was: \n");
-            LOG_ERROR << boost::format("  %s \n") % fullCommand.str();
-            LOG_ERROR << "\n" << std::flush;
+            // get a pointer to the TraCI module
+            auto TraCI = TraCI_Commands::getTraCI();
+
+            std::string sumoAppl = TraCI->par("SUMOapplication").stringValue();
 
             // stop the simulation
-            throw omnetpp::cRuntimeError("Error launching SUMO");
+            throw omnetpp::cRuntimeError("'%s' application terminated with exit code '%d'. Check %s's output log for more information.",
+                    sumoAppl.c_str(),
+                    WEXITSTATUS(r),
+                    sumoAppl.c_str());
         }
 
         exit(1);
