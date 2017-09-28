@@ -65,13 +65,13 @@ private:
     typedef exprtk::expression<double>   expression_t;
     typedef exprtk::parser<double>       parser_t;
 
-    typedef struct format
+    struct format_t
     {
         double time = -1;
         double speed = -1;
-    } format_t;
+    };
 
-    typedef struct speedEntry
+    struct speedEntry_t
     {
         std::string id_str;
         double begin;
@@ -105,11 +105,11 @@ private:
         // used in reading the external file
         std::vector<format_t> fileContent;
         bool endOfFile = false;
-    } speedEntry_t;
+    };
 
     std::map<uint32_t, speedEntry_t> allSpeed;
 
-    typedef struct optSizeEntry
+    struct optSizeEntry_t
     {
         std::string pltId_str;
         double begin;
@@ -118,11 +118,11 @@ private:
         // for internal use
         bool processingStarted = false;
         bool processingEnded = false;
-    } optSizeEntry_t;
+    };
 
     std::map<uint32_t, optSizeEntry_t> allOptSize;
 
-    typedef struct pltMergeEntry
+    struct pltMergeEntry_t
     {
         std::string pltId_str;
         double begin;
@@ -130,11 +130,11 @@ private:
         // for internal use
         bool processingStarted = false;
         bool processingEnded = false;
-    } pltMergeEntry_t;
+    };
 
     std::map<uint32_t, pltMergeEntry_t> allPltMerge;
 
-    typedef struct pltSplitEntry
+    struct pltSplitEntry_t
     {
         std::string pltId_str;
         int index;
@@ -144,11 +144,11 @@ private:
         // for internal use
         bool processingStarted = false;
         bool processingEnded = false;
-    } pltSplitEntry_t;
+    };
 
     std::map<uint32_t, pltSplitEntry_t> allPltSplit;
 
-    typedef struct pltLeaveEntry
+    struct pltLeaveEntry_t
     {
         std::string pltId_str;
         int index;
@@ -159,11 +159,11 @@ private:
         // for internal use
         bool processingStarted = false;
         bool processingEnded = false;
-    } pltLeaveEntry_t;
+    };
 
     std::map<uint32_t, pltLeaveEntry_t> allPltLeave;
 
-    typedef struct pltManeuver
+    struct pltManeuver_t
     {
         std::string pltId_str;
         double begin;
@@ -176,7 +176,7 @@ private:
         // for internal use
         bool processingStarted = false;
         bool processingEnded = false;
-    } pltManeuver_t;
+    };
 
     std::map<uint32_t, pltManeuver_t> allPltManeuver;
 

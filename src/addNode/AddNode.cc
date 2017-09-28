@@ -2298,6 +2298,26 @@ void AddNode::updateDeferredAttribute_ip(std::string SUMOID, std::string ip)
 }
 
 
+void AddNode::updateDeferredAttribute_color(std::string SUMOID, std::string color)
+{
+    auto ii = vehs_deferred_attributes.find(SUMOID);
+
+    // if the vehicle has no deferred attributes, then
+    // create a new entry and update color
+    if(ii == vehs_deferred_attributes.end())
+    {
+        veh_deferred_attributes_t entry = {};
+        entry.color = color;
+
+        vehs_deferred_attributes[SUMOID] = entry;
+    }
+    // if the vehicle already has a deferred attribute, then
+    // update the color entry only
+    else
+        ii->second.color = color;
+}
+
+
 adversaryEntry_t AddNode::addNodeGetAdversary(std::string advID)
 {
     auto ii = allAdversary.find(advID);

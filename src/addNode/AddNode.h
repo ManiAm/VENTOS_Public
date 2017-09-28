@@ -42,12 +42,13 @@
 
 namespace VENTOS {
 
-typedef struct veh_deferred_attributes
+struct veh_deferred_attributes_t
 {
-    // -1 means not defined
+    // -1 and "" means not defined
 
     int DSRC_status = -1;    // 0: without DSRC, 1: with DSRC
     std::string ipv4 = "";   // if the vehicle is emulated?
+    std::string color = "";
 
     int plnMode = -1;        // platooning mode
     int plnDepth = -1;       // position of this vehicle in platoon
@@ -56,9 +57,9 @@ typedef struct veh_deferred_attributes
     int maxSize = -1;        // maximum platoon size
     int optSize = -1;        // optimal platoon size
     double interGap = -1;    // time-gap between platoons
-}veh_deferred_attributes_t;
+};
 
-typedef struct adversaryEntry
+struct adversaryEntry_t
 {
     std::string id_str;
     TraCICoord pos;
@@ -66,9 +67,9 @@ typedef struct adversaryEntry
     std::string color_str;
     bool filled;
     omnetpp::cModule* module;
-} adversaryEntry_t;
+};
 
-typedef struct RSUEntry
+struct RSUEntry_t
 {
     std::string id_str;
     TraCICoord pos;
@@ -76,9 +77,9 @@ typedef struct RSUEntry
     std::string color_str;
     bool filled;
     omnetpp::cModule* module;
-} RSUEntry_t;
+};
 
-typedef struct obstacleEntry
+struct obstacleEntry_t
 {
     std::string id_str;
     std::string edge_str;
@@ -90,9 +91,9 @@ typedef struct obstacleEntry
     double begin;
     double end;
     double duration;
-} obstacleEntry_t;
+};
 
-typedef struct vehicleEntry
+struct vehicleEntry_t
 {
     std::string id_str;
     std::string type_str;
@@ -109,9 +110,9 @@ typedef struct vehicleEntry
     std::string status_str;
     double duration;
     double DSRCprob;
-} vehicleEntry_t;
+};
 
-typedef struct vehicleFlowEntry
+struct vehicleFlowEntry_t
 {
     std::string id_str;
     std::vector<std::string> type_str_tokenize;
@@ -134,16 +135,16 @@ typedef struct vehicleFlowEntry
     double lambda;
     double probability;
     double DSRCprob;
-} vehicleFlowEntry_t;
+};
 
 // vehicleMultiFlow does not have 'from', 'to', 'via'
-typedef struct vehicleMultiFlowEntry : vehicleFlowEntry
+struct vehicleMultiFlowEntry_t : vehicleFlowEntry_t
 {
     std::vector<std::string> routeID_str_tokenize;
     std::vector<double> routeDist_tokenize;
-} vehicleMultiFlowEntry_t;
+};
 
-typedef struct vehiclePlatoonEntry
+struct vehiclePlatoonEntry_t
 {
     std::string id_str;
     std::string type_str;
@@ -167,14 +168,14 @@ typedef struct vehiclePlatoonEntry
     // for internal use
     bool processed = false;
     uint32_t retryCount = 0;
-} vehiclePlatoonEntry_t;
+};
 
-typedef struct CAEntry
+struct CAEntry_t
 {
     std::string id_str;
     TraCICoord pos;
     omnetpp::cModule* module;
-} CAEntry_t;
+};
 
 
 class AddNode : public BaseApplLayer
@@ -228,6 +229,7 @@ public:
     void addDeferredAttribute(std::string vehID, veh_deferred_attributes_t def);
     void removeDeferredAttribute(std::string vehID);
     void updateDeferredAttribute_ip(std::string vehID, std::string ip);
+    void updateDeferredAttribute_color(std::string SUMOID, std::string color);
 
     adversaryEntry_t addNodeGetAdversary(std::string advID);
     RSUEntry_t addNodeGetRSU(std::string RSUID);

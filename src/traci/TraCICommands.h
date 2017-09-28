@@ -633,7 +633,7 @@ public:
     virtual void emulatedAdd(std::string vID, std::string ip, std::string = "") {
         throw omnetpp::cRuntimeError("derived class should implement this method!");
     };
-    virtual void emulatedRemove(std::string vID) {
+    virtual void emulatedRemove(std::string vID, std::string = "") {
         throw omnetpp::cRuntimeError("derived class should implement this method!");
     };
 
