@@ -191,21 +191,15 @@ void TraCI_Start::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_
 
         if(equilibrium_vehicle)
         {
-            // saving information for later use
-            departedNodes node = {};
+            departedNodes_t node = {};
 
             node.vehicleId = SUMOID;
             node.vehicleTypeId = vehicleGetTypeID(SUMOID);
-            node.routeId = vehicleGetRouteID(SUMOID);
             node.pos = vehicleGetLanePosition(SUMOID);
-            node.speed = 0; /*vehicleGetSpeed(SUMOID)*/
+            node.speed = vehicleGetSpeed(SUMOID);
             node.lane = vehicleGetLaneIndex(SUMOID);
-            node.color = vehicleGetColor(SUMOID);
-
-            // the vehicle just departed in SUMO, but its module has not been created yet in
-            // OMNET (addVehicleModule is not called yet!). So, we can look for any pending deferred attributes
-            veh_deferred_attributes_t allDeferred = ADDNODE->getDeferredAttribute(SUMOID);
-            node.IPaddress = allDeferred.ipv4;
+            node.routeId = vehicleGetRouteID(SUMOID);
+            node.color = vehicleGetColor(SUMOID);  // color should be updated every time step
 
             auto it = equilibrium_departedVehs.find(SUMOID);
             if(it != equilibrium_departedVehs.end())
@@ -224,9 +218,6 @@ void TraCI_Start::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_
             if(it == equilibrium_departedVehs.end())
                 throw omnetpp::cRuntimeError("cannot find %s in the equilibrium_departedVehs map!", SUMOID);
 
-            departedNodes node = it->second;
-
-            // SUMO is one time step ahead!
             uint32_t SUMOtime_ms = simulationGetCurrentTime();
 
             LOG_INFO << boost::format("Vehicle '%1%' arrived at %2%. Inserting it again at %3% ... \n") %
@@ -235,13 +226,14 @@ void TraCI_Start::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_
                     (SUMOtime_ms / 1000.) << std::flush;
 
             // add the vehicle into SUMO
-            vehicleAdd(SUMOID, node.vehicleTypeId, node.routeId, SUMOtime_ms, node.pos, node.speed, node.lane);
+            vehicleAdd(SUMOID, it->second.vehicleTypeId, it->second.routeId, SUMOtime_ms, it->second.pos, it->second.speed, it->second.lane);
 
             // set the same vehicle color
-            vehicleSetColor(SUMOID, node.color);
+            vehicleSetColor(SUMOID, it->second.color);
 
-            if(node.IPaddress != "")
-                ADDNODE->updateDeferredAttribute_ip(SUMOID, node.IPaddress);
+            std::string ipv4 = vehicleId2ip(SUMOID);
+            if(ipv4 != "")
+                ADDNODE->updateDeferredAttribute_ip(SUMOID, ipv4);
 
             equilibrium_departedVehs.erase(it);
         }
@@ -866,6 +858,15 @@ void TraCI_Start::processVehicleSubscription(std::string objectId, TraCIBuffer& 
 
     double angle = convertAngle_traci2omnet(angle_traci);
 
+    if(equilibrium_vehicle)
+    {
+        auto it = equilibrium_departedVehs.find(objectId);
+        if(it == equilibrium_departedVehs.end())
+            throw omnetpp::cRuntimeError("cannot find %s in the equilibrium_departedVehs map!", objectId.c_str());
+
+        it->second.color = vehicleGetColor(objectId);
+    }
+
     cModule* mod = getManagedModule(objectId);
 
     // is it in the ROI?
@@ -1292,6 +1293,12 @@ omnetpp::cModule* TraCI_Start::addVehicle(std::string SUMOID, std::string type, 
         {
             mod->par("hasOBU") = true;
             mod->par("IPaddress") = def.ipv4;
+        }
+
+        if(def.color != "")
+        {
+            VENTOS::RGB newColor = VENTOS::Color::colorNameToRGB(def.color);
+            vehicleSetColor(SUMOID, newColor);
         }
 
         ADDNODE->removeDeferredAttribute(SUMOID);

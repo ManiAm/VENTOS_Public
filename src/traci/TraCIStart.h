@@ -75,7 +75,7 @@ protected:
     double roiRectsRSU;
 
     // used for equilibrium logic
-    typedef struct departedNodes
+    struct departedNodes_t
     {
         std::string vehicleId;
         std::string vehicleTypeId;
@@ -84,8 +84,7 @@ protected:
         double speed;
         uint32_t lane;
         colorVal_t color;
-        std::string IPaddress;
-    } departedNodes_t;
+    };
 
     std::map<std::string /*SUMO id*/, departedNodes_t> equilibrium_departedVehs;
 
