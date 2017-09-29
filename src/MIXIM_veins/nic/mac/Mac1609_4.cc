@@ -226,6 +226,9 @@ void Mac1609_4::handleSelfMsg(omnetpp::cMessage* msg)
             EV << "Sending MAC frame '" << macPkt->getFullName() << "' with priority " << lastAC << " to PHY layer." << std::endl;
 
             sendDelayed(macPkt, RADIODELAY_11P, lowerLayerOut);
+
+            // note that we do not delete pktToSend message until PHY layer
+            // reports successful transmission in handleLowerControl method
         }
         else
         {   // not enough time left now
