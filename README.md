@@ -16,21 +16,21 @@ VENTOS is an open-source VANET C++ simulator for studying vehicular traffic flow
 + clean up is now done in destructor not finish!
 
 **enhancements**
-+ adding more TraCI commands
-+ using shorter relative path for sumoConfig
++ using a shorter relative path for sumoConfig
 + gnuplot has its own class now
 + vehicle equilibrium is now working for emulated cars and preserve color
 + enable parallel build
 + can now set the vglog window title with loggingWindowTitle
++ adding glogActive parameters to turn glog window off/on
 + recording PHY frames that are sent but not received in statistics
++ TraCI logging is now working more efficiently
 + adding vehicleExist TraCI command
 + adding vehicleSlowDown TraCI command
++ adding vehicleGetWaitingTime TraCI command
 + adding new commands to get XML elements of addNode.xml
 + can now run omnet++ in cmd mode without forc-running sumo in cmd mode
-+ adding glogActive parameters to turn glog window off/on
-+ runme script checks eigen installation more accuratly
-+ adding vehicleGetWaitingTime TraCI command
 + removing quit-on-end to facilitate debugging
++ runme script checks eigen installation more accuratly
 + get rid of depricated method 'getHostByName'
 + updating the manual
 + various small improvements

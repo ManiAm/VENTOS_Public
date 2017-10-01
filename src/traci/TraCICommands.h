@@ -43,6 +43,7 @@
 #include "global/Color.h"
 #include "global/GlobalConsts.h"
 
+
 namespace VENTOS {
 
 typedef struct simBoundary
@@ -209,6 +210,8 @@ public:
 private:
     typedef omnetpp::cSimpleModule super;
 
+    typedef std::chrono::high_resolution_clock::time_point Htime_t;
+
 protected:
     double updateInterval = -1;
     TraCIConnection* connection = NULL;
@@ -228,8 +231,9 @@ protected:
     typedef struct TraCIcommandEntry
     {
         double timeStamp;
-        std::chrono::milliseconds sentAt;
-        std::chrono::milliseconds completeAt;
+        Htime_t sentAt;
+        Htime_t completeAt;
+        std::string senderModule;
         uint8_t commandGroupId;
         uint8_t commandId;
         std::string commandName;
@@ -672,9 +676,16 @@ private:
     uint8_t genericGetUnsignedByte(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
     std::vector<double> genericGetBoundingBox(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
 
+    enum action_t
+    {
+        commandStart,
+        commandComplete,
+    };
+
     // logging TraCI exchange
-    void record_TraCI_activity_func(std::string, uint8_t, uint8_t, std::string);
+    void record_TraCI_activity_func(action_t, uint8_t, uint8_t, std::string);
     void save_TraCI_activity_toFile();
+    void save_TraCI_activity_summary_toFile();
 };
 
 }
