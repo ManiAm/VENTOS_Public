@@ -1,6 +1,23 @@
 # VENTOS #
 
-VENTOS is an open-source VANET C++ simulator for studying vehicular traffic flows, collaborative driving, and interactions between vehicles and infrastructure through DSRC-enabled wireless communication capability. VENTOS is being developed in Rubinet Lab, UC Davis since 2013 and is the main tool in [C3PO](http://maniam.github.io/VENTOS/). See the official [website](http://maniam.github.io/VENTOS/) for documentation, installation instructions and tutorial.
+VENTOS is an open-source integrated VANET C++ simulator for studying vehicular traffic flows, collaborative driving, and interactions between vehicles and infrastructure through DSRC-enabled wireless communication capability. VENTOS is useful for researchers in transportation engineering, control theory and vehicular networking fields. VENTOS is being developed in Rubinet Lab, UC Davis since 2013 and is the main tool in the [C3PO](https://www.ece.ucdavis.edu/~chuah/rubinet/projects/c3po.html) project. VENTOS is being used over the years by different researchers to test their applications and protocols. 
+
++ develope platoon management protocol [link](http://www.sciencedirect.com/science/article/pii/S2214209615000145)
++ study the security vulnerabilities of connected vehicles [link](http://ieeexplore.ieee.org/abstract/document/7120028/)
++ designing new actuated traffic signal controls [link](soon) 
++ develope dynamic vehicular traffic routing [link](https://trid.trb.org/view.aspx?id=1393674)
+
+## Mailing List ##
+
+You can subscribe to the VENTOS mailing list to stay informed of new releases and to get the latest news about VENTOS. Send an email to [maniam](mailto:maniam@ucdavis.edu) with subject 'VENTOS mailing list' in order to be addedd into the VENTOS mailing list.
+
+## Getting started ##
+
+See the official [website](http://maniam.github.io/VENTOS/) for documentation, installation instructions and tutorial.
+
+## Issues ##
+
+You can send your questions to [Mani Amoozadeh](mailto:maniam@ucdavis.edu). Besides the official documentation and the examples, you can post your VENTOS-related questions on stackoverflow website with the 'VENTOS' tag. You can also open an issue in the VENTOS issue tracker [here](https://github.com/ManiAm/VENTOS_Public/issues).
 
 ## Changelog ##
 
@@ -48,6 +65,3 @@ VENTOS is an open-source VANET C++ simulator for studying vehicular traffic flow
 + first implementation of our ACC/CACC car-following model
 + adversary module to simulate security attacks
 
-## Contact Info ##
-
-+ [Mani Amoozadeh](mailto:maniam@ucdavis.edu)
