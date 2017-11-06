@@ -2,14 +2,14 @@
 
 VENTOS is an open-source integrated VANET C++ simulator for studying vehicular traffic flows, collaborative driving, and interactions between vehicles and infrastructure through DSRC-enabled wireless communication capability. VENTOS is useful for researchers in transportation engineering, control theory and vehicular networking fields. VENTOS is being developed in Rubinet Lab, UC Davis since 2013 and is the main tool in the [C3PO](https://www.ece.ucdavis.edu/~chuah/rubinet/projects/c3po.html) project. VENTOS is being used over the years by different researchers to test their applications and protocols. 
 
-+ develope platoon management protocol [(paper)](http://www.sciencedirect.com/science/article/pii/S2214209615000145).
++ develop platoon management protocol [(paper)](http://www.sciencedirect.com/science/article/pii/S2214209615000145).
 + study the security vulnerabilities of connected vehicles [(paper)](http://ieeexplore.ieee.org/abstract/document/7120028/).
 + designing new actuated traffic signal controls [(paper)](soon).
-+ develope dynamic vehicular traffic routing [(paper)](https://trid.trb.org/view.aspx?id=1393674).
++ develop dynamic vehicular traffic routing [(paper)](https://trid.trb.org/view.aspx?id=1393674).
 
 ## Mailing List ##
 
-You can subscribe to the VENTOS mailing list to stay informed of new releases and to get the latest news about VENTOS. Send an email to [maniam](mailto:maniam@ucdavis.edu) with subject 'VENTOS mailing list' in order to be addedd into the VENTOS mailing list.
+You can subscribe to the VENTOS mailing list to stay informed of new releases and to get the latest news about VENTOS. Send an email to [maniam](mailto:maniam@ucdavis.edu) with subject 'VENTOS mailing list' in order to be added into the VENTOS mailing list.
 
 ## Getting started ##
 
@@ -26,11 +26,11 @@ You can send your questions to [Mani Amoozadeh](mailto:maniam@ucdavis.edu). Besi
 **bug fixes**
 + VENTOS can now be installed from the downloaded zip file
 + vehicleGetColor is now working correctly
-+ fix various memory leakes
-+ measure sim start/end/duration more accuratly
++ fix various memory leaks
++ measure sim start/end/duration more accurately
 + fix simulation end time recording
 + fix getRSUposition when calling from initialize
-+ clean up is now done in destructor not finish!
++ cleanup is now done in destructor not finish!
 
 **enhancements**
 + using a shorter relative path for sumoConfig
@@ -45,10 +45,10 @@ You can send your questions to [Mani Amoozadeh](mailto:maniam@ucdavis.edu). Besi
 + adding vehicleSlowDown TraCI command
 + adding vehicleGetWaitingTime TraCI command
 + adding new commands to get XML elements of addNode.xml
-+ can now run omnet++ in cmd mode without forc-running sumo in cmd mode
++ can now run omnet++ in cmd mode without force-running sumo in cmd mode
 + removing quit-on-end to facilitate debugging
-+ runme script checks eigen installation more accuratly
-+ get rid of depricated method 'getHostByName'
++ runme script checks eigen installation more accurately
++ get rid of deprecated method 'getHostByName'
 + updating the manual
 + various small improvements
 
