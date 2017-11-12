@@ -262,7 +262,7 @@ void TrafficLightLQF_NoStarv::calculatePhases(std::string TLid)
         LOG_DEBUG << "\n    Queue size per lane: ";
         for(auto &lane : it->second)
         {
-            int qSize = laneGetQueueSize(lane).queueSize;
+            int qSize = laneGetQueue(lane).queueSize;
             if(qSize != 0)
                 LOG_DEBUG << lane << " (" << qSize << ") | ";
         }
@@ -286,7 +286,7 @@ void TrafficLightLQF_NoStarv::calculatePhases(std::string TLid)
             if(allMovements[i][j] == 1 && !isRightTurn(j))
             {
                 std::string lane = link2Lane[std::make_pair(TLid,j)];
-                auto queueSize = laneGetQueueSize(lane).queueSize;
+                auto queueSize = laneGetQueue(lane).queueSize;
 
                 totalQueueRow += queueSize;
                 oneCount++;

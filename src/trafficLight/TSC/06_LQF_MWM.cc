@@ -208,7 +208,7 @@ void TrafficLight_LQF_MWM::chooseNextGreenInterval(std::string TLid)
         LOG_DEBUG << "\n    Queue size per lane: ";
         for(auto &lane : it->second)
         {
-            int qSize = laneGetQueueSize(lane).queueSize;
+            int qSize = laneGetQueue(lane).queueSize;
             if(qSize != 0)
                 LOG_DEBUG << lane << " (" << qSize << ") | ";
         }
@@ -237,7 +237,7 @@ void TrafficLight_LQF_MWM::chooseNextGreenInterval(std::string TLid)
                         throw omnetpp::cRuntimeError("linkNumber %d is not found in TL %s", linkNumber, TLid.c_str());
                     std::string lane = itt->second;
 
-                    auto queuedVehs = laneGetQueueSize(lane).vehs;
+                    auto queuedVehs = laneGetQueue(lane).vehs;
 
                     // for each vehicle
                     for(auto &veh : queuedVehs)

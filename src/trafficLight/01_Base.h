@@ -59,6 +59,7 @@ protected:
         TL_LQF_MWM_Aging,
         TL_FMSC,
         TL_Router,
+        TL_DRL,
 
         NUM_TL_CONTROLS
     };

@@ -98,7 +98,11 @@ void IntersectionQueue::executeEachTimeStep()
     super::executeEachTimeStep();
 
     if(record_intersectionQueue_stat)
-        measureQueue();
+    {
+        updateQueuePerLane();
+
+        updateQueuePerTL();
+    }
 }
 
 
@@ -124,12 +128,12 @@ void IntersectionQueue::initVariables()
             incomingLanes[lane] = TLid;
 
             // initialize queue value in laneQueueSize to zero
-            queueInfoRealTime_t entry;
+            queueInfoLane_t entry;
             entry.TLid = TLid;
             entry.queueSize = 0;
             entry.vehs = std::vector<vehInfo_t> ();
 
-            queueSize_perLane[lane] = entry;
+            queueInfo_perLane[lane] = entry;
 
             // store all bike lanes and side walks
             auto allowedClasses = TraCI->laneGetAllowedClasses(lane);
@@ -138,14 +142,24 @@ void IntersectionQueue::initVariables()
         }
 
         sideWalks_perTL[TLid] = sideWalkList;
+    }
 
-        // get all links controlled by this TL
-        auto result = TraCI->TLGetControlledLinks(TLid);
+    // iterate over all incoming lanes and remove sideWalks
+    for (auto it = incomingLanes.begin(); it != incomingLanes.end() /* not hoisted */; /* no increment */)
+    {
+        std::string lane = (*it).first;
+        std::string TLid = (*it).second;
+
+        if( std::find(sideWalks_perTL[TLid].begin(), sideWalks_perTL[TLid].end(), lane) != sideWalks_perTL[TLid].end() )
+            it = incomingLanes.erase(it);
+        else
+            ++it;
     }
 }
 
 
-void IntersectionQueue::measureQueue()
+// update queueInfo_perLane with the latest queue information
+void IntersectionQueue::updateQueuePerLane()
 {
     // for each 'lane i' that is controlled by traffic light j
     for(auto &y : incomingLanes)
@@ -153,16 +167,12 @@ void IntersectionQueue::measureQueue()
         std::string lane = y.first;
         std::string TLid = y.second;
 
-        // ignore side walk
-        if( std::find(sideWalks_perTL[TLid].begin(), sideWalks_perTL[TLid].end(), lane) != sideWalks_perTL[TLid].end() )
-            continue;
-
         // get all vehicles on this incoming lane
-        // note: a vehicle that crosses the intersection is not considered part of that incoming lane
+        // note: a vehicle that crosses the intersection is not considered part of the incoming lane
         auto vehsOnLane = TraCI->laneGetLastStepVehicleIDs(lane);
 
         // get the vehicles that are waiting on this lane
-        auto location = queueSize_perLane.find(lane);
+        auto location = queueInfo_perLane.find(lane);
         auto &queuedVehs = location->second.vehs;
 
         // remove the vehicles in queuedVehs that are not in vehsOnLane anymore
@@ -191,6 +201,11 @@ void IntersectionQueue::measureQueue()
             if(vehCount == 0)
             {
                 std::vector<TL_info_t> nextTL = TraCI->vehicleGetNextTLS(*rit);
+
+                // SUMO returns empty 'nextTL' for the leading vehicle.
+                // this happens when the leading vehicle is changing lane on a wrong incoming lane
+                if(nextTL.empty())
+                    break;
 
                 // queue start should be [0,10] meters from the intersection
                 if(nextTL[0].TLS_distance > 10)
@@ -250,9 +265,12 @@ void IntersectionQueue::measureQueue()
         // update queue size in laneQueueSize
         location->second.queueSize = queuedVehs.size();
     }
+}
 
-    // now that we have queue information for all incoming lanes in the network
-    // we do some statistics for each traffic light
+
+// now that we have updated queueInfo_perLane, we can update queueInfo_perTL
+void IntersectionQueue::updateQueuePerTL()
+{
     for (auto &TLid : TLList)
     {
         auto it = incomingLanes_perTL.find(TLid);
@@ -265,9 +283,9 @@ void IntersectionQueue::measureQueue()
 
         for(auto &lane : incomingLanes_perTL[TLid])
         {
-            auto it2 = queueSize_perLane.find(lane);
-            if(it2 == queueSize_perLane.end())
-                throw omnetpp::cRuntimeError("cannot find %s in queueSize_perLane", lane.c_str());
+            auto it2 = queueInfo_perLane.find(lane);
+            if(it2 == queueInfo_perLane.end())
+                throw omnetpp::cRuntimeError("cannot find %s in queueInfo_perLane", lane.c_str());
             int num = it2->second.queueSize;
 
             totalQueueSize += num;
@@ -277,14 +295,14 @@ void IntersectionQueue::measureQueue()
         auto it3 = queueInfo_perTL.find(TLid);
         if(it3 == queueInfo_perTL.end())
         {
-            queueInfo_t entry = {};
+            queueInfoTL_t entry = {};
 
             entry.time = omnetpp::simTime().dbl();
             entry.totalQueueSize = totalQueueSize;
             entry.maxQueueSize = maxQueueSize;
             entry.totalLanes = totalLanes;
 
-            std::vector<queueInfo_t> infos = {entry};
+            std::vector<queueInfoTL_t> infos = {entry};
 
             queueInfo_perTL[TLid] = infos;
         }
@@ -294,7 +312,7 @@ void IntersectionQueue::measureQueue()
             auto &lastElement = it3->second.back();
             if(lastElement.totalQueueSize != totalQueueSize || lastElement.maxQueueSize != maxQueueSize)
             {
-                queueInfo_t entry = {};
+                queueInfoTL_t entry = {};
 
                 entry.time = omnetpp::simTime().dbl();
                 entry.totalQueueSize = totalQueueSize;
@@ -308,13 +326,25 @@ void IntersectionQueue::measureQueue()
 }
 
 
-IntersectionQueue::queueInfoRealTime_t IntersectionQueue::laneGetQueueSize(std::string laneID)
+
+queueInfoLane_t IntersectionQueue::laneGetQueue(std::string laneID)
 {
-    auto it = queueSize_perLane.find(laneID);
-    if(it == queueSize_perLane.end())
-        throw omnetpp::cRuntimeError("cannot find incoming lane '%s' in queueSize_perLane", laneID.c_str());
+    auto it = queueInfo_perLane.find(laneID);
+    if(it == queueInfo_perLane.end())
+        throw omnetpp::cRuntimeError("cannot find incoming lane '%s' in queueInfo_perLane", laneID.c_str());
 
     return it->second;
+}
+
+
+queueInfoTL_t IntersectionQueue::TLGetQueue(std::string TLid)
+{
+    auto it = queueInfo_perTL.find(TLid);
+    if(it == queueInfo_perTL.end())
+        throw omnetpp::cRuntimeError("cannot find TL '%s' in queueInfo_perTL", TLid.c_str());
+
+    // the last entry in the vector is the latest queue info in this TL
+    return it->second.back();
 }
 
 

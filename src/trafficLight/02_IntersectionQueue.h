@@ -35,22 +35,29 @@
 
 namespace VENTOS {
 
+struct vehInfo_t
+{
+    std::string id;
+    std::string type;
+};
+
+struct queueInfoLane_t
+{
+    std::string TLid;
+    int queueSize;
+    std::vector<vehInfo_t> vehs;
+};
+
+struct queueInfoTL_t
+{
+    double time;
+    int totalQueueSize;
+    int maxQueueSize;
+    int totalLanes;
+};
+
 class IntersectionQueue : public TrafficLightBase
 {
-protected:
-    typedef struct vehInfo
-    {
-        std::string id;
-        std::string type;
-    } vehInfo_t;
-
-    typedef struct queueInfoRealTime
-    {
-        std::string TLid;
-        int queueSize;
-        std::vector<vehInfo_t> vehs;
-    } queueInfoRealTime_t;
-
 private:
     typedef TrafficLightBase super;
 
@@ -72,18 +79,11 @@ private:
     // all incoming lanes in all traffic lights
     std::unordered_map<std::string /*lane*/, std::string /*TLid*/> incomingLanes;
 
-    // real-time queue size for each incoming lane in each intersection
-    std::unordered_map<std::string /*lane*/, queueInfoRealTime_t> queueSize_perLane;
+    // real-time queue info for each incoming lane in each intersection
+    std::unordered_map<std::string /*lane*/, queueInfoLane_t> queueInfo_perLane;
 
-    typedef struct queueInfo
-    {
-        double time;
-        int totalQueueSize;
-        int maxQueueSize;
-        int totalLanes;
-    } queueInfo_t;
-
-    std::map<std::string /*TLid*/, std::vector<queueInfo_t>> queueInfo_perTL;
+    // queue info for each TL over time
+    std::map<std::string /*TLid*/, std::vector<queueInfoTL_t>> queueInfo_perTL;
 
 public:
     virtual ~IntersectionQueue();
@@ -91,14 +91,18 @@ public:
     virtual void finish();
     virtual void handleMessage(omnetpp::cMessage *);
 
+    // public methods accessible by other classes
+    queueInfoLane_t laneGetQueue(std::string);
+    queueInfoTL_t TLGetQueue(std::string);
+
 protected:
     void virtual initialize_withTraCI();
     void virtual executeEachTimeStep();
-    queueInfoRealTime_t laneGetQueueSize(std::string);
 
 private:
     void initVariables();
-    void measureQueue();
+    void updateQueuePerLane();
+    void updateQueuePerTL();
     void saveTLQueueingData();
 };
 

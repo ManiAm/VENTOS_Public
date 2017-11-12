@@ -72,7 +72,7 @@ public:
 
         double accelTime = (MAX_VELOCITY - velocity) / MAX_ACCEL;
         double averageVelocityDuringAccel = (MAX_VELOCITY + velocity) / 2;
-        double accelDistance =accelTime * averageVelocityDuringAccel;   //How far we travel while accelerating to the max speed
+        double accelDistance = accelTime * averageVelocityDuringAccel;   //How far we travel while accelerating to the max speed
 
         if(accelDistance < position)    //If we still have distance to cover
         {

@@ -512,6 +512,68 @@ std::string TraCI_Commands::simulationGetDuration_str()
 }
 
 
+uint32_t TraCI_Commands::simulationGetEndingTeleportedVehicleCount()
+{
+    record_TraCI_activity_func(commandStart, CMD_GET_SIM_VARIABLE, VAR_TELEPORT_ENDING_VEHICLES_NUMBER, "simulationGetEndingTeleportedVehicleCount");
+
+    // query road network boundaries
+    TraCIBuffer buf = connection->query(CMD_GET_SIM_VARIABLE, TraCIBuffer() << static_cast<uint8_t>(VAR_TELEPORT_ENDING_VEHICLES_NUMBER) << std::string("sim0"));
+
+    uint8_t cmdLength_resp; buf >> cmdLength_resp;
+    uint8_t commandId_resp; buf >> commandId_resp;
+    ASSERT(commandId_resp == RESPONSE_GET_SIM_VARIABLE);
+    uint8_t variableId_resp; buf >> variableId_resp;
+    ASSERT(variableId_resp == VAR_TELEPORT_ENDING_VEHICLES_NUMBER);
+    std::string simId; buf >> simId;
+    uint8_t typeId_resp; buf >> typeId_resp;
+    ASSERT(typeId_resp == TYPE_INTEGER);
+
+    uint32_t val;
+    buf >> val;
+
+    ASSERT(buf.eof());
+
+    record_TraCI_activity_func(commandComplete, CMD_GET_SIM_VARIABLE, VAR_TELEPORT_ENDING_VEHICLES_NUMBER, "simulationGetEndingTeleportedVehicleCount");
+
+    return val;
+}
+
+
+std::vector<std::string> TraCI_Commands::simulationGetEndingTeleportedVehicleIDList()
+{
+    record_TraCI_activity_func(commandStart, CMD_GET_SIM_VARIABLE, VAR_TELEPORT_ENDING_VEHICLES_IDS, "simulationGetEndingTeleportedVehiclesIDList");
+
+    uint8_t resultTypeId = TYPE_STRINGLIST;
+    std::vector<std::string> res;
+
+    TraCIBuffer buf = connection->query(CMD_GET_SIM_VARIABLE, TraCIBuffer() << static_cast<uint8_t>(VAR_TELEPORT_ENDING_VEHICLES_IDS) << std::string("sim0"));
+
+    uint8_t cmdLength; buf >> cmdLength;
+    if (cmdLength == 0) {
+        uint32_t cmdLengthX;
+        buf >> cmdLengthX;
+    }
+    uint8_t commandId_r; buf >> commandId_r;
+    ASSERT(commandId_r == RESPONSE_GET_SIM_VARIABLE);
+    uint8_t varId; buf >> varId;
+    ASSERT(varId == VAR_TELEPORT_ENDING_VEHICLES_IDS);
+    std::string objectId_r; buf >> objectId_r;
+    uint8_t resType_r; buf >> resType_r;
+    ASSERT(resType_r == resultTypeId);
+    uint32_t count; buf >> count;
+    for (uint32_t i = 0; i < count; i++) {
+        std::string id; buf >> id;
+        res.push_back(id);
+    }
+
+    ASSERT(buf.eof());
+
+    record_TraCI_activity_func(commandComplete, CMD_GET_SIM_VARIABLE, VAR_TELEPORT_ENDING_VEHICLES_IDS, "simulationGetEndingTeleportedVehiclesIDList");
+
+    return res;
+}
+
+
 void TraCI_Commands::simulationTerminate(bool error)
 {
     Enter_Method("simulationTerminate()");

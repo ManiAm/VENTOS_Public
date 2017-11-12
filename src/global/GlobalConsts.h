@@ -54,9 +54,22 @@ enum LaneCostsMode {
 enum RouterMessage {
     DIJKSTRA,
     HYPERTREE,
+    Q_ROUTING,
     DONE,
-    STARTED
+    STARTED,
 };
+
+enum ParkingMessgae {
+    SWAPPING,
+    PARKED
+};
+
+enum ParkingCostMode{
+    HYPERBOLIC,
+    CONCAVE,
+    LINEAR
+};
+
 
 }
 

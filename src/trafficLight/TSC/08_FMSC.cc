@@ -254,7 +254,7 @@ void TrafficLight_FMSC::calculatePhases(std::string TLid)
         LOG_DEBUG << "\n    Queue size per lane: ";
         for(auto &lane : it->second)
         {
-            int qSize = laneGetQueueSize(lane).queueSize;
+            int qSize = laneGetQueue(lane).queueSize;
             if(qSize != 0)
                 LOG_DEBUG << lane << " (" << qSize << ") | ";
         }
@@ -262,7 +262,7 @@ void TrafficLight_FMSC::calculatePhases(std::string TLid)
         LOG_DEBUG << "\n\n    Total delay of vehicles on each lane: \n";
         for(auto &lane : it->second)
         {
-            auto vehs = laneGetQueueSize(lane).vehs;
+            auto vehs = laneGetQueue(lane).vehs;
 
             double totalDelay = 0;
             for(auto &veh : vehs)
@@ -302,7 +302,7 @@ void TrafficLight_FMSC::calculatePhases(std::string TLid)
                         throw omnetpp::cRuntimeError("linkNumber %s is not found in TL %s", linkNumber, TLid.c_str());
                     std::string lane = itt->second;
 
-                    auto queuedVehs = laneGetQueueSize(lane).vehs;
+                    auto queuedVehs = laneGetQueue(lane).vehs;
 
                     for(auto &veh : queuedVehs)
                     {

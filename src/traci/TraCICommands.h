@@ -291,6 +291,9 @@ public:
     std::string simulationGetEndTime_str();       // new command [returns the simulation stop time in string]
     std::string simulationGetDuration_str();      // new command [returns the duration of the simulation in string]
 
+    uint32_t simulationGetEndingTeleportedVehicleCount();
+    std::vector<std::string> simulationGetEndingTeleportedVehicleIDList();
+
     void simulationTerminate(bool TraCIclosed = false);  // new command [terminate the simulation]
 
     bool simulationIsEquilibriumActive();
