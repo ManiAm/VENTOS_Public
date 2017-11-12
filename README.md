@@ -49,6 +49,7 @@ You can send your questions to [Mani Amoozadeh](mailto:maniam@ucdavis.edu). Besi
 + removing quit-on-end to facilitate debugging
 + runme script checks eigen installation more accurately
 + get rid of deprecated method 'getHostByName'
++ placing RSUs randomly in the network
 + updating the manual
 + various small improvements
 
