@@ -400,7 +400,7 @@ void AddNode::parseRSU(rapidxml::xml_node<> *cNode)
     xmlUtil::validityCheck(cNode, validAttr);
 
     std::string id_str = xmlUtil::getAttrValue_string(cNode, "id");
-    TraCICoord pos = xmlUtil::getAttrValue_coord(cNode, "pos");
+    TraCICoord pos = xmlUtil::getAttrValue_coord_rnd(cNode, "pos");
     bool drawMaxIntfDist = xmlUtil::getAttrValue_bool(cNode, "drawMaxIntfDist", false, true);
     std::string color_str = xmlUtil::getAttrValue_string(cNode, "color", false, "green");
     bool filled = xmlUtil::getAttrValue_bool(cNode, "filled", false, false);
@@ -1000,6 +1000,19 @@ void AddNode::parseVehicleFlow(rapidxml::xml_node<> *cNode)
     if(DSRCprob != -1 && (DSRCprob < 0 || DSRCprob > 1))
         throw omnetpp::cRuntimeError("attribute 'DSRCprob' is not valid in element '%s'", vehicle_flow_tag.c_str());
 
+    if(end == -1)
+    {
+        if(terminateTime != -1)
+            end = terminateTime;
+        else
+            end = std::numeric_limits<int32_t>::max();
+    }
+    else
+    {
+        if(terminateTime != -1)
+            end = std::min(end, terminateTime);
+    }
+
     auto it = allVehicleFlow.find(id_str);
     if(it == allVehicleFlow.end())
     {
@@ -1046,19 +1059,6 @@ void AddNode::addVehicleFlow()
     // iterate over each flow
     for(auto &entry : allVehicleFlow)
     {
-        if(entry.second.end == -1)
-        {
-            if(terminateTime != -1)
-                entry.second.end = terminateTime;
-            else
-                entry.second.end = std::numeric_limits<int32_t>::max();
-        }
-        else
-        {
-            if(terminateTime != -1)
-                entry.second.end = std::min(entry.second.end, terminateTime);
-        }
-
         if(entry.second.end <= entry.second.begin)
             continue;
 
@@ -1410,6 +1410,19 @@ void AddNode::parseVehicleMultiFlow(rapidxml::xml_node<> *cNode)
     if(DSRCprob != -1 && (DSRCprob < 0 || DSRCprob > 1))
         throw omnetpp::cRuntimeError("attribute 'DSRCprob' is not valid in element '%s'", vehicle_multiFlow_tag.c_str());
 
+    if(end == -1)
+    {
+        if(terminateTime != -1)
+            end = terminateTime;
+        else
+            end = std::numeric_limits<int32_t>::max();
+    }
+    else
+    {
+        if(terminateTime != -1)
+            end = std::min(end, terminateTime);
+    }
+
     auto it = allVehicleMultiFlow.find(id_str);
     if(it == allVehicleMultiFlow.end())
     {
@@ -1454,19 +1467,6 @@ void AddNode::addVehicleMultiFlow()
     // iterate over each flow
     for(auto &entry : allVehicleMultiFlow)
     {
-        if(entry.second.end == -1)
-        {
-            if(terminateTime != -1)
-                entry.second.end = terminateTime;
-            else
-                entry.second.end = std::numeric_limits<int32_t>::max();
-        }
-        else
-        {
-            if(terminateTime != -1)
-                entry.second.end = std::min(entry.second.end, terminateTime);
-        }
-
         if(entry.second.end <= entry.second.begin)
             continue;
 

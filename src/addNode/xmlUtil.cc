@@ -34,6 +34,7 @@
 
 #include "xmlUtil.h"
 #include "logging/VENTOS_logging.h"
+#include "traci/TraCICommands.h"
 
 namespace VENTOS {
 
@@ -128,6 +129,100 @@ TraCICoord xmlUtil::getAttrValue_coord(rapidxml::xml_node<> *cNode, std::string 
         std::string pos_z_str = pos[2];
         boost::trim(pos_z_str);
         double pos_z = boost::lexical_cast<double>(pos_z_str);
+
+        return TraCICoord(pos_x, pos_y, pos_z);
+    }
+    catch (boost::bad_lexical_cast const&)
+    {
+        throw omnetpp::cRuntimeError("attribute '%s' is badly formatted in element %s: %s", attr.c_str(), tag.c_str(), coord_str.c_str());
+    }
+}
+
+
+TraCICoord xmlUtil::getAttrValue_coord_rnd(rapidxml::xml_node<> *cNode, std::string attr, bool mandatory, TraCICoord defaultVal)
+{
+    std::string tag = cNode->name();
+
+    auto cAttr = cNode->first_attribute(attr.c_str());
+    if(!cAttr)
+    {
+        if(mandatory)
+            throw omnetpp::cRuntimeError("attribute '%s' is not found in element '%s'", attr.c_str(), tag.c_str());
+        else
+            return defaultVal;
+    }
+    // if the attribute exists
+    else
+    {
+        // make sure we do not have duplicate attributes
+        auto cAttr2 = cNode->last_attribute(attr.c_str());
+        if(cAttr != cAttr2)
+        {
+            throw omnetpp::cRuntimeError("multiple attribute '%s' is not allowed in element '%s'", attr.c_str(), tag.c_str());
+        }
+    }
+
+    std::string coord_str = cAttr->value();
+    boost::trim(coord_str);
+
+    // coord_str are separated by ','
+    std::vector<std::string> pos;
+    boost::split(pos, coord_str, boost::is_any_of(","));
+
+    if(pos.size() != 3)
+        throw omnetpp::cRuntimeError("attribute '%s' in element '%s' should be in the \"x,y,z\" format", attr.c_str(), tag.c_str());
+
+    // get a pointer to TraCI (only once)
+    static TraCI_Commands *TraCI = NULL;
+    static simBoundary_t boundaries = {0};
+    if(TraCI == NULL)
+    {
+        // get a pointer to the TraCI module
+        TraCI = TraCI_Commands::getTraCI();
+
+        // get road network boundaries from SUMO
+        boundaries = TraCI->simulationGetNetBoundary();
+    }
+
+    // mersenne twister engine -- choose a fix seed to make tests reproducible
+    static std::mt19937 generator(0);
+
+    // generating a random floating point number uniformly in [x1,x2)
+    static std::uniform_real_distribution<> xCoord(boundaries.x1, boundaries.x2);
+    // generating a random floating point number uniformly in [y1,y2)
+    static std::uniform_real_distribution<> yCoord(boundaries.y1, boundaries.y2);
+
+    try
+    {
+        double pos_x;
+        double pos_y;
+        double pos_z;
+
+        std::string pos_x_str = pos[0];
+        boost::trim(pos_x_str);
+
+        if(pos_x_str == "rnd")
+            pos_x = xCoord(generator);
+        else
+            pos_x = boost::lexical_cast<double>(pos_x_str);
+
+        std::string pos_y_str = pos[1];
+        boost::trim(pos_y_str);
+
+        if(pos_y_str == "rnd")
+            pos_y = yCoord(generator);
+        else
+            pos_y = boost::lexical_cast<double>(pos_y_str);
+
+        std::string pos_z_str = pos[2];
+        boost::trim(pos_z_str);
+
+        if(pos_z_str == "rnd")
+        {
+            throw omnetpp::cRuntimeError("attribute '%s' does not support 'rnd' for z coordinate in element %s: %s", attr.c_str(), tag.c_str(), coord_str.c_str());
+        }
+        else
+            pos_z = boost::lexical_cast<double>(pos_z_str);
 
         return TraCICoord(pos_x, pos_y, pos_z);
     }

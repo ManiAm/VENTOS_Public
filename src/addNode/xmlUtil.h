@@ -42,6 +42,7 @@ public:
     static void validityCheck(rapidxml::xml_node<> *, std::vector<std::string>);
     static std::string getAttrValue_string(rapidxml::xml_node<> *, std::string, bool = true, std::string = "");
     static TraCICoord getAttrValue_coord(rapidxml::xml_node<> *, std::string, bool = true, TraCICoord = TraCICoord(0,0,0));
+    static TraCICoord getAttrValue_coord_rnd(rapidxml::xml_node<> *, std::string, bool = true, TraCICoord = TraCICoord(0,0,0));
     static bool getAttrValue_bool(rapidxml::xml_node<> *, std::string, bool = true, bool = false);
     static int getAttrValue_int(rapidxml::xml_node<> *, std::string, bool = true, int = 0);
     static double getAttrValue_double(rapidxml::xml_node<> *, std::string, bool = true, double = 0);
