@@ -50,6 +50,9 @@ void IntersectionDelay::initialize(int stage)
         deccelDelayThreshold = par("deccelDelayThreshold").doubleValue();
         if(deccelDelayThreshold >= 0)
             throw omnetpp::cRuntimeError("deccelDelayThreshold is not set correctly!");
+
+        Signal_arrived_vehs = registerSignal("vehicleArrivedSignal");
+        this->subscribe("vehicleArrivedSignal", this);
     }
 }
 
@@ -68,60 +71,15 @@ void IntersectionDelay::handleMessage(omnetpp::cMessage *msg)
 }
 
 
-void IntersectionDelay::initialize_withTraCI()
+void IntersectionDelay::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t signalID, const char *SUMOID, cObject* details)
 {
-    // call parent
-    super::initialize_withTraCI();
+    Enter_Method_Silent();
 
-    if(!record_intersectionDelay_stat)
-        return;
-
-    TLList = TraCI->TLGetIDList();
-
-    if(TLList.empty())
-        LOG_INFO << ">>> WARNING: no traffic light found in the network. \n" << std::flush;
-
-    // for each traffic light
-    for (auto &TLid : TLList)
+    if(signalID == Signal_arrived_vehs)
     {
-        // get all incoming lanes
-        auto lan = TraCI->TLGetControlledLanes(TLid);
-
-        // remove duplicate entries
-        sort( lan.begin(), lan.end() );
-        lan.erase( unique( lan.begin(), lan.end() ), lan.end() );
-
-        // for each incoming lane
-        for(auto &it2 : lan)
-            incomingLanes[it2] = TLid;
-    }
-}
-
-
-void IntersectionDelay::executeEachTimeStep()
-{
-    // call parent
-    super::executeEachTimeStep();
-
-    if(record_intersectionDelay_stat)
-        vehiclesDelay();
-}
-
-
-void IntersectionDelay::vehiclesDelay()
-{
-    // return, if there no traffic light in the network
-    if(TLList.empty())
-        return;
-
-    // get all vehicles in the network
-    auto allVeh = TraCI->vehicleGetIDList();
-
-    // remove the vehicles in vehDelay_perTL that are not in allVeh anymore
-    for (auto it = vehDelay_perTL.cbegin(); it != vehDelay_perTL.cend() /* not hoisted */; /* no increment */)
-    {
-        auto search = std::find(allVeh.begin(), allVeh.end(), it->first);
-        if (search == allVeh.end())
+        // remove the arrived vehicle entry from the map
+        auto it = vehDelay_perTL.find(SUMOID);
+        if(it != vehDelay_perTL.end())
         {
             for(auto &e : it->second)
             {
@@ -133,14 +91,59 @@ void IntersectionDelay::vehiclesDelay()
                 delete e;
             }
 
-            it = vehDelay_perTL.erase(it);
+            vehDelay_perTL.erase(it);
         }
-        else
-            ++it;
     }
+}
 
-    // iterate over vehicles
-    for(auto vID : allVeh)
+
+void IntersectionDelay::initialize_withTraCI()
+{
+    super::initialize_withTraCI();
+
+    if(record_intersectionDelay_stat)
+    {
+        TLList = TraCI->TLGetIDList();
+
+        if(TLList.empty())
+            LOG_INFO << ">>> WARNING: no traffic light found in the network. \n" << std::flush;
+
+        // for each traffic light
+        for (auto &TLid : TLList)
+        {
+            // get all incoming lanes
+            auto lan = TraCI->TLGetControlledLanes(TLid);
+
+            // remove duplicate entries
+            sort( lan.begin(), lan.end() );
+            lan.erase( unique( lan.begin(), lan.end() ), lan.end() );
+
+            // for each incoming lane
+            for(auto &it2 : lan)
+                incomingLanes[it2] = TLid;
+        }
+    }
+}
+
+
+void IntersectionDelay::executeEachTimeStep()
+{
+    // call parent
+    super::executeEachTimeStep();
+
+    if(record_intersectionDelay_stat)
+    {
+        // make sure there is at least one TL in the network
+        if(!TLList.empty())
+            vehiclesDelay();
+    }
+}
+
+
+void IntersectionDelay::vehiclesDelay()
+{
+    // iterate over all vehicles in the network
+    for(auto vID : TraCI->vehicleGetIDList())
     {
         // look for the vehicle
         auto loc = vehDelay_perTL.find(vID);
@@ -439,7 +442,7 @@ void IntersectionDelay::vehiclesDelayDuration(std::string vID, delayEntry_t *veh
 }
 
 
-IntersectionDelay::delayEntry_t* IntersectionDelay::generateEmptyDelay(std::string vID, std::string TLid)
+delayEntry_t* IntersectionDelay::generateEmptyDelay(std::string vID, std::string TLid)
 {
     std::string vehType = TraCI->vehicleGetTypeID(vID);
 
@@ -501,7 +504,7 @@ IntersectionDelay::delayEntry_t* IntersectionDelay::generateEmptyDelay(std::stri
 }
 
 
-IntersectionDelay::delayEntry_t* IntersectionDelay::vehicleGetDelay(std::string vID, std::string TLid)
+delayEntry_t* IntersectionDelay::vehicleGetDelay(std::string vID, std::string TLid)
 {
     auto it = vehDelay_perTL.find(vID);
     if(it == vehDelay_perTL.end())

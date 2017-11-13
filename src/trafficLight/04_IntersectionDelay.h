@@ -31,38 +31,38 @@
 
 namespace VENTOS {
 
+struct delayEntry_t
+{
+    std::string TLid;
+    std::string vehType;
+    bool onIncomingLane;
+    std::string lastLane;
+    double intersectionEntrance;
+    bool crossed;
+    double crossedTime;
+    double oldSpeed;
+    double stoppingDelayThreshold;
+    double startDeccel;
+    double startStopping;
+    double startAccel;
+    double endDelay;
+
+    // delay components
+    double decelDelay;
+    double waitingDelay;
+    double accelDelay;
+    double totalDelay;
+
+    // temporary buffers for storing last speed/accel/signal
+    boost::circular_buffer<std::pair<double,double>> lastSpeeds;
+    boost::circular_buffer<std::pair<double,double>> lastSpeeds2;
+    boost::circular_buffer<std::pair<double,double>> lastAccels;
+    boost::circular_buffer<char> lastSignals;
+};
+
+
 class IntersectionDelay : public IntersectionDemand
 {
-protected:
-    typedef struct delayEntry
-    {
-        std::string TLid;
-        std::string vehType;
-        bool onIncomingLane;
-        std::string lastLane;
-        double intersectionEntrance;
-        bool crossed;
-        double crossedTime;
-        double oldSpeed;
-        double stoppingDelayThreshold;
-        double startDeccel;
-        double startStopping;
-        double startAccel;
-        double endDelay;
-
-        // delay components
-        double decelDelay;
-        double waitingDelay;
-        double accelDelay;
-        double totalDelay;
-
-        // temporary buffers for storing last speed/accel/signal
-        boost::circular_buffer<std::pair<double,double>> lastSpeeds;
-        boost::circular_buffer<std::pair<double,double>> lastSpeeds2;
-        boost::circular_buffer<std::pair<double,double>> lastAccels;
-        boost::circular_buffer<char> lastSignals;
-    } delayEntry_t;
-
 private:
     typedef IntersectionDemand super;
 
@@ -70,6 +70,8 @@ private:
     double speedThreshold_veh;
     double speedThreshold_bike;
     double deccelDelayThreshold;
+
+    omnetpp::simsignal_t Signal_arrived_vehs;
 
     // list of all traffic lights in the network
     std::vector<std::string> TLList;
@@ -85,11 +87,13 @@ public:
     virtual void initialize(int);
     virtual void finish();
     virtual void handleMessage(omnetpp::cMessage *);
+    virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, const char *, cObject *);
+
+    delayEntry_t* vehicleGetDelay(std::string, std::string);
 
 protected:
     void virtual initialize_withTraCI();
     void virtual executeEachTimeStep();
-    delayEntry_t* vehicleGetDelay(std::string, std::string);
 
 private:
     void vehiclesDelay();
