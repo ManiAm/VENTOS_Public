@@ -52,7 +52,7 @@ void IntersectionDelay::initialize(int stage)
             throw omnetpp::cRuntimeError("deccelDelayThreshold is not set correctly!");
 
         Signal_arrived_vehs = registerSignal("vehicleArrivedSignal");
-        this->subscribe("vehicleArrivedSignal", this);
+        omnetpp::getSimulation()->getSystemModule()->subscribe("vehicleArrivedSignal", this);
     }
 }
 
