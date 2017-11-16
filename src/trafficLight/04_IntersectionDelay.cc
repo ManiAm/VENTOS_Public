@@ -47,6 +47,15 @@ void IntersectionDelay::initialize(int stage)
     {
         record_intersectionDelay_stat = par("record_intersectionDelay_stat").boolValue();
 
+        speedThreshold_veh = par("speedThreshold_veh").doubleValue();
+        speedThreshold_bike = par("speedThreshold_bike").doubleValue();
+
+        if(speedThreshold_veh < 0)
+            throw omnetpp::cRuntimeError("speedThreshold_veh is not set correctly!");
+
+        if(speedThreshold_bike < 0)
+            throw omnetpp::cRuntimeError("speedThreshold_bike is not set correctly!");
+
         deccelDelayThreshold = par("deccelDelayThreshold").doubleValue();
         if(deccelDelayThreshold >= 0)
             throw omnetpp::cRuntimeError("deccelDelayThreshold is not set correctly!");

@@ -67,9 +67,9 @@ private:
     typedef IntersectionDemand super;
 
     bool record_intersectionDelay_stat;
-    double speedThreshold_veh;
-    double speedThreshold_bike;
-    double deccelDelayThreshold;
+    double speedThreshold_veh = 0;
+    double speedThreshold_bike = 0;
+    double deccelDelayThreshold = 0;
 
     omnetpp::simsignal_t Signal_arrived_vehs;
 
