@@ -1,11 +1,6 @@
 # VENTOS #
 
-VENTOS is an open-source integrated VANET C++ simulator for studying vehicular traffic flows, collaborative driving, and interactions between vehicles and infrastructure through DSRC-enabled wireless communication capability. VENTOS is useful for researchers in transportation engineering, control theory and vehicular networking fields. VENTOS is being developed in Rubinet Lab, UC Davis since 2013 and is the main tool in the [C3PO](https://www.ece.ucdavis.edu/~chuah/rubinet/projects/c3po.html) project. VENTOS is being used over the years by different researchers to test their applications and protocols. 
-
-+ develop platoon management protocol [(paper)](http://www.sciencedirect.com/science/article/pii/S2214209615000145).
-+ study the security vulnerabilities of connected vehicles [(paper)](http://ieeexplore.ieee.org/abstract/document/7120028/).
-+ designing new actuated traffic signal controls [(paper)](soon).
-+ develop dynamic vehicular traffic routing [(paper)](https://trid.trb.org/view.aspx?id=1393674).
+VENTOS is an open-source integrated VANET C++ simulator for studying vehicular traffic flows, collaborative driving, and interactions between vehicles and infrastructure through DSRC-enabled wireless communication capability. VENTOS is useful for researchers in transportation engineering, control theory and vehicular networking fields. VENTOS is being developed in Rubinet Lab, UC Davis since 2013 and is the main tool in the [C3PO](https://www.ece.ucdavis.edu/~chuah/rubinet/projects/c3po.html) project.
 
 ## Mailing List ##
 
