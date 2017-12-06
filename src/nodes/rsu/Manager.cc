@@ -25,7 +25,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "nodes/rsu/06_Manager.h"
+#include "nodes/rsu/Manager.h"
 
 namespace VENTOS {
 
@@ -128,6 +128,10 @@ void ApplRSUManager::handleLowerMsg(omnetpp::cMessage* msg)
         ASSERT(wsm);
 
         onLanechange(wsm);
+    }
+    else if(msg->getKind() == TYPE_GENERIC_DATA)
+    {
+        // ignore
     }
     else
         throw omnetpp::cRuntimeError("RSU %s received unsupported msg %s of type %d!", SUMOID.c_str(), msg->getName(), msg->getKind());

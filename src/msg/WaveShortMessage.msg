@@ -28,6 +28,6 @@ packet WaveShortMessage {
 	int priority = 3;      // Power Level with which this packet was sent
 	int psid = 0;          // Unique number to identify the service
 	string psc = "Service with some Data"; // Provider Service Context
-	int wsmLength;            // Length of Wave Short Message
+	int wsmLength;         // Length of Wave Short Message
 	unsigned char data[];  // Data of Wave Short Message
 }

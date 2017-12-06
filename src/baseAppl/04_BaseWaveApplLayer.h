@@ -44,6 +44,8 @@ typedef enum WaveApplMessageTypes {
     TYPE_BEACON_PEDESTRIAN,  // beaconPedestrian
     TYPE_BEACON_RSU,         // beaconRSU
 
+    TYPE_GENERIC_DATA,
+
     TYPE_LANECHANGE_DATA,    // laneChange
     TYPE_PLATOON_DATA,       // platoonMsg
     TYPE_CRL_PIECE,

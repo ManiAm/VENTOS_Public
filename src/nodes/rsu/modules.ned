@@ -119,7 +119,15 @@ simple ApplRSUCRL extends ApplRSUAID
 }
 
 
-simple ApplRSUManager extends ApplRSUCRL
+simple ApplRSUYourCode extends ApplRSUCRL
+{
+    parameters:
+        @class(VENTOS::ApplRSUYourCode);
+        @display("i=block/app2");
+}
+
+
+simple ApplRSUManager extends ApplRSUYourCode
 {
     parameters:
         @class(VENTOS::ApplRSUManager);

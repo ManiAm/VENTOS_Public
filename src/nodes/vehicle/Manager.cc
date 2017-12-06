@@ -201,6 +201,13 @@ void ApplVManager::onMessageType(omnetpp::cMessage* msg)
 
         delete msg;
     }
+    else if(msg->getKind() == TYPE_GENERIC_DATA)
+    {
+        dataMsg* wsm = dynamic_cast<dataMsg*>(msg);
+        ASSERT(wsm);
+
+        onDataMsg(wsm);
+    }
     // todo
     else if(msg->getKind() == TYPE_CRL_PIECE)
     {

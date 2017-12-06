@@ -100,7 +100,7 @@ simple ApplVPlatoon extends ApplVAID
         @class(VENTOS::ApplVPlatoon);        
         
         bool record_platoon_stat = default(false);
-                
+        
         // the following parameters are used internally [Do not change]
         
         // plnMode = 1: no platooning
@@ -134,7 +134,17 @@ simple ApplVPlatoonMg extends ApplVPlatoon
 }
 
 
-simple ApplVManager extends ApplVPlatoonMg
+simple ApplVYourCode extends ApplVPlatoonMg
+{
+    parameters:
+        @class(VENTOS::ApplVYourCode);
+        @display("i=block/app2");
+        
+        bool sendingData = default(false);
+}
+
+
+simple ApplVManager extends ApplVYourCode
 {
     parameters:
         @class(VENTOS::ApplVManager);
