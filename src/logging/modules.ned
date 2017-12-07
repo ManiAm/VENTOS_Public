@@ -35,7 +35,7 @@ simple vglog extends vlog
         @display("i=block/network2");
         
         // relative path to mainWindow application
-        string loggingWindowPath = default("src/loggingWindow/mainWindow");  
+        string loggingWindowPath = default("../../src/loggingWindow/mainWindow");  
         string loggingWindowTitle = default("Log window");  // windows title
         
         bool syntaxHighlighting = default(true);
