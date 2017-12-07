@@ -32,6 +32,7 @@
 #include "global/BaseWorldUtility.h"
 #include "MIXIM_veins/connectionManager/BaseConnectionManager.h"
 #include "msg/AirFrame11p_serial.h"
+#include "msg/WaveShortMessage_m.h"
 #include "MIXIM_veins/nic/mac/MacToPhyControlInfo.h"
 
 const simsignalwrap_t ChannelAccess::mobilityStateChangedSignal = simsignalwrap_t(MIXIM_SIGNAL_MOBILITY_CHANGE_NAME);
@@ -222,6 +223,21 @@ void ChannelAccess::recordFrameTx(omnetpp::cPacket *msg /*AirFrame11p*/, omnetpp
         Veins::AirFrame11p *frame = dynamic_cast<Veins::AirFrame11p *>(msg);
         ASSERT(frame);
 
+        int chNum = -1;
+
+        omnetpp::cPacket *mac = frame->getEncapsulatedPacket();
+        if(mac)
+        {
+            omnetpp::cPacket *appl = mac->getEncapsulatedPacket();
+            if(appl)
+            {
+                Veins::WaveShortMessage *appl_class = dynamic_cast<Veins::WaveShortMessage *>(appl);
+                ASSERT(appl_class);
+
+                chNum = appl_class->getChannelNumber();
+            }
+        }
+
         VENTOS::msgTxRxStat_t entry = {};
 
         entry.MsgName = msg->getFullName();
@@ -229,6 +245,7 @@ void ChannelAccess::recordFrameTx(omnetpp::cPacket *msg /*AirFrame11p*/, omnetpp
         entry.ReceiverNode = (gate != NULL) ? gate->getOwnerModule()->getFullName() : "-";
         entry.SentAt = omnetpp::simTime().dbl();
         entry.FrameSize = msg->getBitLength();
+        entry.channelNum = chNum;
         entry.TransmissionSpeed = 6; //signal.getBitrate();
         entry.TransmissionTime = frame->getDuration().dbl();
         entry.DistanceToReceiver = propDelay.distance;

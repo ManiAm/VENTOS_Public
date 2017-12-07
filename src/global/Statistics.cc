@@ -851,6 +851,7 @@ void Statistics::save_FrameTxRx_stat_toFile()
     fprintf (filePtr, "%-20s","ReceiverGateId");
     fprintf (filePtr, "%-20s","SendingStartAt");
     fprintf (filePtr, "%-20s","FrameSize");
+    fprintf (filePtr, "%-20s","ChannelNum");
     fprintf (filePtr, "%-20s","TransmissionSpeed");
     fprintf (filePtr, "%-20s","TransmissionTime");
     fprintf (filePtr, "%-20s","DistanceToReceiver");
@@ -880,6 +881,12 @@ void Statistics::save_FrameTxRx_stat_toFile()
 
         fprintf (filePtr, "%-20.8f", y.entry.SentAt);
         fprintf (filePtr, "%-20d", y.entry.FrameSize);
+
+        if(y.entry.channelNum != -1)
+            fprintf (filePtr, "%-20d", y.entry.channelNum);
+        else
+            fprintf (filePtr, "%-20s", "-");
+
         fprintf (filePtr, "%-20.2f", y.entry.TransmissionSpeed);
         fprintf (filePtr, "%-20.8f", y.entry.TransmissionTime);
 

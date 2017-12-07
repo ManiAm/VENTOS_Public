@@ -111,6 +111,7 @@ typedef struct msgTxRxStat
     std::string ReceiverNode;
     double SentAt;
     int FrameSize;
+    int channelNum;
     double TransmissionSpeed;
     double TransmissionTime;
     double DistanceToReceiver;
