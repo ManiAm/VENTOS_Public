@@ -73,11 +73,11 @@ simple Mac1609_4 extends BaseLayer like IWirelessMac
         // bit rate 
         double bitrate @unit(bps) = default(6 Mbps);
         
-        // maximum artificial asynchronization between cars to avoid synchronization effects
-        double syncOffset @unit(s) = default(0.0003s);
-        
         // tx power [mW]
         double txPower = default(20mW) @unit(mW);
+        
+        // maximum artificial asynchronization between cars to avoid synchronization effects
+        double syncOffset @unit(s) = default(0.0003s);
         
         // the maximum queue size of an EDCA queue in the MAC. 
         // 0 for unlimited. Queue strategy is "drop if full"

@@ -112,6 +112,7 @@ typedef struct msgTxRxStat
     double SentAt;
     int FrameSize;
     int channelNum;
+    double TransmissionPower;
     double TransmissionSpeed;
     double TransmissionTime;
     double DistanceToReceiver;

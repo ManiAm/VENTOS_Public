@@ -223,6 +223,12 @@ void ChannelAccess::recordFrameTx(omnetpp::cPacket *msg /*AirFrame11p*/, omnetpp
         Veins::AirFrame11p *frame = dynamic_cast<Veins::AirFrame11p *>(msg);
         ASSERT(frame);
 
+        ConstMappingIterator* bitrateIt = frame->getSignal().getBitrate()->createConstIterator();
+        bitrateIt->next(); // iterate to payload bitrate indicator
+
+        ConstMappingIterator* txIt = frame->getSignal().getTransmissionPower()->createConstIterator();
+        txIt->next(); // iterate to payload TxPower indicator
+
         int chNum = -1;
 
         omnetpp::cPacket *mac = frame->getEncapsulatedPacket();
@@ -246,7 +252,8 @@ void ChannelAccess::recordFrameTx(omnetpp::cPacket *msg /*AirFrame11p*/, omnetpp
         entry.SentAt = omnetpp::simTime().dbl();
         entry.FrameSize = msg->getBitLength();
         entry.channelNum = chNum;
-        entry.TransmissionSpeed = 6; //signal.getBitrate();
+        entry.TransmissionPower = txIt->getValue();
+        entry.TransmissionSpeed = bitrateIt->getValue();
         entry.TransmissionTime = frame->getDuration().dbl();
         entry.DistanceToReceiver = propDelay.distance;
         entry.PropagationDelay = propDelay.propagationDelay.dbl();

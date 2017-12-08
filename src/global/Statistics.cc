@@ -852,6 +852,7 @@ void Statistics::save_FrameTxRx_stat_toFile()
     fprintf (filePtr, "%-20s","SendingStartAt");
     fprintf (filePtr, "%-20s","FrameSize");
     fprintf (filePtr, "%-20s","ChannelNum");
+    fprintf (filePtr, "%-20s","TransmissionPower");
     fprintf (filePtr, "%-20s","TransmissionSpeed");
     fprintf (filePtr, "%-20s","TransmissionTime");
     fprintf (filePtr, "%-20s","DistanceToReceiver");
@@ -887,7 +888,8 @@ void Statistics::save_FrameTxRx_stat_toFile()
         else
             fprintf (filePtr, "%-20s", "-");
 
-        fprintf (filePtr, "%-20.2f", y.entry.TransmissionSpeed);
+        fprintf (filePtr, "%-20.2f", y.entry.TransmissionPower);  // it is already in mW
+        fprintf (filePtr, "%-20.2f", y.entry.TransmissionSpeed / 1000000.);  // change unit to Mbps
         fprintf (filePtr, "%-20.8f", y.entry.TransmissionTime);
 
         if(y.entry.DistanceToReceiver != -1)
