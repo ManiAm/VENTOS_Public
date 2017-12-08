@@ -38,6 +38,7 @@ class ApplVYourCode : public ApplVPlatoonMg
 private:
     typedef ApplVPlatoonMg super;
 
+    bool printCtrlData = false;
     bool sendingData = false;
 
 public:
@@ -53,6 +54,7 @@ protected:
 
 private:
     dataMsg* generateData();
+    void printControlInfo(Veins::WaveShortMessage *wsm);
 };
 
 }

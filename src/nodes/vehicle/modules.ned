@@ -141,6 +141,7 @@ simple ApplVYourCode extends ApplVPlatoonMg
         @display("i=block/app2");
         
         bool sendingData = default(false);
+        bool printCtrlData = default(false);
 }
 
 
@@ -149,8 +150,6 @@ simple ApplVManager extends ApplVYourCode
     parameters:
         @class(VENTOS::ApplVManager);
         @display("i=block/app2");
-        
-        bool printCtrlData = default(false);
                 
         bool record_beacon_stat = default(false);
         

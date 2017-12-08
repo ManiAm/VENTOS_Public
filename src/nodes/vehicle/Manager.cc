@@ -27,8 +27,6 @@
 
 #include "nodes/vehicle/Manager.h"
 #include "global/SignalObj.h"
-#include "MIXIM_veins/nic/phy/PhyToMacControlInfo.h"
-#include "MIXIM_veins/nic/phy/decider/DeciderResult80211.h"
 
 namespace VENTOS {
 
@@ -55,8 +53,6 @@ void ApplVManager::initialize(int stage)
             throw omnetpp::cRuntimeError("Packet Loss Ratio (PLR) should be in range [0,100]: %d", plr);
 
         record_beacon_stat = par("record_beacon_stat").boolValue();
-
-        printCtrlData = par("printCtrlData").boolValue();
 
         carFollowingModelId = TraCI->vehicleGetCarFollowingModelID(SUMOID);
 
@@ -132,9 +128,6 @@ void ApplVManager::onMessageType(omnetpp::cMessage* msg)
 
         if( plr == 0 || !dropBeacon(dropStartTime, plr) )
         {
-            if(printCtrlData)
-                getControlInfo(msg);
-
             onBeaconVehicle(wsm);
 
             // report reception to statistics
@@ -166,9 +159,6 @@ void ApplVManager::onMessageType(omnetpp::cMessage* msg)
 
         BeaconBikeCount++;
 
-        if(printCtrlData)
-            getControlInfo(msg);
-
         //onBeaconBicycle(wsm);
 
         delete msg;
@@ -179,9 +169,6 @@ void ApplVManager::onMessageType(omnetpp::cMessage* msg)
         ASSERT(wsm);
 
         BeaconPedCount++;
-
-        if(printCtrlData)
-            getControlInfo(msg);
 
         //onBeaconPedestrian(wsm);
 
@@ -194,9 +181,6 @@ void ApplVManager::onMessageType(omnetpp::cMessage* msg)
 
         BeaconRSUCount++;
 
-        if(printCtrlData)
-            getControlInfo(msg);
-
         onBeaconRSU(wsm);
 
         delete msg;
@@ -208,9 +192,6 @@ void ApplVManager::onMessageType(omnetpp::cMessage* msg)
 
         PlatoonCount++;
 
-        if(printCtrlData)
-            getControlInfo(msg);
-
         onPlatoonMsg(wsm);
 
         delete msg;
@@ -220,17 +201,11 @@ void ApplVManager::onMessageType(omnetpp::cMessage* msg)
         dataMsg* wsm = dynamic_cast<dataMsg*>(msg);
         ASSERT(wsm);
 
-        if(printCtrlData)
-            getControlInfo(msg);
-
         onDataMsg(wsm);
     }
     // todo
     else if(msg->getKind() == TYPE_CRL_PIECE)
     {
-        if(printCtrlData)
-            getControlInfo(msg);
-
         delete msg;
     }
     else
@@ -287,37 +262,6 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
             TraCI->vehiclePlatoonViewUpdate(SUMOID, params.str());
         }
     }
-}
-
-
-void ApplVManager::getControlInfo(omnetpp::cMessage *msg)
-{
-    if(!printCtrlData)
-        return;
-
-    Veins::WaveShortMessage* wsm = dynamic_cast<Veins::WaveShortMessage*>(msg);
-    ASSERT(wsm);
-
-    // get the control info attached to this wsm
-    PhyToMacControlInfo *control = (PhyToMacControlInfo *) wsm->getControlInfo();
-    ASSERT(control);
-    DeciderResult80211 *decider = dynamic_cast<DeciderResult80211 *> (control->getDeciderResult());
-    ASSERT(decider);
-
-    GLOG(SUMOID, "default") << boost::format("%.6f: Received wsm '%s' with ") %
-            omnetpp::simTime().dbl() %
-            wsm->getFullName();
-
-    GLOG(SUMOID, "default") << boost::format("Bitrate: '%.2f', Received power '%4.3f' dBm (%.14f mW), SNR: '%.3f dBm' (%.3f) \n") %
-            decider->getBitrate() %
-            decider->getRecvPower_dBm() %
-            pow(10., (decider->getRecvPower_dBm() / 10.)) %
-            (10 * log(decider->getSnr())) %
-            decider->getSnr();
-
-    GLOG_FLUSH(SUMOID, "default");
-
-    // collision: if the incorrect decoding was due to low power or collision
 }
 
 

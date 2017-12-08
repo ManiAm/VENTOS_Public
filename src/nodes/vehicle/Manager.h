@@ -40,8 +40,6 @@ public:
 private:
     typedef ApplVYourCode super;
 
-    bool printCtrlData;
-
     // NED variables (packet loss ratio)
     double dropStartTime;
     double plr;
@@ -80,9 +78,6 @@ protected:
      * @returns emission in g/s
      */
     double calculateCO2emission(double v, double a);
-
-private:
-    void getControlInfo(omnetpp::cMessage *wsm);
 };
 
 }
