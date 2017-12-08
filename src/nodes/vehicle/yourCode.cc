@@ -26,6 +26,7 @@
 //
 
 #include "nodes/vehicle/yourCode.h"
+#include "baseAppl/ApplToPhyControlInfo.h"
 
 namespace VENTOS {
 
