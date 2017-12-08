@@ -732,10 +732,10 @@ elif [[ $WIN_OMNET_DO_NOT_INSTALL != "1" ]]; then # we need to install omnet
             fi
 
             if [[ "$OS" == "Ubuntu" || "$OS" == "Mac OS X" ]]; then
-                lftp -e "pget -n 5 $omnetURL -o /tmp/VENTOS_tmp/omnetpp.tgz; bye" -p 28 -u userftp,userftp ftp://rubinet.ece.ucdavis.edu/download
+                lftp -e "pget -n 5 $omnetURL -o /tmp/VENTOS_tmp/omnetpp.tgz; bye" -p 28 -u userftp,userftp ftp://leo.ece.ucdavis.edu/download
             elif [[ "$OSTYPE" == "msys" ]]; then
                 # curl is installed in MIGW by default
-                curl -u userftp:userftp "ftp://rubinet.ece.ucdavis.edu:28/download/$omnetURL" -o /tmp/VENTOS_tmp/omnetpp.zip
+                curl -u userftp:userftp "ftp://leo.ece.ucdavis.edu:28/download/$omnetURL" -o /tmp/VENTOS_tmp/omnetpp.zip
             fi
 		
 	    # check if omnet archive is downloaded correctly
@@ -1395,7 +1395,7 @@ result=$?
 if [[ "$result" == "2" ]]; then
     if [ ! -d "gnuplot" ]; then
         echo "downloading gnuplot"
-        lftp -e 'pget -n 2 gnuplot-5.0.3.tar.gz -o /tmp/VENTOS_tmp/gnuplot.tar.gz; bye' -p 28 -u userftp,userftp ftp://rubinet.ece.ucdavis.edu/download
+        lftp -e 'pget -n 2 gnuplot-5.0.3.tar.gz -o /tmp/VENTOS_tmp/gnuplot.tar.gz; bye' -p 28 -u userftp,userftp ftp://leo.ece.ucdavis.edu/download
         if [[ $? -ne 0 ]]; then
             exit 1
         fi
