@@ -87,6 +87,13 @@ namespace Veins {
 
 class PhyLayer80211p : public ChannelAccess, public DeciderToPhyInterface, public MacToPhyInterface
 {
+public:
+    long NumSentFrames = 0;
+    long NumReceivedFrames = 0;
+    long NumLostFrames_BiteError = 0;  // A frame was not received due to bit-errors
+    long NumLostFrames_Collision = 0;  // A frame was not received due to collision
+    long NumLostFrames_TXRX = 0;       // A frame was not received because we were sending while receiving
+
 private:
 
     VENTOS::Statistics* STAT = NULL;
@@ -104,12 +111,6 @@ private:
     int upperControlIn;
 
     AirFrame* readyToSendFrame = NULL;
-
-    long NumSentFrames = 0;
-    long NumReceivedFrames = 0;
-    long NumLostFrames_BiteError = 0;  // A frame was not received due to bit-errors
-    long NumLostFrames_Collision = 0;  // A frame was not received due to collision
-    long NumLostFrames_TXRX = 0;       // A frame was not received because we were sending while receiving
 
     bool record_stat;
     bool record_frameTxRx;

@@ -150,6 +150,8 @@ simple ApplVManager extends ApplVYourCode
         @class(VENTOS::ApplVManager);
         @display("i=block/app2");
         
+        bool printCtrlData = default(false);
+                
         bool record_beacon_stat = default(false);
         
         // beacon loss ratio in application layer

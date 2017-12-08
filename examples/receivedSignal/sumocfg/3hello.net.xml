@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on Sat Nov 19 11:40:28 2016 by SUMO netconvert Version svn
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/netconvertConfiguration.xsd">
+
+    <input>
+        <node-files value="1hello.nod.xml"/>
+        <edge-files value="2hello.edg.xml"/>
+    </input>
+
+    <output>
+        <output-file value="3hello.net.xml"/>
+    </output>
+
+</configuration>
+-->
+
+<net version="0.27" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/net_file.xsd">
+
+    <location netOffset="500.00,0.00" convBoundary="0.00,0.00,1000.00,0.00" origBoundary="-500.00,0.00,500.00,0.00" projParameter="!"/>
+
+    <edge id=":1_0" function="internal">
+        <lane id=":1_0_0" index="0" speed="13.90" length="4.82" shape="0.00,1.65 -1.24,0.83 -1.65,0.00 -1.24,-0.83 0.00,-1.65"/>
+    </edge>
+    <edge id=":2_0" function="internal">
+        <lane id=":2_0_0" index="0" speed="13.90" length="4.82" shape="1000.00,-1.65 1001.24,-0.83 1001.65,0.00 1001.24,0.83 1000.00,1.65"/>
+    </edge>
+
+    <edge id="1to2" from="1" to="2" priority="-1">
+        <lane id="1to2_0" index="0" speed="30.00" length="1000.00" shape="0.00,-1.65 1000.00,-1.65"/>
+    </edge>
+    <edge id="2to1" from="2" to="1" priority="-1">
+        <lane id="2to1_0" index="0" speed="30.00" length="1000.00" shape="1000.00,1.65 0.00,1.65"/>
+    </edge>
+
+    <junction id="1" type="priority" x="0.00" y="0.00" incLanes="2to1_0" intLanes=":1_0_0" shape="0.00,-0.05 0.00,-3.25 0.00,3.25 0.00,0.05">
+        <request index="0" response="0" foes="0" cont="0"/>
+    </junction>
+    <junction id="2" type="priority" x="1000.00" y="0.00" incLanes="1to2_0" intLanes=":2_0_0" shape="1000.00,0.05 1000.00,3.25 1000.00,-3.25 1000.00,-0.05">
+        <request index="0" response="0" foes="0" cont="0"/>
+    </junction>
+
+    <connection from="1to2" to="2to1" fromLane="0" toLane="0" via=":2_0_0" dir="t" state="M"/>
+    <connection from="2to1" to="1to2" fromLane="0" toLane="0" via=":1_0_0" dir="t" state="M"/>
+
+    <connection from=":1_0" to="1to2" fromLane="0" toLane="0" dir="s" state="M"/>
+    <connection from=":2_0" to="2to1" fromLane="0" toLane="0" dir="s" state="M"/>
+
+</net>

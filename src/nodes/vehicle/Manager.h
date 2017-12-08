@@ -40,6 +40,8 @@ public:
 private:
     typedef ApplVYourCode super;
 
+    bool printCtrlData;
+
     // NED variables (packet loss ratio)
     double dropStartTime;
     double plr;
@@ -48,12 +50,12 @@ private:
 
     bool record_beacon_stat;
 
-    long BeaconVehCount;
-    long BeaconVehDropped;
-    long BeaconBikeCount;
-    long BeaconPedCount;
-    long BeaconRSUCount;
-    long PlatoonCount;
+    long BeaconVehCount = 0;
+    long BeaconVehDropped = 0;
+    long BeaconBikeCount = 0;
+    long BeaconPedCount = 0;
+    long BeaconRSUCount = 0;
+    long PlatoonCount = 0;
 
 public:
     ~ApplVManager();
@@ -78,6 +80,9 @@ protected:
      * @returns emission in g/s
      */
     double calculateCO2emission(double v, double a);
+
+private:
+    void getControlInfo(omnetpp::cMessage *wsm);
 };
 
 }
