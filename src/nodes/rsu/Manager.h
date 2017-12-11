@@ -28,14 +28,14 @@
 #ifndef APPLRSUMANAGER_H_
 #define APPLRSUMANAGER_H_
 
-#include "nodes/rsu/05_CRL.h"
+#include "nodes/rsu/yourCode.h"
 
 namespace VENTOS {
 
-class ApplRSUManager : public ApplRSUCRL
+class ApplRSUManager : public ApplRSUYourCode
 {
 private:
-    typedef ApplRSUCRL super;
+    typedef ApplRSUYourCode super;
 
     omnetpp::simsignal_t Signal_executeEachTS;
 
