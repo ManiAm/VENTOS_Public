@@ -45,6 +45,16 @@ struct TraCICoord
 	{
 	    return ((x == rhs.x) && (y == rhs.y) && (z == rhs.z));
 	}
+
+	double distance(double x, double y, double z = 0)
+	{
+	    return sqrt(pow(this->x - x, 2) + pow(this->y - y, 2) + pow(this->z - z, 2));
+	}
+
+	double distance(TraCICoord pos)
+	{
+        return sqrt(pow(this->x - pos.x, 2) + pow(this->y - pos.y, 2) + pow(this->z - pos.z, 2));
+	}
 };
 
 }

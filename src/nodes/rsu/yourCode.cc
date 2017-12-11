@@ -54,6 +54,13 @@ void ApplRSUYourCode::finish()
 }
 
 
+void ApplRSUYourCode::executeEachTimeStep()
+{
+    // call the super method
+    super::executeEachTimeStep();
+}
+
+
 void ApplRSUYourCode::handleSelfMsg(omnetpp::cMessage* msg)
 {
     super::handleSelfMsg(msg);

@@ -48,6 +48,8 @@ protected:
     void onBeaconVehicle(BeaconVehicle* wsm);
     void onBeaconRSU(BeaconRSU* wsm);
     void onDataMsg(dataMsg *wsm);
+
+    void executeEachTimeStep();
 };
 
 }
