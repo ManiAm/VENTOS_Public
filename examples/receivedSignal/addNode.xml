@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<addNode id="add_0">  
+  
+  <vehicle id="veh0" type="passenger" color="red" route="route1" departLane="-6" />
+  <vehicle id="veh1" type="passenger" color="red" route="route2" departLane="-6" />  
+  
+</addNode>
+
+
+<addNode id="add_1">  
+  
+  <vehicle id="veh0" type="passenger" color="red" route="route1" departPos="300" departLane="-6" status="stopped" />
+  <vehicle id="veh1" type="passenger" color="red" route="route2" departPos="400" departLane="-6" status="stopped" />  
+  
+</addNode>
+

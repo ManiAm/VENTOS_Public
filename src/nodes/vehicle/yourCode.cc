@@ -159,8 +159,6 @@ void ApplVYourCode::printControlInfo(Veins::WaveShortMessage *wsm)
             decider->getSnr();
 
     GLOG_FLUSH(SUMOID, "default");
-
-    // collision: if the incorrect decoding was due to low power or collision
 }
 
 }
