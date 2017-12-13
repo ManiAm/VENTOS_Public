@@ -103,6 +103,9 @@ private:
 
     bool record_stat;
 
+    // reference to this node
+    omnetpp::cModule *ptrNode = NULL;
+
     /** @brief Handler to the physical layer */
     MacToPhyInterface* phy;
 

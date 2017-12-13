@@ -128,6 +128,9 @@ void PhyLayer80211p::initialize(int stage)
         STAT = static_cast<VENTOS::Statistics*>(module);
         ASSERT(STAT);
 
+        // get a reference to this node
+        ptrNode = this->getParentModule()->getParentModule();
+
         // if using sendDirect, make sure that messages arrive without delay
         gate("radioIn")->setDeliverOnReceptionStart(true);
 
@@ -189,14 +192,10 @@ void PhyLayer80211p::handleMessage(omnetpp::cMessage* msg)
     // received an AirFrame
     else if(msg->getKind() == AIR_FRAME)
     {
-        // if DSRCenabled is false, then ChannelAccess class will not send me
-        // any frames. But we double-check here to make sure that DSRCenabled is true
-
-        // get a reference to this node
-        omnetpp::cModule *thisNode = this->getParentModule()->getParentModule();
-        // make sure that DSRCenabled is true on this node
-        if(!thisNode->par("DSRCenabled"))
-            throw omnetpp::cRuntimeError("Cannot send msg %s: DSRCenabled parameter is false in %s", msg->getName(), thisNode->getFullName());
+        // if DSRCenabled is false, then ChannelAccess class will not send me any frames.
+        // But we double-check here to make sure that DSRCenabled is 'true'
+        if(!ptrNode->par("DSRCenabled"))
+            throw omnetpp::cRuntimeError("Cannot send msg %s: DSRCenabled parameter is false in %s", msg->getName(), ptrNode->getFullName());
 
         handleAirFrame(static_cast<AirFrame*>(msg));
     }
@@ -293,14 +292,15 @@ void PhyLayer80211p::handleUpperMessage(omnetpp::cMessage* msg)
         throw omnetpp::cRuntimeError("Error: message for sending received, but radio already sending");
     }
 
-    // build the AirFrame to send
+    // make sure msg is of type packet
     assert(dynamic_cast<omnetpp::cPacket*>(msg) != 0);
 
+    // build the AirFrame to send
     readyToSendFrame = encapsMsg(static_cast<omnetpp::cPacket*>(msg));
 
     // make sure there is no self message of kind TX_OVER scheduled
-    // and schedule the actual one
     assert (!txOverTimer->isScheduled());
+    // txOverTimer notifies the transmission over time
     scheduleAt(omnetpp::simTime() + RADIODELAY_11P + readyToSendFrame->getDuration(), txOverTimer);
 
     // wait for the radio delay and then send the frame to the channel
@@ -848,7 +848,7 @@ void PhyLayer80211p::handleAirFrameStartReceive(AirFrame* frame)
 
     if(emulationActive)
     {
-        // add attenuation to the signal object of the frame using an analog model
+        // add attenuation to the signal object of the frame over time using an analog model
         filterSignal(frame);
 
         if(decider && frame->getProtocolId() == protocolId)
@@ -974,6 +974,7 @@ void PhyLayer80211p::filterSignal(AirFrame *frame)
 
     ChannelAccess *const senderModule = dynamic_cast<ChannelAccess *const>(frame->getSenderModule());
     assert(senderModule);
+
     // claim the Move pattern of the sender from the Signal
     ChannelMobilityPtrType sendersMobility = senderModule ? senderModule->getMobilityModule()   : NULL;
     // get the sender module position
@@ -981,6 +982,7 @@ void PhyLayer80211p::filterSignal(AirFrame *frame)
 
     ChannelAccess *const receiverModule = dynamic_cast<ChannelAccess *const>(frame->getArrivalModule());
     assert(receiverModule);
+
     ChannelMobilityPtrType receiverMobility = receiverModule ? receiverModule->getMobilityModule() : NULL;
     const Coord receiverPos = receiverMobility ? receiverMobility->getCurrentPosition() : Coord::ZERO;
 

@@ -70,6 +70,9 @@ void Mac1609_4::initialize(int stage)
         STAT = static_cast<VENTOS::Statistics*>(module);
         ASSERT(STAT);
 
+        // get a reference to this node
+        ptrNode = this->getParentModule()->getParentModule();
+
         // this is required to circumvent double precision issues with constants from CONST80211p.h
         assert(omnetpp::simTime().getScaleExp() == -12);
 
@@ -111,7 +114,7 @@ void Mac1609_4::initialize(int stage)
 
         if (useSCH)
         {
-            //set the initial service channel
+            // set the initial service channel
             switch (par("serviceChannel").longValue())
             {
             case 1: mySCH = Channels::SCH1; break;
@@ -254,16 +257,13 @@ void Mac1609_4::handleUpperControl(omnetpp::cMessage* msg)
 // all messages from application layer are sent to this method!
 void Mac1609_4::handleUpperMsg(omnetpp::cMessage* msg)
 {
-    // get a reference to this node
-    omnetpp::cModule *thisNode = this->getParentModule()->getParentModule();
     // make sure that DSRCenabled is true on this node
-    if(!thisNode->par("DSRCenabled"))
-        throw omnetpp::cRuntimeError("Cannot send msg %s: DSRCenabled parameter is false in %s", msg->getName(), thisNode->getFullName());
+    if(!ptrNode->par("DSRCenabled"))
+        throw omnetpp::cRuntimeError("Cannot send msg %s: DSRCenabled parameter is false in %s", msg->getName(), ptrNode->getFullName());
 
     WaveShortMessage* thisMsg = dynamic_cast<WaveShortMessage*>(msg);
-
     if (thisMsg == NULL)
-        throw omnetpp::cRuntimeError("WaveMac only accepts WaveShortMessages");
+        throw omnetpp::cRuntimeError("Mac1609_4 only accepts messages of type WaveShortMessages!");
 
     t_access_category ac = mapPriority(thisMsg->getPriority());
 

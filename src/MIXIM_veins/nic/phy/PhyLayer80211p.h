@@ -101,6 +101,9 @@ private:
     /** @brief Pointer to the World Utility, to obtain some global information*/
     BaseWorldUtility* world = NULL;
 
+    // pointer to this node
+    omnetpp::cModule *ptrNode = NULL;
+
     /** @brief The id of the in-data gate from the Mac layer */
     int upperLayerIn;
     /** @brief The id of the out-data gate to the Mac layer */
