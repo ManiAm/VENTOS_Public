@@ -128,7 +128,7 @@ void Mac1609_4::initialize(int stage)
             uint64_t switchingTime = SWITCHING_INTERVAL_11P.raw();
             double timeToNextSwitch = (double)(switchingTime - (currenTime % switchingTime)) / omnetpp::simTime().getScale();
 
-            if ((currenTime / switchingTime) % 2 == 0)
+            if ( (currenTime / switchingTime) % 2 == 0 )
                 setActiveChannel(type_CCH);
             else
                 setActiveChannel(type_SCH);
@@ -138,12 +138,14 @@ void Mac1609_4::initialize(int stage)
 
             // add a little bit of offset between all vehicles, but no more than syncOffset
             omnetpp::simtime_t offset = dblrand() * par("syncOffset").doubleValue();
-            scheduleAt(omnetpp::simTime() + offset + timeToNextSwitch, nextChannelSwitch);
+            scheduleAt(omnetpp::simTime() + timeToNextSwitch + offset, nextChannelSwitch);
         }
         else
         {
             // no channel switching
             nextChannelSwitch = 0;
+
+            // channel is always on CCH
             setActiveChannel(type_CCH);
         }
 
@@ -170,10 +172,12 @@ void Mac1609_4::finish()
 
 void Mac1609_4::handleSelfMsg(omnetpp::cMessage* msg)
 {
+    // channel switch in alternating channel scheme
     if (msg == nextChannelSwitch)
     {
         ASSERT(useSCH);
 
+        // schedule the next channel switch in 50ms
         scheduleAt(omnetpp::simTime() + SWITCHING_INTERVAL_11P, nextChannelSwitch);
 
         switch (activeChannel)
@@ -194,7 +198,6 @@ void Mac1609_4::handleSelfMsg(omnetpp::cMessage* msg)
             phy->changeListeningFrequency(frequency[Channels::CCH]);
             break;
         }
-        // schedule next channel switch in 50ms
     }
     else if (msg == nextMacEvent)
     {
@@ -218,7 +221,10 @@ void Mac1609_4::handleSelfMsg(omnetpp::cMessage* msg)
 
         EV << "Sending duration will be " << sendingDuration << std::endl;
 
-        if ((!useSCH) || (timeLeftInSlot() > sendingDuration))
+        // if we are using 'continuous channel access' or we are using
+        // 'alternating channel access' and we have enough time in the current
+        // slot to send the frame
+        if (!useSCH || timeLeftInSlot() > sendingDuration)
         {
             if (useSCH)
                 EV << " Time in this slot left: " << timeLeftInSlot() << std::endl;
@@ -236,12 +242,17 @@ void Mac1609_4::handleSelfMsg(omnetpp::cMessage* msg)
         else
         {   // not enough time left now
             EV << "Too little Time left. This packet cannot be send in this slot. \n";
+
             NumTooLittleTime++;
 
             // revoke TXOP
             myEDCA[activeChannel]->revokeTxOPs();
+
+            // delete the encapsulated message
             delete macPkt;
+
             channelIdle();
+
             // do nothing. contention will automatically start after channel switch
         }
     }
@@ -650,7 +661,7 @@ void Mac1609_4::channelIdle(bool afterSwitch)
 
     omnetpp::simtime_t delay = 0;
 
-    //account for 1609.4 guards
+    // account for 1609.4 guards
     if (afterSwitch)
     {
         //  delay = GUARD_INTERVAL_11P;
