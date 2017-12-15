@@ -47,7 +47,7 @@ public:
         int cwMin;          // minimum contention window
         int cwMax;          // maximum contention size
         int cwCur;          // current contention window
-        int currentBackoff; // current backoff value
+        int64_t currentBackoff; // current backoff value
         bool txOP;          // Transmit Opportunity (TXOP)
 
         EDCAQueue() {   };

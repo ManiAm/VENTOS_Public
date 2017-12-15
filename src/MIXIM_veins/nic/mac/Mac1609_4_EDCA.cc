@@ -127,7 +127,7 @@ void EDCA::stopContent(bool allowBackoff, bool generateTxOp)
         {
             //check how many slots we already waited until the channel became busy
 
-            int oldBackoff = iter.second.currentBackoff;
+            int64_t oldBackoff = iter.second.currentBackoff;
 
             std::string info;
             if (passedTime < iter.second.aifsn * SLOTLENGTH_11P + SIFS_11P)
@@ -141,7 +141,7 @@ void EDCA::stopContent(bool allowBackoff, bool generateTxOp)
                 iter.second.currentBackoff--;
 
                 //check how many slots we waited after the first DIFS
-                int passedSlots = (int)((passedTime - omnetpp::SimTime(iter.second.aifsn * SLOTLENGTH_11P + SIFS_11P)) / SLOTLENGTH_11P);
+                int64_t passedSlots = (int64_t)((passedTime - omnetpp::SimTime(iter.second.aifsn * SLOTLENGTH_11P + SIFS_11P)) / SLOTLENGTH_11P);
 
                 EV << "Passed slots after DIFS: " << passedSlots << std::endl;
 
