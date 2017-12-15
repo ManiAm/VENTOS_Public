@@ -26,6 +26,7 @@
 //
 
 #include "nodes/vehicle/01_Beacon.h"
+#include "baseAppl/ApplToPhyControlInfo.h"
 
 namespace VENTOS {
 
