@@ -34,7 +34,7 @@ namespace VENTOS {
 ApplToPhyControlInfo::ApplToPhyControlInfo(const char *name, int kind)
 {
     this->mcs = 0;
-    this->txPower_mW = 0;
+    this->txPower_mW = -1;
 }
 
 ApplToPhyControlInfo::ApplToPhyControlInfo(const ApplToPhyControlInfo& other)

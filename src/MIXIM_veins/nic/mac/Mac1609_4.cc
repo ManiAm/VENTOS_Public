@@ -494,7 +494,7 @@ Mac80211Pkt* Mac1609_4::encapsMsg(WaveShortMessage *pktToSend)
         // get Tx power from the control info
         txPower_mW = controlInfo->getTxPower_mW();
 
-        if (txPower_mW <= 0)
+        if (txPower_mW < 0)
             txPower_mW = txPower;
     }
     else
