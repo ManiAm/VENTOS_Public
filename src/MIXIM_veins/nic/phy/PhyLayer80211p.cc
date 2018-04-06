@@ -875,8 +875,6 @@ void PhyLayer80211p::handleAirFrameStartReceive(AirFrame* frame)
         // schedule the message directly to its end
         omnetpp::simtime_t signalEndTime = frame->getSendingTime() + frame->getSignal().getPropagationDelay() + frame->getDuration();
         scheduleAt(signalEndTime, frame);
-
-        return;
     }
 }
 
