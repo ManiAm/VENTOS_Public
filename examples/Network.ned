@@ -1,4 +1,4 @@
-package VENTOS.src;
+package VENTOS.examples;
 
 import VENTOS.src.traci.*;
 import VENTOS.src.global.*;
