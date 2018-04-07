@@ -1,0 +1,55 @@
+Recent changes in the VENTOS Framework
+======================================
+
+Git (development)
+-----------------
+
+
+
+VENTOS 1.0.1 (April 6, 2018)
+---------------------------
+
+**bug fixes**
++ VENTOS can now be installed from the downloaded zip file
++ vehicleGetColor is now working correctly
++ fix various memory leaks
++ measure sim start/end/duration more accurately
++ fix simulation end time recording
++ fix getRSUposition when calling from initialize
++ cleanup is now done in destructor not finish!
+
+**enhancements**
++ using a shorter relative path for sumoConfig
++ gnuplot has its own class now
++ vehicle equilibrium is now working for emulated cars and preserve color
++ enable parallel build
++ can now set the vglog window title with loggingWindowTitle
++ adding glogActive parameters to turn glog window off/on
++ recording PHY frames that are sent but not received in statistics
++ TraCI logging is now working more efficiently
++ adding vehicleExist TraCI command
++ adding vehicleSlowDown TraCI command
++ adding vehicleGetWaitingTime TraCI command
++ adding new commands to get XML elements of addNode.xml
++ can now run omnet++ in cmd mode without force-running sumo in cmd mode
++ removing quit-on-end to facilitate debugging
++ runme script checks eigen installation more accurately
++ get rid of deprecated method 'getHostByName'
++ placing RSUs randomly in the network
++ updating the manual
++ various small improvements
+
+VENTOS 1.0 (July 4, 2017)
+-------------------------
+
++ improving the user interface
++ adding traffic signal controls
++ introducing the VENTOS manual
+
+VENTOS 0.5 (Nov 9, 2015)
+------------------------
+
++ first public release
++ first implementation of our platoon management protocol
++ first implementation of our ACC/CACC car-following model
++ adversary module to simulate security attacks
