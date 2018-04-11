@@ -157,8 +157,12 @@ void ApplVPlatoonMg::initialize(int stage)
         // --------
         plnTIMER12 = new omnetpp::cMessage("wait for DISSOLVE ACK");
 
-        platoonMonitorTIMER = new omnetpp::cMessage("platoon_monitor");
-        scheduleAt(omnetpp::simTime(), platoonMonitorTIMER);
+        // if platoonMonitorTIMER is not scheduled earlier
+        if(!platoonMonitorTIMER || (platoonMonitorTIMER && !platoonMonitorTIMER->isScheduled()))
+        {
+            platoonMonitorTIMER = new omnetpp::cMessage("platoon_monitor");
+            scheduleAt(omnetpp::simTime(), platoonMonitorTIMER);
+        }
     }
 }
 
