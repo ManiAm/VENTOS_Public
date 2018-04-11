@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<edges>
+
+  <edge id="1to2" from="1" to="2" numLanes="3" speed="30" />
+
+</edges>
