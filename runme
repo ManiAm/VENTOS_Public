@@ -1507,7 +1507,7 @@ else
     fi
 
     cd eigen
-    cd eigen-master
+    cd eigen-git-mirror-master
     if [[ $? -ne 0 ]]; then
         exit 1
     fi
