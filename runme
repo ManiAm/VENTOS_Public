@@ -122,6 +122,23 @@ install_LIB_linux ()
                 exit 1
             fi
         else
+	    # this library is already installed
+	    cmd_output=$(apt-cache policy $i)
+	    installed_ver=$(echo "$cmd_output" | grep 'Installed: ' | awk '{print $2}')
+	    candidate_ver=$(echo "$cmd_output" | grep 'Candidate: ' | awk '{print $2}')
+
+	    # check if there exists any newer versions?
+            vercomp "$candidate_ver" "$installed_ver"
+            result=$?
+            if [[ "$result" == "1" ]]; then
+                echo "installing newer version"
+                echo $sudoPass | sudo -S apt-get --force-yes --yes install $i > /dev/null
+                # check if everything went well?
+                if [[ $? -ne 0 ]]; then
+                    exit 1
+                fi
+            fi
+
             echo "ok"
         fi
     done
@@ -199,39 +216,81 @@ progressfilt ()
     done
 }
 
-# 0: equal
-# 1: $1 > $2
-# 2: $1 < $2
-vercomp () 
-{
-    if [[ $1 == $2 ]]
-    then
-        return 0
-    fi
-    local IFS=.
-    local i ver1=($1) ver2=($2)
-    # fill empty fields in ver1 with zeros
-    for ((i=${#ver1[@]}; i<${#ver2[@]}; i++))
-    do
-        ver1[i]=0
-    done
-    for ((i=0; i<${#ver1[@]}; i++))
-    do
-        if [[ -z ${ver2[i]} ]]
-        then
-            # fill empty fields in ver2 with zeros
-            ver2[i]=0
-        fi
-        if ((10#${ver1[i]} > 10#${ver2[i]}))
-        then
+ascii_frag() {
+    expr match "$1" "\([^[:digit:]]*\)"
+}
+
+ascii_remainder() {
+    expr match "$1" "[^[:digit:]]*\(.*\)"
+}
+
+numeric_frag() {
+    expr match "$1" "\([[:digit:]]*\)"
+}
+
+numeric_remainder() {
+    expr match "$1" "[[:digit:]]*\(.*\)"
+}
+
+vercomp_debug() {
+    OUT="$1"
+    #echo "${OUT}"
+}
+
+# return 1 for $1 > $2
+# return 2 for $1 < $2
+# return 0 for equal
+# note: this script can compare versions like 5.3p4 > 5.1
+vercomp() {
+    local WORK1="$1"
+    local WORK2="$2"
+    local NUM1="", NUM2="", ASCII1="", ASCII2=""
+    while true; do
+        vercomp_debug "ASCII compare"
+        ASCII1=`ascii_frag "${WORK1}"`
+        ASCII2=`ascii_frag "${WORK2}"`
+        WORK1=`ascii_remainder "${WORK1}"`
+        WORK2=`ascii_remainder "${WORK2}"`
+        vercomp_debug "\"${ASCII1}\" remainder \"${WORK1}\""
+        vercomp_debug "\"${ASCII2}\" remainder \"${WORK2}\""
+
+        if [ "${ASCII1}" \> "${ASCII2}" ]; then
+            vercomp_debug "ascii ${ASCII1} > ${ASCII2}"
             return 1
-        fi
-        if ((10#${ver1[i]} < 10#${ver2[i]}))
-        then
+        elif [ "${ASCII1}" \< "${ASCII2}" ]; then
+            vercomp_debug "ascii ${ASCII1} < ${ASCII2}"
             return 2
         fi
+        vercomp_debug "--------"
+
+        vercomp_debug "Numeric compare"
+        NUM1=`numeric_frag "${WORK1}"`
+        NUM2=`numeric_frag "${WORK2}"`
+        WORK1=`numeric_remainder "${WORK1}"`
+        WORK2=`numeric_remainder "${WORK2}"`
+        vercomp_debug "\"${NUM1}\" remainder \"${WORK1}\""
+        vercomp_debug "\"${NUM2}\" remainder \"${WORK2}\""
+
+        if [ -z "${NUM1}" -a -z "${NUM2}" ]; then
+            vercomp_debug "blank 1 and blank 2 equal"
+            return 0
+        elif [ -z "${NUM1}" -a -n "${NUM2}" ]; then
+            vercomp_debug "blank 1 less than non-blank 2"
+            return 2
+        elif [ -n "${NUM1}" -a -z "${NUM2}" ]; then
+            vercomp_debug "non-blank 1 greater than blank 2"
+            return 1
+        fi
+
+        if [ "${NUM1}" -gt "${NUM2}" ]; then
+            vercomp_debug "num ${NUM1} > ${NUM2}"
+            return 1
+        elif [ "${NUM1}" -lt "${NUM2}" ]; then
+            vercomp_debug "num ${NUM1} < ${NUM2}"
+            return 2
+        fi
+        vercomp_debug "--------"
     done
-    return 0
 }
 
 
@@ -264,7 +323,6 @@ ask_for_sudo ()
 
 install_java_ubuntu ()
 {
-    echo "java version should be >= 1.7"
     echo "[1] install OpenJDK 1.7/1.8"
     echo "[2] install Oracle Java 1.8"
     echo -n "your selection? [1] "
@@ -587,9 +645,14 @@ if [[ "$OS" == "Mac OS X" ]]; then
     brew cask list > /dev/null 2> /dev/null
 fi
 
-# refresh the databse of available packages
-# fixes ocational problem with java installation
 if [[ "$OS" == "Ubuntu" ]]; then
+
+    # omnet needs osgearth 2.7 or above
+    echo "Adding repository ..."
+    echo $sudoPass | sudo -S add-apt-repository -y ppa:ubuntugis/ppa > /dev/null
+
+    # refresh the databse of available packages
+    # fixes ocational problem with java installation
     echo "updating available packages ..."
     echo $sudoPass | sudo -S apt-get update > /dev/null 2> /dev/null
 fi
@@ -607,6 +670,7 @@ result=$?
 if [[ "$result" == "2" ]]; then
 
     if [[ "$OS" == "Ubuntu" ]]; then
+            echo "java version should be >= 1.7"
 	    install_java_ubuntu
     elif [[ "$OS" == "Mac OS X" ]]; then
         # we have already requested to install java
@@ -673,7 +737,7 @@ echo ""
 echo "Looking for previous OMNET++"
 echo "============================"
 
-targetVer="5.1"
+targetVer="5.3"
 omnetDIR="omnetpp-"$targetVer
 
 # check if we can find omnet from the path variable
@@ -724,11 +788,11 @@ elif [[ $WIN_OMNET_DO_NOT_INSTALL != "1" ]]; then # we need to install omnet
             echo "downloading omnet++ version" $targetVer
  
             if [[ "$OS" == "Ubuntu" ]]; then
-                omnetURL="omnetpp-5.1-src-linux.tgz"
+                omnetURL="omnetpp-"$targetVer"-src-linux.tgz"
             elif [[ "$OS" == "Mac OS X" ]]; then
-                omnetURL="omnetpp-5.1-src-macosx.tgz"
+                omnetURL="omnetpp-"$targetVer"-src-macosx.tgz"
 	    elif [[ "$OSTYPE" == "msys" ]]; then
-                omnetURL="omnetpp-5.1-src-windows.zip"
+                omnetURL="omnetpp-"$targetVer"-src-windows.zip"
             fi
 
             if [[ "$OS" == "Ubuntu" || "$OS" == "Mac OS X" ]]; then
@@ -828,7 +892,7 @@ echo ""
 echo "Making OMNET++"
 echo "=============="
 
-printf "\e[1;32mcompiling takes some time, so relax, grab a cup of coffee and \nwatch: https://www.youtube.com/watch?v=A6XUVjK9W4o \e[0m \n"
+printf "\e[1;32mcompiling takes some time, so relax, grab a cup of coffee and \nwatch: https://youtu.be/494dUevcqJM \e[0m \n"
 echo " "
 make -j4 > /dev/null
 if [[ $? -ne 0 ]]; then
@@ -893,7 +957,7 @@ EOF
         result=$?
         if [[ ("" != "$ver") && ("$result" == "2") ]]; then
             help="ERROR: The PATH variable contains an old version of OMNET ($ver).
-Open .bashrc file and remove the old OMNET path. Then CLOSE this terminal
+Open .bashrc file and remove the line with old OMNET path. Then 'CLOSE' this terminal
 and open a new terminal and execute the runme script again!"
             printf "\n\e[1;31m$help\e[0m \n\n"
             exit 1 
@@ -1265,7 +1329,7 @@ else
     echo "==========="
 
     # start making SUMO
-    printf "\e[1;32mcompiling takes some time, so relax and \nwatch: https://www.youtube.com/watch?v=BlFdAm2AjAk \e[0m \n"
+    printf "\e[1;32mcompiling takes some time, so relax and \nwatch: https://youtu.be/vLT3A0a3hoQ \e[0m \n"
     echo " "
     make -j4 > /dev/null
     if [[ $? -ne 0 ]]; then
@@ -1435,7 +1499,7 @@ if [ -d "/usr/local/include/eigen3/Eigen" ]; then
 else
     if [ ! -d "eigen" ]; then
         echo "downloading eigen"
-        curl -o eigen.zip -LOk https://github.com/RLovelett/eigen/archive/master.zip
+        curl -o eigen.zip -LOk https://github.com/eigenteam/eigen-git-mirror/archive/master.zip
         if [[ $? -ne 0 ]]; then
             exit 1
         fi
