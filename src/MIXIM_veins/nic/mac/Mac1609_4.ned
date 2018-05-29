@@ -58,7 +58,7 @@ simple Mac1609_4 extends BaseLayer like IWirelessMac
         @signal[sigCollision](type=bool);
         
         bool   coreDebug = default(false);   // debug switch
-        double headerLength = default(0 bit) @unit(bit);  // length of MAC header, header is already added at 1609_4
+        int headerLength = default(0 bit) @unit(bit);  // length of MAC header, header is already added at 1609_4
         string address = default("auto");    // MAC address as hex string (12 hex digits), or "auto". "auto" values will be replaced by a generated MAC address in init stage 1.
         
         // cycle between an SCH and the CCH (or stay on CCH all the time)
@@ -71,7 +71,7 @@ simple Mac1609_4 extends BaseLayer like IWirelessMac
         bool debug = default(false);
         
         // bit rate 
-        double bitrate @unit(bps) = default(6 Mbps);
+        int bitrate @unit(bps) = default(6 Mbps);
         
         // tx power [mW]
         double txPower = default(20mW) @unit(mW);

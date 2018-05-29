@@ -52,7 +52,7 @@ void Mac1609_4::initialize(int stage)
 
     if(stage == 0)
     {
-        headerLength = par("headerLength");
+        headerLength = par("headerLength").longValue();
         hasPar("coreDebug") ? coreDebug = par("coreDebug").boolValue() : coreDebug = false;
         myMacAddress = intuniform(0,0xFFFFFFFE);
         myId = getParentModule()->getParentModule()->getFullName();
