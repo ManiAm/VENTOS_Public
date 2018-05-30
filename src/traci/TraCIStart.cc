@@ -248,7 +248,7 @@ void TraCI_Start::init_traci()
     if(appl != "sumo" && appl != "sumoD" && appl != "sumo-gui" && appl != "sumo-guiD")
         throw omnetpp::cRuntimeError("SUMO application '%s' is not recognized. Make sure the Network.TraCI.SUMOapplication parameter in set correctly.", appl.c_str());
 
-    int remotePort = par("remotePort").longValue();
+    int remotePort = par("remotePort").intValue();
 
     int port = 0;
     if(remotePort == -1)

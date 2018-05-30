@@ -46,8 +46,8 @@ void IntersectionDemand::initialize(int stage)
     if(stage == 0)
     {
         record_trafficDemand_stat = par("record_trafficDemand_stat").boolValue();
-        trafficDemandMode = par("trafficDemandMode").longValue();
-        trafficDemandBuffSize = par("trafficDemandBuffSize").longValue();
+        trafficDemandMode = par("trafficDemandMode").intValue();
+        trafficDemandBuffSize = par("trafficDemandBuffSize").intValue();
     }
 }
 

@@ -67,7 +67,7 @@ void ApplRSUCLASSIFY::initialize(int stage)
         if(GPSError_speed < 0)
             throw omnetpp::cRuntimeError("GPSError_speed value is not correct!");
 
-        debugLevel = omnetpp::getSimulation()->getSystemModule()->par("debugLevel").longValue();
+        debugLevel = omnetpp::getSimulation()->getSystemModule()->par("debugLevel").intValue();
 
         // get incoming lane in this TL
         auto lan = TraCI->TLGetControlledLanes(myTLid);

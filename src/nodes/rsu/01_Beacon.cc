@@ -47,7 +47,7 @@ void ApplRSUBeacon::initialize(int stage)
         TLptr = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TrafficLight");
         ASSERT(TLptr);
 
-        TLControlMode = TLptr->par("TLControlMode").longValue();
+        TLControlMode = TLptr->par("TLControlMode").intValue();
         minGreenTime = TLptr->par("minGreenTime").doubleValue();
 
         myTLid = getParentModule()->par("myTLid").stringValue();

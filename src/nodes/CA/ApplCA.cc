@@ -50,11 +50,11 @@ void ApplCA::initialize(int stage)
 
         moduleName = this->getParentModule()->getFullName();
 
-        InitialWait = par("InitialWait").longValue();
+        InitialWait = par("InitialWait").intValue();
         if(InitialWait < 0)
             throw omnetpp::cRuntimeError("value for InitialWait is incorrect !!");
 
-        CRLsize = par("CRLsize").longValue();
+        CRLsize = par("CRLsize").intValue();
         if(CRLsize <= 0)
             throw omnetpp::cRuntimeError("value for CRLsize is incorrect !!");
 
@@ -68,7 +68,7 @@ void ApplCA::initialize(int stage)
 
         if(!ErasureCode)
         {
-            NoSegments = par("NoSegments").longValue();
+            NoSegments = par("NoSegments").intValue();
 
             if(NoSegments <= 0)
                 throw omnetpp::cRuntimeError("Value of NoSegments is incorrect! Check configuration file.");
@@ -77,8 +77,8 @@ void ApplCA::initialize(int stage)
         }
         else
         {
-            N = par("N").longValue();
-            M = par("M").longValue();
+            N = par("N").intValue();
+            M = par("M").intValue();
 
             if(N <= 0 || N >= 256)
                 throw omnetpp::cRuntimeError("Value of N is not correct! Check configuration file.");

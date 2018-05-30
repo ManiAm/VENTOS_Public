@@ -64,7 +64,7 @@ void vlog::initialize(int stage)
 
         logRecordCMD = par("logRecordCMD").boolValue();
         saveLog2File = par("saveLog2File").boolValue();
-        systemLogLevel = par("systemLogLevel").longValue();
+        systemLogLevel = par("systemLogLevel").intValue();
 
         // store the pointer to class object
         objPtr = this;

@@ -41,7 +41,7 @@ TrafficLightLQF_NoStarv::~TrafficLightLQF_NoStarv()
 
 void TrafficLightLQF_NoStarv::initialize(int stage)
 {
-    if(par("TLControlMode").longValue() == TL_LQF)
+    if(par("TLControlMode").intValue() == TL_LQF)
         par("record_intersectionQueue_stat") = true;
 
     super::initialize(stage);

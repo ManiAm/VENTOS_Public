@@ -42,7 +42,7 @@ TrafficLightWebster::~TrafficLightWebster()
 
 void TrafficLightWebster::initialize(int stage)
 {
-    if(par("TLControlMode").longValue() == TL_Adaptive_Webster)
+    if(par("TLControlMode").intValue() == TL_Adaptive_Webster)
         par("record_trafficDemand_stat") = true;
 
     super::initialize(stage);

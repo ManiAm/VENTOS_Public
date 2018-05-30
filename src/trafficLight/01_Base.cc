@@ -47,13 +47,13 @@ void TrafficLightBase::initialize(int stage)
         // get a pointer to the TraCI module
         TraCI = TraCI_Commands::getTraCI();
 
-        TLControlMode = par("TLControlMode").longValue();
+        TLControlMode = par("TLControlMode").intValue();
 
         // check if the TLControlMode number is valid?
         if(TLControlMode < 0 || TLControlMode >= NUM_TL_CONTROLS)
             throw omnetpp::cRuntimeError("Invalid TLControlMode!");
 
-        debugLevel = omnetpp::getSimulation()->getSystemModule()->par("debugLevel").longValue();
+        debugLevel = omnetpp::getSimulation()->getSystemModule()->par("debugLevel").intValue();
     }
 }
 

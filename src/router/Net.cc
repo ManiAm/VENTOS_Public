@@ -54,7 +54,7 @@ Net::~Net()
 
 Net::Net(std::string netBase, omnetpp::cModule* router, int ltc, int rtc, int stc, int utc):leftTurnCost(ltc), rightTurnCost(rtc), straightCost(stc), uTurnCost(utc)
 {
-    debugLevel = omnetpp::getSimulation()->getSystemModule()->par("debugLevel").longValue();
+    debugLevel = omnetpp::getSimulation()->getSystemModule()->par("debugLevel").intValue();
 
     routerModule = router;
     LoadHelloNet(netBase);

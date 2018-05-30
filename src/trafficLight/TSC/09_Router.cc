@@ -197,7 +197,7 @@ void TrafficLightRouter::initialize(int stage)
         MaxPhaseDuration = par("MaxPhaseDuration").doubleValue();
         MinPhaseDuration = par("MinPhaseDuration").doubleValue();
 
-        TLLogicMode = static_cast<TrafficLightLogicMode>(par("TLLogicMode").longValue());
+        TLLogicMode = static_cast<TrafficLightLogicMode>(par("TLLogicMode").intValue());
         switch(TLLogicMode)
         {
         case FIXED:

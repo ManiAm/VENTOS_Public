@@ -64,16 +64,16 @@ void BaseWaveApplLayer::initialize(int stage)
         mac = static_cast<Veins::Mac1609_4 *>(module);
         ASSERT(mac);
 
-        headerLength = par("headerLength").longValue();
+        headerLength = par("headerLength").intValue();
 
         sendBeacons = par("sendBeacons").boolValue();
-        beaconLengthBits = par("beaconLengthBits").longValue();
-        beaconPriority = par("beaconPriority").longValue();
+        beaconLengthBits = par("beaconLengthBits").intValue();
+        beaconPriority = par("beaconPriority").intValue();
         beaconInterval =  par("beaconInterval");
 
-        dataLengthBits = par("dataLengthBits").longValue();
+        dataLengthBits = par("dataLengthBits").intValue();
         dataOnSCH = par("dataOnSCH").boolValue();
-        dataPriority = par("dataPriority").longValue();
+        dataPriority = par("dataPriority").intValue();
 
         DSRCenabled = getParentModule()->par("DSRCenabled").boolValue();
         hasOBU = getParentModule()->par("hasOBU").boolValue();

@@ -52,12 +52,12 @@ void Mac1609_4::initialize(int stage)
 
     if(stage == 0)
     {
-        headerLength = par("headerLength").longValue();
+        headerLength = par("headerLength").intValue();
         hasPar("coreDebug") ? coreDebug = par("coreDebug").boolValue() : coreDebug = false;
         myMacAddress = intuniform(0,0xFFFFFFFE);
         myId = getParentModule()->getParentModule()->getFullName();
         txPower = par("txPower").doubleValue();
-        bitrate = par("bitrate").longValue();
+        bitrate = par("bitrate").intValue();
         record_stat = par("record_stat").boolValue();
 
         // get handle to phy layer
@@ -91,7 +91,7 @@ void Mac1609_4::initialize(int stage)
         frequency[Channels::HPPS] = 5.92e9;
 
         // EDCA for type_CCH
-        myEDCA[type_CCH] = new EDCA(this, type_CCH, par("queueSize").longValue());
+        myEDCA[type_CCH] = new EDCA(this, type_CCH, par("queueSize").intValue());
         myEDCA[type_CCH]->myId = myId;
         myEDCA[type_CCH]->myId.append(" CCH");
         // creating four queues
@@ -101,7 +101,7 @@ void Mac1609_4::initialize(int stage)
         myEDCA[type_CCH]->createQueue(9 /*AIFS*/, CWMIN_11P /*CWmin*/, CWMAX_11P /*CWmax*/, AC_BK);
 
         // EDCA for type_SCH
-        myEDCA[type_SCH] = new EDCA(this, type_SCH, par("queueSize").longValue());
+        myEDCA[type_SCH] = new EDCA(this, type_SCH, par("queueSize").intValue());
         myEDCA[type_SCH]->myId = myId;
         myEDCA[type_SCH]->myId.append(" SCH");
         // creating four queues
@@ -115,7 +115,7 @@ void Mac1609_4::initialize(int stage)
         if (useSCH)
         {
             // set the initial service channel
-            switch (par("serviceChannel").longValue())
+            switch (par("serviceChannel").intValue())
             {
             case 1: mySCH = Channels::SCH1; break;
             case 2: mySCH = Channels::SCH2; break;

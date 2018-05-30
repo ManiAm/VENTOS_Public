@@ -43,7 +43,7 @@ void ApplAdversary::initialize(int stage)
 
     if (stage == 0)
     {
-        attackMode = par("attackMode").longValue();
+        attackMode = par("attackMode").intValue();
 
         if(attackMode == -1)
             return;

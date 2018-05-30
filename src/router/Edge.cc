@@ -35,7 +35,7 @@ Lane::Lane(std::string id, double speed, double length):
 Edge::Edge(std::string id, Node* from, Node* to, int priority, std::vector<Lane*> lanes):
                                   id(id), from(from), to(to), priority(priority), lanes(lanes)
 {
-    debugLevel = omnetpp::getSimulation()->getSystemModule()->par("debugLevel").longValue();
+    debugLevel = omnetpp::getSimulation()->getSystemModule()->par("debugLevel").intValue();
 
     numLanes = lanes.size();
     speed = 0;

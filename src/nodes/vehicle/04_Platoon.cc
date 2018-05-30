@@ -43,7 +43,7 @@ void ApplVPlatoon::initialize(int stage)
 
     if (stage == 0)
     {
-        plnMode = par("plnMode").longValue();
+        plnMode = par("plnMode").intValue();
         if(plnMode != platoonNoManagement && plnMode != platoonManagement)
             return;
 
@@ -51,7 +51,7 @@ void ApplVPlatoon::initialize(int stage)
         if(myPlnID == "")
             throw omnetpp::cRuntimeError("pltID is empty in vehicle '%s'", SUMOID.c_str());
 
-        myPlnDepth = par("myPlnDepth").longValue();
+        myPlnDepth = par("myPlnDepth").intValue();
         if(myPlnDepth < 0)
             throw omnetpp::cRuntimeError("pltDepth is invalid in vehicle '%s'", SUMOID.c_str());
 
@@ -59,7 +59,7 @@ void ApplVPlatoon::initialize(int stage)
         if(myPlnDepth == 0)
         {
             // plnSize is known in platoon leader only
-            plnSize = par("plnSize").longValue();
+            plnSize = par("plnSize").intValue();
             if(plnSize <= 0)
                 throw omnetpp::cRuntimeError("pltSize is invalid in vehicle '%s'", SUMOID.c_str());
 

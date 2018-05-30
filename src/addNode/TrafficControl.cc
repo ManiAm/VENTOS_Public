@@ -1375,7 +1375,7 @@ void TrafficControl::controlOptSize()
                 ApplVManager *vehPtr = getApplPtr(vehId);
 
                 // make sure platoon management protocol is 'on'
-                if(vehPtr->par("plnMode").longValue() != ApplVPlatoon::platoonManagement)
+                if(vehPtr->par("plnMode").intValue() != ApplVPlatoon::platoonManagement)
                 {
                     LOG_WARNING << boost::format("\nWARNING: Trying to change optSize in vehicle '%s' with disabled "
                             "platoon management protocol. Is 'pltMgmtProt' attribute active? \n") % vehId << std::flush;
@@ -1467,7 +1467,7 @@ void TrafficControl::controlPltMerge()
             ApplVManager *vehPtr = getApplPtr(entry.second.pltId_str);
 
             // make sure platoon management protocol is 'on'
-            if(vehPtr->par("plnMode").longValue() != ApplVPlatoon::platoonManagement)
+            if(vehPtr->par("plnMode").intValue() != ApplVPlatoon::platoonManagement)
             {
                 LOG_WARNING << boost::format("\nWARNING: Trying to perform merge in platoon '%s' with disabled "
                         "platoon management protocol. Is 'pltMgmtProt' attribute active? \n") % entry.second.pltId_str << std::flush;
@@ -1616,7 +1616,7 @@ void TrafficControl::controlPltSplit()
             ApplVManager *vehPtr = getApplPtr(platoonID_m);
 
             // make sure platoon management protocol is 'on'
-            if(vehPtr->par("plnMode").longValue() != ApplVPlatoon::platoonManagement)
+            if(vehPtr->par("plnMode").intValue() != ApplVPlatoon::platoonManagement)
             {
                 LOG_WARNING << boost::format("\nWARNING: Trying to perform split in platoon '%s' with disabled "
                         "platoon management protocol. Is 'pltMgmtProt' attribute active? \n") % platoonID_m << std::flush;
@@ -1648,7 +1648,7 @@ TrafficControl::pltIndex_t TrafficControl::getPlatoonIdAndIndex(T &entry)
     ApplVManager *vehPtr = getApplPtr(entry.vehId_str);
 
     // make sure platoon management protocol is 'on'
-    if(vehPtr->par("plnMode").longValue() != ApplVPlatoon::platoonManagement)
+    if(vehPtr->par("plnMode").intValue() != ApplVPlatoon::platoonManagement)
     {
         LOG_WARNING << boost::format("\nWARNING: The platoon management protocol is not active in vehicle '%s'. \n") % entry.vehId_str << std::flush;
         entry.processingEnded = true;
@@ -1789,7 +1789,7 @@ void TrafficControl::controlPltLeave()
             ApplVManager *vehPtr = getApplPtr(platoonID_m);
 
             // make sure platoon management protocol is 'on'
-            if(vehPtr->par("plnMode").longValue() != ApplVPlatoon::platoonManagement)
+            if(vehPtr->par("plnMode").intValue() != ApplVPlatoon::platoonManagement)
             {
                 LOG_WARNING << boost::format("\nWARNING: Trying to perform leave in platoon '%s' with disabled "
                         "platoon management protocol. Is 'pltMgmtProt' attribute active? \n") % platoonID_m << std::flush;
@@ -1928,7 +1928,7 @@ void TrafficControl::controlPltManeuver()
                 ApplVManager *vehPtr = getApplPtr(vehId);
 
                 // make sure platoon management protocol is 'on'
-                if(vehPtr->par("plnMode").longValue() != ApplVPlatoon::platoonManagement)
+                if(vehPtr->par("plnMode").intValue() != ApplVPlatoon::platoonManagement)
                 {
                     LOG_WARNING << boost::format("\nWARNING: Trying to enable/disable maneuver in vehicle '%s' with disabled "
                             "platoon management protocol. Is 'pltMgmtProt' attribute active? \n") % vehId << std::flush;

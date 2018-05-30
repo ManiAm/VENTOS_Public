@@ -43,7 +43,7 @@ TrafficLightOJF::~TrafficLightOJF()
 
 void TrafficLightOJF::initialize(int stage)
 {
-    if(par("TLControlMode").longValue() == TL_OJF)
+    if(par("TLControlMode").intValue() == TL_OJF)
         par("record_intersectionDelay_stat") = true;
 
     super::initialize(stage);

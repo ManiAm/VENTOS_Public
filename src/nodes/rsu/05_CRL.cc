@@ -45,7 +45,7 @@ void ApplRSUCRL::initialize(int stage)
 
     if(stage == 0) 
     {
-        CRLdistAlg = par("CRLdistAlg").longValue();
+        CRLdistAlg = par("CRLdistAlg").intValue();
         if(CRLdistAlg < 0 || CRLdistAlg >= NUM_CRL_ALG)
             throw omnetpp::cRuntimeError("Invalid CRLdistAlg!");
 

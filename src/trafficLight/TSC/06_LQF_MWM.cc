@@ -41,7 +41,7 @@ TrafficLight_LQF_MWM::~TrafficLight_LQF_MWM()
 
 void TrafficLight_LQF_MWM::initialize(int stage)
 {
-    if(par("TLControlMode").longValue() == TL_LQF_MWM)
+    if(par("TLControlMode").intValue() == TL_LQF_MWM)
         par("record_intersectionQueue_stat") = true;
 
     super::initialize(stage);

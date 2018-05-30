@@ -140,7 +140,7 @@ void PhyLayer80211p::initialize(int stage)
         upperControlOut = findGate("upperControlOut");
         upperControlIn = findGate("upperControlIn");
 
-        headerLength = par("headerLength").longValue();
+        headerLength = par("headerLength").intValue();
         if (headerLength != PHY_HDR_TOTAL_LENGTH)
             throw omnetpp::cRuntimeError("The header length of the 802.11p standard is 46bit, please change your omnetpp.ini accordingly by either setting it to 46bit or removing the entry");
 
@@ -325,7 +325,7 @@ void PhyLayer80211p::handleUpperControlMessage(omnetpp::cMessage* msg)
 
 Radio* PhyLayer80211p::initializeRadio()
 {
-    int initialRadioState = par("initialRadioState").longValue();
+    int initialRadioState = par("initialRadioState").intValue();
     double radioMinAtt = par("radioMinAtt").doubleValue();
     double radioMaxAtt = par("radioMaxAtt").doubleValue();
     int initialRadioChannel = hasPar("initialRadioChannel") ? par("initialRadioChannel") : 0;
@@ -1285,7 +1285,7 @@ ChannelState PhyLayer80211p::getChannelState()
 int PhyLayer80211p::getPhyHeaderLength()
 {
     if (headerLength < 0)
-        return par("headerLength").longValue();
+        return par("headerLength").intValue();
 
     return headerLength;
 }

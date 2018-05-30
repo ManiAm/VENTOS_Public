@@ -35,7 +35,7 @@ EdgeCosts::EdgeCosts()
     // get a pointer to router module
     omnetpp::cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("router");
     EWMARate = module->par("EWMARate").doubleValue();
-    laneCostsMode = static_cast<LaneCostsMode>(module->par("LaneCostsMode").longValue());
+    laneCostsMode = static_cast<LaneCostsMode>(module->par("LaneCostsMode").intValue());
 
     average = 0;
     count = 0;
@@ -46,7 +46,7 @@ EdgeCosts::EdgeCosts(std::map<int, int> dataSet)
     // get a pointer to router module
     omnetpp::cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("router");
     EWMARate = module->par("EWMARate").doubleValue();
-    laneCostsMode = static_cast<LaneCostsMode>(module->par("LaneCostsMode").longValue());
+    laneCostsMode = static_cast<LaneCostsMode>(module->par("LaneCostsMode").intValue());
 
     average = 0;
     count = 0;

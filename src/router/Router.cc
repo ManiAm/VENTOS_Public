@@ -96,25 +96,25 @@ void Router::initialize(int stage)
         // get a pointer to the TraCI module
         TraCI = TraCI_Commands::getTraCI();
 
-        debugLevel = omnetpp::getSimulation()->getSystemModule()->par("debugLevel").longValue();
+        debugLevel = omnetpp::getSimulation()->getSystemModule()->par("debugLevel").intValue();
 
         EWMARate = par("EWMARate").doubleValue();
         TLLookahead = par("TLLookahead").doubleValue();
         timePeriodMax = par("timePeriodMax").doubleValue();
         UseHysteresis = par("UseHysteresis").boolValue();
 
-        laneCostsMode = static_cast<LaneCostsMode>(par("LaneCostsMode").longValue());
-        HysteresisCount = par("HysteresisCount").longValue();
+        laneCostsMode = static_cast<LaneCostsMode>(par("LaneCostsMode").intValue());
+        HysteresisCount = par("HysteresisCount").intValue();
 
-        createTime = par("createTime").longValue();
-        totalVehicleCount = par("vehicleCount").longValue();
+        createTime = par("createTime").intValue();
+        totalVehicleCount = par("vehicleCount").intValue();
         currentVehicleCount = totalVehicleCount;
         nonReroutingVehiclePercent = 1 - par("ReroutingVehiclePercent").doubleValue();
 
         UseAccidents = par("UseAccidents").boolValue();
-        AccidentCheckInterval = par("AccidentCheckInterval").longValue();
+        AccidentCheckInterval = par("AccidentCheckInterval").intValue();
         collectVehicleTimeData = par("collectVehicleTimeData").boolValue();
-        dijkstraOutdateTime = par("dijkstraOutdateTime").longValue();
+        dijkstraOutdateTime = par("dijkstraOutdateTime").intValue();
 
         // register and subscribe to signals
         Signal_system = registerSignal("system");

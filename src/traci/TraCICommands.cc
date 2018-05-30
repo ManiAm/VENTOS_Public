@@ -57,7 +57,7 @@ void TraCI_Commands::initialize(int stage)
     if (stage == 0)
     {
         record_TraCI_activity = par("record_TraCI_activity").boolValue();
-        margin = par("margin").longValue();
+        margin = par("margin").intValue();
 
         if(par("active").boolValue())
         {
@@ -1398,7 +1398,7 @@ int TraCI_Commands::vehicleGetPlatoonDepth(std::string nodeId)
     ApplVManager *vehPtr = static_cast<ApplVManager *>(appl);
     ASSERT(vehPtr);
 
-    return vehPtr->par("myPlnDepth").longValue();
+    return vehPtr->par("myPlnDepth").intValue();
 }
 
 
@@ -3690,7 +3690,7 @@ uint32_t TraCI_Commands::platoonGetSize(std::string platoonId)
     cModule *appl = platoonLeaderModule->getSubmodule("appl");
     ASSERT(appl);
 
-    return appl->par("plnSize").longValue();
+    return appl->par("plnSize").intValue();
 }
 
 
@@ -3702,7 +3702,7 @@ uint32_t TraCI_Commands::platoonGetOptSize(std::string platoonId)
     cModule *appl = platoonLeaderModule->getSubmodule("appl");
     ASSERT(appl);
 
-    return appl->par("optPlatoonSize").longValue();
+    return appl->par("optPlatoonSize").intValue();
 }
 
 
@@ -3714,7 +3714,7 @@ uint32_t TraCI_Commands::platoonGetMaxSize(std::string platoonId)
     cModule *appl = platoonLeaderModule->getSubmodule("appl");
     ASSERT(appl);
 
-    return appl->par("maxPlatoonSize").longValue();
+    return appl->par("maxPlatoonSize").intValue();
 }
 
 
@@ -3747,7 +3747,7 @@ bool TraCI_Commands::platoonIsPltMgmtProtActive(std::string platoonId)
     ASSERT(appl);
 
     // get the platoon leader mode
-    int plnMode = appl->par("plnMode").longValue();
+    int plnMode = appl->par("plnMode").intValue();
 
     return (plnMode == 3);
 }

@@ -41,7 +41,7 @@ TrafficLight_FMSC::~TrafficLight_FMSC()
 
 void TrafficLight_FMSC::initialize(int stage)
 {
-    if(par("TLControlMode").longValue() == TL_FMSC)
+    if(par("TLControlMode").intValue() == TL_FMSC)
     {
         par("record_intersectionQueue_stat") = true;
         par("record_intersectionDelay_stat") = true;

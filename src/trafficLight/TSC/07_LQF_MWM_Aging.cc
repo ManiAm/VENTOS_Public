@@ -38,7 +38,7 @@ TrafficLight_LQF_MWM_Aging::~TrafficLight_LQF_MWM_Aging()
 
 void TrafficLight_LQF_MWM_Aging::initialize(int stage)
 {
-    if(par("TLControlMode").longValue() == TL_LQF_MWM_Aging)
+    if(par("TLControlMode").intValue() == TL_LQF_MWM_Aging)
     {
         par("record_intersectionQueue_stat") = true;
         par("record_intersectionDelay_stat") = true;

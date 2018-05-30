@@ -54,12 +54,12 @@ void ApplVDynamicRouting::initialize(int stage)
 
     if (stage == 0)
     {
-        debugLevel = omnetpp::getSimulation()->getSystemModule()->par("debugLevel").longValue();
+        debugLevel = omnetpp::getSimulation()->getSystemModule()->par("debugLevel").intValue();
         requestInterval = par("requestInterval").doubleValue();
         hypertreeUpdateInterval = par("hypertreeUpdateInterval").doubleValue();
-        systemMsgLengthBits = par("systemMsgLengthBits").longValue();
-        systemMsgPriority = par("systemMsgPriority").longValue();
-        routingMode = static_cast<RouterMessage>(par("routingMode").longValue());
+        systemMsgLengthBits = par("systemMsgLengthBits").intValue();
+        systemMsgPriority = par("systemMsgPriority").intValue();
+        routingMode = static_cast<RouterMessage>(par("routingMode").intValue());
 
         // get the rootFilePath
         omnetpp::cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("router");

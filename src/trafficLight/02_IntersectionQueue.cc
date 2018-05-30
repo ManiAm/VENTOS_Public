@@ -55,7 +55,7 @@ void IntersectionQueue::initialize(int stage)
         if(speedThreshold_bike < 0)
             throw omnetpp::cRuntimeError("speedThreshold_bike is not set correctly!");
 
-        queueSizeLimit = par("queueSizeLimit").longValue();
+        queueSizeLimit = par("queueSizeLimit").intValue();
 
         if(queueSizeLimit <= 0 && queueSizeLimit != -1)
             throw omnetpp::cRuntimeError("queueSizeLimit value is set incorrectly!");

@@ -81,11 +81,11 @@ void ApplVPlatoonMg::initialize(int stage)
         // I am the platoon leader
         if(myPlnDepth == 0)
         {
-            maxPlnSize = par("maxPlatoonSize").longValue();
+            maxPlnSize = par("maxPlatoonSize").intValue();
             if(maxPlnSize < 1)
                 throw omnetpp::cRuntimeError("maxPlnSize is invalid in vehicle '%s'", SUMOID.c_str());
 
-            optPlnSize = par("optPlatoonSize").longValue();
+            optPlnSize = par("optPlatoonSize").intValue();
             if(optPlnSize < 1)
                 throw omnetpp::cRuntimeError("optPlnSize is invalid in vehicle '%s'", SUMOID.c_str());
         }
