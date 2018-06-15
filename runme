@@ -737,7 +737,7 @@ echo ""
 echo "Looking for previous OMNET++"
 echo "============================"
 
-targetVer="5.3"
+targetVer="5.4"
 omnetDIR="omnetpp-"$targetVer
 
 # check if we can find omnet from the path variable
