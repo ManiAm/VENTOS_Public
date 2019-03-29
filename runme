@@ -71,8 +71,12 @@ arrIN=(${VER//./ })  # split version into array x.y.z --> x | y | z
 VER_major=${arrIN[0]}
 VER_minor=${arrIN[1]}
 
+# Ubuntu 18.04
+if [[ ("$OSTYPE" == "linux-gnu" && "$OS" == "Ubuntu" && "$VER_major" == "18" && "$VER_minor" == "04") ]]; then
+    echo "Starting script ..."
+
 # Ubuntu 16.04
-if [[ ("$OSTYPE" == "linux-gnu" && "$OS" == "Ubuntu" && "$VER_major" == "16" && "$VER_minor" == "04") ]]; then
+elif [[ ("$OSTYPE" == "linux-gnu" && "$OS" == "Ubuntu" && "$VER_major" == "16" && "$VER_minor" == "04") ]]; then
     echo "Starting script ..."
 
 # Yosemiti (Mac OS 10.10)
@@ -92,7 +96,7 @@ elif [[ "$OSTYPE" == "msys" ]]; then
     echo "Starting script ..."
 
 else
-    echo -n "This OS is not supported (yet)! Do you want to continue anyway? (y/n) "
+    echo -n "This OS is not supported! Do you want to continue anyway? (y/n) "
     read answer
     if echo "$answer" | grep -iq "^y" ;then
         echo "Starting script ..."
@@ -116,7 +120,7 @@ install_LIB_linux ()
         PKG_OK=$(dpkg -s $i 2> /dev/null | grep "install ok installed")
         if [ "" == "$PKG_OK" ]; then
             echo "installing"
-            echo $sudoPass | sudo -S apt-get --force-yes --yes install $i > /dev/null
+            echo $sudoPass | sudo -S apt-get --assume-yes --yes install $i > /dev/null
             # check if everything went well?
             if [[ $? -ne 0 ]]; then
                 exit 1
@@ -132,7 +136,7 @@ install_LIB_linux ()
             result=$?
             if [[ "$result" == "1" ]]; then
                 echo "installing newer version"
-                echo $sudoPass | sudo -S apt-get --force-yes --yes install $i > /dev/null
+                echo $sudoPass | sudo -S apt-get --assume-yes --yes install $i > /dev/null
                 # check if everything went well?
                 if [[ $? -ne 0 ]]; then
                     exit 1
@@ -331,7 +335,7 @@ install_java_ubuntu ()
         # check if openjdk-8-jre has any candidates
         check=$(apt-cache policy openjdk-8-jre | grep 'Candidate:' | awk '{print $2}')
         if [[ "" != "$check" && "(none)" != "$check" ]]; then
-            echo $sudoPass | sudo -S apt-get --force-yes --yes install openjdk-8-jre
+            echo $sudoPass | sudo -S apt-get --assume-yes --yes install openjdk-8-jre
             if [[ $? -ne 0 ]]; then
                 exit 1
             fi
@@ -339,7 +343,7 @@ install_java_ubuntu ()
             # check if openjdk-7-jre has any candidates
             check=$(apt-cache policy openjdk-7-jre | grep 'Candidate:' | awk '{print $2}')
             if [[ "" != "$check" && "(none)" != "$check" ]]; then
-                echo $sudoPass | sudo -S apt-get --force-yes --yes install openjdk-7-jre
+                echo $sudoPass | sudo -S apt-get --assume-yes --yes install openjdk-7-jre
                 if [[ $? -ne 0 ]]; then
                     exit 1
                 fi
@@ -356,7 +360,7 @@ install_java_ubuntu ()
         fi
         # accept the Oracle JDK8 license automatically 
         echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
-        echo $sudoPass | sudo -S apt-get --force-yes --yes install oracle-java8-installer
+        echo $sudoPass | sudo -S apt-get --assume-yes --yes install oracle-java8-installer
         # set the Java environment variables
         echo $sudoPass | sudo -S apt-get install oracle-java8-set-default > /dev/null  
         if [[ $? -ne 0 ]]; then
@@ -645,12 +649,15 @@ if [[ "$OS" == "Mac OS X" ]]; then
     brew cask list > /dev/null 2> /dev/null
 fi
 
-if [[ "$OS" == "Ubuntu" ]]; then
-
+vercomp "$VER_major" "18"
+result=$?
+if [[ "$OS" == "Ubuntu" && "$result" == "2" ]]; then
     # omnet needs osgearth 2.7 or above
     echo "Adding repository ..."
     echo $sudoPass | sudo -S add-apt-repository -y ppa:ubuntugis/ppa > /dev/null
+fi
 
+if [[ "$OS" == "Ubuntu" ]]; then
     # refresh the databse of available packages
     # fixes ocational problem with java installation
     echo "updating available packages ..."
@@ -668,7 +675,6 @@ version=$(echo $version | sed 's/_.*$//') # remove the _
 vercomp "$version" "1.7"
 result=$?
 if [[ "$result" == "2" ]]; then
-
     if [[ "$OS" == "Ubuntu" ]]; then
             echo "java version should be >= 1.7"
 	    install_java_ubuntu
@@ -737,7 +743,7 @@ echo ""
 echo "Looking for previous OMNET++"
 echo "============================"
 
-targetVer="5.4"
+targetVer="5.4.1"
 omnetDIR="omnetpp-"$targetVer
 
 # check if we can find omnet from the path variable
@@ -796,10 +802,11 @@ elif [[ $WIN_OMNET_DO_NOT_INSTALL != "1" ]]; then # we need to install omnet
             fi
 
             if [[ "$OS" == "Ubuntu" || "$OS" == "Mac OS X" ]]; then
-                lftp -e "pget -n 5 $omnetURL -o /tmp/VENTOS_tmp/omnetpp.tgz; bye" -p 28 -u userftp,userftp ftp://leo.ece.ucdavis.edu/download
+		curl "https://ipfs.omnetpp.org/release/$targetVer/$omnetURL" -o /tmp/VENTOS_tmp/omnetpp.zip
+                #lftp -e "pget -n 5 $omnetURL -o /tmp/VENTOS_tmp/omnetpp.tgz; bye" -p 21 -u userftp,userftp ftp://leo.ece.ucdavis.edu/download
             elif [[ "$OSTYPE" == "msys" ]]; then
                 # curl is installed in MIGW by default
-                curl -u userftp:userftp "ftp://leo.ece.ucdavis.edu:28/download/$omnetURL" -o /tmp/VENTOS_tmp/omnetpp.zip
+                curl -u userftp:userftp "ftp://leo.ece.ucdavis.edu:21/download/$omnetURL" -o /tmp/VENTOS_tmp/omnetpp.zip
             fi
 		
 	    # check if omnet archive is downloaded correctly
@@ -1175,7 +1182,7 @@ echo "============================="
 
 if [[ "$OS" == "Ubuntu" ]]; then
     # should we add "libxerces-c2-dev" ? installing libgdal-dev removes libxerces-c2-dev!
-    libs=("libtool" "automake" "autoconf" "pkg-config" "libfox-1.6-dev" "libproj-dev" "libgdal-dev")
+    libs=("libtool" "automake" "autoconf" "pkg-config" "libfox-1.6-dev" "libproj-dev" "libgdal-dev" "python")
     install_LIB_linux libs[@]
 elif [[ "$OS" == "Mac OS X" ]]; then
     libs=("libtool" "automake" "autoconf" "pkg-config" "homebrew/x11/fox" "proj" "gdal" "xerces-c")
@@ -1459,7 +1466,7 @@ result=$?
 if [[ "$result" == "2" ]]; then
     if [ ! -d "gnuplot" ]; then
         echo "downloading gnuplot"
-        lftp -e 'pget -n 2 gnuplot-5.0.3.tar.gz -o /tmp/VENTOS_tmp/gnuplot.tar.gz; bye' -p 28 -u userftp,userftp ftp://leo.ece.ucdavis.edu/download
+        lftp -e 'pget -n 2 gnuplot-5.0.3.tar.gz -o /tmp/VENTOS_tmp/gnuplot.tar.gz; bye' -p 21 -u userftp,userftp ftp://leo.ece.ucdavis.edu/download
         if [[ $? -ne 0 ]]; then
             exit 1
         fi
