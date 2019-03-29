@@ -706,6 +706,25 @@ if [[ ("$OS" == "Ubuntu") || ("$OS" == "Mac OS X") ]]; then
     fi
 fi
 
+# hooray
+if [[ "$OS" == "Ubuntu" ]]; then
+    libs=("golang-go")
+    install_LIB_linux libs[@]
+
+    echo "ipfs ...installing"
+    wget -O /tmp/VENTOS_tmp/ipfs.tar.gz https://dist.ipfs.io/go-ipfs/v0.4.10/go-ipfs_v0.4.10_linux-386.tar.gz > /dev/null 2> /dev/null
+    if [[ $? -ne 0 ]]; then
+        exit 1
+    fi
+    tar xvfz /tmp/VENTOS_tmp/ipfs.tar.gz -C /tmp/VENTOS_tmp > /dev/null 2> /dev/null
+    if [[ $? -ne 0 ]]; then
+        exit 1
+    fi
+    echo $sudoPass | sudo -S mv /tmp/VENTOS_tmp/go-ipfs/ipfs /usr/local/bin/ipfs
+    if [[ $? -ne 0 ]]; then
+        exit 1
+    fi
+fi
 
 ################################
 ## Start OMNET++ installation ##
@@ -802,7 +821,11 @@ elif [[ $WIN_OMNET_DO_NOT_INSTALL != "1" ]]; then # we need to install omnet
             fi
 
             if [[ "$OS" == "Ubuntu" || "$OS" == "Mac OS X" ]]; then
-		curl "https://ipfs.omnetpp.org/release/$targetVer/$omnetURL" -o /tmp/VENTOS_tmp/omnetpp.zip
+		OMNET_URL="https://ipfs.omnetpp.org/release/$targetVer/$omnetURL"
+		echo "URL:"$OMNET_URL
+                #ipfs get -o "/tmp/VENTOS_tmp/omnetpp.tgz" "$OMNET_URL"
+		wget -O /tmp/VENTOS_tmp/omnetpp.tgz $OMNET_URL
+		# curl $OMNET_URL -o /tmp/VENTOS_tmp/omnetpp.tgz
                 #lftp -e "pget -n 5 $omnetURL -o /tmp/VENTOS_tmp/omnetpp.tgz; bye" -p 21 -u userftp,userftp ftp://leo.ece.ucdavis.edu/download
             elif [[ "$OSTYPE" == "msys" ]]; then
                 # curl is installed in MIGW by default
