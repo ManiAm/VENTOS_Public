@@ -43,6 +43,7 @@
 #include <algorithm>
 #include <functional>
 #include <thread>
+#include <signal.h>
 
 #include "traci/TraCIConnection.h"
 #include "traci/TraCIConstants.h"

@@ -43,6 +43,7 @@
 #include <algorithm>
 #include <thread>
 #include <sys/poll.h>
+#include <signal.h>
 
 #include "logging/vglog.h"
 #include "global/utility.h"
