@@ -8,8 +8,9 @@ Define_Module(ConnectionManager);
 double ConnectionManager::calcInterfDist()
 {
     double maxIntfDist = par("maxIntfDist").doubleValue();
-    if(maxIntfDist > 0)
+    if(maxIntfDist > 0) {
         return maxIntfDist;
+    }
 
 	// the minimum carrier frequency for this cell
 	double carrierFrequency = par("carrierFrequency").doubleValue();
